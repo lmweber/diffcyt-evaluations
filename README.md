@@ -1,2 +1,4 @@
 # diffcyt-analysis
-Analysis scripts for testing methods in diffcyt paper
+
+Analysis scripts for testing methods in diffcyt package
+
