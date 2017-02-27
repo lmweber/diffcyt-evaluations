@@ -3,9 +3,6 @@
 #########################################
 
 
-# run after script "load_data_BCRXL.R"
-
-
 # indices of lineage markers (for clustering) and functional markers (not used for
 # clustering); see Table 1 in Bruggner et al. (2014)
 marker_cols <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)

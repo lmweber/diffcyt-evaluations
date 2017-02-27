@@ -3,9 +3,6 @@
 ####################################
 
 
-# first script in pipeline
-
-
 library(diffcyt)
 library(flowCore)
 library(magrittr)

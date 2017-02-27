@@ -3,9 +3,6 @@
 #######################################################################################
 
 
-# run after script "clustering_BCRXL.R"
-
-
 library(limma)
 
 
@@ -21,7 +18,7 @@ as.numeric(group)
 
 
 # test for differentially abundant (DA) clusters
-f1_BCRXL <- testDA(data_BCRXL, clus_BCRXL, group)
+f1_BCRXL <- testDA(data_BCRXL, group, tbl_prop)
 
 
 # display results for top DA clusters (top 6 clusters)

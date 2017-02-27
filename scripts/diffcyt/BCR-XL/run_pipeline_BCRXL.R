@@ -3,8 +3,10 @@
 #########################################################
 
 
-source("load_data_BCRXL.R")
-source("transform_BCRXL.R")
-source("clustering_BCRXL.R")
+source("1_load_data_BCRXL.R")
+source("2_transform_BCRXL.R")
+source("3_clustering_BCRXL.R")
+source("4_frequencies_BCRXL.R")
+source("5_testDA_BCRXL.R")
 
 

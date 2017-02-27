@@ -1,1 +1,1 @@
-Run script "run_pipeline_BCRXL.R" to run the complete pipeline, i.e. all scripts in the correct order.
+Run script "run_pipeline_BCRXL.R" to run all scripts in the pipeline in the correct order.
