@@ -1,1 +1,1 @@
-Run script "run_pipeline_BCRXL.R" to run all scripts in the pipeline in the correct order.
+Run script "diffcyt_analysis_BCRXL.R" to run scripts in the correct order for analysis pipeline.
