@@ -3,18 +3,21 @@
 ###########################################################################
 
 
+library(diffcyt)
+
+
 # all steps prior to statistical tests: load data, transform, clustering, medians and frequencies
 source("1_preprocessing_BCRXL.R")
 
 
 # test for differentially abundant (DA) clusters
-source("2a_testDA_BCRXL.R")
+source("2_testDA_BCRXL.R")
 
 
 # test for differential expression of functional markers: method "diffcyt-med"
-source("2b_testDE_med_BCRXL.R")
+source("2a_testDE_med_BCRXL.R")
 
-
-# next: add scripts for methods "diffcyt-FDA" and "diffcyt-KS"
+# test for differential expression of functional markers: method "diffcyt-FDA"
+source("2b_testDE_FDA_BCRXL.R")
 
 
