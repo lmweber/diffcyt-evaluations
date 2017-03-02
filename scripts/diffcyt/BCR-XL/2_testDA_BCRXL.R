@@ -17,6 +17,7 @@ res_DA <- testDA(d_clus, group)
 # top DA clusters
 topTable(res_DA, number = 10)
 
+
 # plot top differentially abundant (DA) clusters
 plotTopDAClusters(res_DA, path = "../../../plots")
 

@@ -7,6 +7,10 @@
 library(limma)
 
 
+# re-level factor to use "Reference" as base level
+group <- factor(group_IDs, levels = c("Reference", "BCR-XL"))
+
+
 # test for differential expression of functional markers: method "diffcyt-med"
 res_DE_med <- testDE_med(d_clus, group, path = "../../../plots")
 

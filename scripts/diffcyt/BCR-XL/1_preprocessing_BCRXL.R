@@ -78,3 +78,13 @@ length(table(SummarizedExperiment::rowData(d_se)$cluster))  # number of clusters
 d_clus <- calcMediansAndFreq(d_se)
 
 
+
+###################
+# CALCULATE ECDFS #
+###################
+
+# calculate ECDFs
+d_ecdfs <- calcECDFs(d_se, resolution = 50)
+
+
+
