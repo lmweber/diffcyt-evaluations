@@ -1,6 +1,6 @@
 # diffcyt-analysis
 
-Analysis scripts to evaluate `diffcyt` methods and compare with other approaches (`Citrus`, `CellCnn`, and `cydar`), using several benchmark data sets.
+Analysis scripts to evaluate `diffcyt` methods and compare with other approaches (`Citrus`, `CellCnn`, and `cydar`) using several benchmark data sets.
 
 Development version of `diffcyt` package is available in the [diffcyt](https://github.com/lmweber/diffcyt) repository.
 
