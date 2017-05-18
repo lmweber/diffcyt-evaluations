@@ -43,10 +43,10 @@ library(flowCore)
 # Filenames
 # ---------
 
-DIR_RAW_DATA_ALL <- "../../../../benchmark_data/AML_spike_in/raw_data/all_cells/experiment_46098_files"
-DIR_RAW_DATA_BLASTS <- "../../../../benchmark_data/AML_spike_in/raw_data/CD34_CD45mid_cells/experiment_63534_files"
+DIR_RAW_DATA_ALL <- "../../../benchmark_data/AML_spike_in/raw_data/all_cells/experiment_46098_files"
+DIR_RAW_DATA_BLASTS <- "../../../benchmark_data/AML_spike_in/raw_data/CD34_CD45mid_cells/experiment_63534_files"
 
-DIR_DATA <- "../../../../benchmark_data/AML_spike_in/data"
+DIR_DATA <- "../../../benchmark_data/AML_spike_in/data"
 
 files_all <- list.files(DIR_RAW_DATA_ALL, pattern = "\\.fcs$", full.names = TRUE)
 files_healthy <- files_all[grep("H[0-9]+", files_all)]
@@ -117,14 +117,14 @@ sapply(data_healthy, dim)
 
 # SJ10: should be 80.7% of total (Levine et al. 2015, Supplemental Data S3B)
 dim(data_SJ10)
-dim(exprs(read.FCS(paste0("../../../../benchmark_data/AML_spike_in/raw_data/all_cells/experiment_46098_files/", 
+dim(exprs(read.FCS(paste0("../../../benchmark_data/AML_spike_in/raw_data/all_cells/experiment_46098_files/", 
                           "SJ11d_min3_s0.10_m10_debar1_NoDrug_Basal1_Viable_NoDrug_Basal1_SJ11d.fcs"))))
 # check
 37615 / 46601  # 80.7%
 
 # SJ4: should be 55.2% of total (Levine et al. 2015, Supplemental Data S3B)
 dim(data_SJ4)
-dim(exprs(read.FCS(paste0("../../../../benchmark_data/AML_spike_in/raw_data/all_cells/experiment_46098_files/", 
+dim(exprs(read.FCS(paste0("../../../benchmark_data/AML_spike_in/raw_data/all_cells/experiment_46098_files/", 
                           "SJ5d_min5_s0.15_m10_debar1_NoDrug_Basal1_Viable_NoDrug_Basal1_SJ5d.fcs"))))
 # check
 14520 / 26321  # 55.2%

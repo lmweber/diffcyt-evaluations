@@ -17,8 +17,8 @@
 # Select files from BCR-XL and Reference conditions, and copy to 'data' folder. No 
 # additional pre-processing required.
 
-DIR_RAW_DATA <- "../../../../benchmark_data/BCR_XL/raw_data/experiment_15713_files"
-DIR_DATA <- "../../../../benchmark_data/BCR_XL/data"
+DIR_RAW_DATA <- "../../../benchmark_data/BCR_XL/raw_data/experiment_15713_files"
+DIR_DATA <- "../../../benchmark_data/BCR_XL/data"
 
 files <- list.files(DIR_RAW_DATA, pattern = "\\.fcs$", full.names = TRUE)
 
