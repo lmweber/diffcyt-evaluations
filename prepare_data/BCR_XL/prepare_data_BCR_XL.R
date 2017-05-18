@@ -1,8 +1,8 @@
 ##########################################################################################
-# Script to prepare benchmark data set 'BCR-XL-all'
+# Script to prepare benchmark data set 'BCR-XL'
 #
-# 'BCR-XL' data set is sourced from Bodenmiller et al. (2012), and was previously used 
-# for benchmark evaluations by Bruggner et al. (2014) (Citrus paper)
+# 'BCR-XL' data set is sourced from Bodenmiller et al. (2012), and was previously used for
+# benchmark evaluations by Bruggner et al. (2014) (Citrus paper)
 #
 # Raw data downloaded from Cytobank (experiment 15713)
 # - see Citrus wiki (section "PBMC Example 1"):
@@ -17,8 +17,8 @@
 # Select files from BCR-XL and Reference conditions, and copy to 'data' folder. No 
 # additional pre-processing required.
 
-DIR_RAW_DATA <- "../../../../benchmark_data/BCR_XL_all/raw_data/experiment_15713_files"
-DIR_DATA <- "../../../../benchmark_data/BCR_XL_all/data"
+DIR_RAW_DATA <- "../../../../benchmark_data/BCR_XL/raw_data/experiment_15713_files"
+DIR_DATA <- "../../../../benchmark_data/BCR_XL/data"
 
 files <- list.files(DIR_RAW_DATA, pattern = "\\.fcs$", full.names = TRUE)
 
