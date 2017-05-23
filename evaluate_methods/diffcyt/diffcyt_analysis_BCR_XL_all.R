@@ -197,6 +197,9 @@ table(res_DE_med_sorted$adj.P.Val < 0.05)
 # unweighted
 # ----------
 
+# set seed (for permutation tests)
+set.seed(123)
+
 # test for differential expression (DE) of functional markers within clusters
 runtime_DE_FDA_unwtd <- system.time(
   res_DE_FDA_unwtd <- testDE_FDA(d_counts, d_medians, d_ecdfs, group_IDs, weighted = FALSE, 
@@ -217,6 +220,9 @@ head(res_DE_FDA_unwtd_sorted, 10)
 # --------
 # weighted
 # --------
+
+# set seed (for permutation tests)
+set.seed(123)
 
 # test for differential expression (DE) of functional markers within clusters
 runtime_DE_FDA_wtd <- system.time(
