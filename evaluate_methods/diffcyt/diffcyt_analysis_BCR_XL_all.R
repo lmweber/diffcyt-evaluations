@@ -70,7 +70,9 @@ d_se <- transformData(d_se, cofactor = 5)
 
 # generate mini-clusters
 seed <- 123
-d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
+runtime_clustering <- system.time(
+  d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
+)
 
 # check
 nrow(rowData(d_se))                   # number of cells
