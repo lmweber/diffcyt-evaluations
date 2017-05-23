@@ -260,3 +260,15 @@ table(res_DE_FDA_wtd_sorted$adj.P.Val < 0.05)
 # - runtime for each method (diffcyt-med, diffcyt-FDA-unwtd, diffcyt-FDA-wtd)
 
 
+
+
+#####################
+# Session information
+#####################
+
+sink("../../../session_info/session_info_BCR_XL_all.txt")
+sessionInfo()
+sink()
+
+
+
