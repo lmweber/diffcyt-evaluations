@@ -2,12 +2,31 @@
 # Compare results from 'diffcyt-med', 'diffcyt-FDA-unwtd', 'diffcyt-FDA-wtd'
 ##########################################################################################
 
-
-# load results from server
-load("../../../RData/res_DE_FDA_wtd.RData")
-
 # note: FlowSOM random seeds are not reproducible across operating systems! (need to run all methods on same operating system)
 
+# load results from server
+load("../../../RData/outputs_diffcyt_BCR_XL_all.RData")
+
+
+library(diffcyt)
+
+
+# minimum spanning tree (MST) plots
+
+# basic (no DA or DE test results)
+plotMST(d_se, d_counts, type = "basic", path = "../../../plots/diffcyt")
+
+# DA test results
+plotMST(d_se, d_counts, res_DA = res_DA, type = "DA", path = "../../../plots/diffcyt")
+
+# DE test results
+plotMST(d_se, d_counts, res_DE = res_DE_med, type = "DE", path = "../../../plots/diffcyt")
+plotMST(d_se, d_counts, res_DE = res_DE_FDA_unwtd, type = "DE", path = "../../../plots/diffcyt")
+plotMST(d_se, d_counts, res_DE = res_DE_FDA_wtd, type = "DE", path = "../../../plots/diffcyt")
+
+
+
+# detailed analysis
 
 rowData(res_DE_med)
 rowData(res_DE_FDA_unwtd)
