@@ -206,7 +206,7 @@ set.seed(123)
 runtime_DE_FDA_unwtd <- system.time(
   res_DE_FDA_unwtd <- testDE_FDA(d_counts, d_medians, d_ecdfs, group_IDs, weighted = FALSE, 
                                  paired = TRUE, block_IDs = patient_IDs, 
-                                 n_perm = 1000, n_cores = 24)
+                                 n_perm = 1000)#, n_cores = 24)
 )
 
 # show results
@@ -250,10 +250,10 @@ head(res_DE_FDA_wtd_sorted, 10)
 # number of significant DE cluster-marker combinations
 
 # unweighted
-table(res_DE_FDA_unwtd_sorted$adj.P.Val < 0.05)
+table(res_DE_FDA_unwtd_sorted$p_adj < 0.05)
 
 # weighted
-table(res_DE_FDA_wtd_sorted$adj.P.Val < 0.05)
+table(res_DE_FDA_wtd_sorted$p_adj < 0.05)
 
 
 # plots (for both unweighted and weighted):
