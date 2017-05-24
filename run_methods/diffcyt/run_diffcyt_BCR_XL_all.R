@@ -270,6 +270,15 @@ table(res_DE_FDA_wtd_sorted$p_adj < 0.05)
 
 
 
+##############
+# Save objects
+##############
+
+save.image("../../../RData/objects_diffcyt_BCR_XL_all.RData")
+
+
+
+
 #####################
 # Session information
 #####################
