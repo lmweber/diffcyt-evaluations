@@ -2,8 +2,12 @@
 # Compare results from 'diffcyt-med', 'diffcyt-FDA-unwtd', 'diffcyt-FDA-wtd'
 ##########################################################################################
 
+
 # load results from server
 load("../../../RData/res_DE_FDA_wtd.RData")
+
+# note: FlowSOM random seeds are not reproducible across operating systems! (need to run all methods on same operating system)
+
 
 rowData(res_DE_med)
 rowData(res_DE_FDA_unwtd)
@@ -91,9 +95,6 @@ table(p_adj_med < 0.01, p_adj_FDA_wtd < 0.05)  # assuming 'diffcyt-med' has poor
 table(p_adj_FDA_unwtd < 0.05, p_adj_FDA_wtd < 0.05)
 
 table(p_adj_FDA_unwtd == 0, p_adj_FDA_wtd == 0)  # most highly significant
-
-
-# results from each method are quite different
 
 
 
