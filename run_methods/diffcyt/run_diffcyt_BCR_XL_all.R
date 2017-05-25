@@ -305,18 +305,18 @@ head(res_DE_KS_paired_sorted, 10)
 
 # test for differential expression (DE) of functional markers within clusters
 runtime_DE_KS_unpaired <- system.time(
-  runtime_DE_KS_unpaired <- testDE_KS(d_counts, d_medians, d_vals, group_IDs, 
-                                      n_perm = 1000, n_cores = 10)
+  res_DE_KS_unpaired <- testDE_KS(d_counts, d_medians, d_vals, group_IDs, 
+                                  n_perm = 1000, n_cores = 10)
 )
 
 # show results
-rowData(runtime_DE_KS_unpaired)
+rowData(res_DE_KS_unpaired)
 
 # sort to show top (most highly significant) cluster-marker combinations first
-runtime_DE_KS_unpaired_sorted <- rowData(runtime_DE_KS_unpaired)[order(rowData(runtime_DE_KS_unpaired)$p_adj), ]
+res_DE_KS_unpaired_sorted <- rowData(res_DE_KS_unpaired)[order(rowData(res_DE_KS_unpaired)$p_adj), ]
 
-head(runtime_DE_KS_unpaired_sorted, 10)
-#View(runtime_DE_KS_unpaired_sorted)
+head(res_DE_KS_unpaired_sorted, 10)
+#View(res_DE_KS_unpaired_sorted)
 
 
 # --------
