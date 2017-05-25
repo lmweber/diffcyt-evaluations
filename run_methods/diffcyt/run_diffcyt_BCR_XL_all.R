@@ -96,6 +96,10 @@ dim(d_medians)
 d_ecdfs <- calcECDFs(d_se)
 dim(d_ecdfs)
 
+# subset marker expresison values
+d_vals <- subsetVals(d_se)
+dim(d_vals)
+
 
 # --------------------------
 # block IDs for paired tests
@@ -206,7 +210,7 @@ set.seed(123)
 runtime_DE_FDA_unwtd <- system.time(
   res_DE_FDA_unwtd <- testDE_FDA(d_counts, d_medians, d_ecdfs, group_IDs, weighted = FALSE, 
                                  paired = TRUE, block_IDs = patient_IDs, 
-                                 n_perm = 1000)#, n_cores = 24)
+                                 n_perm = 1000, n_cores = 24)
 )
 
 # show results
@@ -266,6 +270,65 @@ table(res_DE_FDA_wtd_sorted$p_adj < 0.05)
 # additional plots:
 # - heatmap of correlation matrix between unweighted and weighted
 # - runtime for each method (diffcyt-med, diffcyt-FDA-unwtd, diffcyt-FDA-wtd)
+
+
+
+
+#############################################################################
+# Test for differential expression (DE) of functional markers within clusters
+# (method 'diffcyt-KS')
+#############################################################################
+
+# ------
+# paired
+# ------
+
+# test for differential expression (DE) of functional markers within clusters
+runtime_DE_KS_paired <- system.time(
+  res_DE_KS_paired <- testDE_KS(d_counts, d_medians, d_vals, group_IDs, 
+                                paired = TRUE, block_IDs = patient_IDs)
+)
+
+# show results
+rowData(res_DE_KS_paired)
+
+# sort to show top (most highly significant) cluster-marker combinations first
+res_DE_KS_paired_sorted <- rowData(res_DE_KS_paired)[order(rowData(res_DE_KS_paired)$p_adj), ]
+
+head(res_DE_KS_paired_sorted, 10)
+#View(res_DE_KS_paired_sorted)
+
+
+# --------
+# unpaired
+# --------
+
+# test for differential expression (DE) of functional markers within clusters
+runtime_DE_KS_unpaired <- system.time(
+  runtime_DE_KS_unpaired <- testDE_KS(d_counts, d_medians, d_vals, group_IDs, n_cores = 24)
+)
+
+# show results
+rowData(runtime_DE_KS_unpaired)
+
+# sort to show top (most highly significant) cluster-marker combinations first
+runtime_DE_KS_unpaired_sorted <- rowData(runtime_DE_KS_unpaired)[order(rowData(runtime_DE_KS_unpaired)$p_adj), ]
+
+head(runtime_DE_KS_unpaired_sorted, 10)
+#View(runtime_DE_KS_unpaired_sorted)
+
+
+# --------
+# analysis
+# --------
+
+# number of significant DE cluster-marker combinations
+
+# paired
+table(res_DE_KS_paired_sorted$p_adj < 0.05)
+
+# unpaired
+table(res_DE_KS_unpaired_sorted$p_adj < 0.05)
 
 
 
