@@ -210,7 +210,7 @@ set.seed(123)
 runtime_DE_FDA_unwtd <- system.time(
   res_DE_FDA_unwtd <- testDE_FDA(d_counts, d_medians, d_ecdfs, group_IDs, weighted = FALSE, 
                                  paired = TRUE, block_IDs = patient_IDs, 
-                                 n_perm = 1000, n_cores = 24)
+                                 n_perm = 1000, n_cores = 10)
 )
 
 # show results
@@ -234,7 +234,7 @@ set.seed(123)
 runtime_DE_FDA_wtd <- system.time(
   res_DE_FDA_wtd <- testDE_FDA(d_counts, d_medians, d_ecdfs, group_IDs, weighted = TRUE, 
                                paired = TRUE, block_IDs = patient_IDs, 
-                               n_perm = 1000, n_cores = 24)
+                               n_perm = 1000, n_cores = 10)
 )
 
 # show results
@@ -305,7 +305,8 @@ head(res_DE_KS_paired_sorted, 10)
 
 # test for differential expression (DE) of functional markers within clusters
 runtime_DE_KS_unpaired <- system.time(
-  runtime_DE_KS_unpaired <- testDE_KS(d_counts, d_medians, d_vals, group_IDs, n_cores = 24)
+  runtime_DE_KS_unpaired <- testDE_KS(d_counts, d_medians, d_vals, group_IDs, 
+                                      n_perm = 1000, n_cores = 10)
 )
 
 # show results
