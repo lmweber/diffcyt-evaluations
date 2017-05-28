@@ -447,8 +447,10 @@ for (th in 1:length(thresholds)) {
   #############################################################################
   
   # test separately for each condition: CN vs. healthy, CBF vs. healthy
-  out_DE_LM <- out_DE_LM_sorted <- vector("list", length(cond_names))
-  names(out_DE_LM) <- names(out_DE_LM_sorted) <- cond_names
+  out_DE_LM_paired <- out_DE_LM_paired_sorted <- vector("list", length(cond_names))
+  out_DE_LM_unpaired <- out_DE_LM_unpaired_sorted <- vector("list", length(cond_names))
+  names(out_DE_LM_paired) <- names(out_DE_LM_paired_sorted) <- cond_names
+  names(out_DE_LM_unpaired) <- names(out_DE_LM_unpaired_sorted) <- cond_names
   
   for (i in 1:length(cond_names)) {
     
@@ -464,20 +466,43 @@ for (th in 1:length(thresholds)) {
     d_vals_sub <- d_vals[, cond[i, ]]
     
     
+    # ------
+    # paired
+    # ------
+    
     # test for differential expression (DE) of functional markers within clusters
-    runtime_DE_LM <- system.time(
-      res_DE_LM <- testDE_LM(d_counts_sub, d_medians_sub, d_ecdfs_sub, group_IDs_sub, 
-                             paired = TRUE, block_IDs = block_IDs_sub)
+    runtime_DE_LM_paired <- system.time(
+      res_DE_LM_paired <- testDE_LM(d_counts_sub, d_medians_sub, d_ecdfs_sub, group_IDs_sub, 
+                                    paired = TRUE, block_IDs = block_IDs_sub)
     )
     
     # show results
-    rowData(res_DE_LM)
+    rowData(res_DE_LM_paired)
     
     # sort to show top (most highly significant) cluster-marker combinations first
-    res_DE_LM_sorted <- rowData(res_DE_LM)[order(rowData(res_DE_LM)$p_adj), ]
+    res_DE_LM_paired_sorted <- rowData(res_DE_LM_paired)[order(rowData(res_DE_LM_paired)$p_adj), ]
     
-    head(res_DE_LM_sorted, 10)
-    #View(res_DE_LM_sorted)
+    head(res_DE_LM_paired_sorted, 10)
+    #View(res_DE_LM_paired_sorted)
+    
+    
+    # --------
+    # unpaired
+    # --------
+    
+    # test for differential expression (DE) of functional markers within clusters
+    runtime_DE_LM_unpaired <- system.time(
+      res_DE_LM_unpaired <- testDE_LM(d_counts_sub, d_medians_sub, d_ecdfs_sub, group_IDs_sub)
+    )
+    
+    # show results
+    rowData(res_DE_LM_unpaired)
+    
+    # sort to show top (most highly significant) cluster-marker combinations first
+    res_DE_LM_unpaired_sorted <- rowData(res_DE_LM_unpaired)[order(rowData(res_DE_LM_unpaired)$p_adj), ]
+    
+    head(res_DE_LM_unpaired_sorted, 10)
+    #View(res_DE_LM_unpaired_sorted)
     
     
     # --------
@@ -485,11 +510,18 @@ for (th in 1:length(thresholds)) {
     # --------
     
     # number of significant DE cluster-marker combinations
-    print(table(res_DE_LM_sorted$p_adj < 0.05))
+    
+    # paired
+    print(table(res_DE_LM_paired_sorted$p_adj < 0.05))
+    
+    # unpaired
+    print(table(res_DE_LM_unpaired_sorted$p_adj < 0.05))
     
     # save output objects
-    out_DE_LM[[i]] <- res_DE_LM
-    out_DE_LM_sorted[[i]] <- res_DE_LM_sorted
+    out_DE_LM_paired[[i]] <- res_DE_LM_paired
+    out_DE_LM_paired_sorted[[i]] <- res_DE_LM_paired_sorted
+    out_DE_LM_unpaired[[i]] <- res_DE_LM_unpaired
+    out_DE_LM_unpaired_sorted[[i]] <- res_DE_LM_unpaired_sorted
   }
 }
 

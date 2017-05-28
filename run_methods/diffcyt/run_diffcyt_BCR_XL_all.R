@@ -339,20 +339,43 @@ table(res_DE_KS_unpaired_sorted$p_adj < 0.05)
 # (method 'diffcyt-LM')
 #############################################################################
 
+# ------
+# paired
+# ------
+
 # test for differential expression (DE) of functional markers within clusters
-runtime_DE_LM <- system.time(
-  res_DE_LM <- testDE_LM(d_counts, d_medians, d_ecdfs, group_IDs, 
-                         paired = TRUE, block_IDs = patient_IDs)
+runtime_DE_LM_paired <- system.time(
+  res_DE_LM_paired <- testDE_LM(d_counts, d_medians, d_ecdfs, group_IDs, 
+                                paired = TRUE, block_IDs = patient_IDs)
 )
 
 # show results
-rowData(res_DE_LM)
+rowData(res_DE_LM_paired)
 
 # sort to show top (most highly significant) cluster-marker combinations first
-res_DE_LM_sorted <- rowData(res_DE_LM)[order(rowData(res_DE_LM)$p_adj), ]
+res_DE_LM_paired_sorted <- rowData(res_DE_LM_paired)[order(rowData(res_DE_LM_paired)$p_adj), ]
 
-head(res_DE_LM_sorted, 10)
-#View(res_DE_LM_sorted)
+head(res_DE_LM_paired_sorted, 10)
+#View(res_DE_LM_paired_sorted)
+
+
+# --------
+# unpaired
+# --------
+
+# test for differential expression (DE) of functional markers within clusters
+runtime_DE_LM_unpaired <- system.time(
+  res_DE_LM_unpaired <- testDE_LM(d_counts, d_medians, d_ecdfs, group_IDs)
+)
+
+# show results
+rowData(res_DE_LM_unpaired)
+
+# sort to show top (most highly significant) cluster-marker combinations first
+res_DE_LM_unpaired_sorted <- rowData(res_DE_LM_unpaired)[order(rowData(res_DE_LM_unpaired)$p_adj), ]
+
+head(res_DE_LM_unpaired_sorted, 10)
+#View(res_DE_LM_unpaired_sorted)
 
 
 # --------
@@ -360,7 +383,12 @@ head(res_DE_LM_sorted, 10)
 # --------
 
 # number of significant DE cluster-marker combinations
-table(res_DE_LM_sorted$p_adj < 0.05)
+
+# paired
+table(res_DE_LM_paired_sorted$p_adj < 0.05)
+
+# unpaired
+table(res_DE_LM_unpaired_sorted$p_adj < 0.05)
 
 
 
