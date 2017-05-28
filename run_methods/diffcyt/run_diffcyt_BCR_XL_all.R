@@ -125,7 +125,7 @@ patient_IDs
 # test for differentially abundant (DA) clusters
 runtime_DA <- system.time(
   res_DA <- testDA(d_counts, group_IDs, paired = TRUE, block_IDs = patient_IDs, 
-                   plot = TRUE, path = "../../../plots/diffcyt")
+                   plot = TRUE, path = "../../../plots/diffcyt/BCR_XL/DA")
 )
 
 # show results
@@ -163,7 +163,7 @@ table(res_DA_sorted$adj.P.Val < 0.05)
 # test for differential expression (DE) of functional markers within clusters
 runtime_DE_med <- system.time(
   res_DE_med <- testDE_med(d_counts, d_medians, group_IDs, paired = TRUE, block_IDs = patient_IDs, 
-                           plot = TRUE, path = "../../../plots/diffcyt")
+                           plot = TRUE, path = "../../../plots/diffcyt/BCR_XL/DE_med")
 )
 
 # show results
@@ -210,7 +210,7 @@ set.seed(123)
 runtime_DE_FDA_unwtd <- system.time(
   res_DE_FDA_unwtd <- testDE_FDA(d_counts, d_medians, d_ecdfs, group_IDs, weighted = FALSE, 
                                  paired = TRUE, block_IDs = patient_IDs, 
-                                 n_perm = 1000, n_cores = 10)
+                                 n_perm = 1000, n_cores = 6)
 )
 
 # show results
@@ -234,7 +234,7 @@ set.seed(123)
 runtime_DE_FDA_wtd <- system.time(
   res_DE_FDA_wtd <- testDE_FDA(d_counts, d_medians, d_ecdfs, group_IDs, weighted = TRUE, 
                                paired = TRUE, block_IDs = patient_IDs, 
-                               n_perm = 1000, n_cores = 10)
+                               n_perm = 1000, n_cores = 6)
 )
 
 # show results
@@ -306,7 +306,7 @@ head(res_DE_KS_paired_sorted, 10)
 # test for differential expression (DE) of functional markers within clusters
 runtime_DE_KS_unpaired <- system.time(
   res_DE_KS_unpaired <- testDE_KS(d_counts, d_medians, d_vals, group_IDs, 
-                                  n_perm = 1000, n_cores = 10)
+                                  n_perm = 1000, n_cores = 6)
 )
 
 # show results
