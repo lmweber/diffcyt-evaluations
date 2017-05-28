@@ -334,6 +334,37 @@ table(res_DE_KS_unpaired_sorted$p_adj < 0.05)
 
 
 
+#############################################################################
+# Test for differential expression (DE) of functional markers within clusters
+# (method 'diffcyt-LM')
+#############################################################################
+
+# test for differential expression (DE) of functional markers within clusters
+runtime_DE_LM <- system.time(
+  res_DE_LM <- testDE_LM(d_counts, d_medians, d_ecdfs, group_IDs, 
+                         paired = TRUE, block_IDs = patient_IDs)
+)
+
+# show results
+rowData(res_DE_LM)
+
+# sort to show top (most highly significant) cluster-marker combinations first
+res_DE_LM_sorted <- rowData(res_DE_LM)[order(rowData(res_DE_LM)$p_adj), ]
+
+head(res_DE_LM_sorted, 10)
+#View(res_DE_LM_sorted)
+
+
+# --------
+# analysis
+# --------
+
+# number of significant DE cluster-marker combinations
+table(res_DE_LM_sorted$p_adj < 0.05)
+
+
+
+
 #####################
 # Save output objects
 #####################
