@@ -157,7 +157,7 @@ for (th in 1:length(thresholds)) {
   
   # test separately for each condition: CN vs. healthy, CBF vs. healthy
   out_DA <- out_DA_sorted <- vector("list", length(cond_names))
-  names(out_DA) <- out_DA_sorted <- cond_names
+  names(out_DA) <- names(out_DA_sorted) <- cond_names
   
   for (i in 1:length(cond_names)) {
     
@@ -212,7 +212,7 @@ for (th in 1:length(thresholds)) {
   
   # test separately for each condition: CN vs. healthy, CBF vs. healthy
   out_DE_med <- out_DE_med_sorted <- vector("list", length(cond_names))
-  names(out_DE_med) <- out_DE_med_sorted <- cond_names
+  names(out_DE_med) <- names(out_DE_med_sorted) <- cond_names
   
   for (i in 1:length(cond_names)) {
     
@@ -267,8 +267,8 @@ for (th in 1:length(thresholds)) {
   # test separately for each condition: CN vs. healthy, CBF vs. healthy
   out_DE_FDA_unwtd <- out_DE_FDA_unwtd_sorted <- vector("list", length(cond_names))
   out_DE_FDA_wtd <- out_DE_FDA_wtd_sorted <- vector("list", length(cond_names))
-  names(out_DE_FDA_unwtd) <- out_DE_FDA_unwtd_sorted <- cond_names
-  names(out_DE_FDA_wtd) <- out_DE_FDA_wtd_sorted <- cond_names
+  names(out_DE_FDA_unwtd) <- names(out_DE_FDA_unwtd_sorted) <- cond_names
+  names(out_DE_FDA_wtd) <- names(out_DE_FDA_wtd_sorted) <- cond_names
   
   for (i in 1:length(cond_names)) {
     
@@ -362,8 +362,8 @@ for (th in 1:length(thresholds)) {
   # test separately for each condition: CN vs. healthy, CBF vs. healthy
   out_DE_KS_paired <- out_DE_KS_paired_sorted <- vector("list", length(cond_names))
   out_DE_KS_unpaired <- out_DE_KS_unpaired_sorted <- vector("list", length(cond_names))
-  names(out_DE_KS_paired) <- out_DE_KS_paired_sorted <- cond_names
-  names(out_DE_KS_unpaired) <- out_DE_KS_unpaired_sorted <- cond_names
+  names(out_DE_KS_paired) <- names(out_DE_KS_paired_sorted) <- cond_names
+  names(out_DE_KS_unpaired) <- names(out_DE_KS_unpaired_sorted) <- cond_names
   
   for (i in 1:length(cond_names)) {
     
@@ -448,7 +448,7 @@ for (th in 1:length(thresholds)) {
   
   # test separately for each condition: CN vs. healthy, CBF vs. healthy
   out_DE_LM <- out_DE_LM_sorted <- vector("list", length(cond_names))
-  names(out_DE_LM) <- out_DE_LM_sorted <- cond_names
+  names(out_DE_LM) <- names(out_DE_LM_sorted) <- cond_names
   
   for (i in 1:length(cond_names)) {
     
