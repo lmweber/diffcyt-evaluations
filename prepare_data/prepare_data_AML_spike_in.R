@@ -131,33 +131,23 @@ dim(exprs(read.FCS(paste0("../../../benchmark_data/AML_spike_in/raw_data/all_cel
 
 
 
-# -------------------------------------------
-# Up/downsample and create spike-in data sets
-# -------------------------------------------
+# -------------------------
+# Create spike-in data sets
+# -------------------------
 
-# Healthy samples (H1-H5) are upsampled 10x to create simulated data sets with enough
-# cells to allow rare populations to be spiked in at various thresholds. For the smallest
-# data set (H1) with the lowest threshold (0.01%), this gives ~16 spike-in cells.
+# Healthy samples (H1-H5) are used without any modifications
 
-n <- 10
-
-set.seed(100)
-
-data_healthy_up <- lapply(data_healthy, function(d) {
-  d[sample(1:nrow(d), n * nrow(d), replace = TRUE), ]
-})
-
-# save as new .fcs files
-for (i in 1:length(data_healthy_up)) {
-  data_i <- data_healthy_up[[i]]
-  nm_i <- names(data_healthy_up)[i]
+# save .fcs files
+for (i in 1:length(data_healthy)) {
+  data_i <- data_healthy[[i]]
+  nm_i <- names(data_healthy)[i]
   filename <- file.path(DIR_DATA, "healthy", paste0("AML_spike_in_healthy_", nm_i, ".fcs"))
   write.FCS(flowFrame(data_i), filename)
 }
 
 
 # Blast cells are subsampled at various thresholds (1%, 0.1%, 0.01%) of the number of 
-# healthy cells for each sample, and combined with the healthy cells to create the
+# healthy cells for each sample, and combined with the healthy cells to create the 
 # spike-in data sets.
 
 thresholds <- c(0.01, 0.001, 0.0001)  # 1%, 0.1%, 0.01%
@@ -170,9 +160,9 @@ cnd <- "CN"
 
 set.seed(101)
 
-for (i in 1:length(data_healthy_up)) {
-  data_i <- data_healthy_up[[i]]
-  nm_i <- names(data_healthy_up)[i]
+for (i in 1:length(data_healthy)) {
+  data_i <- data_healthy[[i]]
+  nm_i <- names(data_healthy)[i]
   
   for (th in thresholds) {
     n_spikein <- ceiling(th * nrow(data_i))
@@ -195,9 +185,9 @@ cnd <- "CBF"
 
 set.seed(102)
 
-for (i in 1:length(data_healthy_up)) {
-  data_i <- data_healthy_up[[i]]
-  nm_i <- names(data_healthy_up)[i]
+for (i in 1:length(data_healthy)) {
+  data_i <- data_healthy[[i]]
+  nm_i <- names(data_healthy)[i]
   
   for (th in thresholds) {
     n_spikein <- ceiling(th * nrow(data_i))
