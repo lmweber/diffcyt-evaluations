@@ -1,11 +1,21 @@
 ##########################################################################################
-# Compare results from 'diffcyt-med', 'diffcyt-FDA-unwtd', 'diffcyt-FDA-wtd'
+# Analysis and plots: compare results from different methods for data set 'BCR-XL-all'
 ##########################################################################################
 
-# note: FlowSOM random seeds are not reproducible across operating systems! (need to run all methods on same operating system)
+
+# currently: diffcyt methods only
+
+
+# possibly also add 'diffcyt-FDA': unpaired (both weighted and unweighted)
+
+
+# note: FlowSOM random seeds are not reproducible across operating systems, so need to run
+# all methods on the same operating system
+
 
 # load results from server
 load("../../../RData/outputs_diffcyt_BCR_XL_all.RData")
+
 
 
 library(diffcyt)
@@ -14,15 +24,20 @@ library(diffcyt)
 # minimum spanning tree (MST) plots
 
 # basic (no DA or DE test results)
-plotMST(d_se, d_counts, type = "basic", path = "../../../plots/diffcyt")
+plotMST(d_se, d_counts, type = "basic", path = "../../../plots/diffcyt/BCR_XL/DA")
 
 # DA test results
-plotMST(d_se, d_counts, res_DA = res_DA, type = "DA", path = "../../../plots/diffcyt")
+plotMST(d_se, d_counts, res_DA = res_DA, type = "DA", path = "../../../plots/diffcyt/BCR_XL/DA")
 
 # DE test results
-plotMST(d_se, d_counts, res_DE = res_DE_med, type = "DE", path = "../../../plots/diffcyt")
-plotMST(d_se, d_counts, res_DE = res_DE_FDA_unwtd, type = "DE", path = "../../../plots/diffcyt")
-plotMST(d_se, d_counts, res_DE = res_DE_FDA_wtd, type = "DE", path = "../../../plots/diffcyt")
+plotMST(d_se, d_counts, res_DE = res_DE_med, type = "DE", path = "../../../plots/diffcyt/BCR_XL/DE_med")
+plotMST(d_se, d_counts, res_DE = res_DE_FDA_unwtd, type = "DE", path = "../../../plots/diffcyt/BCR_XL/DE_FDA_unwtd")
+plotMST(d_se, d_counts, res_DE = res_DE_FDA_wtd, type = "DE", path = "../../../plots/diffcyt/BCR_XL/DE_FDA_wtd")
+plotMST(d_se, d_counts, res_DE = res_DE_KS_unpaired, type = "DE", path = "../../../plots/diffcyt/BCR_XL/DE_KS_unpaired")
+plotMST(d_se, d_counts, res_DE = res_DE_KS_paired, type = "DE", path = "../../../plots/diffcyt/BCR_XL/DE_KS_paired")
+plotMST(d_se, d_counts, res_DE = res_DE_LM_unpaired, type = "DE", path = "../../../plots/diffcyt/BCR_XL/DE_LM_unpaired")
+plotMST(d_se, d_counts, res_DE = res_DE_LM_paired, type = "DE", path = "../../../plots/diffcyt/BCR_XL/DE_LM_paired")
+
 
 
 
@@ -31,6 +46,7 @@ plotMST(d_se, d_counts, res_DE = res_DE_FDA_wtd, type = "DE", path = "../../../p
 rowData(res_DE_med)
 rowData(res_DE_FDA_unwtd)
 rowData(res_DE_FDA_wtd)
+rowData(res_DE_LM)
 
 sum(is.na(rowData(res_DE_FDA_unwtd)$p_adj))
 sum(is.na(rowData(res_DE_FDA_wtd)$p_adj))
