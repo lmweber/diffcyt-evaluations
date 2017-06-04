@@ -1,12 +1,12 @@
 ##########################################################################################
 # Script to prepare benchmark data set 'AML-spike-in'
 #
-# The 'AML-spike-in' data set is constructed by 'spiking in' (computationally, i.e. in 
-# silico) small percentages of AML (acute myeloid leukemia) blast cells into samples of 
-# healthy BMMCs (bone marrow mononuclear cells). This simulates the phenotype of minimal 
-# residual disease (MRD) in AML patients. Raw data is sourced from Levine et al. (2015) 
-# (PhenoGraph paper). A similar strategy was used by Arvaniti et al. (2017) (CellCnn 
-# paper) to generate one of their benchmark data sets, although using different settings.
+# The 'AML-spike-in' data set is constructed by computationally 'spiking in' small
+# percentages of AML (acute myeloid leukemia) blast cells into samples of healthy BMMCs
+# (bone marrow mononuclear cells). This simulates the phenotype of minimal residual
+# disease (MRD) in AML patients. Raw data is sourced from Levine et al. (2015) (PhenoGraph
+# paper). A similar strategy was used by Arvaniti et al. (2017) (CellCnn paper) to
+# generate one of their benchmark data sets, although using different settings.
 #
 # Raw data downloaded from Cytobank:
 # - all cells (also contains gating scheme for CD34+ CD45 mid cells, i.e. blasts):
@@ -31,7 +31,7 @@
 # in the downloaded .tsv files 'experiment_46098_annotations.tsv' and
 # 'experiment_63534_annotations.tsv'.
 #
-# Lukas Weber, May 2017
+# Lukas Weber, June 2017
 ##########################################################################################
 
 
@@ -53,7 +53,7 @@ files_healthy <- files_all[grep("H[0-9]+", files_all)]
 
 files_blasts <- list.files(DIR_RAW_DATA_BLASTS, pattern = "\\.fcs$", full.names = TRUE)
 
-# to match shuffled sample names
+# metadata spreadsheets to match shuffled sample names
 file_match_samples_all <- file.path(DIR_RAW_DATA_ALL, "experiment_46098_annotations.tsv")
 file_match_samples_blasts <- file.path(DIR_RAW_DATA_BLASTS, "experiment_63534_annotations.tsv")
 
@@ -166,11 +166,15 @@ for (i in 1:length(data_healthy)) {
   
   for (th in thresholds) {
     n_spikein <- ceiling(th * nrow(data_i))
+    is_spikein <- c(rep(0, nrow(data_i)), rep(1, n_spikein))
+    
     cat("n =", n_spikein, "\n")
     
     # subsample blasts
     spikein_i <- data_blasts[sample(1:nrow(data_blasts), n_spikein), ]
+    
     data_out_i <- rbind(data_i, spikein_i)
+    data_out_i <- cbind(data_out_i, spikein = is_spikein)
     
     filename <- file.path(DIR_DATA, cnd, paste0("AML_spike_in_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
     write.FCS(flowFrame(data_out_i), filename)
@@ -191,11 +195,15 @@ for (i in 1:length(data_healthy)) {
   
   for (th in thresholds) {
     n_spikein <- ceiling(th * nrow(data_i))
+    is_spikein <- c(rep(0, nrow(data_i)), rep(1, n_spikein))
+    
     cat("n =", n_spikein, "\n")
     
     # subsample blasts
     spikein_i <- data_blasts[sample(1:nrow(data_blasts), n_spikein), ]
+    
     data_out_i <- rbind(data_i, spikein_i)
+    data_out_i <- cbind(data_out_i, spikein = is_spikein)
     
     filename <- file.path(DIR_DATA, cnd, paste0("AML_spike_in_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
     write.FCS(flowFrame(data_out_i), filename)
