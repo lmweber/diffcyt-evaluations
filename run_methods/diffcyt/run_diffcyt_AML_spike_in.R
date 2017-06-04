@@ -123,10 +123,10 @@ for (th in 1:length(thresholds)) {
   # generate mini-clusters
   seed <- 123
   runtime_clustering <- system.time(
-    d_se <- generateClusters(d_se, xdim = 40, ydim = 40, seed = seed)
+    d_se <- generateClusters(d_se, xdim = 30, ydim = 30, seed = seed)
   )
   
-  runtime_clustering  # ~300 seconds with 1600 clusters
+  runtime_clustering  # ~300 sec (40x40 clusters); 170 sec (30x30 clusters); 75 sec (20x20 clusters)
   
   # check
   nrow(rowData(d_se))                   # number of cells
