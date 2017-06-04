@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run 'diffcyt' methods for data set 'AML-spike-in'
 #
-# Lukas Weber, May 2017
+# Lukas Weber, June 2017
 ##########################################################################################
 
 
@@ -17,6 +17,15 @@ library(SummarizedExperiment)
 
 # spike-in thresholds (as specified in filenames)
 thresholds <- c("1pc", "0.1pc", "0.01pc")
+
+
+# lists for clustering performance results
+clustering_pr <- clustering_re <- clustering_F1 <- vector("list", length(thresholds))
+names(clustering_pr) <- names(clustering_re) <- names(clustering_F1) <- thresholds
+
+# lists for DA test results
+out_DA <- out_DA_sorted <- vector("list", length(thresholds))
+names(out_DA) <- names(out_DA_sorted) <- thresholds
 
 
 
@@ -53,24 +62,41 @@ for (th in 1:length(thresholds)) {
   group_IDs <- gsub("_.*$", "", sample_IDs)
   group_IDs
   
-  block_IDs <- gsub("^.*_", "", sample_IDs)
-  block_IDs
-  
-  # check all match correctly
-  sample_IDs
-  group_IDs
-  block_IDs
-  
   # set group reference level
   group_IDs <- factor(group_IDs, levels = c("healthy", "CN", "CBF"))
   group_IDs
   
+  # check all match correctly
+  data.frame(sample_IDs, group_IDs)
+  
   # indices of all marker columns, lineage markers, and functional markers
-  # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental
+  # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental 
   # Information, p. 4)
   cols_markers <- 11:41
   cols_lineage <- c(35, 29, 14, 30, 12, 26, 17, 33, 41, 32, 22, 40, 27, 37, 23, 39)
   cols_func <- setdiff(cols_markers, cols_lineage)
+  
+  
+  # ------------------------------------------------------
+  # remove spike-in indicator columns and store separately
+  # ------------------------------------------------------
+  
+  # 'AML-spike-in' data set include indicator columns for spike-in cells in conditions
+  # 'CN' and 'CBF'; these need to be removed and stored separately
+  non_healthy <- which(group_IDs %in% c("CN", "CBF"))
+  is_spikein <- vector("list", length(non_healthy))
+  names(is_spikein) <- sample_IDs[non_healthy]
+  
+  for (i in 1:length(non_healthy)) {
+    is_spikein[[i]] <- exprs(d_input[[non_healthy[i]]])[, "spikein"]
+    exprs_i <- exprs(d_input[[non_healthy[i]]])
+    exprs(d_input[[non_healthy[i]]]) <- exprs_i[, -ncol(exprs_i)]
+  }
+  
+  
+  # ------------
+  # prepare data
+  # ------------
   
   # prepare data into required format
   # (note: using lineage markers for clustering, and functional markers for DE testing)
@@ -97,8 +123,10 @@ for (th in 1:length(thresholds)) {
   # generate mini-clusters
   seed <- 123
   runtime_clustering <- system.time(
-    d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
+    d_se <- generateClusters(d_se, xdim = 40, ydim = 40, seed = seed)
   )
+  
+  runtime_clustering  # ~300 seconds with 1600 clusters
   
   # check
   nrow(rowData(d_se))                   # number of cells
@@ -106,9 +134,9 @@ for (th in 1:length(thresholds)) {
   length(table(rowData(d_se)$cluster))  # number of clusters
   
   
-  # ---------------------------------------------
-  # calculate cluster cell counts, medians, ECDFs
-  # ---------------------------------------------
+  # -----------------------------
+  # calculate cluster cell counts
+  # -----------------------------
   
   # calculate cluster cell counts
   d_counts <- calcCounts(d_se)
@@ -118,22 +146,13 @@ for (th in 1:length(thresholds)) {
   d_medians <- calcMedians(d_se)
   dim(d_medians)
   
-  # calculate ECDFs
-  d_ecdfs <- calcECDFs(d_se)
-  dim(d_ecdfs)
-  
-  # subset marker expresison values
-  d_vals <- subsetVals(d_se)
-  dim(d_vals)
   
   
+  ########################
+  # Contrasts / conditions
+  ########################
   
-  
-  ###########
-  # Contrasts
-  ###########
-  
-  # currently not using contrasts; set up matrix of conditions instead (to subset objects)
+  # currently not using formal contrasts; set up matrix of conditions instead
   
   cond_names <- c("CNvsH", "CBFvsH")
   
@@ -145,9 +164,82 @@ for (th in 1:length(thresholds)) {
     cond[i, ] <- group_IDs %in% levels(group_IDs)[c(1, i + 1)]
   }
   
+  # cond <- rbind(cond, nonH = xor(cond[1, ], cond[2, ]))
+  
   # check
   cond
   
+  
+  
+  #####################################################
+  # Evaluate clustering performance for spiked-in cells
+  #####################################################
+  
+  # number of spiked-in cells per sample
+  n_spikein_tbl <- sapply(is_spikein, table)
+  n_spikein_tbl
+  
+  n_healthy <- sapply(d_input, nrow)[group_IDs == "healthy"]
+  n_healthy
+  
+  spikein_rep <- c(rep(0, sum(n_healthy)), 
+                    unlist(apply(n_spikein_tbl, 2, function(col) rep(c(0, 1), col))))
+  names(spikein_rep) <- NULL
+  
+  group_IDs_rep <- rep(group_IDs, c(n_healthy, colSums(n_spikein_tbl)))
+  
+  # store additional information (group IDs, spike-in status) in 'rowData' of 'd_se'
+  rowData(d_se) <- cbind(rowData(d_se), 
+                         data.frame(spikein = spikein_rep), 
+                         data.frame(group_IDs = group_IDs_rep))
+  
+  
+  # loop over conditions
+  th_pr <- th_re <- th_F1 <- vector("list", length(cond_names))
+  names(th_pr) <- names(th_re) <- names(th_F1) <- rownames(cond)
+  
+  for (j in 1:length(cond_names)) {
+    
+    # match cluster label for each sample
+    d_split <- split(rowData(d_se), rowData(d_se)$sample)
+    
+    labels_matched <- sapply(d_split, function(d) unname(which.max(table(d[d$spikein == 1, ]$cluster))))
+    labels_matched[group_IDs == "healthy"] <- NA
+    labels_matched
+    
+    
+    n_matched_tot <- sapply(labels_matched, function(l) sum(rowData(d_se)$cluster == l))
+    n_matched_tot
+    
+    n_matched_samp <- mapply(function(d, l) {
+      sum(d$cluster == l)
+    }, d_split, labels_matched)
+    n_matched_samp
+    
+    n_matched_samp_correct <- mapply(function(d, l) {
+      sum(d$cluster == l & d$spikein == 1)
+    }, d_split, labels_matched)
+    n_matched_samp_correct
+    
+    n_spikein <- c(rep(NA, sum(group_IDs == "healthy")), n_spikein_tbl[2, ])
+    n_spikein
+    
+    
+    # calculate precision, recall, F1 score
+    pr <- n_matched_samp_correct / n_matched_samp
+    re <- n_matched_samp_correct / n_spikein
+    F1 <- 2 * (pr * re) / (pr + re)
+    
+    # store
+    th_pr[[j]] <- pr
+    th_re[[j]] <- re
+    th_F1[[j]] <- F1
+  }
+  
+  # store
+  clustering_pr[[th]] <- th_pr
+  clustering_re[[th]] <- th_re
+  clustering_F1[[th]] <- th_F1
   
   
   
@@ -156,37 +248,32 @@ for (th in 1:length(thresholds)) {
   ################################################
   
   # test separately for each condition: CN vs. healthy, CBF vs. healthy
-  out_DA <- out_DA_sorted <- vector("list", length(cond_names))
-  names(out_DA) <- names(out_DA_sorted) <- cond_names
+  out_DA[[th]] <- out_DA_sorted[[th]] <- vector("list", length(cond_names))
+  names(out_DA[[th]]) <- names(out_DA_sorted[[th]]) <- cond_names
   
-  for (i in 1:length(cond_names)) {
+  for (j in 1:length(cond_names)) {
     
     # subset objects
-    sample_IDs_sub <- sample_IDs[cond[i, ]]
-    group_IDs_sub <- group_IDs[cond[i, ]]
+    sample_IDs_sub <- sample_IDs[cond[j, ]]
+    group_IDs_sub <- group_IDs[cond[j, ]]
     group_IDs_sub <- droplevels(group_IDs_sub)
-    block_IDs_sub <- block_IDs[cond[i, ]]
     
-    d_counts_sub <- d_counts[, cond[i, ]]
-    d_medians_sub <- d_medians[, cond[i, ]]
-    d_ecdfs_sub <- d_ecdfs[, cond[i, ]]
-    d_vals_sub <- d_vals[, cond[i, ]]
-    
+    d_counts_sub <- d_counts[, cond[j, ]]
     
     # test for differentially abundant (DA) clusters
     runtime_DA <- system.time(
-      res_DA <- testDA(d_counts_sub, group_IDs_sub, 
-                       paired = TRUE, block_IDs = block_IDs_sub, plot = TRUE, 
-                       path = paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[i]))
+      res_DA <- testDA(d_counts_sub, group_IDs_sub, plot = TRUE, 
+                       path = paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[j]))
     )
     
     # show results
     rowData(res_DA)
     
     # sort to show top (most highly significant) clusters first
-    res_DA_sorted <- rowData(res_DA)[order(rowData(res_DA)$adj.P.Val), ]
+    # (note: using raw p-values since BH adjustment does not work well in this simulated data set)
+    res_DA_sorted <- rowData(res_DA)[order(rowData(res_DA)$P.Value), ]
     
-    head(res_DA_sorted, 10)
+    print(head(res_DA_sorted, 10))
     #View(res_DA_sorted)
     
     
@@ -195,336 +282,14 @@ for (th in 1:length(thresholds)) {
     # --------
     
     # number of significant DA clusters
-    print(table(res_DA_sorted$adj.P.Val < 0.05))
+    # (note: using raw p-values since BH adjustment does not work well in this simulated data set)
+    print(table(res_DA_sorted$P.Value < 0.05))
     
     # save output objects
-    out_DA[[i]] <- res_DA
-    out_DA_sorted[[i]] <- res_DA_sorted
-  }
-  
-  
-  
-  
-  #############################################################################
-  # Test for differential expression (DE) of functional markers within clusters
-  # (method 'diffcyt-med')
-  #############################################################################
-  
-  # test separately for each condition: CN vs. healthy, CBF vs. healthy
-  out_DE_med <- out_DE_med_sorted <- vector("list", length(cond_names))
-  names(out_DE_med) <- names(out_DE_med_sorted) <- cond_names
-  
-  for (i in 1:length(cond_names)) {
-    
-    # subset objects
-    sample_IDs_sub <- sample_IDs[cond[i, ]]
-    group_IDs_sub <- group_IDs[cond[i, ]]
-    group_IDs_sub <- droplevels(group_IDs_sub)
-    block_IDs_sub <- block_IDs[cond[i, ]]
-    
-    d_counts_sub <- d_counts[, cond[i, ]]
-    d_medians_sub <- d_medians[, cond[i, ]]
-    d_ecdfs_sub <- d_ecdfs[, cond[i, ]]
-    d_vals_sub <- d_vals[, cond[i, ]]
-    
-    # test for differential expression (DE) of functional markers within clusters
-    runtime_DE_med <- system.time(
-      res_DE_med <- testDE_med(d_counts_sub, d_medians_sub, group_IDs_sub, 
-                               paired = TRUE, block_IDs = block_IDs_sub, plot = TRUE, 
-                               path = paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DE_med/", cond_names[i]))
-    )
-    
-    # show results
-    rowData(res_DE_med)
-    
-    # sort to show top (most highly significant) cluster-marker combinations first
-    res_DE_med_sorted <- rowData(res_DE_med)[order(rowData(res_DE_med)$adj.P.Val), ]
-    
-    head(res_DE_med_sorted, 10)
-    #View(res_DE_med_sorted)
-    
-    
-    # --------
-    # analysis
-    # --------
-    
-    # number of significant DE cluster-marker combinations
-    print(table(res_DE_med_sorted$adj.P.Val < 0.05))
-    
-    # save output objects
-    out_DE_med[[i]] <- res_DE_med
-    out_DE_med_sorted[[i]] <- res_DE_med_sorted
-  }
-  
-  
-  
-  
-  #############################################################################
-  # Test for differential expression (DE) of functional markers within clusters
-  # (method 'diffcyt-FDA')
-  #############################################################################
-  
-  # test separately for each condition: CN vs. healthy, CBF vs. healthy
-  out_DE_FDA_unwtd <- out_DE_FDA_unwtd_sorted <- vector("list", length(cond_names))
-  out_DE_FDA_wtd <- out_DE_FDA_wtd_sorted <- vector("list", length(cond_names))
-  names(out_DE_FDA_unwtd) <- names(out_DE_FDA_unwtd_sorted) <- cond_names
-  names(out_DE_FDA_wtd) <- names(out_DE_FDA_wtd_sorted) <- cond_names
-  
-  for (i in 1:length(cond_names)) {
-    
-    # subset objects
-    sample_IDs_sub <- sample_IDs[cond[i, ]]
-    group_IDs_sub <- group_IDs[cond[i, ]]
-    group_IDs_sub <- droplevels(group_IDs_sub)
-    block_IDs_sub <- block_IDs[cond[i, ]]
-    
-    d_counts_sub <- d_counts[, cond[i, ]]
-    d_medians_sub <- d_medians[, cond[i, ]]
-    d_ecdfs_sub <- d_ecdfs[, cond[i, ]]
-    d_vals_sub <- d_vals[, cond[i, ]]
-    
-    
-    # ----------
-    # unweighted
-    # ----------
-    
-    # set seed (for permutation tests)
-    set.seed(123)
-    
-    # test for differential expression (DE) of functional markers within clusters
-    runtime_DE_FDA_unwtd <- system.time(
-      res_DE_FDA_unwtd <- testDE_FDA(d_counts_sub, d_medians_sub, d_ecdfs_sub, group_IDs_sub, 
-                                     weighted = FALSE, paired = TRUE, block_IDs = block_IDs_sub, 
-                                     n_perm = 1000, n_cores = 6)
-    )
-    
-    # show results
-    rowData(res_DE_FDA_unwtd)
-    
-    # sort to show top (most highly significant) cluster-marker combinations first
-    res_DE_FDA_unwtd_sorted <- rowData(res_DE_FDA_unwtd)[order(rowData(res_DE_FDA_unwtd)$p_adj), ]
-    
-    head(res_DE_FDA_unwtd_sorted, 10)
-    #View(res_DE_FDA_unwtd_sorted)
-    
-    
-    # --------
-    # weighted
-    # --------
-    
-    # set seed (for permutation tests)
-    set.seed(123)
-    
-    # test for differential expression (DE) of functional markers within clusters
-    runtime_DE_FDA_wtd <- system.time(
-      res_DE_FDA_wtd <- testDE_FDA(d_counts_sub, d_medians_sub, d_ecdfs_sub, group_IDs_sub, 
-                                   weighted = TRUE, paired = TRUE, block_IDs = block_IDs_sub, 
-                                   n_perm = 1000, n_cores = 6)
-    )
-    
-    # show results
-    rowData(res_DE_FDA_wtd)
-    
-    # sort to show top (most highly significant) cluster-marker combinations first
-    res_DE_FDA_wtd_sorted <- rowData(res_DE_FDA_wtd)[order(rowData(res_DE_FDA_wtd)$p_adj), ]
-    
-    head(res_DE_FDA_wtd_sorted, 10)
-    #View(res_DE_FDA_wtd_sorted)
-    
-    
-    # --------
-    # analysis
-    # --------
-    
-    # number of significant DE cluster-marker combinations
-    
-    # unweighted
-    print(table(res_DE_FDA_unwtd_sorted$p_adj < 0.05))
-    
-    # weighted
-    print(table(res_DE_FDA_wtd_sorted$p_adj < 0.05))
-    
-    # save output objects
-    out_DE_FDA_unwtd[[i]] <- res_DE_FDA_unwtd
-    out_DE_FDA_unwtd_sorted[[i]] <- res_DE_FDA_unwtd_sorted
-    out_DE_FDA_wtd[[i]] <- res_DE_FDA_wtd
-    out_DE_FDA_wtd_sorted[[i]] <- res_DE_FDA_wtd_sorted
-  }
-  
-  
-  
-  
-  #############################################################################
-  # Test for differential expression (DE) of functional markers within clusters
-  # (method 'diffcyt-KS')
-  #############################################################################
-  
-  # test separately for each condition: CN vs. healthy, CBF vs. healthy
-  out_DE_KS_paired <- out_DE_KS_paired_sorted <- vector("list", length(cond_names))
-  out_DE_KS_unpaired <- out_DE_KS_unpaired_sorted <- vector("list", length(cond_names))
-  names(out_DE_KS_paired) <- names(out_DE_KS_paired_sorted) <- cond_names
-  names(out_DE_KS_unpaired) <- names(out_DE_KS_unpaired_sorted) <- cond_names
-  
-  for (i in 1:length(cond_names)) {
-    
-    # subset objects
-    sample_IDs_sub <- sample_IDs[cond[i, ]]
-    group_IDs_sub <- group_IDs[cond[i, ]]
-    group_IDs_sub <- droplevels(group_IDs_sub)
-    block_IDs_sub <- block_IDs[cond[i, ]]
-    
-    d_counts_sub <- d_counts[, cond[i, ]]
-    d_medians_sub <- d_medians[, cond[i, ]]
-    d_ecdfs_sub <- d_ecdfs[, cond[i, ]]
-    d_vals_sub <- d_vals[, cond[i, ]]
-    
-    
-    # ------
-    # paired
-    # ------
-    
-    # test for differential expression (DE) of functional markers within clusters
-    runtime_DE_KS_paired <- system.time(
-      res_DE_KS_paired <- testDE_KS(d_counts_sub, d_medians_sub, d_vals_sub, group_IDs_sub, 
-                                    paired = TRUE, block_IDs = block_IDs_sub)
-    )
-    
-    # show results
-    rowData(res_DE_KS_paired)
-    
-    # sort to show top (most highly significant) cluster-marker combinations first
-    res_DE_KS_paired_sorted <- rowData(res_DE_KS_paired)[order(rowData(res_DE_KS_paired)$p_adj), ]
-    
-    head(res_DE_KS_paired_sorted, 10)
-    #View(res_DE_KS_paired_sorted)
-    
-    
-    # --------
-    # unpaired
-    # --------
-    
-    # test for differential expression (DE) of functional markers within clusters
-    runtime_DE_KS_unpaired <- system.time(
-      res_DE_KS_unpaired <- testDE_KS(d_counts_sub, d_medians_sub, d_vals_sub, group_IDs_sub, 
-                                      n_perm = 1000, n_cores = 6)
-    )
-    
-    # show results
-    rowData(res_DE_KS_unpaired)
-    
-    # sort to show top (most highly significant) cluster-marker combinations first
-    res_DE_KS_unpaired_sorted <- rowData(res_DE_KS_unpaired)[order(rowData(res_DE_KS_unpaired)$p_adj), ]
-    
-    head(res_DE_KS_unpaired_sorted, 10)
-    #View(res_DE_KS_unpaired_sorted)
-    
-    
-    # --------
-    # analysis
-    # --------
-    
-    # number of significant DE cluster-marker combinations
-    
-    # paired
-    print(table(res_DE_KS_paired_sorted$p_adj < 0.05))
-    
-    # unpaired
-    print(table(res_DE_KS_unpaired_sorted$p_adj < 0.05))
-    
-    # save output objects
-    out_DE_KS_paired[[i]] <- res_DE_KS_paired
-    out_DE_KS_paired_sorted[[i]] <- res_DE_KS_paired_sorted
-    out_DE_KS_unpaired[[i]] <- res_DE_KS_unpaired
-    out_DE_KS_unpaired_sorted[[i]] <- res_DE_KS_unpaired_sorted
-  }
-  
-  
-  
-  
-  #############################################################################
-  # Test for differential expression (DE) of functional markers within clusters
-  # (method 'diffcyt-LM')
-  #############################################################################
-  
-  # test separately for each condition: CN vs. healthy, CBF vs. healthy
-  out_DE_LM_paired <- out_DE_LM_paired_sorted <- vector("list", length(cond_names))
-  out_DE_LM_unpaired <- out_DE_LM_unpaired_sorted <- vector("list", length(cond_names))
-  names(out_DE_LM_paired) <- names(out_DE_LM_paired_sorted) <- cond_names
-  names(out_DE_LM_unpaired) <- names(out_DE_LM_unpaired_sorted) <- cond_names
-  
-  for (i in 1:length(cond_names)) {
-    
-    # subset objects
-    sample_IDs_sub <- sample_IDs[cond[i, ]]
-    group_IDs_sub <- group_IDs[cond[i, ]]
-    group_IDs_sub <- droplevels(group_IDs_sub)
-    block_IDs_sub <- block_IDs[cond[i, ]]
-    
-    d_counts_sub <- d_counts[, cond[i, ]]
-    d_medians_sub <- d_medians[, cond[i, ]]
-    d_ecdfs_sub <- d_ecdfs[, cond[i, ]]
-    d_vals_sub <- d_vals[, cond[i, ]]
-    
-    
-    # ------
-    # paired
-    # ------
-    
-    # test for differential expression (DE) of functional markers within clusters
-    runtime_DE_LM_paired <- system.time(
-      res_DE_LM_paired <- testDE_LM(d_counts_sub, d_medians_sub, d_ecdfs_sub, group_IDs_sub, 
-                                    paired = TRUE, block_IDs = block_IDs_sub)
-    )
-    
-    # show results
-    rowData(res_DE_LM_paired)
-    
-    # sort to show top (most highly significant) cluster-marker combinations first
-    res_DE_LM_paired_sorted <- rowData(res_DE_LM_paired)[order(rowData(res_DE_LM_paired)$p_adj), ]
-    
-    head(res_DE_LM_paired_sorted, 10)
-    #View(res_DE_LM_paired_sorted)
-    
-    
-    # --------
-    # unpaired
-    # --------
-    
-    # test for differential expression (DE) of functional markers within clusters
-    runtime_DE_LM_unpaired <- system.time(
-      res_DE_LM_unpaired <- testDE_LM(d_counts_sub, d_medians_sub, d_ecdfs_sub, group_IDs_sub)
-    )
-    
-    # show results
-    rowData(res_DE_LM_unpaired)
-    
-    # sort to show top (most highly significant) cluster-marker combinations first
-    res_DE_LM_unpaired_sorted <- rowData(res_DE_LM_unpaired)[order(rowData(res_DE_LM_unpaired)$p_adj), ]
-    
-    head(res_DE_LM_unpaired_sorted, 10)
-    #View(res_DE_LM_unpaired_sorted)
-    
-    
-    # --------
-    # analysis
-    # --------
-    
-    # number of significant DE cluster-marker combinations
-    
-    # paired
-    print(table(res_DE_LM_paired_sorted$p_adj < 0.05))
-    
-    # unpaired
-    print(table(res_DE_LM_unpaired_sorted$p_adj < 0.05))
-    
-    # save output objects
-    out_DE_LM_paired[[i]] <- res_DE_LM_paired
-    out_DE_LM_paired_sorted[[i]] <- res_DE_LM_paired_sorted
-    out_DE_LM_unpaired[[i]] <- res_DE_LM_unpaired
-    out_DE_LM_unpaired_sorted[[i]] <- res_DE_LM_unpaired_sorted
+    out_DA[[th]][[j]] <- res_DA
+    out_DA_sorted[[th]][[j]] <- res_DA_sorted
   }
 }
-
 
 
 
@@ -536,7 +301,6 @@ save.image("../../../RData/outputs_diffcyt_AML_spike_in.RData")
 
 
 
-
 #####################
 # Session information
 #####################
@@ -544,6 +308,5 @@ save.image("../../../RData/outputs_diffcyt_AML_spike_in.RData")
 sink("../../../session_info/session_info_AML_spike_in.txt")
 sessionInfo()
 sink()
-
 
 
