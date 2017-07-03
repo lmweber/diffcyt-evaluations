@@ -6,7 +6,7 @@
 # (bone marrow mononuclear cells). This simulates the phenotype of minimal residual
 # disease (MRD) in AML patients. Raw data is sourced from Levine et al. (2015) (PhenoGraph
 # paper). The data generation strategy is modified from Arvaniti et al. (2017) (CellCnn
-# paper), who used a similar data set for their evaluations.
+# paper), who generated a similar benchmark data set for their evaluations.
 #
 # Raw data downloaded from Cytobank:
 # - all cells (also contains gating scheme for CD34+ CD45 mid cells, i.e. blasts):
@@ -135,26 +135,34 @@ dim(exprs(read.FCS(paste0("../../../benchmark_data/AML_spike_in/raw_data/all_cel
 # Create spike-in data sets
 # -------------------------
 
-# First: split each healthy sample (H1-H5) into two equal parts. One part will be used as 
-# the healthy sample, and one part will have spike-in cells added.
+# First: split each healthy sample (H1-H5) into 3 equal parts. One part will be used as
+# the healthy sample, and the other parts will each have spike-in cells added (for
+# conditions CN and CBF).
 
-data_healthy_base <- data_healthy_spike <- vector("list", length(data_healthy))
-names(data_healthy_base) <- names(data_healthy_spike) <- names(data_healthy)
+data_healthy_base <- data_healthy_CN <- data_healthy_CBF <- 
+  vector("list", length(data_healthy))
+names(data_healthy_base) <- names(data_healthy_CN) <- names(data_healthy_CBF) <- 
+  names(data_healthy)
 
 set.seed(123)
 
 for (i in 1:length(data_healthy)) {
   data_i <- data_healthy[[i]]
   
-  ix_base <- sample(1:nrow(data_i), round(nrow(data_i) / 2))
-  ix_spike <- setdiff(1:nrow(data_i), ix_base)
+  n <- round(nrow(data_i) / 3)
+  
+  ix_base <- sample(1:nrow(data_i), n)
+  ix_CN <- sample((1:nrow(data_i))[-ix_base], n)
+  ix_CBF <- setdiff(1:nrow(data_i), c(ix_base, ix_CN))
   
   data_healthy_base[[i]] <- data_i[ix_base, ]
-  data_healthy_spike[[i]] <- data_i[ix_spike, ]
+  data_healthy_CN[[i]] <- data_i[ix_CN, ]
+  data_healthy_CBF[[i]] <- data_i[ix_CBF, ]
 }
 
 sapply(data_healthy_base, dim)
-sapply(data_healthy_spike, dim)
+sapply(data_healthy_CN, dim)
+sapply(data_healthy_CBF, dim)
 
 
 
@@ -184,9 +192,9 @@ cnd <- "CN"
 
 set.seed(101)
 
-for (i in 1:length(data_healthy_spike)) {
-  data_i <- data_healthy_spike[[i]]
-  nm_i <- names(data_healthy_spike)[i]
+for (i in 1:length(data_healthy_CN)) {
+  data_i <- data_healthy_CN[[i]]
+  nm_i <- names(data_healthy_CN)[i]
   
   for (th in thresholds) {
     n_spikein <- ceiling(th * nrow(data_i))
@@ -213,9 +221,9 @@ cnd <- "CBF"
 
 set.seed(102)
 
-for (i in 1:length(data_healthy_spike)) {
-  data_i <- data_healthy_spike[[i]]
-  nm_i <- names(data_healthy_spike)[i]
+for (i in 1:length(data_healthy_CBF)) {
+  data_i <- data_healthy_CBF[[i]]
+  nm_i <- names(data_healthy_CBF)[i]
   
   for (th in thresholds) {
     n_spikein <- ceiling(th * nrow(data_i))
