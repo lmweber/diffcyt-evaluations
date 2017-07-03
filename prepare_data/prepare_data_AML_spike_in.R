@@ -5,8 +5,8 @@
 # percentages of AML (acute myeloid leukemia) blast cells into samples of healthy BMMCs
 # (bone marrow mononuclear cells). This simulates the phenotype of minimal residual
 # disease (MRD) in AML patients. Raw data is sourced from Levine et al. (2015) (PhenoGraph
-# paper). A similar strategy was used by Arvaniti et al. (2017) (CellCnn paper) to
-# generate one of their benchmark data sets, although using different settings.
+# paper). The data generation strategy is modified from Arvaniti et al. (2017) (CellCnn
+# paper), who used a similar data set for their evaluations.
 #
 # Raw data downloaded from Cytobank:
 # - all cells (also contains gating scheme for CD34+ CD45 mid cells, i.e. blasts):
@@ -31,7 +31,7 @@
 # in the downloaded .tsv files 'experiment_46098_annotations.tsv' and
 # 'experiment_63534_annotations.tsv'.
 #
-# Lukas Weber, June 2017
+# Lukas Weber, July 2017
 ##########################################################################################
 
 
@@ -86,10 +86,10 @@ tbl_match_blasts <- read.delim(file_match_samples_blasts)
 tbl_match_blasts[-grep("H[0-9]+", tbl_match_blasts[, "FCS.Filename"]), c("FCS.Filename", "Individuals")]
 
 file_SJ10 <- files_blasts[6]
-file_SJ10  # note: has filename SJ11
+file_SJ10  # note: sample 'SJ10' has filename 'SJ11'
 
 file_SJ4 <- files_blasts[20]
-file_SJ4  # note: has filename SJ5
+file_SJ4  # note: sample 'SJ4' has filename 'SJ5'
 
 # load data for SJ10 (CN)
 data_SJ10 <- exprs(read.FCS(file_SJ10, transformation = FALSE, truncate_max_range = FALSE))
@@ -135,22 +135,46 @@ dim(exprs(read.FCS(paste0("../../../benchmark_data/AML_spike_in/raw_data/all_cel
 # Create spike-in data sets
 # -------------------------
 
-# Healthy samples (H1-H5) are used without any modifications
+# First: split each healthy sample (H1-H5) into two equal parts. One part will be used as 
+# the healthy sample, and one part will have spike-in cells added.
 
-# save .fcs files
+data_healthy_base <- data_healthy_spike <- vector("list", length(data_healthy))
+names(data_healthy_base) <- names(data_healthy_spike) <- names(data_healthy)
+
+set.seed(123)
+
 for (i in 1:length(data_healthy)) {
   data_i <- data_healthy[[i]]
-  nm_i <- names(data_healthy)[i]
+  
+  ix_base <- sample(1:nrow(data_i), round(nrow(data_i) / 2))
+  ix_spike <- setdiff(1:nrow(data_i), ix_base)
+  
+  data_healthy_base[[i]] <- data_i[ix_base, ]
+  data_healthy_spike[[i]] <- data_i[ix_spike, ]
+}
+
+sapply(data_healthy_base, dim)
+sapply(data_healthy_spike, dim)
+
+
+
+# Export healthy samples (H1-H5)
+
+# save .fcs files
+for (i in 1:length(data_healthy_base)) {
+  data_i <- data_healthy_base[[i]]
+  nm_i <- names(data_healthy_base)[i]
   filename <- file.path(DIR_DATA, "healthy", paste0("AML_spike_in_healthy_", nm_i, ".fcs"))
   write.FCS(flowFrame(data_i), filename)
 }
+
 
 
 # Blast cells are subsampled at various thresholds (1%, 0.1%, 0.01%) of the number of 
 # healthy cells for each sample, and combined with the healthy cells to create the 
 # spike-in data sets.
 
-thresholds <- c(0.01, 0.001, 0.0001)  # 1%, 0.1%, 0.01%
+thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
 
 
 # condition CN (patient SJ10)
@@ -160,9 +184,9 @@ cnd <- "CN"
 
 set.seed(101)
 
-for (i in 1:length(data_healthy)) {
-  data_i <- data_healthy[[i]]
-  nm_i <- names(data_healthy)[i]
+for (i in 1:length(data_healthy_spike)) {
+  data_i <- data_healthy_spike[[i]]
+  nm_i <- names(data_healthy_spike)[i]
   
   for (th in thresholds) {
     n_spikein <- ceiling(th * nrow(data_i))
@@ -189,9 +213,9 @@ cnd <- "CBF"
 
 set.seed(102)
 
-for (i in 1:length(data_healthy)) {
-  data_i <- data_healthy[[i]]
-  nm_i <- names(data_healthy)[i]
+for (i in 1:length(data_healthy_spike)) {
+  data_i <- data_healthy_spike[[i]]
+  nm_i <- names(data_healthy_spike)[i]
   
   for (th in thresholds) {
     n_spikein <- ceiling(th * nrow(data_i))

@@ -2,15 +2,14 @@
 
 Analysis scripts to evaluate `diffcyt` methods and compare with other approaches (`Citrus`, `CellCnn`, and `cydar`) using several benchmark data sets.
 
-Development version of `diffcyt` package is available in the [diffcyt](https://github.com/lmweber/diffcyt) repository.
+Development version of the `diffcyt` package is available in the [diffcyt](https://github.com/lmweber/diffcyt) repository.
 
 
 ## Contents
 
-Scripts are saved in the following subdirectories:
+Scripts are organized into the following directories:
 
-- [evaluate_methods](evaluate_methods/): Scripts to run the analyses for each method (`diffcyt`, `Citrus`, `CellCnn`, `cydar`).
-
-- [prepare_methods](prepare_methods/): Scripts to prepare the benchmark data sets, including simulations.
-
+- [prepare_data](prepare_data/): Prepare benchmark data sets, including simulations.
+- [run_methods](run_methods/): Run all methods in the comparison.
+- [analysis_and_plots](analysis_and_plots/): Analyze results for each method and generate plots.
 
