@@ -30,6 +30,10 @@ cond_names <- c("CN", "CBF")
 is_spikein <- vector("list", length(thresholds))
 names(is_spikein) <- thresholds
 
+# lists to store data objects
+d_se_thresholds <- vector("list", length(thresholds))
+names(d_se_thresholds) <- thresholds
+
 # lists to store differential abundance (DA) test results
 out_DA <- out_DA_sorted <- vector("list", length(thresholds))
 names(out_DA) <- names(out_DA_sorted) <- thresholds
@@ -162,6 +166,13 @@ for (th in 1:length(thresholds)) {
   rowData(d_medians)
   length(assays(d_medians))
   names(assays(d_medians))
+  
+  
+  # ------------------
+  # store data objects
+  # ------------------
+  
+  d_se_thresholds[[th]] <- d_se
   
   
   
