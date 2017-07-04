@@ -9,7 +9,7 @@ Development version of the `diffcyt` package is available in the [diffcyt](https
 
 Scripts are organized into the following directories:
 
-- [prepare_data](prepare_data/): Prepare benchmark data sets, including simulations.
-- [run_methods](run_methods/): Run all methods in the comparison.
-- [analysis_and_plots](analysis_and_plots/): Analyze results for each method and generate plots.
+- [prepare_data](prepare_data/): Prepare benchmark data sets.
+- [run_methods](run_methods/): Run all methods.
+- [analysis_and_plots](analysis_and_plots/): Analyze results and generate plots.
 
