@@ -23,6 +23,13 @@ library(limma)
 # spike-in thresholds (must match filenames)
 thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 
+# condition names
+cond_names <- c("CN", "CBF")
+
+# lists to store spike-in status
+is_spikein <- vector("list", length(thresholds))
+names(is_spikein) <- thresholds
+
 # lists to store differential abundance (DA) test results
 out_DA <- out_DA_sorted <- vector("list", length(thresholds))
 names(out_DA) <- names(out_DA_sorted) <- thresholds
@@ -87,15 +94,16 @@ for (th in 1:length(thresholds)) {
   
   # 'AML-spike-in' data set includes indicator columns for spike-in cells in conditions
   # 'CN' and 'CBF'; these need to be removed and stored separately
-  is_spikein <- vector("list", length(sample_IDs))
-  names(is_spikein) <- sample_IDs
   
-  for (i in 1:length(is_spikein)) {
+  is_spikein[[th]] <- vector("list", length(sample_IDs))
+  names(is_spikein[[th]]) <- sample_IDs
+  
+  for (i in 1:length(sample_IDs)) {
     exprs_i <- exprs(d_input[[i]])
     if (group_IDs[i] == "healthy") {
-      is_spikein[[i]] <- rep(0, nrow(exprs_i))
+      is_spikein[[th]][[i]] <- rep(0, nrow(exprs_i))
     } else {
-      is_spikein[[i]] <- exprs_i[, "spikein"]
+      is_spikein[[th]][[i]] <- exprs_i[, "spikein"]
       # remove column from expression matrix
       exprs(d_input[[i]]) <- exprs_i[, -match("spikein", colnames(exprs_i))]
     }
@@ -163,10 +171,6 @@ for (th in 1:length(thresholds)) {
   ################################################
   
   # test separately for each condition: CN vs. healthy, CBF vs. healthy
-  
-  # condition names
-  cond_names <- c("CN", "CBF")
-  
   
   out_DA[[th]] <- out_DA_sorted[[th]] <- vector("list", length(cond_names))
   names(out_DA[[th]]) <- names(out_DA_sorted[[th]]) <- cond_names
