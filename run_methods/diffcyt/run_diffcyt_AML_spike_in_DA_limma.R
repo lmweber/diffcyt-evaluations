@@ -26,17 +26,16 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 # condition names
 cond_names <- c("CN", "CBF")
 
-# lists to store spike-in status
-is_spikein <- vector("list", length(thresholds))
-names(is_spikein) <- thresholds
+# lists to store objects
+is_spikein <- 
+  d_se_thresholds <- d_counts_thresholds <- 
+  out_DA <- out_DA_sorted <- 
+  vector("list", length(thresholds))
 
-# lists to store data objects
-d_se_thresholds <- vector("list", length(thresholds))
-names(d_se_thresholds) <- thresholds
-
-# lists to store differential abundance (DA) test results
-out_DA <- out_DA_sorted <- vector("list", length(thresholds))
-names(out_DA) <- names(out_DA_sorted) <- thresholds
+names(is_spikein) <- 
+  names(d_se_thresholds) <- names(d_counts_thresholds) <- 
+  names(out_DA) <- names(out_DA_sorted) <- 
+  thresholds
 
 
 
@@ -173,6 +172,7 @@ for (th in 1:length(thresholds)) {
   # ------------------
   
   d_se_thresholds[[th]] <- d_se
+  d_counts_thresholds[[th]] <- d_counts
   
   
   
