@@ -15,6 +15,7 @@ library(reshape2)
 library(magrittr)
 library(dplyr)
 library(scales)
+library(Rtsne)
 
 
 
@@ -54,6 +55,7 @@ for (th in 1:length(thresholds)) {
   
   d_se <- d_se_thresholds[[th]]
   d_counts <- d_counts_thresholds[[th]]
+  d_medians_all <- d_medians_all_thresholds[[th]]
   
   
   # ---------------------------------
@@ -130,7 +132,7 @@ for (th in 1:length(thresholds)) {
   
   
   # -------------------------------------------------------------
-  # barplots: clustering performance: precision, recall, F1 score
+  # Barplots: clustering performance: precision, recall, F1 score
   # -------------------------------------------------------------
   
   # note: thresholds and conditions are defined in previous script
@@ -218,6 +220,87 @@ for (th in 1:length(thresholds)) {
     
     path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/clustering/", cond_names[j])
     filename <- file.path(path, "MST_prop_true_spikein.pdf")
+    
+    ggsave(filename, width = 9, height = 9)
+  }
+  
+  
+  # -------------------------------------------------------
+  # t-SNE plots: proportion true spike-in cells per cluster
+  # -------------------------------------------------------
+  
+  for (j in 1:length(cond_names)) {
+    
+    ix_keep <- group_IDs %in% c("healthy", cond_names[j])
+    
+    group_IDs_sub <- group_IDs[ix_keep]
+    group_IDs_sub <- droplevels(group_IDs_sub)
+    
+    d_se_sub <- d_se[rowData(d_se)$group %in% group_IDs_sub, ]
+    d_counts_sub <- d_counts[, ix_keep]
+    
+    # calculate proportion true spike-in cells per cluster
+    rowData(d_se_sub) %>% 
+      as.data.frame %>% 
+      group_by(cluster) %>% 
+      summarize(prop_spikein = mean(as.numeric(as.character(spikein)))) -> 
+      d_prop
+    
+    d_prop <- as.data.frame(d_prop)
+    
+    # fill in any missing clusters (zero cells)
+    if (nrow(d_prop) < nlevels(rowData(d_se)$cluster)) {
+      ix_missing <- which(!(levels(rowData(d_se)$cluster) %in% d_prop$cluster))
+      d_prop_tmp <- data.frame(factor(ix_missing, levels = levels(rowData(d_se)$cluster)), 0)
+      colnames(d_prop_tmp) <- colnames(d_prop)
+      rownames(d_prop_tmp) <- ix_missing
+      d_prop <- rbind(d_prop, d_prop_tmp)
+      # re-order rows
+      d_prop <- d_prop[order(d_prop$cluster), ]
+      rownames(d_prop) <- d_prop$cluster
+    }
+    
+    # number of cells
+    n_cells <- rowData(d_counts_sub)$n_cells
+    
+    if (!(nrow(d_prop) == length(n_cells))) warning("number of clusters does not match")
+    if (!(nrow(d_medians_all) == nrow(d_prop))) warning("number of clusters does not match")
+    
+    d_plot <- cbind(d_prop, n_cells)
+    
+    # run t-SNE
+    
+    d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_clustering_col]
+    d_tsne <- as.matrix(d_tsne)
+    
+    # remove any duplicate rows (required by Rtsne)
+    dups <- duplicated(d_tsne)
+    d_tsne <- d_tsne[!dups, ]
+    
+    # also remove duplicated rows from plotting data
+    d_plot <- d_plot[!dups, ]
+    
+    # run Rtsne
+    # (note: initial PCA step not required, since we do not have too many dimensions)
+    set.seed(123)
+    out_tsne <- Rtsne(d_tsne, pca = FALSE, verbose = TRUE)
+    
+    tsne_coords <- as.data.frame(out_tsne$Y)
+    colnames(tsne_coords) <- c("tSNE_1", "tSNE_2")
+    
+    d_plot <- cbind(d_plot, tsne_coords)
+    
+    # plot
+    ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = prop_spikein)) + 
+      geom_point(alpha = 0.75) + 
+      scale_size_continuous(range = c(0.25, 4)) + 
+      scale_color_gradient(low = "gray70", high = "orange") + 
+      coord_fixed() + 
+      ggtitle("t-SNE: Proportion true spike-in cells per cluster") + 
+      theme_bw()
+    
+    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/clustering/", cond_names[j])
+    filename <- file.path(path, "tSNE_prop_true_spikein.pdf")
     
     ggsave(filename, width = 9, height = 9)
   }
