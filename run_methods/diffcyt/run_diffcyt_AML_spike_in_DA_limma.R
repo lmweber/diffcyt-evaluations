@@ -28,12 +28,12 @@ cond_names <- c("CN", "CBF")
 
 # lists to store objects
 is_spikein <- 
-  d_se_thresholds <- d_counts_thresholds <- d_medians_thresholds <- 
+  d_se_thresholds <- d_counts_thresholds <- d_medians_all_thresholds <- 
   out_DA <- out_DA_sorted <- 
   vector("list", length(thresholds))
 
 names(is_spikein) <- 
-  names(d_se_thresholds) <- names(d_counts_thresholds) <- names(d_medians_thresholds) <- 
+  names(d_se_thresholds) <- names(d_counts_thresholds) <- names(d_medians_all_thresholds) <- 
   names(out_DA) <- names(out_DA_sorted) <- 
   thresholds
 
@@ -167,13 +167,19 @@ for (th in 1:length(thresholds)) {
   names(assays(d_medians))
   
   
+  # calculate cluster medians across all samples (for plotting)
+  d_medians_all <- calcMediansAll(d_se)
+  
+  dim(d_medians_all)
+  
+  
   # ------------------
   # store data objects
   # ------------------
   
   d_se_thresholds[[th]] <- d_se
   d_counts_thresholds[[th]] <- d_counts
-  d_medians_thresholds[[th]] <- d_medians
+  d_medians_all_thresholds[[th]] <- d_medians_all
   
   
   
