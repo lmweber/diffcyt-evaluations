@@ -26,8 +26,8 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-is_spikein <- vector("list", length(thresholds))
-names(is_spikein) <- thresholds
+files_load_thresholds <- is_spikein <- vector("list", length(thresholds))
+names(files_load_thresholds) <- names(is_spikein) <- thresholds
 
 
 
@@ -81,6 +81,13 @@ for (th in 1:length(thresholds)) {
   cols_markers <- 11:41
   cols_lineage <- c(35, 29, 14, 30, 12, 26, 17, 33, 41, 32, 22, 40, 27, 37, 23, 39)
   cols_func <- setdiff(cols_markers, cols_lineage)
+  
+  
+  # ---------------
+  # store filenames
+  # ---------------
+  
+  files_load_thresholds[[th]] <- files_load
   
   
   # ------------------------------------------------------
@@ -268,7 +275,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save.image("../../../RData/output_CellCnn_AML_spike_in_all_markers.RData")
+save.image("../../../RData/outputs_CellCnn_AML_spike_in_all_markers.RData")
 
 
 
