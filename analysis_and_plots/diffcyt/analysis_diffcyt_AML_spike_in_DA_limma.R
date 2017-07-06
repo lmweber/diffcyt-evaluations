@@ -567,6 +567,8 @@ for (th in 1:length(thresholds)) {
     rowData(res_DA)$cluster <- factor(rowData(res_DA)$cluster, levels = levels(rowData(d_se_sub)$cluster))
     
     # match cluster-level p-values to individual cells
+    
+    # use raw p-values (adjusted p-values do not work well for very rare populations)
     p_vals_clusters <- rowData(res_DA)$P.Value
     p_vals_cells <- p_vals_clusters[match(rowData(d_se_sub)$cluster, rowData(res_DA)$cluster)]
     
