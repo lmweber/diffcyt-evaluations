@@ -631,7 +631,7 @@ for (th in 1:length(thresholds)) {
     ggplot(d_plot, aes(x = FPR, y = TPR, lty = "diffcyt-limma")) + 
       geom_line(color = "blue") + 
       geom_vline(xintercept = c(0.01, 0.05, 0.1), color = "red", lty = 2) + 
-      geom_point(data = d_actual, shape = 1, size = 2.5, stroke = 1, col = "orangered") + 
+      geom_point(data = d_actual, shape = 1, size = 3, stroke = 1, col = "orangered") + 
       xlim(0, FPR_max) + 
       ylim(TPR_min, 1) + 
       xlab(x_label) + 
