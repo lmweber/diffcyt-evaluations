@@ -628,7 +628,7 @@ for (th in 1:length(thresholds)) {
     }
     
     # plot
-    ggplot(d_plot, aes(x = FPR, y = TPR, lty = "diffcyt-limma")) + 
+    ggplot(d_plot, aes(x = FPR, y = TPR, lty = "diffcyt-DA-limma")) + 
       geom_line(color = "blue") + 
       geom_vline(xintercept = c(0.01, 0.05, 0.1), color = "red", lty = 2) + 
       geom_point(data = d_actual, shape = 1, size = 3, stroke = 1, col = "orangered") + 
@@ -637,7 +637,7 @@ for (th in 1:length(thresholds)) {
       xlab(x_label) + 
       ylab(y_label) + 
       coord_fixed() + 
-      ggtitle("ROC: Differential abundance (DA) test results") + 
+      ggtitle("ROC: Differential abundance (DA) test results: AML-spike-in") + 
       theme_bw() + 
       theme(legend.title = element_blank())
     
