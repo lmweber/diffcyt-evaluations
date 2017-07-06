@@ -154,7 +154,7 @@ for (th in 1:length(thresholds)) {
       geom_bar(stat = "identity", position = "dodge") + 
       scale_fill_manual(values = c("lightblue", "darkblue", "orange")) + 
       ylim(c(0, 1)) + 
-      ggtitle(paste("Clustering performance: AML-spike-in,", cond_names[j], ",", thresholds[th])) + 
+      ggtitle(paste0("Clustering performance: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw() + 
       theme(axis.title.y = element_blank(), 
             legend.title = element_blank())
@@ -216,7 +216,7 @@ for (th in 1:length(thresholds)) {
       geom_point(alpha = 0.75) + 
       scale_color_gradient(low = "gray70", high = "orange") + 
       coord_fixed() + 
-      ggtitle(paste("MST: Proportion true spike-in cells per cluster: AML-spike-in,", cond_names[j], ",", thresholds[th])) + 
+      ggtitle(paste0("MST: Proportion true spike-in cells per cluster: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
     path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/clustering/", cond_names[j])
@@ -297,7 +297,7 @@ for (th in 1:length(thresholds)) {
       scale_size_continuous(range = c(0.25, 4)) + 
       scale_color_gradient(low = "gray70", high = "orange") + 
       coord_fixed() + 
-      ggtitle(paste("t-SNE: Proportion true spike-in cells per cluster: AML-spike-in,", cond_names[j], ",", thresholds[th])) + 
+      ggtitle(paste0("t-SNE: Proportion true spike-in cells per cluster: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
     path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/clustering/", cond_names[j])
@@ -408,7 +408,7 @@ for (th in 1:length(thresholds)) {
                            labels = c(round(min_val), 0.05, round(max_val))) + 
       #guide = guide_colorbar(title.vjust = 0.5)) +  # bug in ggplot: doesn't work
       coord_fixed() + 
-      ggtitle(paste("MST: Differential abundance (DA) test results: AML-spike-in,", cond_names[j], ",", thresholds[th])) + 
+      ggtitle(paste0("MST: Differential abundance (DA) test results: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
     path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[j])
@@ -533,7 +533,7 @@ for (th in 1:length(thresholds)) {
                            labels = c(round(min_val), 0.05, round(max_val))) + 
       #guide = guide_colorbar(title.vjust = 0.5)) +  # bug in ggplot: doesn't work
       coord_fixed() + 
-      ggtitle(paste("t-SNE: Differential abundance (DA) test results: AML-spike-in,", cond_names[j], ",", thresholds[th])) + 
+      ggtitle(paste0("t-SNE: Differential abundance (DA) test results: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
     path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[j])
@@ -637,7 +637,7 @@ for (th in 1:length(thresholds)) {
       xlab(x_label) + 
       ylab(y_label) + 
       coord_fixed() + 
-      ggtitle(paste("ROC: Differential abundance (DA) test results: AML-spike-in,", cond_names[j], ",", thresholds[th])) + 
+      ggtitle(paste0("ROC: Differential abundance (DA) test results: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw() + 
       theme(legend.title = element_blank())
     
