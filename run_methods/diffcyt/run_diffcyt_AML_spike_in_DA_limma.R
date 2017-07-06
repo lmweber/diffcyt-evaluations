@@ -260,7 +260,7 @@ save.image("../../../RData/outputs_diffcyt_AML_spike_in_DA_limma.RData")
 # Session information
 #####################
 
-sink("../../../session_info/session_info_AML_spike_in_DA_limma.txt")
+sink("../../../session_info/session_info_diffcyt_AML_spike_in_DA_limma.txt")
 sessionInfo()
 sink()
 
