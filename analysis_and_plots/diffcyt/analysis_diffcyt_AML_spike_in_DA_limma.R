@@ -576,18 +576,39 @@ for (th in 1:length(thresholds)) {
     
     d_roc <- as.data.frame(rowData(d_se_sub)[, c("cluster", "spikein", "p_vals")])
     
+    
     # calculate ROC curve values
     pred <- prediction(1 - d_roc$p_vals, d_roc$spikein)
     perf <- performance(pred, "tpr", "fpr")
-    
-    # generate plot
     
     FPR <- perf@x.values[[1]]
     TPR <- perf@y.values[[1]]
     x_label <- perf@x.name
     y_label <- perf@y.name
     
-    # better plot axes for 5% spike-in threshold
+    
+    # FPR and TPR when using actual cutoff on p-values
+    # (note: careful to treat NAs correctly)
+    fn_actual_fpr <- function(cutoff) {
+      sum(d_roc$p_vals < cutoff & d_roc$spikein == 0, na.rm = TRUE) / 
+        (sum(d_roc$spikein == 0) - sum(is.na(d_roc$p_vals) & d_roc$spikein == 0))
+    }
+    fn_actual_tpr <- function(cutoff) {
+      sum(d_roc$p_vals < cutoff & d_roc$spikein == 1, na.rm = TRUE) / 
+        (sum(d_roc$spikein == 1) - sum(is.na(d_roc$p_vals) & d_roc$spikein == 1))
+    }
+    
+    cutoffs <- c(0.01, 0.05, 0.1)
+    
+    actual_fpr <- sapply(cutoffs, fn_actual_fpr)
+    actual_tpr <- sapply(cutoffs, fn_actual_tpr)
+    
+    d_actual <- as.data.frame(cbind(actual_fpr, actual_tpr))
+    rownames(d_actual) <- cutoffs
+    colnames(d_actual) <- c("FPR", "TPR")
+    
+    
+    # better plot axes (for 5% spike-in threshold only)
     if(th == 1) {
       FPR_max <- 0.2
       TPR_min <- 0.8
@@ -596,6 +617,7 @@ for (th in 1:length(thresholds)) {
       TPR_min <- 0
     }
     
+    # plotting data frame
     d_plot <- data.frame(FPR, TPR)
     
     if (th == 1) {
@@ -605,9 +627,11 @@ for (th in 1:length(thresholds)) {
       d_plot <- rbind(d_plot, c(FPR_max, max(d_plot$TPR)), c(min(d_plot$FPR), TPR_min))
     }
     
+    # plot
     ggplot(d_plot, aes(x = FPR, y = TPR, lty = "diffcyt-limma")) + 
       geom_line(color = "blue") + 
       geom_vline(xintercept = c(0.01, 0.05, 0.1), color = "red", lty = 2) + 
+      geom_point(data = d_actual, shape = 1, size = 2.5, stroke = 1, col = "orangered") + 
       xlim(0, FPR_max) + 
       ylim(TPR_min, 1) + 
       xlab(x_label) + 
