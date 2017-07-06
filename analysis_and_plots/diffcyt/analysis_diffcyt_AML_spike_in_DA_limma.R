@@ -16,6 +16,7 @@ library(magrittr)
 library(dplyr)
 library(scales)
 library(Rtsne)
+library(ROCR)
 
 
 
@@ -415,6 +416,211 @@ for (th in 1:length(thresholds)) {
     
     ggsave(filename, width = 9, height = 9)
   }
+  
+  
+  # ----------------------
+  # t-SNE: DA test results
+  # ----------------------
+  
+  for (j in 1:length(cond_names)) {
+    
+    # get results object
+    
+    res_DA <- out_DA[[th]][[j]]
+    
+    # identify clusters containing true spike-in cells
+    
+    ix_keep <- group_IDs %in% c("healthy", cond_names[j])
+    
+    group_IDs_sub <- group_IDs[ix_keep]
+    group_IDs_sub <- droplevels(group_IDs_sub)
+    
+    d_se_sub <- d_se[rowData(d_se)$group %in% group_IDs_sub, ]
+    
+    d_counts_sub <- d_counts[, ix_keep]
+    
+    # calculate proportion true spike-in cells per cluster
+    
+    rowData(d_se_sub) %>% 
+      as.data.frame %>% 
+      group_by(cluster) %>% 
+      summarize(prop_spikein = mean(as.numeric(as.character(spikein)))) -> 
+      d_true
+    
+    d_true <- as.data.frame(d_true)
+    
+    # fill in any missing clusters (zero cells)
+    if (nrow(d_true) < nlevels(rowData(d_se)$cluster)) {
+      ix_missing <- which(!(levels(rowData(d_se)$cluster) %in% d_true$cluster))
+      d_true_tmp <- data.frame(factor(ix_missing, levels = levels(rowData(d_se)$cluster)), 0)
+      colnames(d_true_tmp) <- colnames(d_true)
+      rownames(d_true_tmp) <- ix_missing
+      d_true <- rbind(d_true, d_true_tmp)
+      # re-order rows
+      d_true <- d_true[order(d_true$cluster), ]
+      rownames(d_true) <- d_true$cluster
+    }
+    
+    n_cells <- rowData(d_counts_sub)$n_cells
+    if (!(nrow(d_true) == length(n_cells))) warning("number of clusters does not match")
+    
+    # identify if proportion spike-in > 0.1
+    d_true$spikein <- as.numeric(d_true$prop_spikein > 0.1)
+    
+    
+    # number of cells
+    n_cells <- rowData(d_counts_sub)$n_cells
+    
+    if (!(nrow(d_true) == length(n_cells))) warning("number of clusters does not match")
+    if (!(nrow(d_medians_all) == nrow(d_true))) warning("number of clusters does not match")
+    
+    d_plot <- cbind(d_true, n_cells)
+    
+    
+    # generate t-SNE plot highlighting true spike-in cells on same plot
+    
+    # run t-SNE
+    
+    d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_clustering_col]
+    d_tsne <- as.matrix(d_tsne)
+    
+    # remove any duplicate rows (required by Rtsne)
+    dups <- duplicated(d_tsne)
+    d_tsne <- d_tsne[!dups, ]
+    
+    # also remove duplicated rows from plotting data
+    d_plot <- d_plot[!dups, ]
+    
+    # run Rtsne
+    # (note: initial PCA step not required, since we do not have too many dimensions)
+    set.seed(123)
+    out_tsne <- Rtsne(d_tsne, pca = FALSE, verbose = TRUE)
+    
+    tsne_coords <- as.data.frame(out_tsne$Y)
+    colnames(tsne_coords) <- c("tSNE_1", "tSNE_2")
+    
+    d_plot <- cbind(d_plot, tsne_coords)
+    
+    
+    nroot_trans <- function() {
+      trans_new("nroot", function(x) x^(1/10), function(x) x^10)
+    }
+    
+    #if (pvalue_type == "adjusted") p_vals_DA <- rowData(res_DA)$adj.P.Val
+    #if (pvalue_type == "raw") p_vals_DA <- rowData(res_DA)$P.Value
+    p_vals_DA <- rowData(res_DA)$adj.P.Val
+    
+    names(p_vals_DA) <- rowData(res_DA)$cluster
+    
+    stopifnot(length(p_vals_DA) == nrow(d_plot))
+    
+    d_plot <- cbind(d_plot, p_vals = p_vals_DA[as.character(d_plot$cluster)])
+    
+    min_val <- min(p_vals_DA, na.rm = TRUE)
+    max_val <- max(p_vals_DA, na.rm = TRUE) - 0.3  # slightly reduce max value for legend display
+                                                   # due to ggplot2 bug (see below)
+    
+    
+    ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = p_vals_DA)) + 
+      # layer multiple geom_points to outline true spike-in cells
+      # (a bit hacky)
+      geom_point(aes(stroke = 1.5 * spikein), shape = 20, color = "black", fill = "white") + 
+      geom_point(aes(stroke = 0), shape = 20, color = "white") + 
+      geom_point(aes(stroke = 0), shape = 20, alpha = 0.6) + 
+      scale_size_continuous(range = c(1, 6)) + 
+      scale_color_gradient(low = "red", high = "gray60", trans = nroot_trans(), 
+                           breaks = c(min_val, 0.05, max_val), 
+                           labels = c(round(min_val), 0.05, round(max_val))) + 
+      #guide = guide_colorbar(title.vjust = 0.5)) +  # bug in ggplot: doesn't work
+      coord_fixed() + 
+      ggtitle("t-SNE: Differential abundance (DA) test results") + 
+      theme_bw()
+    
+    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[j])
+    filename <- file.path(path, "tSNE_results_DA.pdf")
+    
+    ggsave(filename, width = 9, height = 9)
+  }
+  
+  
+  # ---------------------------
+  # ROC curves: DA test results
+  # ---------------------------
+  
+  # note: calculate ROC curves at cell level using cluster-level p-values (i.e. the
+  # cluster-level p-value is used for all cells in that cluster)
+  
+  for (j in 1:length(cond_names)) {
+    
+    # get results object
+    res_DA <- out_DA[[th]][[j]]
+    
+    # identify clusters containing true spike-in cells
+    ix_keep <- group_IDs %in% c("healthy", cond_names[j])
+    group_IDs_sub <- group_IDs[ix_keep]
+    group_IDs_sub <- droplevels(group_IDs_sub)
+    d_se_sub <- d_se[rowData(d_se)$group %in% group_IDs_sub, ]
+    
+    # get cell-level DA test results
+    
+    # convert to factor
+    rowData(res_DA)$cluster <- factor(rowData(res_DA)$cluster, levels = levels(rowData(d_se_sub)$cluster))
+    
+    # match cluster-level p-values to individual cells
+    p_vals_clusters <- rowData(res_DA)$P.Value
+    p_vals_cells <- p_vals_clusters[match(rowData(d_se_sub)$cluster, rowData(res_DA)$cluster)]
+    
+    rowData(d_se_sub)$p_vals <- p_vals_cells
+    
+    d_roc <- as.data.frame(rowData(d_se_sub)[, c("cluster", "spikein", "p_vals")])
+    
+    # calculate ROC curve values
+    pred <- prediction(1 - d_roc$p_vals, d_roc$spikein)
+    perf <- performance(pred, "tpr", "fpr")
+    
+    # generate plot
+    
+    FPR <- perf@x.values[[1]]
+    TPR <- perf@y.values[[1]]
+    x_label <- perf@x.name
+    y_label <- perf@y.name
+    
+    # better plot axes for 5% spike-in threshold
+    if(th == 1) {
+      FPR_max <- 0.2
+      TPR_min <- 0.8
+    } else {
+      FPR_max <- 1
+      TPR_min <- 0
+    }
+    
+    d_plot <- data.frame(FPR, TPR)
+    
+    if (th == 1) {
+      # subset
+      d_plot <- d_plot[d_plot$FPR <= FPR_max & d_plot$TPR >= TPR_min, ]
+      # include min and max values (for plot)
+      d_plot <- rbind(d_plot, c(FPR_max, max(d_plot$TPR)), c(min(d_plot$FPR), TPR_min))
+    }
+    
+    ggplot(d_plot, aes(x = FPR, y = TPR, lty = "diffcyt-limma")) + 
+      geom_line(color = "blue") + 
+      geom_vline(xintercept = c(0.01, 0.05, 0.1), color = "red", lty = 2) + 
+      xlim(0, FPR_max) + 
+      ylim(TPR_min, 1) + 
+      xlab(x_label) + 
+      ylab(y_label) + 
+      coord_fixed() + 
+      ggtitle("ROC: Differential abundance (DA) test results") + 
+      theme_bw() + 
+      theme(legend.title = element_blank())
+    
+    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[j])
+    filename <- file.path(path, "ROC_curves_DA.pdf")
+    
+    ggsave(filename, width = 9, height = 8)
+  }
+  
 }
 
 
