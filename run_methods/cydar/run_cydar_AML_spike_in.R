@@ -27,12 +27,12 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-is_spikein <- 
-  out_cydar_objects <- out_cydar_qvals <- 
+n_cells_thresholds <- is_spikein_thresholds <- 
+  out_cydar_data <- out_cydar_tests <- out_cydar_pvals <- out_cydar_qvals <- 
   vector("list", length(thresholds))
 
-names(is_spikein) <- 
-  names(out_cydar_objects) <- names(out_cydar_qvals) <- 
+names(n_cells_thresholds) <- names(is_spikein_thresholds) <- 
+  names(out_cydar_data) <- names(out_cydar_tests) <- names(out_cydar_pvals) <- names(out_cydar_qvals) <- 
   thresholds
 
 
@@ -89,6 +89,13 @@ for (th in 1:length(thresholds)) {
   cols_func <- setdiff(cols_markers, cols_lineage)
   
   
+  # ---------------
+  # number of cells
+  # ---------------
+  
+  n_cells_thresholds[[th]] <- sapply(d_input, nrow)
+  
+  
   # ------------------------------------------------------
   # remove spike-in indicator columns and store separately
   # ------------------------------------------------------
@@ -96,15 +103,15 @@ for (th in 1:length(thresholds)) {
   # 'AML-spike-in' data set includes indicator columns for spike-in cells in conditions
   # 'CN' and 'CBF'; these need to be removed and stored separately
   
-  is_spikein[[th]] <- vector("list", length(sample_IDs))
-  names(is_spikein[[th]]) <- sample_IDs
+  is_spikein_thresholds[[th]] <- vector("list", length(sample_IDs))
+  names(is_spikein_thresholds[[th]]) <- sample_IDs
   
   for (i in 1:length(sample_IDs)) {
     exprs_i <- exprs(d_input[[i]])
     if (group_IDs[i] == "healthy") {
-      is_spikein[[th]][[i]] <- rep(0, nrow(exprs_i))
+      is_spikein_thresholds[[th]][[i]] <- rep(0, nrow(exprs_i))
     } else {
-      is_spikein[[th]][[i]] <- exprs_i[, "spikein"]
+      is_spikein_thresholds[[th]][[i]] <- exprs_i[, "spikein"]
       # remove column from expression matrix
       d_input[[i]] <- flowFrame(exprs_i[, -match("spikein", colnames(exprs_i))])
     }
@@ -214,8 +221,10 @@ for (th in 1:length(thresholds)) {
   
   
   # set up contrasts and test separately for each condition
-  out_cydar_objects[[th]] <- out_cydar_qvals[[th]] <- vector("list", length(cond_names))
-  names(out_cydar_objects[[th]]) <- names(out_cydar_qvals[[th]]) <- cond_names
+  out_cydar_data[[th]] <- out_cydar_tests[[th]] <- out_cydar_pvals[[th]] <- out_cydar_qvals[[th]] <- 
+    vector("list", length(cond_names))
+  names(out_cydar_data[[th]]) <- names(out_cydar_tests[[th]]) <- names(out_cydar_pvals[[th]]) <- names(out_cydar_qvals[[th]]) <- 
+    cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -228,6 +237,9 @@ for (th in 1:length(thresholds)) {
       # differential testing
       res <- glmQLFTest(fit, contrast = contrast)
       
+      # raw p-values
+      pvals <- res$table$PValue
+      
       # controlling the spatial false discovery rate (FDR)
       qvals <- spatialFDR(intensities(cd), res$table$PValue)
     })
@@ -238,8 +250,25 @@ for (th in 1:length(thresholds)) {
     is.sig <- qvals <= 0.9
     print(summary(is.sig))
     
+    # # plots
+    # sig.coords <- intensities(cd)[is.sig, ]
+    # sig.res <- res$table[is.sig, ]
+    # coords <- prcomp(sig.coords)
+    # plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
+    # 
+    # par(mfrow = c(4, 4), mar = c(2.1, 1.1, 3.1, 1.1))
+    # limits <- intensityRanges(cd, p = 0.05)
+    # all.markers <- rownames(markerData(cd))
+    # for (i in order(all.markers)) { 
+    #   plotCellIntensity(coords$x[, 1], coords$x[, 2], sig.coords[, i], 
+    #                     irange=limits[, i], main=all.markers[i])
+    # }
+    # par(mfrow = c(1, 1))
+    
     # store results
-    out_cydar_objects[[th]][[j]] <- res
+    out_cydar_data[[th]][[j]] <- cd
+    out_cydar_tests[[th]][[j]] <- res
+    out_cydar_pvals[[th]][[j]] <- pvals
     out_cydar_qvals[[th]][[j]] <- qvals
   }
 }
