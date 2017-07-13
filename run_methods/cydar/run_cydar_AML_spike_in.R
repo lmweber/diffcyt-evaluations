@@ -224,13 +224,13 @@ for (th in 1:length(thresholds)) {
     contr_str <- paste0("group_IDs", cond_names[j], " - group_IDshealthy")
     contrast <- makeContrasts(contr_str, levels = design)
     
-    runtime_cydar <- system.time(
+    runtime_cydar <- system.time({
       # differential testing
-      res <- glmQLFTest(fit, contrast = contrast), 
+      res <- glmQLFTest(fit, contrast = contrast)
       
       # controlling the spatial false discovery rate (FDR)
       qvals <- spatialFDR(intensities(cd), res$table$PValue)
-    )
+    })
     
     print(runtime_cydar)
     
