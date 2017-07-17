@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt
+# - method: diffcyt-DA-limma
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017

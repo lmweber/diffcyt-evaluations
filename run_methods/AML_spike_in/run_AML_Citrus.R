@@ -216,7 +216,46 @@ for (th in 1:length(thresholds)) {
     )
     
     # plot results
-    plot(results, outputDirectory)
+    #plot(results, outputDirectory)
+    
+    
+    
+    
+    ##########################
+    # Extract and save results
+    ##########################
+    
+    # cell indices from original files are stored in 'res$citrus.combinedFCSSet$data', column 'fileEventNumber';
+    # can use 'fileIds', list of filenames, and number of sampled cells per file to match the cells
+    
+    # differential features are saved in:
+    # 'results$conditionRegressionResults$defaultCondition$glmnet$differentialFeatures'
+    
+    # cell indices in the differential clusters are saved in:
+    # 'results$citrus.foldClustering'
+    # 'results$citrus.foldClustering$allClustering$clusterMembership'
+    # these are in complicated 'hclust' format, which needs to be unpacked
+    
+    # can find how to get cell indices by looking through following file:
+    # https://github.com/nolanlab/citrus/blob/master/R/citrus.plot.R
+    
+    # cluster marker expression values
+    #cluster_ID <- 49939
+    #results$citrus.combinedFCSSet$data[results$citrus.foldClustering$allClustering$clusterMembership[[cluster_ID]], clusteringColumns]
+    
+    # 'ix' contains the indices
+    cluster_ID <- 49939
+    data <- results$citrus.combinedFCSSet$data
+    ix <- results$citrus.foldClustering$allClustering$clusterMembership[[cluster_ID]]
+    str(ix)
+    length(ix)
+    summary(ix)
+    
+    
+    
+    
+    
+    
   }
   
 }
