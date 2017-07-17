@@ -172,8 +172,12 @@ sapply(data_healthy_CBF, dim)
 for (i in 1:length(data_healthy_base)) {
   data_i <- data_healthy_base[[i]]
   nm_i <- names(data_healthy_base)[i]
+  
+  # include spike-in status column so all .fcs files have same shape
+  data_out_i <- cbind(data_i, spikein = 0)
+  
   filename <- file.path(DIR_DATA, "healthy", paste0("AML_spike_in_healthy_", nm_i, ".fcs"))
-  write.FCS(flowFrame(data_i), filename)
+  write.FCS(flowFrame(data_out_i), filename)
 }
 
 
