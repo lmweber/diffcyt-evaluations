@@ -1,7 +1,7 @@
 ##########################################################################################
 # Analysis and plots
 # 
-# - method: diffcyt
+# - method: diffcyt-DA-limma
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -25,7 +25,7 @@ library(ROCR)
 # Load saved results
 ####################
 
-load("../../../RData/outputs_diffcyt_AML_spike_in_DA_limma.RData")
+load("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma.RData")
 
 
 
@@ -63,20 +63,13 @@ for (th in 1:length(thresholds)) {
   # get spike-in status for each cell
   # ---------------------------------
   
-  # number of spiked-in cells per sample
-  n_spikein_tbl <- lapply(is_spikein[[th]], table)
-  n_spikein_tbl
+  is_spikein <- unlist(is_spikein_thresholds[[th]])
   
-  vals <- as.numeric(unlist(lapply(n_spikein_tbl, names)))
-  n <- unname(unlist(n_spikein_tbl))
-  
-  # spike-in status for each cell
-  spikein_rep <- as.factor(rep(vals, n))
-  
-  length(spikein_rep)
+  length(is_spikein)
   
   # store spike-in status in rowData of 'd_se'
-  rowData(d_se) <- cbind(rowData(d_se), data.frame(spikein = spikein_rep))
+  # (note: 'numeric' instead of 'factor' so can use 'mean' and 'sum')
+  rowData(d_se) <- cbind(rowData(d_se), data.frame(spikein = is_spikein))
   rowData(d_se)
   
   
@@ -159,8 +152,8 @@ for (th in 1:length(thresholds)) {
       theme(axis.title.y = element_blank(), 
             legend.title = element_blank())
     
-    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/clustering/", cond_names[j])
-    filename <- file.path(path, paste0("clus_perf_AML_spike_in_", thresholds[th], "_", cond_names[j], ".pdf"))
+    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/clustering/", cond_names[j])
+    filename <- file.path(path, paste0("results_AML_spike_in_diffcyt_clustering_barplots_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 6, height = 5)
   }
@@ -189,7 +182,7 @@ for (th in 1:length(thresholds)) {
     rowData(d_se_sub) %>% 
       as.data.frame %>% 
       group_by(cluster) %>% 
-      summarize(prop_spikein = mean(as.numeric(as.character(spikein)))) -> 
+      summarize(prop_spikein = mean(spikein)) -> 
       d_plot
     
     d_plot <- as.data.frame(d_plot)
@@ -219,8 +212,8 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("MST: Proportion true spike-in cells per cluster: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
-    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/clustering/", cond_names[j])
-    filename <- file.path(path, "MST_prop_true_spikein.pdf")
+    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/clustering/", cond_names[j])
+    filename <- file.path(path, paste0("results_AML_spike_in_diffcyt_clustering_MST_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 9)
   }
@@ -244,7 +237,7 @@ for (th in 1:length(thresholds)) {
     rowData(d_se_sub) %>% 
       as.data.frame %>% 
       group_by(cluster) %>% 
-      summarize(prop_spikein = mean(as.numeric(as.character(spikein)))) -> 
+      summarize(prop_spikein = mean(spikein)) -> 
       d_prop
     
     d_prop <- as.data.frame(d_prop)
@@ -300,8 +293,8 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("t-SNE: Proportion true spike-in cells per cluster: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
-    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/clustering/", cond_names[j])
-    filename <- file.path(path, "tSNE_prop_true_spikein.pdf")
+    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/clustering/", cond_names[j])
+    filename <- file.path(path, paste0("results_AML_spike_in_diffcyt_clustering_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 9)
   }
@@ -322,7 +315,7 @@ for (th in 1:length(thresholds)) {
     
     # get results object
     
-    res_DA <- out_DA[[th]][[j]]
+    res <- out_diffcyt_DA_limma[[th]][[j]]
     
     # identify clusters containing true spike-in cells
     
@@ -340,7 +333,7 @@ for (th in 1:length(thresholds)) {
     rowData(d_se_sub) %>% 
       as.data.frame %>% 
       group_by(cluster) %>% 
-      summarize(prop_spikein = mean(as.numeric(as.character(spikein)))) -> 
+      summarize(prop_spikein = mean(spikein)) -> 
       d_true
     
     d_true <- as.data.frame(d_true)
@@ -383,17 +376,17 @@ for (th in 1:length(thresholds)) {
       trans_new("nroot", function(x) x^(1/10), function(x) x^10)
     }
     
-    #if (pvalue_type == "adjusted") p_vals_DA <- rowData(res_DA)$adj.P.Val
-    #if (pvalue_type == "raw") p_vals_DA <- rowData(res_DA)$P.Value
-    p_vals_DA <- rowData(res_DA)$adj.P.Val
+    #if (pvalue_type == "adjusted") p_vals <- rowData(res)$adj.P.Val
+    #if (pvalue_type == "raw") p_vals <- rowData(res)$P.Value
+    p_vals <- rowData(res)$adj.P.Val
     
-    names(p_vals_DA) <- rowData(res_DA)$cluster
+    names(p_vals) <- rowData(res)$cluster
     
-    d_plot <- cbind(d_plot, p_vals = p_vals_DA[as.character(d_plot$cluster)])
+    d_plot <- cbind(d_plot, p_vals = p_vals[as.character(d_plot$cluster)])
     
-    min_val <- min(p_vals_DA, na.rm = TRUE)
-    max_val <- max(p_vals_DA, na.rm = TRUE) - 0.3  # slightly reduce max value for legend display
-                                                   # due to ggplot2 bug (see below)
+    min_val <- min(p_vals, na.rm = TRUE)
+    max_val <- max(p_vals, na.rm = TRUE) - 0.3  # slightly reduce max value for legend display
+                                                # due to ggplot2 bug (see below)
     
     # add indicator for clusters containing spike-in cells
     d_plot$spikein <- d_true$spikein
@@ -411,8 +404,8 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("MST: Differential abundance (DA) test results: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
-    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[j])
-    filename <- file.path(path, "MST_results_DA.pdf")
+    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/diffcyt_DA_limma/", cond_names[j])
+    filename <- file.path(path, paste0("results_diffcyt_DA_limma_MST_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 9)
   }
@@ -426,7 +419,7 @@ for (th in 1:length(thresholds)) {
     
     # get results object
     
-    res_DA <- out_DA[[th]][[j]]
+    res <- out_diffcyt_DA_limma[[th]][[j]]
     
     # identify clusters containing true spike-in cells
     
@@ -444,7 +437,7 @@ for (th in 1:length(thresholds)) {
     rowData(d_se_sub) %>% 
       as.data.frame %>% 
       group_by(cluster) %>% 
-      summarize(prop_spikein = mean(as.numeric(as.character(spikein)))) -> 
+      summarize(prop_spikein = mean(spikein)) -> 
       d_true
     
     d_true <- as.data.frame(d_true)
@@ -506,22 +499,22 @@ for (th in 1:length(thresholds)) {
       trans_new("nroot", function(x) x^(1/10), function(x) x^10)
     }
     
-    #if (pvalue_type == "adjusted") p_vals_DA <- rowData(res_DA)$adj.P.Val
-    #if (pvalue_type == "raw") p_vals_DA <- rowData(res_DA)$P.Value
-    p_vals_DA <- rowData(res_DA)$adj.P.Val
+    #if (pvalue_type == "adjusted") p_vals <- rowData(res)$adj.P.Val
+    #if (pvalue_type == "raw") p_vals <- rowData(res)$P.Value
+    p_vals <- rowData(res)$adj.P.Val
     
-    names(p_vals_DA) <- rowData(res_DA)$cluster
+    names(p_vals) <- rowData(res)$cluster
     
-    stopifnot(length(p_vals_DA) == nrow(d_plot))
+    stopifnot(length(p_vals) == nrow(d_plot))
     
-    d_plot <- cbind(d_plot, p_vals = p_vals_DA[as.character(d_plot$cluster)])
+    d_plot <- cbind(d_plot, p_vals = p_vals[as.character(d_plot$cluster)])
     
-    min_val <- min(p_vals_DA, na.rm = TRUE)
-    max_val <- max(p_vals_DA, na.rm = TRUE) - 0.3  # slightly reduce max value for legend display
-                                                   # due to ggplot2 bug (see below)
+    min_val <- min(p_vals, na.rm = TRUE)
+    max_val <- max(p_vals, na.rm = TRUE) - 0.3  # slightly reduce max value for legend display
+                                                # due to ggplot2 bug (see below)
     
     
-    ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = p_vals_DA)) + 
+    ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = p_vals)) + 
       # layer multiple geom_points to outline true spike-in cells
       # (a bit hacky)
       geom_point(aes(stroke = 1.5 * spikein), shape = 20, color = "black", fill = "white") + 
@@ -536,8 +529,8 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("t-SNE: Differential abundance (DA) test results: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
-    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[j])
-    filename <- file.path(path, "tSNE_results_DA.pdf")
+    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/diffcyt_DA_limma/", cond_names[j])
+    filename <- file.path(path, paste0("results_diffcyt_DA_limma_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 9)
   }
@@ -553,7 +546,7 @@ for (th in 1:length(thresholds)) {
   for (j in 1:length(cond_names)) {
     
     # get results object
-    res_DA <- out_DA[[th]][[j]]
+    res <- out_diffcyt_DA_limma[[th]][[j]]
     
     # identify clusters containing true spike-in cells
     ix_keep <- group_IDs %in% c("healthy", cond_names[j])
@@ -561,7 +554,7 @@ for (th in 1:length(thresholds)) {
     group_IDs_sub <- droplevels(group_IDs_sub)
     d_se_sub <- d_se[rowData(d_se)$group %in% group_IDs_sub, ]
     
-    # get cell-level DA test results
+    # get cell-level test results
     
     # convert to factor
     rowData(res_DA)$cluster <- factor(rowData(res_DA)$cluster, levels = levels(rowData(d_se_sub)$cluster))
@@ -569,8 +562,8 @@ for (th in 1:length(thresholds)) {
     # match cluster-level p-values to individual cells
     
     # use raw p-values (adjusted p-values do not work well for very rare populations)
-    p_vals_clusters <- rowData(res_DA)$P.Value
-    p_vals_cells <- p_vals_clusters[match(rowData(d_se_sub)$cluster, rowData(res_DA)$cluster)]
+    p_vals_clusters <- rowData(res)$P.Value
+    p_vals_cells <- p_vals_clusters[match(rowData(d_se_sub)$cluster, rowData(res)$cluster)]
     
     rowData(d_se_sub)$p_vals <- p_vals_cells
     
@@ -641,8 +634,8 @@ for (th in 1:length(thresholds)) {
       theme_bw() + 
       theme(legend.title = element_blank())
     
-    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[j])
-    filename <- file.path(path, "ROC_curves_DA.pdf")
+    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/diffcyt_DA_limma/", cond_names[j])
+    filename <- file.path(path, paste0("results_diffcyt_DA_limma_ROC_curve_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 8)
   }
