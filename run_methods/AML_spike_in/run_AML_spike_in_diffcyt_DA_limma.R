@@ -27,14 +27,14 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-is_spikein <- 
+is_spikein_thresholds <- 
   d_se_thresholds <- d_counts_thresholds <- d_medians_all_thresholds <- 
-  out_DA <- out_DA_sorted <- 
+  out_diffcyt_DA_limma <- out_diffcyt_DA_limma_sorted <- 
   vector("list", length(thresholds))
 
-names(is_spikein) <- 
+names(is_spikein_thresholds) <- 
   names(d_se_thresholds) <- names(d_counts_thresholds) <- names(d_medians_all_thresholds) <- 
-  names(out_DA) <- names(out_DA_sorted) <- 
+  names(out_diffcyt_DA_limma) <- names(out_diffcyt_DA_limma_sorted) <- 
   thresholds
 
 
@@ -91,25 +91,18 @@ for (th in 1:length(thresholds)) {
   cols_func <- setdiff(cols_markers, cols_lineage)
   
   
-  # ------------------------------------------------------
-  # remove spike-in indicator columns and store separately
-  # ------------------------------------------------------
+  # ---------------------
+  # store spike-in status
+  # ---------------------
   
-  # 'AML-spike-in' data set includes indicator columns for spike-in cells in conditions
-  # 'CN' and 'CBF'; these need to be removed and stored separately
+  # store spike-in status for each cell
   
-  is_spikein[[th]] <- vector("list", length(sample_IDs))
-  names(is_spikein[[th]]) <- sample_IDs
+  is_spikein_thresholds[[th]] <- vector("list", length(sample_IDs))
+  names(is_spikein_thresholds[[th]]) <- sample_IDs
   
   for (i in 1:length(sample_IDs)) {
     exprs_i <- exprs(d_input[[i]])
-    if (group_IDs[i] == "healthy") {
-      is_spikein[[th]][[i]] <- rep(0, nrow(exprs_i))
-    } else {
-      is_spikein[[th]][[i]] <- exprs_i[, "spikein"]
-      # remove column from expression matrix
-      exprs(d_input[[i]]) <- exprs_i[, -match("spikein", colnames(exprs_i))]
-    }
+    is_spikein_thresholds[[th]][[i]] <- exprs_i[, "spikein"]
   }
   
   
@@ -190,8 +183,8 @@ for (th in 1:length(thresholds)) {
   
   # test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_DA[[th]] <- out_DA_sorted[[th]] <- vector("list", length(cond_names))
-  names(out_DA[[th]]) <- names(out_DA_sorted[[th]]) <- cond_names
+  out_diffcyt_DA_limma[[th]] <- out_diffcyt_DA_limma_sorted[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_limma[[th]]) <- names(out_diffcyt_DA_limma_sorted[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -200,7 +193,7 @@ for (th in 1:length(thresholds)) {
     # run DA tests
     # ------------
     
-    path <- paste0("../../../plots/diffcyt/AML_spike_in/", thresholds[th], "/DA/", cond_names[j])
+    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/diffcyt_DA_limma/", cond_names[j])
     
     # set up contrast
     design <- model.matrix(~ 0 + group_IDs)
@@ -239,8 +232,8 @@ for (th in 1:length(thresholds)) {
     # output objects
     # --------------
     
-    out_DA[[th]][[j]] <- res_DA
-    out_DA_sorted[[th]][[j]] <- res_DA_sorted
+    out_diffcyt_DA_limma[[th]][[j]] <- res_DA
+    out_diffcyt_DA_limma_sorted[[th]][[j]] <- res_DA_sorted
   }
 }
 
@@ -251,7 +244,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save.image("../../../RData/outputs_diffcyt_AML_spike_in_DA_limma.RData")
+save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma.RData")
 
 
 
@@ -260,7 +253,7 @@ save.image("../../../RData/outputs_diffcyt_AML_spike_in_DA_limma.RData")
 # Session information
 #####################
 
-sink("../../../session_info/session_info_diffcyt_AML_spike_in_DA_limma.txt")
+sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_diffcyt_DA_limma.txt")
 sessionInfo()
 sink()
 
