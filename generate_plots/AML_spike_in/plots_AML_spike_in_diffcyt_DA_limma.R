@@ -1,5 +1,5 @@
 ##########################################################################################
-# Analysis and plots
+# Generate plots
 # 
 # - method: diffcyt-DA-limma
 # - data set: AML-spike-in

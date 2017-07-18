@@ -1,11 +1,14 @@
 ##########################################################################################
-# Analysis and plots
+# Generate plots
 # 
 # - method: CellCnn-all-markers
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
 ##########################################################################################
+
+
+# also add t-SNE plots (at cell level, with highlighting for true spike-in cells)
 
 
 library(ggplot2)
@@ -36,12 +39,9 @@ for (th in 1:length(thresholds)) {
   ###################################
   
   # get filenames
-  
   files_load <- files_load_thresholds[[th]]
   
-  
   # get spike-in status for each cell
-  
   is_spikein <- is_spikein_thresholds[[th]]
   
   all(sample_IDs == names(is_spikein))
@@ -52,10 +52,6 @@ for (th in 1:length(thresholds)) {
   #############################
   # Plots: CellCnn test results
   #############################
-  
-  
-  # also try a t-SNE plot (at cell level, with highlighting for true spike-in cells)
-  
   
   
   # --------------------------------
@@ -72,10 +68,8 @@ for (th in 1:length(thresholds)) {
     
     path_out <- paste0("../../../CellCnn_files/AML_spike_in/all_markers/out_CellCnn/", thresholds[th], "/", cond_names[j], "/selected_cells")
     
-    
     # skip if no files exist (CellCnn did not run correctly)
     if (length(list.files(path_out)) == 0) next
-    
     
     # filenames for this condition
     files_cnd <- paste0(path_out, "/", gsub("\\.fcs$", "", basename(files_load[ix_keep_cnd])), "_transf_selected_cells.csv")
@@ -83,63 +77,48 @@ for (th in 1:length(thresholds)) {
     # spike-in status for cells in this condition
     is_spikein_cnd <- unlist(is_spikein[ix_keep_cnd])
     
-    # significant cells in top filter for this condition
+    # get significant cells in top filter for this condition
     
-    # assume only one filter for now (to do: allow multiple filters)
-    filter_continuous_cnd <- lapply(files_cnd, function(f) {
-      read.csv(f)[, 1]  ## column index 1 contains continuous values for the top filter
-    })
+    filter_continuous_cnd <- vector("list", length(files_cnd))
+    for (f in 1:length(files_cnd)) {
+      d <- read.csv(files_cnd[f])
+      # note: if there are multiple filters for one sample, combine them using 'rowSums'
+      # (filters are stored in odd-numbered columns of the .csv file)
+      ix <- seq(1, ncol(d), by = 2)
+      filt_sum <- rowSums(d[, ix, drop = FALSE])
+      filter_continuous_cnd[[f]] <- filt_sum
+    }
     
     filter_continuous_cnd <- unlist(filter_continuous_cnd)
-    
     length(is_spikein_cnd) == length(filter_continuous_cnd)
     
     # calculate ROC curve values
+    
     d_roc <- data.frame(spikein = is_spikein_cnd, filter = filter_continuous_cnd)
     #View(d_roc)
     
     pred <- prediction(d_roc$filter, d_roc$spikein)
     perf <- performance(pred, "tpr", "fpr")
     
-    # to do: replace last row value=c(1.0, 1.0) with value=c(FPR=1.0, TPR=TPR_max)
-    # this will remove the straight diagonal line, which is misleading
-    
-    
     FPR <- perf@x.values[[1]]
     TPR <- perf@y.values[[1]]
     x_label <- perf@x.name
     y_label <- perf@y.name
     
-    
-    # note: CellCnn: no p-values, so cannot calculate FPR and TPR using actual p-value cutoffs
-    
-    
-    # better plot axes (for 5% spike-in threshold only)
-    if(th == 1) {
-      FPR_max <- 0.2
-      TPR_min <- 0.8
-    } else {
-      FPR_max <- 1
-      TPR_min <- 0
-    }
+    # remove point (1, 1) from ROC curve, since this gives misleading diagonal lines
+    ix_ones <- which(FPR == 1 & TPR == 1)
+    FPR <- FPR[-ix_ones]
+    TPR <- TPR[-ix_ones]
     
     # plotting data frame
     d_plot <- data.frame(FPR, TPR)
-    
-    if (th == 1) {
-      # subset
-      d_plot <- d_plot[d_plot$FPR <= FPR_max & d_plot$TPR >= TPR_min, ]
-      # include min and max values (for plot)
-      d_plot <- rbind(d_plot, c(FPR_max, max(d_plot$TPR)), c(min(d_plot$FPR), TPR_min))
-    }
-    
     
     # plot
     ggplot(d_plot, aes(x = FPR, y = TPR, lty = "CellCnn-all-markers")) + 
       geom_line(color = "forestgreen") + 
       geom_vline(xintercept = c(0.01, 0.05, 0.1), color = "red", lty = 2) + 
-      xlim(0, FPR_max) + 
-      ylim(TPR_min, 1) + 
+      xlim(0, 1) + 
+      ylim(0, 1) + 
       xlab(x_label) + 
       ylab(y_label) + 
       coord_fixed() + 
@@ -147,8 +126,8 @@ for (th in 1:length(thresholds)) {
       theme_bw() + 
       theme(legend.title = element_blank())
     
-    path <- paste0("../../../plots/CellCnn/AML_spike_in/", thresholds[th], "/", cond_names[j])
-    filename <- file.path(path, "ROC_curves_CellCnn.pdf")
+    path <- paste0("../../../plots/AML_spike_in/CellCnn/all_markers/", thresholds[th], "/", cond_names[j])
+    filename <- file.path(path, paste0("results_CellCnn_all_markers_ROC_curve_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 8)
   }

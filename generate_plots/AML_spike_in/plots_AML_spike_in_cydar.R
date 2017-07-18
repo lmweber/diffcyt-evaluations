@@ -1,5 +1,5 @@
 ##########################################################################################
-# Analysis and plots
+# Generate plots
 # 
 # - method: cydar
 # - data set: AML-spike-in
