@@ -1,7 +1,7 @@
 ##########################################################################################
 # Analysis and plots
 # 
-# - method: CellCnn
+# - method: CellCnn-all-markers
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -18,7 +18,7 @@ library(ROCR)
 # Load saved results
 ####################
 
-load("../../../RData/outputs_CellCnn_AML_spike_in_all_markers.RData")
+load("../../../RData/AML_spike_in/outputs_AML_spike_in_CellCnn_all_markers.RData")
 
 
 
@@ -35,20 +35,16 @@ for (th in 1:length(thresholds)) {
   # get filenames and spike-in status
   ###################################
   
-  # -------------
   # get filenames
-  # -------------
   
   files_load <- files_load_thresholds[[th]]
   
   
-  # ---------------------------------
   # get spike-in status for each cell
-  # ---------------------------------
   
-  all(sample_IDs == names(is_spikein[[th]]))
+  is_spikein <- is_spikein_thresholds[[th]]
   
-  spikein <- is_spikein[[th]]
+  all(sample_IDs == names(is_spikein))
   
   
   
@@ -74,7 +70,7 @@ for (th in 1:length(thresholds)) {
     # select samples for this condition
     ix_keep_cnd <- group_IDs == cond_names[j]
     
-    path_out <- paste0("../../../CellCnn_files/out_CellCnn/AML_spike_in/", thresholds[th], "/", cond_names[j], "/selected_cells")
+    path_out <- paste0("../../../CellCnn_files/AML_spike_in/all_markers/out_CellCnn/", thresholds[th], "/", cond_names[j], "/selected_cells")
     
     
     # skip if no files exist (CellCnn did not run correctly)
@@ -85,8 +81,7 @@ for (th in 1:length(thresholds)) {
     files_cnd <- paste0(path_out, "/", gsub("\\.fcs$", "", basename(files_load[ix_keep_cnd])), "_transf_selected_cells.csv")
     
     # spike-in status for cells in this condition
-    spikein_cnd <- spikein[ix_keep_cnd]
-    spikein_cnd <- unlist(spikein_cnd)
+    is_spikein_cnd <- unlist(is_spikein[ix_keep_cnd])
     
     # significant cells in top filter for this condition
     
@@ -97,10 +92,10 @@ for (th in 1:length(thresholds)) {
     
     filter_continuous_cnd <- unlist(filter_continuous_cnd)
     
-    length(spikein_cnd) == length(filter_continuous_cnd)
+    length(is_spikein_cnd) == length(filter_continuous_cnd)
     
     # calculate ROC curve values
-    d_roc <- data.frame(spikein = spikein_cnd, filter = filter_continuous_cnd)
+    d_roc <- data.frame(spikein = is_spikein_cnd, filter = filter_continuous_cnd)
     #View(d_roc)
     
     pred <- prediction(d_roc$filter, d_roc$spikein)
