@@ -1,7 +1,7 @@
 ##########################################################################################
 # Generate plots
 # 
-# - method: CellCnn-all-markers
+# - method: CellCnn-lineage-markers
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -21,7 +21,7 @@ library(ROCR)
 # Load saved results
 ####################
 
-load("../../../RData/AML_spike_in/outputs_AML_spike_in_CellCnn_all_markers.RData")
+load("../../../RData/AML_spike_in/outputs_AML_spike_in_CellCnn_lineage_markers.RData")
 
 
 
@@ -66,7 +66,7 @@ for (th in 1:length(thresholds)) {
     # select samples for this condition
     ix_keep_cnd <- group_IDs == cond_names[j]
     
-    path_out <- paste0("../../../CellCnn_files/AML_spike_in/all_markers/out_CellCnn/", thresholds[th], "/", cond_names[j], "/selected_cells")
+    path_out <- paste0("../../../CellCnn_files/AML_spike_in/lineage_markers/out_CellCnn/", thresholds[th], "/", cond_names[j], "/selected_cells")
     
     # skip if no files exist (CellCnn did not run correctly)
     if (length(list.files(path_out)) == 0) next
@@ -125,7 +125,7 @@ for (th in 1:length(thresholds)) {
     d_plot <- data.frame(FPR, TPR)
     
     # plot
-    ggplot(d_plot, aes(x = FPR, y = TPR, lty = "CellCnn-all-markers")) + 
+    ggplot(d_plot, aes(x = FPR, y = TPR, lty = "CellCnn-lineage-markers")) + 
       geom_line(color = "forestgreen") + 
       geom_vline(xintercept = c(0.01, 0.05, 0.1), color = "red", lty = 2) + 
       xlim(0, 1) + 
@@ -137,8 +137,8 @@ for (th in 1:length(thresholds)) {
       theme_bw() + 
       theme(legend.title = element_blank())
     
-    path <- paste0("../../../plots/AML_spike_in/CellCnn/all_markers/", thresholds[th], "/", cond_names[j])
-    filename <- file.path(path, paste0("results_CellCnn_all_markers_ROC_curve_", thresholds[th], "_", cond_names[j], ".pdf"))
+    path <- paste0("../../../plots/AML_spike_in/CellCnn/lineage_markers/", thresholds[th], "/", cond_names[j])
+    filename <- file.path(path, paste0("results_CellCnn_lineage_markers_ROC_curve_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 8)
   }
