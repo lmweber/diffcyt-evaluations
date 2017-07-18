@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: cydar-lineage-markers
+# - method: cydar-all-markers
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -93,7 +93,7 @@ for (th in 1:length(thresholds)) {
   # choose which markers to use
   # ---------------------------
   
-  cols_to_use <- cols_lineage
+  cols_to_use <- cols_markers
   
   
   # -----------------------------------------
@@ -274,7 +274,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_cydar_lineage_markers.RData")
+save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_cydar_all_markers.RData")
 
 
 
@@ -283,7 +283,7 @@ save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_cydar_lineage_marke
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_cydar_lineage_markers.txt")
+sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_cydar_all_markers.txt")
 sessionInfo()
 sink()
 

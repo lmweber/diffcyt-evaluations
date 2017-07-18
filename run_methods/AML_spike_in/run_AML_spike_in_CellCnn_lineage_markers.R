@@ -86,19 +86,21 @@ for (th in 1:length(thresholds)) {
   cols_func <- setdiff(cols_markers, cols_lineage)
   
   
-  # ---------------
-  # store filenames
-  # ---------------
+  # ---------------------------
+  # choose which markers to use
+  # ---------------------------
   
+  cols_to_use <- cols_lineage
+  
+  
+  # -----------------------------------
+  # store filenames and spike-in status
+  # -----------------------------------
+  
+  # filenames
   files_load_thresholds[[th]] <- files_load
   
-  
-  # ---------------------
-  # store spike-in status
-  # ---------------------
-  
-  # store spike-in status for each cell
-  
+  # spike-in status for each cell
   is_spikein_thresholds[[th]] <- vector("list", length(sample_IDs))
   names(is_spikein_thresholds[[th]]) <- sample_IDs
   
@@ -112,16 +114,13 @@ for (th in 1:length(thresholds)) {
   # marker names for CellCnn inputs
   # -------------------------------
   
-  # choose whether to use all markers or lineage markers
-  markers_to_use <- cols_lineage
-  
   check <- c()
   for (i in 1:length(d_input)) {
     check[i] <- all(colnames(d_input[[i]]) == colnames(d_input[[1]]))
   }
   all(check)
   
-  marker_names <- colnames(d_input[[1]])[markers_to_use]
+  marker_names <- colnames(d_input[[1]])[cols_to_use]
   
   
   # --------------
