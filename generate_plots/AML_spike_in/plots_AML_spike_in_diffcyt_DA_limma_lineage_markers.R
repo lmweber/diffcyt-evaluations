@@ -1,7 +1,7 @@
 ##########################################################################################
 # Generate plots
 # 
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-limma-lineage-markers
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -25,7 +25,7 @@ library(ROCR)
 # Load saved results
 ####################
 
-load("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma.RData")
+load("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_lineage_markers.RData")
 
 
 
@@ -152,7 +152,7 @@ for (th in 1:length(thresholds)) {
       theme(axis.title.y = element_blank(), 
             legend.title = element_blank())
     
-    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/clustering/", cond_names[j])
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
     filename <- file.path(path, paste0("results_AML_spike_in_diffcyt_clustering_barplots_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 6, height = 5)
@@ -212,7 +212,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("MST: Proportion true spike-in cells per cluster: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
-    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/clustering/", cond_names[j])
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
     filename <- file.path(path, paste0("results_AML_spike_in_diffcyt_clustering_MST_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 9)
@@ -276,7 +276,7 @@ for (th in 1:length(thresholds)) {
     
     # run Rtsne
     # (note: initial PCA step not required, since we do not have too many dimensions)
-    set.seed(123)
+    set.seed(1234)
     out_tsne <- Rtsne(d_tsne, pca = FALSE, verbose = TRUE)
     
     tsne_coords <- as.data.frame(out_tsne$Y)
@@ -293,7 +293,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("t-SNE: Proportion true spike-in cells per cluster: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
-    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/clustering/", cond_names[j])
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
     filename <- file.path(path, paste0("results_AML_spike_in_diffcyt_clustering_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 9)
@@ -404,7 +404,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("MST: Differential abundance (DA) test results: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
-    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/diffcyt_DA_limma/", cond_names[j])
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
     filename <- file.path(path, paste0("results_diffcyt_DA_limma_MST_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 9)
@@ -486,7 +486,7 @@ for (th in 1:length(thresholds)) {
     
     # run Rtsne
     # (note: initial PCA step not required, since we do not have too many dimensions)
-    set.seed(123)
+    set.seed(1234)
     out_tsne <- Rtsne(d_tsne, pca = FALSE, verbose = TRUE)
     
     tsne_coords <- as.data.frame(out_tsne$Y)
@@ -529,7 +529,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("t-SNE: Differential abundance (DA) test results: AML-spike-in, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw()
     
-    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/diffcyt_DA_limma/", cond_names[j])
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
     filename <- file.path(path, paste0("results_diffcyt_DA_limma_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 9)
@@ -621,7 +621,7 @@ for (th in 1:length(thresholds)) {
     }
     
     # plot
-    ggplot(d_plot, aes(x = FPR, y = TPR, lty = "diffcyt-DA-limma")) + 
+    ggplot(d_plot, aes(x = FPR, y = TPR, lty = "diffcyt-DA-limma-lineage-markers")) + 
       geom_line(color = "blue") + 
       geom_vline(xintercept = c(0.01, 0.05, 0.1), color = "red", lty = 2) + 
       geom_point(data = d_actual, shape = 1, size = 3, stroke = 1, col = "orangered") + 
@@ -634,7 +634,7 @@ for (th in 1:length(thresholds)) {
       theme_bw() + 
       theme(legend.title = element_blank())
     
-    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/diffcyt_DA_limma/", cond_names[j])
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
     filename <- file.path(path, paste0("results_diffcyt_DA_limma_ROC_curve_", thresholds[th], "_", cond_names[j], ".pdf"))
     
     ggsave(filename, width = 9, height = 8)

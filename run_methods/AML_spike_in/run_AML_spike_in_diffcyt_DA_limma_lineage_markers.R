@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-limma-lineage-markers
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -193,7 +193,7 @@ for (th in 1:length(thresholds)) {
     # run DA tests
     # ------------
     
-    path <- paste0("../../../plots/AML_spike_in/diffcyt/", thresholds[th], "/diffcyt_DA_limma/", cond_names[j])
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
     
     # set up contrast
     design <- model.matrix(~ 0 + group_IDs)
@@ -244,7 +244,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma.RData")
+save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_lineage_markers.RData")
 
 
 
@@ -253,7 +253,7 @@ save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma.RD
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_diffcyt_DA_limma.txt")
+sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_diffcyt_DA_limma_lineage_markers.txt")
 sessionInfo()
 sink()
 
