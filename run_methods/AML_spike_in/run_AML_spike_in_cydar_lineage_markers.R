@@ -238,11 +238,11 @@ for (th in 1:length(thresholds)) {
       qvals <- spatialFDR(intensities(cd), res$table$PValue)
     })
     
-    print(runtime_cydar)
-    
     # significant hyperspheres
     is.sig <- qvals <= 0.9
     print(summary(is.sig))
+    
+    print(runtime_cydar)
     
     # # plots
     # sig.coords <- intensities(cd)[is.sig, ]

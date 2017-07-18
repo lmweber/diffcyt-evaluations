@@ -125,9 +125,9 @@ for (th in 1:length(thresholds)) {
     y_label <- perf@y.name
     
     # remove point (1, 1) from ROC curve, since this gives misleading diagonal lines
-    ix_ones <- which(FPR == 1 & TPR == 1)
-    FPR <- FPR[-ix_ones]
-    TPR <- TPR[-ix_ones]
+    # ix_ones <- which(FPR == 1 & TPR == 1)
+    # FPR <- FPR[-ix_ones]
+    # TPR <- TPR[-ix_ones]
     
     # plotting data frame
     d_plot <- data.frame(FPR, TPR)
