@@ -130,16 +130,16 @@ for (th in 1:length(thresholds)) {
   # Export files into one subdirectory per comparison
   ###################################################
   
-  for (k in 1:length(cond_names)) {
+  for (j in 1:length(cond_names)) {
     
-    ix_keep <- group_IDs %in% c("healthy", cond_names[k])
+    ix_keep <- group_IDs %in% c("healthy", cond_names[j])
     
     sample_IDs_keep <- sample_IDs[ix_keep]
     files_load_keep <- files_load[ix_keep]
     d_input_keep <- d_input[ix_keep]
     
     for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/", thresholds[th], "/", cond_names[k])
+      path <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/", thresholds[th], "/", cond_names[j])
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
       write.FCS(d_input_keep[[i]], filename)
     }
