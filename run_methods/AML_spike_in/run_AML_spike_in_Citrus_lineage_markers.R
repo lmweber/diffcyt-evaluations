@@ -25,9 +25,10 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-is_spikein_thresholds <- out_Citrus_cells <- 
+n_cells_thresholds <- is_spikein_thresholds <- out_Citrus_cells <- 
   vector("list", length(thresholds))
-names(is_spikein_thresholds) <- names(out_Citrus_cells) <- 
+
+names(n_cells_thresholds) <- names(is_spikein_thresholds) <- names(out_Citrus_cells) <- 
   thresholds
 
 
@@ -91,12 +92,14 @@ for (th in 1:length(thresholds)) {
   cols_to_use <- cols_lineage
   
   
-  # ---------------------
-  # store spike-in status
-  # ---------------------
+  # -----------------------------------------
+  # store number of cells and spike-in status
+  # -----------------------------------------
   
-  # store spike-in status for each cell
+  # number of cells
+  n_cells_thresholds[[th]] <- sapply(d_input, nrow)
   
+  # spike-in status for each cell
   is_spikein_thresholds[[th]] <- vector("list", length(sample_IDs))
   names(is_spikein_thresholds[[th]]) <- sample_IDs
   
@@ -127,16 +130,16 @@ for (th in 1:length(thresholds)) {
   # Export files into one subdirectory per comparison
   ###################################################
   
-  for (j in 1:length(cond_names)) {
+  for (k in 1:length(cond_names)) {
     
-    ix_keep <- group_IDs %in% c("healthy", cond_names[j])
+    ix_keep <- group_IDs %in% c("healthy", cond_names[k])
     
     sample_IDs_keep <- sample_IDs[ix_keep]
     files_load_keep <- files_load[ix_keep]
     d_input_keep <- d_input[ix_keep]
     
     for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/", thresholds[th], "/", cond_names[j])
+      path <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/", thresholds[th], "/", cond_names[k])
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
       write.FCS(d_input_keep[[i]], filename)
     }
@@ -160,7 +163,6 @@ for (th in 1:length(thresholds)) {
     files_load_keep <- files_load[ix_keep]
     
     n_cells_all <- sapply(d_input, nrow)
-    n_cells_keep <- sapply(d_input[ix_keep], nrow)
     
     
     # define Citrus arguments
