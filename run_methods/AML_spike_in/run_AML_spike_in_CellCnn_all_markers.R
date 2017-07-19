@@ -159,7 +159,7 @@ for (th in 1:length(thresholds)) {
     d_input_keep <- d_input[ix_keep]
     
     for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0("../../../CellCnn_files/AML_spike_in/all_markers/data_transformed/", thresholds[th], "/", cond_names[j])
+      path <- paste0("../../../CellCnn_files/data_transformed/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j])
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
       write.FCS(flowFrame(d_input_keep[[i]]), filename)
     }
@@ -200,11 +200,11 @@ for (th in 1:length(thresholds)) {
     
     # save as .csv files
     
-    fn_samples <- paste0("../../../CellCnn_files/AML_spike_in/all_markers/inputs/", thresholds[th], "/", cond_names[j], "/input_samples.csv")
+    fn_samples <- paste0("../../../CellCnn_files/inputs/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/input_samples.csv")
     write.csv(df_samples, fn_samples, quote = FALSE, row.names = FALSE)
     
     # need to use 'write.table' to allow removing column names
-    fn_markers <- paste0("../../../CellCnn_files/AML_spike_in/all_markers/inputs/", thresholds[th], "/", cond_names[j], "/input_markers.csv")
+    fn_markers <- paste0("../../../CellCnn_files/inputs/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/input_markers.csv")
     write.table(df_markers, fn_markers, sep = ",", quote = FALSE, row.names = FALSE, col.names = FALSE)
     
     
@@ -221,10 +221,10 @@ for (th in 1:length(thresholds)) {
     
     # command to run main analysis
     cmd <- paste("python", paste0(DIR_CellCnn, "cellCnn/run_analysis.py"), 
-                 paste0("-f ../../../CellCnn_files/AML_spike_in/all_markers/inputs/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
-                 paste0("-m ../../../CellCnn_files/AML_spike_in/all_markers/inputs/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
-                 paste0("-i ../../../CellCnn_files/AML_spike_in/all_markers/data_transformed/", thresholds[th], "/", cond_names[j], "/"), 
-                 paste0("-o ../../../CellCnn_files/AML_spike_in/all_markers/out_CellCnn/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-f ../../../CellCnn_files/inputs/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
+                 paste0("-m ../../../CellCnn_files/inputs/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
+                 paste0("-i ../../../CellCnn_files/data_transformed/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-o ../../../CellCnn_files/out_CellCnn/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/"), 
                  "--export_csv", 
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]))
     
@@ -235,17 +235,17 @@ for (th in 1:length(thresholds)) {
     
     runtime_main
     
-    sink(paste0("../../../CellCnn_files/AML_spike_in/all_markers/runtime/", thresholds[th], "/", cond_names[j], "/runtime_main.txt"))
+    sink(paste0("../../../CellCnn_files/runtime/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/runtime_main.txt"))
     runtime_main
     sink()
     
     
     # command to export selected cells
     cmd <- paste("python", paste0(DIR_CellCnn, "cellCnn/run_analysis.py"), 
-                 paste0("-f ../../../CellCnn_files/AML_spike_in/all_markers/inputs/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
-                 paste0("-m ../../../CellCnn_files/AML_spike_in/all_markers/inputs/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
-                 paste0("-i ../../../CellCnn_files/AML_spike_in/all_markers/data_transformed/", thresholds[th], "/", cond_names[j], "/"), 
-                 paste0("-o ../../../CellCnn_files/AML_spike_in/all_markers/out_CellCnn/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-f ../../../CellCnn_files/inputs/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
+                 paste0("-m ../../../CellCnn_files/inputs/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
+                 paste0("-i ../../../CellCnn_files/data_transformed/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-o ../../../CellCnn_files/out_CellCnn/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/"), 
                  "--plot", 
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]), 
                  "--filter_response_thres 0.3 --load_results --export_selected_cells")
@@ -257,7 +257,7 @@ for (th in 1:length(thresholds)) {
     
     runtime_select
     
-    sink(paste0("../../../CellCnn_files/AML_spike_in/all_markers/runtime/", thresholds[th], "/", cond_names[j], "/runtime_select.txt"))
+    sink(paste0("../../../CellCnn_files/runtime/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j], "/runtime_select.txt"))
     runtime_select
     sink()
   }
