@@ -154,6 +154,10 @@ for (th in 1:length(thresholds)) {
   # using modified code from auto-generated file 'runCitrus.R'
   
   
+  out_Citrus_cells[[th]] <- vector("list", length(cond_names))
+  names(out_Citrus_cells[[th]]) <- cond_names
+  
+  
   for (j in 1:length(cond_names)) {
     
     ix_keep <- group_IDs %in% c("healthy", cond_names[j])
@@ -242,10 +246,6 @@ for (th in 1:length(thresholds)) {
     # so there is no way to rank the selected clusters
     
     
-    out_Citrus_cells[[th]] <- vector("list", length(cond_names))
-    names(out_Citrus_cells[[th]]) <- cond_names
-    
-    
     # --------------------------------
     # differentially abundant clusters
     # --------------------------------
@@ -260,6 +260,7 @@ for (th in 1:length(thresholds)) {
     res_cells <- rep(NA, sum(n_cells_all))
     
     files_rep <- rep(seq_along(sample_IDs), n_cells_all)
+    
     
     for (i in seq_along(clusters)) {
       
