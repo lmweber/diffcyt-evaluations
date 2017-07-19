@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: Citrus-lineage-markers
+# - method: Citrus-all-markers
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -89,7 +89,7 @@ for (th in 1:length(thresholds)) {
   # choose which markers to use
   # ---------------------------
   
-  cols_to_use <- cols_lineage
+  cols_to_use <- cols_markers
   
   
   # -----------------------------------------
@@ -139,7 +139,7 @@ for (th in 1:length(thresholds)) {
     d_input_keep <- d_input[ix_keep]
     
     for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/lineage_markers/", thresholds[th], "/", cond_names[j])
+      path <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j])
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
       write.FCS(d_input_keep[[i]], filename)
     }
@@ -196,7 +196,7 @@ for (th in 1:length(thresholds)) {
     scaleColumns <- NULL
     
     # directories
-    dataDirectory <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/lineage_markers/", thresholds[th], "/", cond_names[j])
+    dataDirectory <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j])
     outputDirectory <- file.path(dataDirectory, "citrusOutput")
     # files
     fileList <- data.frame(defaultCondition = gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep)))
@@ -306,7 +306,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_Citrus_lineage_markers.RData")
+save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_Citrus_all_markers.RData")
 
 
 
@@ -315,7 +315,7 @@ save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_Citrus_lineage_mark
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_Citrus_lineage_markers.txt")
+sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_Citrus_all_markers.txt")
 sessionInfo()
 sink()
 
