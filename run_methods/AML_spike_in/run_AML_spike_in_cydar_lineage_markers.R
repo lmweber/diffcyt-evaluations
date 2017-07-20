@@ -20,20 +20,15 @@ library(edgeR)
 # Loop to run for each threshold
 ################################
 
-# spike-in thresholds (must match filenames)
+# spike-in thresholds
 thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 
 # condition names
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-n_cells_thresholds <- is_spikein_thresholds <- 
-  out_cydar_data <- out_cydar_tests <- out_cydar_pvals <- out_cydar_qvals <- 
-  vector("list", length(thresholds))
-
-names(n_cells_thresholds) <- names(is_spikein_thresholds) <- 
-  names(out_cydar_data) <- names(out_cydar_tests) <- names(out_cydar_pvals) <- names(out_cydar_qvals) <- 
-  thresholds
+out_cydar_lineage_markers <- vector("list", length(thresholds))
+names(out_cydar_lineage_markers) <- thresholds
 
 
 
@@ -96,23 +91,6 @@ for (th in 1:length(thresholds)) {
   cols_to_use <- cols_lineage
   
   
-  # -----------------------------------------
-  # store number of cells and spike-in status
-  # -----------------------------------------
-  
-  # number of cells
-  n_cells_thresholds[[th]] <- sapply(d_input, nrow)
-  
-  # spike-in status for each cell
-  is_spikein_thresholds[[th]] <- vector("list", length(sample_IDs))
-  names(is_spikein_thresholds[[th]]) <- sample_IDs
-  
-  for (i in 1:length(sample_IDs)) {
-    exprs_i <- exprs(d_input[[i]])
-    is_spikein_thresholds[[th]][[i]] <- exprs_i[, "spikein"]
-  }
-  
-  
   # --------------
   # transform data
   # --------------
@@ -146,16 +124,16 @@ for (th in 1:length(thresholds)) {
   
   # Subset markers and convert input data to required format ('ncdfFlowSet' object)
   
-  d_input <- lapply(d_input, function(d) {
+  d_input_cydar <- lapply(d_input, function(d) {
     e <- exprs(d)
     e <- e[, cols_to_use]
     flowFrame(e)
   })
   
-  names(d_input) <- sample_IDs
+  names(d_input_cydar) <- sample_IDs
   
-  d_input <- flowSet(d_input)
-  d_input <- ncdfFlowSet(d_input)
+  d_input_cydar <- flowSet(d_input_cydar)
+  d_input_cydar <- ncdfFlowSet(d_input_cydar)
   
   
   # Pooling cells together
@@ -176,7 +154,7 @@ for (th in 1:length(thresholds)) {
   # --------------------------------
   
   # prepare 'CyData' object
-  cd <- prepareCellData(d_input)
+  cd <- prepareCellData(d_input_cydar)
   
   # assign cells to hyperspheres
   cd <- countCells(cd)
@@ -215,38 +193,36 @@ for (th in 1:length(thresholds)) {
   
   
   # set up contrasts and test separately for each condition
-  out_cydar_data[[th]] <- out_cydar_tests[[th]] <- out_cydar_pvals[[th]] <- out_cydar_qvals[[th]] <- 
-    vector("list", length(cond_names))
-  names(out_cydar_data[[th]]) <- names(out_cydar_tests[[th]]) <- names(out_cydar_pvals[[th]]) <- names(out_cydar_qvals[[th]]) <- 
-    cond_names
   
+  out_cydar_lineage_markers[[th]] <- vector("list", length(cond_names))
+  names(out_cydar_lineage_markers[[th]]) <- cond_names
   
   for (j in 1:length(cond_names)) {
     
     # set up contrast
-    contr_str <- paste0("group_IDs", cond_names[j], " - group_IDshealthy")
-    contrast <- makeContrasts(contr_str, levels = design)
+    contr_string <- paste0("group_IDs", cond_names[j], " - group_IDshealthy")
+    contrast <- makeContrasts(contr_string, levels = design)
     
     runtime_cydar <- system.time({
       # differential testing
-      res <- glmQLFTest(fit, contrast = contrast)
+      res_cydar <- glmQLFTest(fit, contrast = contrast)
       
       # raw p-values
-      pvals <- res$table$PValue
+      p_vals <- res_cydar$table$PValue
       
       # controlling the spatial false discovery rate (FDR)
-      qvals <- spatialFDR(intensities(cd), res$table$PValue)
+      q_vals <- spatialFDR(intensities(cd), res_cydar$table$PValue)
     })
     
     # significant hyperspheres
-    is.sig <- qvals <= 0.9
+    is.sig <- q_vals <= 0.9
     print(summary(is.sig))
     
     print(runtime_cydar)
     
     # # plots
     # sig.coords <- intensities(cd)[is.sig, ]
-    # sig.res <- res$table[is.sig, ]
+    # sig.res <- res_cydar$table[is.sig, ]
     # coords <- prcomp(sig.coords)
     # plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
     # 
@@ -259,11 +235,72 @@ for (th in 1:length(thresholds)) {
     # }
     # par(mfrow = c(1, 1))
     
+    
+    # ----------------------------
+    # return results at cell level
+    # ----------------------------
+    
+    # Note: cydar evaluates q-values at the hypersphere level. Since hyperspheres overlap,
+    # the q-values are not unique at the cell level. To evaluate performance at the cell
+    # level, we assign a unique q-value to each cell, by selecting the smallest q-value
+    # for any hypersphere containing that cell.
+    
+    
+    # number of cells per sample (including spike-in cells)
+    n_cells <- sapply(d_input, nrow)
+    
+    # spike-in status for each cell
+    is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
+    stopifnot(length(is_spikein) == sum(n_cells))
+    
+    
+    # get smallest q-value for each cell, across all hyperspheres
+    
+    stopifnot(length(p_vals) == length(q_vals))
+    
+    # cell assignments
+    cells <- cellAssignments(cd)
+    # 'unpack' indices (e.g. '142183 -142188' means all values from 142183 to 142188)
+    cells <- unpackIndices(cells)
+    
+    length(cells)
+    stopifnot(length(cells) == length(p_vals))
+    
+    # repeat p/q-values for each hypersphere
+    cells_rep <- unlist(cells)
+    p_vals_rep <- rep(p_vals, sapply(cells, length))
+    q_vals_rep <- rep(q_vals, sapply(cells, length))
+    stopifnot(length(p_vals_rep) == length(cells_rep), length(q_vals_rep) == length(cells_rep))
+    # split by cell indices
+    p_vals_rep_split <- split(p_vals_rep, cells_rep)
+    q_vals_rep_split <- split(q_vals_rep, cells_rep)
+    # get minimum p/q-value for each unique cell
+    cells_p_vals <- sapply(p_vals_rep_split, function(v) min(v))
+    cells_q_vals <- sapply(q_vals_rep_split, function(v) min(v))
+    
+    # fill in NAs for missing cells
+    p_vals_all <- q_vals_all <- rep(NA, sum(n_cells))
+    names(p_vals_all) <- names(q_vals_all) <- 1:sum(n_cells)
+    p_vals_all[names(cells_p_vals)] <- cells_p_vals
+    q_vals_all[names(cells_q_vals)] <- cells_q_vals
+    
+    stopifnot(length(p_vals_all) == length(q_vals_all))
+    
+    
+    # set up data frame with results and true spike-in status at cell level
+    
+    res <- data.frame(cell_ID = 1:length(is_spikein), 
+                      p_vals = p_vals_all, 
+                      q_vals = q_vals_all, 
+                      spikein = is_spikein)
+    
+    # keep results from this condition only
+    ix_keep_cnd <- rep(group_IDs == cond_names[j], n_cells)
+    res[!ix_keep_cnd, c("p_vals", "q_vals", "spikein")] <- NA
+    
     # store results
-    out_cydar_data[[th]][[j]] <- cd
-    out_cydar_tests[[th]][[j]] <- res
-    out_cydar_pvals[[th]][[j]] <- pvals
-    out_cydar_qvals[[th]][[j]] <- qvals
+    out_cydar_lineage_markers[[th]][[j]] <- res
+    
   }
 }
 
@@ -274,7 +311,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_cydar_lineage_markers.RData")
+save(out_cydar_lineage_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_cydar_lineage_markers.RData")
 
 
 
