@@ -111,9 +111,9 @@ for (th in 1:length(thresholds)) {
   
   
   
-  ##################
-  # 'cydar' pipeline
-  ##################
+  ################
+  # cydar pipeline
+  ################
   
   # following steps in Bioconductor vignette
   
@@ -236,9 +236,11 @@ for (th in 1:length(thresholds)) {
     # par(mfrow = c(1, 1))
     
     
-    # ----------------------------
-    # return results at cell level
-    # ----------------------------
+    
+    
+    ##############################
+    # Return results at cell level
+    ##############################
     
     # Note: cydar evaluates q-values at the hypersphere level. Since hyperspheres overlap,
     # the q-values are not unique at the cell level. To evaluate performance at the cell

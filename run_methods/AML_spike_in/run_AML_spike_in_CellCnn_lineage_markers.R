@@ -13,7 +13,6 @@
 
 library(flowCore)
 library(SummarizedExperiment)
-library(diffcyt)
 
 
 
@@ -22,24 +21,24 @@ library(diffcyt)
 # Loop to run for each threshold
 ################################
 
-# spike-in thresholds (must match filenames)
+# spike-in thresholds
 thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 
 # condition names
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-files_load_thresholds <- is_spikein_thresholds <- vector("list", length(thresholds))
-names(files_load_thresholds) <- names(is_spikein_thresholds) <- thresholds
+out_CellCnn_lineage_markers <- vector("list", length(thresholds))
+names(out_CellCnn_lineage_markers) <- thresholds
 
 
 
 
 for (th in 1:length(thresholds)) {
   
-  ##############################
-  # Load data and pre-processing
-  ##############################
+  ######################################
+  # Load data, pre-processing, transform
+  ######################################
   
   # ---------
   # load data
@@ -79,7 +78,7 @@ for (th in 1:length(thresholds)) {
   data.frame(sample_IDs, group_IDs, block_IDs)
   
   # indices of all marker columns, lineage markers, and functional markers
-  # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental
+  # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental 
   # Information, p. 4)
   cols_markers <- 11:41
   cols_lineage <- c(35, 29, 14, 30, 12, 26, 17, 33, 41, 32, 22, 40, 27, 37, 23, 39)
@@ -91,23 +90,6 @@ for (th in 1:length(thresholds)) {
   # ---------------------------
   
   cols_to_use <- cols_lineage
-  
-  
-  # -----------------------------------
-  # store filenames and spike-in status
-  # -----------------------------------
-  
-  # filenames
-  files_load_thresholds[[th]] <- files_load
-  
-  # spike-in status for each cell
-  is_spikein_thresholds[[th]] <- vector("list", length(sample_IDs))
-  names(is_spikein_thresholds[[th]]) <- sample_IDs
-  
-  for (i in 1:length(sample_IDs)) {
-    exprs_i <- exprs(d_input[[i]])
-    is_spikein_thresholds[[th]][[i]] <- exprs_i[, "spikein"]
-  }
   
   
   # -------------------------------
@@ -123,9 +105,11 @@ for (th in 1:length(thresholds)) {
   marker_names <- colnames(d_input[[1]])[cols_to_use]
   
   
-  # --------------
-  # transform data
-  # --------------
+  # -------------------------------------------
+  # transform data and return expression values
+  # -------------------------------------------
+  
+  # 'asinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2)
   
   cofactor <- 5
   
@@ -138,19 +122,22 @@ for (th in 1:length(thresholds)) {
   
   
   
-  ##################################################################
-  # Export .fcs files, generate CellCnn input files, and run CellCnn
-  ##################################################################
+  ##################
+  # CellCnn pipeline
+  ##################
   
   # note: run CellCnn separately for each condition: CN vs. healthy, CBF vs. healthy
   
   
+  out_CellCnn_lineage_markers[[th]] <- vector("list", length(cond_names))
+  names(out_CellCnn_lineage_markers[[th]]) <- cond_names
+  
   
   for (j in 1:length(cond_names)) {
     
-    ###########################################
+    # -----------------------------------------
     # Export transformed .fcs files for CellCnn
-    ###########################################
+    # -----------------------------------------
     
     ix_keep <- group_IDs %in% c("healthy", cond_names[j])
     
@@ -165,11 +152,9 @@ for (th in 1:length(thresholds)) {
     }
     
     
-    
-    
-    ##################################
+    # --------------------------------
     # Generate input files for CellCnn
-    ##################################
+    # --------------------------------
     
     # generate .csv files with input arguments for CellCnn (in required format)
     
@@ -208,11 +193,9 @@ for (th in 1:length(thresholds)) {
     write.table(df_markers, fn_markers, sep = ",", quote = FALSE, row.names = FALSE, col.names = FALSE)
     
     
-    
-    
-    ###############################
+    # -----------------------------
     # Run CellCnn from command line
-    ###############################
+    # -----------------------------
     
     # for installation instructions and examples see: https://github.com/eiriniar/CellCnn
     
@@ -260,8 +243,78 @@ for (th in 1:length(thresholds)) {
     sink(paste0("../../../CellCnn_files/runtime/AML_spike_in/lineage_markers/", thresholds[th], "/", cond_names[j], "/runtime_select.txt"))
     runtime_select
     sink()
+    
+    
+    
+    
+    ##############################
+    # Return results at cell level
+    ##############################
+    
+    # Note: CellCnn returns results at 'filter' (population) level. To evaluate
+    # performance at the cell level, we assign the filter-level scores to all cells within
+    # each filter.
+    
+    
+    # number of cells per sample (including spike-in cells)
+    n_cells <- sapply(d_input, nrow)
+    
+    # spike-in status for each cell
+    is_spikein <- unlist(sapply(d_input, function(d) d[, "spikein"]))
+    stopifnot(length(is_spikein) == sum(n_cells))
+    
+    
+    # select samples for this condition
+    ix_keep_cnd <- group_IDs == cond_names[j]
+    
+    
+    # CellCnn output files
+    
+    path_out <- paste0("../../../CellCnn_files/out_CellCnn/AML_spike_in/lineage_markers/", thresholds[th], "/", cond_names[j], "/selected_cells")
+    # skip if no files exist (CellCnn did not run correctly)
+    if (length(list.files(path_out)) == 0) next
+    # filenames for this condition
+    files_cnd <- paste0(path_out, "/", gsub("\\.fcs$", "", basename(files_load[ix_keep_cnd])), "_transf_selected_cells.csv")
+    
+    # get cells in selected filters for this condition
+    filter_continuous_cnd <- vector("list", length(files_cnd))
+    
+    for (f in 1:length(files_cnd)) {
+      d <- try(read.csv(files_cnd[f]), silent = TRUE)
+      
+      if (!(class(d) == "try-error")) {
+        # note: if there are multiple filters for one sample, combine them using 'rowSums'
+        # (filters are stored in odd-numbered columns of the .csv file)
+        ix <- seq(1, ncol(d), by = 2)
+        filt_sum <- rowSums(d[, ix, drop = FALSE])
+        filter_continuous_cnd[[f]] <- filt_sum
+        
+      } else {
+        # if .csv file is empty, fill with zeros instead
+        filter_continuous_cnd[[f]] <- rep(0, n_cells[ix_keep_cnd][[f]])
+      }
+    }
+    
+    filter_continuous_cnd <- unlist(filter_continuous_cnd)
+    
+    
+    # set up data frame with results and true spike-in status at cell level
+    
+    which_cnd <- rep(ix_keep_cnd, n_cells)
+    stopifnot(length(filter_continuous_cnd) == length(is_spikein[which_cnd]))
+    
+    res <- data.frame(cell_ID = 1:length(is_spikein), 
+                      scores = NA, 
+                      spikein = NA)
+    
+    # include scores and spike-in status for this condition only
+    res$scores[which_cnd] <- filter_continuous_cnd
+    res$spikein[which_cnd] <- is_spikein[which_cnd]
+    
+    # store results
+    out_CellCnn_lineage_markers[[th]][[j]] <- res
+    
   }
-  
 }
 
 
@@ -271,7 +324,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_CellCnn_lineage_markers.RData")
+save(out_CellCnn_lineage_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_CellCnn_lineage_markers.RData")
 
 
 
