@@ -18,18 +18,15 @@ library(citrus)
 # Loop to run for each threshold
 ################################
 
-# spike-in thresholds (must match filenames)
+# spike-in thresholds
 thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 
 # condition names
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-n_cells_thresholds <- is_spikein_thresholds <- out_Citrus_cells <- 
-  vector("list", length(thresholds))
-
-names(n_cells_thresholds) <- names(is_spikein_thresholds) <- names(out_Citrus_cells) <- 
-  thresholds
+out_Citrus_all_markers <- vector("list", length(thresholds))
+names(out_Citrus_all_markers) <- thresholds
 
 
 
@@ -92,23 +89,6 @@ for (th in 1:length(thresholds)) {
   cols_to_use <- cols_markers
   
   
-  # -----------------------------------------
-  # store number of cells and spike-in status
-  # -----------------------------------------
-  
-  # number of cells
-  n_cells_thresholds[[th]] <- sapply(d_input, nrow)
-  
-  # spike-in status for each cell
-  is_spikein_thresholds[[th]] <- vector("list", length(sample_IDs))
-  names(is_spikein_thresholds[[th]]) <- sample_IDs
-  
-  for (i in 1:length(sample_IDs)) {
-    exprs_i <- exprs(d_input[[i]])
-    is_spikein_thresholds[[th]][[i]] <- exprs_i[, "spikein"]
-  }
-  
-  
   # --------------
   # transform data
   # --------------
@@ -126,39 +106,21 @@ for (th in 1:length(thresholds)) {
   
   
   
-  ###################################################
-  # Export files into one subdirectory per comparison
-  ###################################################
-  
-  for (j in 1:length(cond_names)) {
-    
-    ix_keep <- group_IDs %in% c("healthy", cond_names[j])
-    
-    sample_IDs_keep <- sample_IDs[ix_keep]
-    files_load_keep <- files_load[ix_keep]
-    d_input_keep <- d_input[ix_keep]
-    
-    for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j])
-      filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
-      write.FCS(d_input_keep[[i]], filename)
-    }
-  }
-  
-  
-  
-  ############
-  # Run Citrus
-  ############
+  #################
+  # Citrus pipeline
+  #################
   
   # using modified code from auto-generated file 'runCitrus.R'
   
-  
-  out_Citrus_cells[[th]] <- vector("list", length(cond_names))
-  names(out_Citrus_cells[[th]]) <- cond_names
+  out_Citrus_all_markers[[th]] <- vector("list", length(cond_names))
+  names(out_Citrus_all_markers[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
+    
+    # ----------------------------------------
+    # Export transformed .fcs files for Citrus
+    # ----------------------------------------
     
     ix_keep <- group_IDs %in% c("healthy", cond_names[j])
     
@@ -166,10 +128,18 @@ for (th in 1:length(thresholds)) {
     group_IDs_keep <- droplevels(group_IDs[ix_keep])
     files_load_keep <- files_load[ix_keep]
     
-    n_cells_all <- sapply(d_input, nrow)
+    d_input_keep <- d_input[ix_keep]
+    
+    for (i in 1:length(sample_IDs_keep)) {
+      path <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j])
+      filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
+      write.FCS(d_input_keep[[i]], filename)
+    }
     
     
-    # define Citrus arguments
+    # ------------------------
+    # Define inputs for Citrus
+    # ------------------------
     
     # model type
     family <- "classification"
@@ -228,39 +198,39 @@ for (th in 1:length(thresholds)) {
     
     print(runtime_Citrus)  ## ~2 minutes on laptop
     
-    
     # Citrus plots
-    
     plot(results, outputDirectory)
     
     
     
     
-    ##########################
-    # Extract and save results
-    ##########################
+    ##############################
+    # Return results at cell level
+    ##############################
     
     # get differential clusters, match cells to clusters, save results at cell level
     
     # note: Citrus does not give any continuous-valued scores, e.g. p-values or q-values,
-    # so there is no way to rank the selected clusters
+    # so it is not possible to rank the selected clusters
     
     
-    # --------------------------------
+    # number of cells per sample (including spike-in cells)
+    n_cells <- sapply(d_input, nrow)
+    
+    # spike-in status for each cell
+    is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
+    stopifnot(length(is_spikein) == sum(n_cells))
+    
+    
     # differentially abundant clusters
-    # --------------------------------
     
     clusters <- as.numeric(results$conditionRegressionResults$defaultCondition$glmnet$differentialFeatures[["cv.min"]][["clusters"]])
     
     
-    # -----------------------
     # match clusters to cells
-    # -----------------------
     
-    res_cells <- rep(NA, sum(n_cells_all))
-    
-    files_rep <- rep(seq_along(sample_IDs), n_cells_all)
-    
+    res_cells <- rep(NA, sum(n_cells))
+    files_rep <- rep(seq_along(sample_IDs), n_cells)
     
     for (i in seq_along(clusters)) {
       
@@ -276,7 +246,8 @@ for (th in 1:length(thresholds)) {
       cells_subsampled <- rep(NA, nrow(data))
       cells_subsampled[ix_clus] <- 1  ## 1 = cell is in differential cluster
       
-      # match to indices in original data; taking into account subsampling and subset of files
+      # match to indices in original data; taking into account subsampling and subset of
+      # files in this condition
       which_files <- (1:length(ix_keep))[ix_keep]
       ix_files_keep <- as.numeric(as.character(factor(ix_files, labels = which_files)))
       
@@ -285,18 +256,31 @@ for (th in 1:length(thresholds)) {
         res_cells[files_rep == which_files[z]][ix_events_z] <- cells_subsampled[ix_files_keep == which_files[z]]
       }
       
-      # note: cluster marker expression values (if required)
+      # cluster marker expression values (if required)
       #results$citrus.combinedFCSSet$data[results$citrus.foldClustering$allClustering$clusterMembership[[clus]], clusteringColumns]
     }
     
+    # set NA values to 0 to allow ROC curves to be calculated
+    # (note: Citrus results are binary; 1 = selected, 0 = not selected)
+    res_cells[is.na(res_cells)] <- 0
     
-    # -------------
-    # store objects
-    # -------------
     
-    out_Citrus_cells[[th]][[j]] <- res_cells
+    # set up data frame with results and true spike-in status at cell level
+    
+    which_cnd <- rep(group_IDs == cond_names[j], n_cells)
+    stopifnot(length(which_cnd) == length(is_spikein), length(res_cells) == length(is_spikein))
+    
+    res <- data.frame(cell_ID = 1:length(is_spikein), 
+                      scores = res_cells, 
+                      spikein = is_spikein)
+    
+    # keep results for this condition only (for ROC curves)
+    res[!which_cnd, c("scores", "spikein")] <- NA
+    
+    # store results
+    out_Citrus_all_markers[[th]][[j]] <- res
+    
   }
-  
 }
 
 
@@ -306,7 +290,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_Citrus_all_markers.RData")
+save(out_Citrus_all_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_Citrus_all_markers.RData")
 
 
 
