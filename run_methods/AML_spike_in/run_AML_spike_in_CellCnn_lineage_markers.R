@@ -105,9 +105,9 @@ for (th in 1:length(thresholds)) {
   marker_names <- colnames(d_input[[1]])[cols_to_use]
   
   
-  # -------------------------------------------
-  # transform data and return expression values
-  # -------------------------------------------
+  # --------------
+  # transform data
+  # --------------
   
   # 'asinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2)
   
@@ -116,7 +116,7 @@ for (th in 1:length(thresholds)) {
   d_input <- lapply(d_input, function(d) {
     e <- exprs(d)
     e[, cols_markers] <- asinh(e[, cols_markers] / cofactor)
-    e
+    flowFrame(e)
   })
   
   
@@ -148,7 +148,7 @@ for (th in 1:length(thresholds)) {
     for (i in 1:length(sample_IDs_keep)) {
       path <- paste0("../../../CellCnn_files/data_transformed/AML_spike_in/lineage_markers/", thresholds[th], "/", cond_names[j])
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
-      write.FCS(flowFrame(d_input_keep[[i]]), filename)
+      write.FCS(d_input_keep[[i]], filename)
     }
     
     
@@ -260,7 +260,7 @@ for (th in 1:length(thresholds)) {
     n_cells <- sapply(d_input, nrow)
     
     # spike-in status for each cell
-    is_spikein <- unlist(sapply(d_input, function(d) d[, "spikein"]))
+    is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
     stopifnot(length(is_spikein) == sum(n_cells))
     
     
@@ -271,9 +271,12 @@ for (th in 1:length(thresholds)) {
     # CellCnn output files
     
     path_out <- paste0("../../../CellCnn_files/out_CellCnn/AML_spike_in/lineage_markers/", thresholds[th], "/", cond_names[j], "/selected_cells")
-    # skip if no files exist (CellCnn did not run correctly)
-    if (length(list.files(path_out)) == 0) next
-    # filenames for this condition
+    
+    # if no files exist, CellCnn did not run correctly; return all zeros in this case
+    if (length(list.files(path_out)) == 0) {
+      filter_continuous_cnd <- list(rep(0, sum(n_cells[ix_keep_cnd])))
+    }
+    
     files_cnd <- paste0(path_out, "/", gsub("\\.fcs$", "", basename(files_load[ix_keep_cnd])), "_transf_selected_cells.csv")
     
     # get cells in selected filters for this condition
