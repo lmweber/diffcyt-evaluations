@@ -264,7 +264,6 @@ for (th in 1:length(thresholds)) {
     is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
     stopifnot(length(is_spikein) == sum(n_cells))
     
-    
     # select samples for this condition
     ix_keep_cnd <- group_IDs == cond_names[j]
     
@@ -305,7 +304,8 @@ for (th in 1:length(thresholds)) {
     # set up data frame with results and true spike-in status at cell level
     
     which_cnd <- rep(ix_keep_cnd, n_cells)
-    stopifnot(length(filter_continuous_cnd) == length(is_spikein[which_cnd]))
+    is_spikein_cnd <- is_spikein[which_cnd]
+    stopifnot(length(filter_continuous_cnd) == length(is_spikein_cnd))
     
     scores <- filter_continuous_cnd
     
@@ -314,7 +314,7 @@ for (th in 1:length(thresholds)) {
     
     # return values for this condition only
     res <- data.frame(scores = scores, 
-                      spikein = is_spikein[which_cnd])
+                      spikein = is_spikein_cnd)
     
     # store results
     out_CellCnn_lineage_markers[[th]][[j]] <- res

@@ -243,7 +243,7 @@ for (th in 1:length(thresholds)) {
     ##############################
     
     # Note: cydar evaluates q-values at the hypersphere level. Since hyperspheres overlap,
-    # the q-values are not unique at the cell level. To evaluate performance at the cell
+    # the q-values are not unique for each cell. To evaluate performance at the cell
     # level, we assign a unique q-value to each cell, by selecting the smallest q-value
     # for any hypersphere containing that cell.
     
@@ -254,6 +254,9 @@ for (th in 1:length(thresholds)) {
     # spike-in status for each cell
     is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
     stopifnot(length(is_spikein) == sum(n_cells))
+    
+    # select samples for this condition
+    ix_keep_cnd <- group_IDs == cond_names[j]
     
     
     # get smallest q-value for each cell, across all hyperspheres
@@ -291,14 +294,21 @@ for (th in 1:length(thresholds)) {
     
     # set up data frame with results and true spike-in status at cell level
     
-    res <- data.frame(cell_ID = 1:length(is_spikein), 
-                      p_vals = p_vals_all, 
-                      q_vals = q_vals_all, 
-                      spikein = is_spikein)
+    which_cnd <- rep(ix_keep_cnd, n_cells)
+    is_spikein_cnd <- is_spikein[which_cnd]
+    stopifnot(length(p_vals_all[which_cnd]) == length(is_spikein_cnd))
     
-    # keep results from this condition only
-    ix_keep_cnd <- rep(group_IDs == cond_names[j], n_cells)
-    res[!ix_keep_cnd, c("p_vals", "q_vals", "spikein")] <- NA
+    res_p_vals <- p_vals_all[which_cnd]
+    res_q_vals <- q_vals_all[which_cnd]
+    
+    # replace any NAs to ensure same set of cells is returned for all methods
+    res_p_vals[is.na(res_p_vals)] <- 1
+    res_q_vals[is.na(res_q_vals)] <- 1
+    
+    # return values for this condition only
+    res <- data.frame(p_vals = res_p_vals, 
+                      q_vals = res_q_vals, 
+                      spikein = is_spikein_cnd)
     
     # store results
     out_cydar_lineage_markers[[th]][[j]] <- res
