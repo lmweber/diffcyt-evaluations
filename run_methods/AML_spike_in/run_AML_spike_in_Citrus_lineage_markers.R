@@ -168,6 +168,7 @@ for (th in 1:length(thresholds)) {
     # directories
     dataDirectory <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/lineage_markers/", thresholds[th], "/", cond_names[j])
     outputDirectory <- file.path(dataDirectory, "citrusOutput")
+    
     # files
     fileList <- data.frame(defaultCondition = gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep)))
     
@@ -208,7 +209,7 @@ for (th in 1:length(thresholds)) {
     # Return results at cell level
     ##############################
     
-    # get differential clusters, match cells to clusters, save results at cell level
+    # get differential clusters, match cells to clusters, and save results at cell level
     
     # note: Citrus does not give any continuous-valued scores, e.g. p-values or q-values,
     # so it is not possible to rank the selected clusters
@@ -220,6 +221,9 @@ for (th in 1:length(thresholds)) {
     # spike-in status for each cell
     is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
     stopifnot(length(is_spikein) == sum(n_cells))
+    
+    # select samples for this condition
+    ix_keep_cnd <- group_IDs == cond_names[j]
     
     
     # differentially abundant clusters
@@ -260,22 +264,25 @@ for (th in 1:length(thresholds)) {
       #results$citrus.combinedFCSSet$data[results$citrus.foldClustering$allClustering$clusterMembership[[clus]], clusteringColumns]
     }
     
-    # set NA values to 0 to allow ROC curves to be calculated
-    # (note: Citrus results are binary; 1 = selected, 0 = not selected)
+    # set all NA values to 0 to allow evaluation
+    # (note: Citrus results are binary; 1 = cell selected, 0 = cell not selected)
     res_cells[is.na(res_cells)] <- 0
     
     
     # set up data frame with results and true spike-in status at cell level
     
-    which_cnd <- rep(group_IDs == cond_names[j], n_cells)
-    stopifnot(length(which_cnd) == length(is_spikein), length(res_cells) == length(is_spikein))
+    which_cnd <- rep(ix_keep_cnd, n_cells)
+    is_spikein_cnd <- is_spikein[which_cnd]
+    stopifnot(length(res_cells) == length(which_cnd), length(res_cells[which_cnd]) == length(is_spikein_cnd))
     
-    res <- data.frame(cell_ID = 1:length(is_spikein), 
-                      scores = res_cells, 
-                      spikein = is_spikein)
+    scores <- res_cells[which_cnd]
     
-    # keep results for this condition only (for ROC curves)
-    res[!which_cnd, c("scores", "spikein")] <- NA
+    # replace any NAs to ensure same set of cells is returned for all methods
+    scores[is.na(scores)] <- 0
+    
+    # return values for this condition only
+    res <- data.frame(scores = scores, 
+                      spikein = is_spikein_cnd)
     
     # store results
     out_Citrus_lineage_markers[[th]][[j]] <- res
