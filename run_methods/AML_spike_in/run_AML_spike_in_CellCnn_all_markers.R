@@ -251,9 +251,10 @@ for (th in 1:length(thresholds)) {
     # Return results at cell level
     ##############################
     
-    # Note: CellCnn returns results at 'filter' (population) level. To evaluate
-    # performance at the cell level, we assign the filter-level scores to all cells within
-    # each filter.
+    # Note: CellCnn returns continuous 'scores' at the cell level, indicating the
+    # likelihood of each cell belonging to each detected 'filter' (population). If there
+    # are multiple detected filters, we sum the scores to give a single total score per
+    # cell.
     
     
     # number of cells per sample (including spike-in cells)
@@ -306,13 +307,14 @@ for (th in 1:length(thresholds)) {
     which_cnd <- rep(ix_keep_cnd, n_cells)
     stopifnot(length(filter_continuous_cnd) == length(is_spikein[which_cnd]))
     
-    res <- data.frame(cell_ID = 1:length(is_spikein), 
-                      scores = NA, 
-                      spikein = NA)
+    scores <- filter_continuous_cnd
     
-    # include scores and spike-in status for this condition only
-    res$scores[which_cnd] <- filter_continuous_cnd
-    res$spikein[which_cnd] <- is_spikein[which_cnd]
+    # replace any NAs to ensure same set of cells is returned for all methods
+    scores[is.na(scores)] <- 0
+    
+    # return values for this condition only
+    res <- data.frame(scores = scores, 
+                      spikein = is_spikein[which_cnd])
     
     # store results
     out_CellCnn_all_markers[[th]][[j]] <- res
