@@ -20,31 +20,24 @@ library(limma)
 # Loop to run for each threshold
 ################################
 
-# spike-in thresholds (must match filenames)
+# spike-in thresholds
 thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 
 # condition names
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-is_spikein_thresholds <- 
-  d_se_thresholds <- d_counts_thresholds <- d_medians_all_thresholds <- 
-  out_diffcyt_DA_limma <- out_diffcyt_DA_limma_sorted <- 
-  vector("list", length(thresholds))
-
-names(is_spikein_thresholds) <- 
-  names(d_se_thresholds) <- names(d_counts_thresholds) <- names(d_medians_all_thresholds) <- 
-  names(out_diffcyt_DA_limma) <- names(out_diffcyt_DA_limma_sorted) <- 
-  thresholds
+out_diffcyt_DA_limma_lineage_markers <- vector("list", length(thresholds))
+names(out_diffcyt_DA_limma_lineage_markers) <- thresholds
 
 
 
 
 for (th in 1:length(thresholds)) {
   
-  ##############################
-  # Load data and pre-processing
-  ##############################
+  ######################################
+  # Load data, pre-processing, transform
+  ######################################
   
   # ---------
   # load data
@@ -91,43 +84,35 @@ for (th in 1:length(thresholds)) {
   cols_func <- setdiff(cols_markers, cols_lineage)
   
   
-  # ---------------------
-  # store spike-in status
-  # ---------------------
+  # ---------------------------
+  # choose which markers to use
+  # ---------------------------
   
-  # store spike-in status for each cell
-  
-  is_spikein_thresholds[[th]] <- vector("list", length(sample_IDs))
-  names(is_spikein_thresholds[[th]]) <- sample_IDs
-  
-  for (i in 1:length(sample_IDs)) {
-    exprs_i <- exprs(d_input[[i]])
-    is_spikein_thresholds[[th]][[i]] <- exprs_i[, "spikein"]
-  }
+  cols_to_use <- cols_lineage
   
   
   
   
-  #########################################################################
-  # Run initial steps of 'diffcyt' pipeline (prior to differential testing)
-  #########################################################################
+  ##################
+  # diffcyt pipeline
+  ##################
+  
+  # --------------------
+  # pre-processing steps
+  # --------------------
   
   # prepare data into required format
-  # (note: using lineage markers for clustering, and functional markers for DE testing)
   d_se <- prepareData(d_input, sample_IDs, group_IDs, 
-                      cols_markers, cols_lineage, cols_func)
+                      cols_markers, cols_to_use, cols_func)
   
-  # check
-  colnames(d_se)[cols_lineage]
+  colnames(d_se)[cols_to_use]
   colnames(d_se)[cols_func]
-  
   
   # transform data
   d_se <- transformData(d_se, cofactor = 5)
   
-  
   # clustering
-  # (note: running clustering once on all samples together, including multiple conditions)
+  # (note: clustering all samples together)
   seed <- 123
   runtime_clustering <- system.time(
     d_se <- generateClusters(d_se, xdim = 30, ydim = 30, seed = seed)
@@ -135,13 +120,11 @@ for (th in 1:length(thresholds)) {
   
   runtime_clustering  # ~60 sec (30x30 clusters)
   
-  # check
   length(table(rowData(d_se)$cluster))  # number of clusters
   nrow(rowData(d_se))                   # number of cells
   sum(table(rowData(d_se)$cluster))
   min(table(rowData(d_se)$cluster))     # size of smallest cluster
   max(table(rowData(d_se)$cluster))     # size of largest cluster
-  
   
   # calculate cluster cell counts
   d_counts <- calcCounts(d_se)
@@ -150,8 +133,7 @@ for (th in 1:length(thresholds)) {
   rowData(d_counts)
   length(assays(d_counts))
   
-  
-  # calculate cluster medians
+  # calculate cluster medians by sample
   d_medians <- calcMedians(d_se)
   
   dim(d_medians)
@@ -159,81 +141,112 @@ for (th in 1:length(thresholds)) {
   length(assays(d_medians))
   names(assays(d_medians))
   
-  
-  # calculate cluster medians across all samples (for plotting)
+  # calculate cluster medians across all samples
   d_medians_all <- calcMediansAll(d_se)
   
   dim(d_medians_all)
   
   
-  # ------------------
-  # store data objects
-  # ------------------
+  # ----------------------------------------------
+  # test for differentially abundant (DA) clusters
+  # ----------------------------------------------
   
-  d_se_thresholds[[th]] <- d_se
-  d_counts_thresholds[[th]] <- d_counts
-  d_medians_all_thresholds[[th]] <- d_medians_all
+  # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  
-  
-  
-  ################################################
-  # Test for differentially abundant (DA) clusters
-  ################################################
-  
-  # test separately for each condition: CN vs. healthy, CBF vs. healthy
-  
-  out_diffcyt_DA_limma[[th]] <- out_diffcyt_DA_limma_sorted[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_limma[[th]]) <- names(out_diffcyt_DA_limma_sorted[[th]]) <- cond_names
+  out_diffcyt_DA_limma_lineage_markers[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_limma_lineage_markers[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
     
-    # ------------
-    # run DA tests
-    # ------------
-    
-    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
-    
     # set up contrast
     design <- model.matrix(~ 0 + group_IDs)
-    contr_str <- paste0("group_IDs", cond_names[j], " - group_IDshealthy")
-    contrast <- makeContrasts(contr_str, levels = design)
+    contr_string <- paste0("group_IDs", cond_names[j], " - group_IDshealthy")
+    contrast <- makeContrasts(contr_string, levels = design)
     
-    
-    # test for DA clusters
+    # run tests
     # (note: using 'block_IDs' argument for paired tests)
-    runtime_DA <- system.time(
-      res_DA <- testDA_limma(d_counts, group_IDs, contrast, 
-                             block_IDs = block_IDs, path = path)
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
+    
+    runtime <- system.time(
+      res <- testDA_limma(d_counts, group_IDs, contrast, 
+                          block_IDs = block_IDs, path = path)
     )
     
-    runtime_DA
-    
-    
-    # -------
-    # results
-    # -------
+    print(runtime)
     
     # show results
-    rowData(res_DA)
+    rowData(res)
     
     # sort to show top (most highly significant) clusters first
-    res_DA_sorted <- rowData(res_DA)[order(rowData(res_DA)$adj.P.Val), ]
-    
-    print(head(res_DA_sorted, 10))
-    #View(as.data.frame(res_DA_sorted))
+    res_sorted <- rowData(res)[order(rowData(res)$adj.P.Val), ]
+    print(head(res_sorted, 10))
+    #View(as.data.frame(res_sorted))
     
     # number of significant DA clusters
-    print(table(res_DA_sorted$adj.P.Val < 0.05))
+    print(table(res_sorted$adj.P.Val <= 0.05))
     
     
-    # --------------
-    # output objects
-    # --------------
     
-    out_diffcyt_DA_limma[[th]][[j]] <- res_DA
-    out_diffcyt_DA_limma_sorted[[th]][[j]] <- res_DA_sorted
+    
+    ##############################
+    # Return results at cell level
+    ##############################
+    
+    # Note: diffcyt methods return results at cluster level (e.g. 900 small clusters). To
+    # enable performance comparisons between methods at the cell level, we assign the
+    # cluster-level p-values (or adjusted p-values) to all cells within each cluster.
+    
+    
+    # number of cells per sample (including spike-in cells)
+    n_cells <- sapply(d_input, nrow)
+    
+    # spike-in status for each cell
+    is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
+    stopifnot(length(is_spikein) == sum(n_cells))
+    
+    # select samples for this condition
+    ix_keep_cnd <- group_IDs == cond_names[j]
+    
+    
+    # match cluster-level p-values to individual cells
+    
+    stopifnot(nrow(rowData(res)) == length(levels(rowData(d_se)$cluster)), 
+              all(rowData(res)$cluster == levels(rowData(d_se)$cluster)))
+    
+    rowData(res)$cluster <- factor(rowData(res)$cluster, levels = levels(rowData(d_se)$cluster))
+    
+    ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
+    
+    p_vals_clusters <- rowData(res)$P.Value
+    p_adj_clusters <- rowData(res)$adj.P.Val
+    
+    p_vals_cells <- p_vals_clusters[ix_match]
+    p_adj_cells <- p_adj_clusters[ix_match]
+    
+    
+    # set up data frame with results and true spike-in status at cell level
+    
+    which_cnd <- rep(ix_keep_cnd, n_cells)
+    is_spikein_cnd <- is_spikein[which_cnd]
+    stopifnot(length(p_vals_cells[which_cnd]) == length(is_spikein_cnd), 
+              length(p_adj_cells[which_cnd]) == length(is_spikein_cnd))
+    
+    res_p_vals <- p_vals_cells[which_cnd]
+    res_p_adj <- p_adj_cells[which_cnd]
+    
+    # replace NAs (due to filtering) to ensure same cells are returned for all methods
+    res_p_vals[is.na(res_p_vals)] <- 1
+    res_p_adj[is.na(res_p_adj)] <- 1
+    
+    # return values for this condition only
+    res <- data.frame(p_vals = res_p_vals, 
+                      p_adj = res_p_adj, 
+                      spikein = is_spikein_cnd)
+    
+    # store results
+    out_diffcyt_DA_limma_lineage_markers[[th]][[j]] <- res
+    
   }
 }
 
@@ -244,7 +257,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save.image("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_lineage_markers.RData")
+save(out_diffcyt_DA_limma_lineage_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_lineage_markers.RData")
 
 
 
