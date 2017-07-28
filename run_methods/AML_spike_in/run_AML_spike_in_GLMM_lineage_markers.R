@@ -201,7 +201,7 @@ for (th in 1:length(thresholds)) {
     
     # Note: diffcyt methods return results at cluster level (e.g. 900 small clusters). To
     # enable performance comparisons between methods at the cell level, we assign the
-    # cluster-level p-values (or adjusted p-values) to all cells within each cluster.
+    # cluster-level p-values to all cells within each cluster.
     
     
     # number of cells per sample (including spike-in cells)

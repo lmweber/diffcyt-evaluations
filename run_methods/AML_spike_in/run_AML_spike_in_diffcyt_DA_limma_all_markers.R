@@ -11,7 +11,6 @@
 library(diffcyt)
 library(flowCore)
 library(SummarizedExperiment)
-library(limma)
 
 
 
@@ -25,6 +24,9 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 
 # condition names
 cond_names <- c("CN", "CBF")
+
+# contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
+contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects
 out_diffcyt_DA_limma_all_markers <- vector("list", length(thresholds))
@@ -159,17 +161,19 @@ for (th in 1:length(thresholds)) {
   
   for (j in 1:length(cond_names)) {
     
-    # set up contrast
-    design <- model.matrix(~ 0 + group_IDs)
-    contr_string <- paste0("group_IDs", cond_names[j], " - group_IDshealthy")
-    contrast <- makeContrasts(contr_string, levels = design)
+    # set up design matrix
+    design <- createDesignMatrix(group_IDs)
+    design
+    
+    # set up contrast matrix
+    contrast <- createContrast(group_IDs, contrast = contrasts_list[[j]])
+    contrast
     
     # run tests
-    # (note: using 'block_IDs' argument for paired tests)
+    # - provide 'block_IDs' for paired tests using limma 'duplicateCorrelation' methodology
     path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/all_markers/", thresholds[th], "/", cond_names[j])
-    
     runtime <- system.time(
-      res <- testDA_limma(d_counts, group_IDs, contrast, 
+      res <- testDA_limma(d_counts, design, contrast, 
                           block_IDs = block_IDs, path = path)
     )
     
@@ -195,7 +199,7 @@ for (th in 1:length(thresholds)) {
     
     # Note: diffcyt methods return results at cluster level (e.g. 900 small clusters). To
     # enable performance comparisons between methods at the cell level, we assign the
-    # cluster-level p-values (or adjusted p-values) to all cells within each cluster.
+    # cluster-level p-values to all cells within each cluster.
     
     
     # number of cells per sample (including spike-in cells)
@@ -229,6 +233,7 @@ for (th in 1:length(thresholds)) {
     
     which_cnd <- rep(ix_keep_cnd, n_cells)
     is_spikein_cnd <- is_spikein[which_cnd]
+    
     stopifnot(length(p_vals_cells[which_cnd]) == length(is_spikein_cnd), 
               length(p_adj_cells[which_cnd]) == length(is_spikein_cnd))
     
