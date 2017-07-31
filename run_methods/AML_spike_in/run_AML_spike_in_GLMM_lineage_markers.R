@@ -165,7 +165,7 @@ for (th in 1:length(thresholds)) {
     # - random effect for block_IDs (patient IDs)
     # - random effect for sample_IDs ('observation-level random effect' for overdispersion)
     formula <- createFormula(group_IDs, 
-                             block_IDs = block_IDs, 
+                             block_IDs = block_IDs, block_IDs_type = "random", 
                              sample_IDs = sample_IDs)
     formula$formula
     formula$data
