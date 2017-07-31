@@ -13,7 +13,8 @@ library(ggplot2)
 
 
 # load saved results
-load("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_all_markers.RData")
+load("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_fixed_all_markers.RData")
+load("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_random_all_markers.RData")
 load("../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_GLMM_all_markers.RData")
 load("../../../RData/AML_spike_in/outputs_AML_spike_in_CellCnn_all_markers.RData")
 load("../../../RData/AML_spike_in/outputs_AML_spike_in_cydar_all_markers.RData")
@@ -49,29 +50,33 @@ for (th in 1:length(thresholds)) {
     # -------------------------------------
     
     # create 'COBRAData' object
-    data_diffcyt_DA_limma <- out_diffcyt_DA_limma_all_markers[[th]][[j]]
+    data_diffcyt_DA_limma_fixed <- out_diffcyt_DA_limma_fixed_all_markers[[th]][[j]]
+    data_diffcyt_DA_limma_random <- out_diffcyt_DA_limma_random_all_markers[[th]][[j]]
     data_diffcyt_DA_GLMM <- out_diffcyt_DA_GLMM_all_markers[[th]][[j]]
     data_CellCnn <- out_CellCnn_all_markers[[th]][[j]]
     data_cydar <- out_cydar_all_markers[[th]][[j]]
     data_Citrus <- out_Citrus_all_markers[[th]][[j]]
     
-    stopifnot(all.equal(data_diffcyt_DA_limma$spikein, data_diffcyt_DA_GLMM$spikein))
-    stopifnot(all.equal(data_diffcyt_DA_limma$spikein, data_CellCnn$spikein))
-    stopifnot(all.equal(data_diffcyt_DA_limma$spikein, data_cydar$spikein))
-    stopifnot(all.equal(data_diffcyt_DA_limma$spikein, data_Citrus$spikein))
+    stopifnot(all.equal(data_diffcyt_DA_limma_fixed$spikein, data_diffcyt_DA_limma_random$spikein))
+    stopifnot(all.equal(data_diffcyt_DA_limma_fixed$spikein, data_diffcyt_DA_GLMM$spikein))
+    stopifnot(all.equal(data_diffcyt_DA_limma_fixed$spikein, data_CellCnn$spikein))
+    stopifnot(all.equal(data_diffcyt_DA_limma_fixed$spikein, data_cydar$spikein))
+    stopifnot(all.equal(data_diffcyt_DA_limma_fixed$spikein, data_Citrus$spikein))
     
     # note: provide all available values here:
     # - 'padj' is required for threshold points on TPR-FDR curves
     # - depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_limma = data_diffcyt_DA_limma[, "p_vals"], 
+    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_limma_fixed = data_diffcyt_DA_limma_fixed[, "p_vals"], 
+                                             diffcyt_DA_limma_random = data_diffcyt_DA_limma_random[, "p_vals"], 
                                              diffcyt_DA_GLMM = data_diffcyt_DA_GLMM[, "p_vals"], 
                                              cydar = data_cydar[, "p_vals"]), 
-                           padj = data.frame(diffcyt_DA_limma = data_diffcyt_DA_limma[, "p_adj"], 
+                           padj = data.frame(diffcyt_DA_limma_fixed = data_diffcyt_DA_limma_fixed[, "p_adj"], 
+                                             diffcyt_DA_limma_random = data_diffcyt_DA_limma_random[, "p_adj"], 
                                              diffcyt_DA_GLMM = data_diffcyt_DA_GLMM[, "p_adj"], 
                                              cydar = data_cydar[, "q_vals"]), 
                            score = data.frame(CellCnn = data_CellCnn[, "scores"], 
                                               Citrus = data_Citrus[, "scores"]), 
-                           truth = data.frame(spikein = data_diffcyt_DA_limma[, "spikein"]))
+                           truth = data.frame(spikein = data_diffcyt_DA_limma_fixed[, "spikein"]))
     
     # calculate performance scores
     # (note: warning messages when 'padj' not available)

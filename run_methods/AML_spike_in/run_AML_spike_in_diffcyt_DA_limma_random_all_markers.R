@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma-lineage-markers
+# - method: diffcyt-DA-limma-random-all-markers
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -29,8 +29,8 @@ cond_names <- c("CN", "CBF")
 contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects
-out_diffcyt_DA_limma_lineage_markers <- vector("list", length(thresholds))
-names(out_diffcyt_DA_limma_lineage_markers) <- thresholds
+out_diffcyt_DA_limma_random_all_markers <- vector("list", length(thresholds))
+names(out_diffcyt_DA_limma_random_all_markers) <- thresholds
 
 
 
@@ -90,7 +90,7 @@ for (th in 1:length(thresholds)) {
   # choose which markers to use
   # ---------------------------
   
-  cols_to_use <- cols_lineage
+  cols_to_use <- cols_markers
   
   
   
@@ -155,8 +155,8 @@ for (th in 1:length(thresholds)) {
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_diffcyt_DA_limma_lineage_markers[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_limma_lineage_markers[[th]]) <- cond_names
+  out_diffcyt_DA_limma_random_all_markers[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_limma_random_all_markers[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -170,11 +170,11 @@ for (th in 1:length(thresholds)) {
     contrast
     
     # run tests
-    # - provide 'block_IDs' for paired tests using limma 'duplicateCorrelation' methodology
-    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/lineage_markers/", thresholds[th], "/", cond_names[j])
+    # - note: include 'block_IDs' as random effects using limma 'duplicateCorrelation' methodology
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma_random/all_markers/", thresholds[th], "/", cond_names[j])
     runtime <- system.time(
       res <- testDA_limma(d_counts, design, contrast, 
-                          block_IDs = block_IDs, path = path)
+                          block_IDs_random = block_IDs, path = path)
     )
     
     print(runtime)
@@ -250,7 +250,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_diffcyt_DA_limma_lineage_markers[[th]][[j]] <- res
+    out_diffcyt_DA_limma_random_all_markers[[th]][[j]] <- res
     
   }
 }
@@ -262,7 +262,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_lineage_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_lineage_markers.RData")
+save(out_diffcyt_DA_limma_random_all_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_random_all_markers.RData")
 
 
 
@@ -271,7 +271,7 @@ save(out_diffcyt_DA_limma_lineage_markers, file = "../../../RData/AML_spike_in/o
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_diffcyt_DA_limma_lineage_markers.txt")
+sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_diffcyt_DA_limma_random_all_markers.txt")
 sessionInfo()
 sink()
 

@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma-all-markers
+# - method: diffcyt-DA-limma-fixed-all-markers
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -26,11 +26,12 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
+# note: include zeros for block_IDs fixed effects
+contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
 
 # lists to store objects
-out_diffcyt_DA_limma_all_markers <- vector("list", length(thresholds))
-names(out_diffcyt_DA_limma_all_markers) <- thresholds
+out_diffcyt_DA_limma_fixed_all_markers <- vector("list", length(thresholds))
+names(out_diffcyt_DA_limma_fixed_all_markers) <- thresholds
 
 
 
@@ -155,14 +156,15 @@ for (th in 1:length(thresholds)) {
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_diffcyt_DA_limma_all_markers[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_limma_all_markers[[th]]) <- cond_names
+  out_diffcyt_DA_limma_fixed_all_markers[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_limma_fixed_all_markers[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
     
     # set up design matrix
-    design <- createDesignMatrix(group_IDs)
+    # - note: include 'block_IDs' as fixed effects in design matrix
+    design <- createDesignMatrix(group_IDs, block_IDs = block_IDs)
     design
     
     # set up contrast matrix
@@ -170,11 +172,10 @@ for (th in 1:length(thresholds)) {
     contrast
     
     # run tests
-    # - provide 'block_IDs' for paired tests using limma 'duplicateCorrelation' methodology
-    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma/all_markers/", thresholds[th], "/", cond_names[j])
+    # - note: include 'block_IDs' as fixed effects in design matrix
+    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma_fixed/all_markers/", thresholds[th], "/", cond_names[j])
     runtime <- system.time(
-      res <- testDA_limma(d_counts, design, contrast, 
-                          block_IDs = block_IDs, path = path)
+      res <- testDA_limma(d_counts, design, contrast, path = path)
     )
     
     print(runtime)
@@ -250,7 +251,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_diffcyt_DA_limma_all_markers[[th]][[j]] <- res
+    out_diffcyt_DA_limma_fixed_all_markers[[th]][[j]] <- res
     
   }
 }
@@ -262,7 +263,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_all_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_all_markers.RData")
+save(out_diffcyt_DA_limma_fixed_all_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_fixed_all_markers.RData")
 
 
 
@@ -271,7 +272,7 @@ save(out_diffcyt_DA_limma_all_markers, file = "../../../RData/AML_spike_in/outpu
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_diffcyt_DA_limma_all_markers.txt")
+sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_diffcyt_DA_limma_fixed_all_markers.txt")
 sessionInfo()
 sink()
 
