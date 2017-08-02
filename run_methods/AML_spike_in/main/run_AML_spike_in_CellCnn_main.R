@@ -10,7 +10,7 @@
 
 # note: run from command line with 'Rscript <filename.R>'
 
-# note: using all markers for CellCnn (using lineage markers only gives errors)
+# note: use all markers for CellCnn (using lineage markers only gives errors)
 
 
 library(flowCore)

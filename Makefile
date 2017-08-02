@@ -1,35 +1,43 @@
-# define variables
+# ---------
+# variables
+# ---------
 
 # benchmark data
 BENCHMARK_DATA_FILES_AML = $(wildcard ../../benchmark_data/AML_spike_in/data/*/*.fcs)
 
 # scripts
 DIR_RUN_SCRIPTS_AML_MAIN = run_methods/AML_spike_in/main
-DIR_PLOT_SCRIPTS_AML_MAIN = generate_plots/AML_spike_in
+DIR_PLOT_SCRIPTS_AML_MAIN = generate_plots/AML_spike_in/main
+SCRIPTS_PLOT_AML_MAIN = $(wildcard $(DIR_PLOT_SCRIPTS_AML_MAIN)/*.R)
+
 # RData files
 DIR_RDATA_AML_MAIN = ../RData/AML_spike_in/main
 RDATA_FILES_AML_MAIN = $(wildcard $(DIR_RDATA_AML_MAIN)/*.RData)
+
 # plots
 DIR_PLOTS_AML_MAIN = ../plots/AML_spike_in/all_methods/main
 PLOTS_AML_MAIN = $(shell find $(DIR_PLOTS_AML_MAIN) -type f -name '*.pdf')
 
 
+
+# -----
+# rules
+# -----
+
 # all
 .PHONY : all
-all : $(RDATA_FILES_AML_MAIN)
+all : plots_main
 
 
-# generate plots: ROC and TPR-FDR curves
-#.PHONY : plots_ROC_TPRFDR
-#plots_ROC_TPRFDR : $(PLOTS_AML_MAIN)
+# generate plots: main results
+.PHONY : plots_main
+plots_main : $(SCRIPTS_PLOT_AML_MAIN) $(RDATA_FILES_AML_MAIN)
+	( cd $(DIR_PLOT_SCRIPTS_AML_MAIN) && Rscript $< )
 
-## not working yet
-#$(PLOTS_AML_MAIN) : $(DIR_PLOT_SCRIPTS_AML_MAIN)/%.R $(RDATA_FILES_AML_MAIN)
-#	( cd $(DIR_PLOT_SCRIPTS_AML_MAIN) && Rscript $*.R )
+$(PLOTS_AML_MAIN) : $(SCRIPTS_PLOT_AML_MAIN) $(RDATA_FILES_AML_MAIN)
 
 
 # run methods to generate RData output files
-# note: run R scripts in directory where they are saved (using 'cd' and parentheses for sub-shell)
 .PHONY : RData_files
 RData_files : $(RDATA_FILES_AML_MAIN)
 
@@ -44,6 +52,11 @@ benchmark_data_AML : prepare_data/prepare_data_AML_spike_in.R
 
 $(BENCHMARK_DATA_FILES_AML) : prepare_data/prepare_data_AML_spike_in.R
 
+
+
+# -------------
+# miscellaneous
+# -------------
 
 # remove auto-generated files for Citrus
 .PHONY : clean_Citrus
