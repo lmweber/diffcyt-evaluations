@@ -25,16 +25,16 @@ PLOTS_AML_MAIN = $(shell find $(DIR_PLOTS_AML_MAIN) -type f -name '*.pdf')
 # -----
 
 # all
-.PHONY : all
-all : plots_main
+#.PHONY : all
+#all : plots_main
 
 
 # generate plots: main results
-.PHONY : plots_main
-plots_main : $(SCRIPTS_PLOT_AML_MAIN) $(RDATA_FILES_AML_MAIN)
-	( cd $(DIR_PLOT_SCRIPTS_AML_MAIN) && Rscript $< )
+#.PHONY : plots_main
+#plots_main : $(DIR_PLOT_SCRIPTS_AML_MAIN)/%.R $(RDATA_FILES_AML_MAIN)
+#	( cd $(DIR_PLOT_SCRIPTS_AML_MAIN) && Rscript $*.R )
 
-$(PLOTS_AML_MAIN) : $(SCRIPTS_PLOT_AML_MAIN) $(RDATA_FILES_AML_MAIN)
+#$(PLOTS_AML_MAIN) : $(SCRIPTS_PLOT_AML_MAIN) $(RDATA_FILES_AML_MAIN)
 
 
 # run methods to generate RData output files
@@ -47,7 +47,7 @@ $(DIR_RDATA_AML_MAIN)/outputs_%.RData : $(DIR_RUN_SCRIPTS_AML_MAIN)/run_%.R $(BE
 
 # generate benchmark data set
 .PHONY : benchmark_data_AML
-benchmark_data_AML : prepare_data/prepare_data_AML_spike_in.R
+benchmark_data_AML : $(BENCHMARK_DATA_FILES_AML)
 	( cd prepare_data && Rscript prepare_data_AML_spike_in.R )
 
 $(BENCHMARK_DATA_FILES_AML) : prepare_data/prepare_data_AML_spike_in.R
@@ -72,5 +72,5 @@ clean_CellCnn :
 # show variables
 .PHONY : variables
 variables :
-	@echo DIR_PLOT_SCRIPTS_AML_MAIN: $(DIR_PLOT_SCRIPTS_AML_MAIN)
+	@echo SCRIPTS_PLOT_AML_MAIN: $(SCRIPTS_PLOT_AML_MAIN)
 
