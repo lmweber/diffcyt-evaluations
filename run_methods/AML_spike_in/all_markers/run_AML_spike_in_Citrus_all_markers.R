@@ -172,7 +172,7 @@ for (th in 1:length(thresholds)) {
     scaleColumns <- NULL
     
     # directories
-    dataDirectory <- paste0(DIR_CITRUS_FILES, "/Citrus_files/data_transformed/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j])
+    dataDirectory <- paste0(DIR_CITRUS_FILES, "/data_transformed/AML_spike_in/all_markers/", thresholds[th], "/", cond_names[j])
     outputDirectory <- file.path(dataDirectory, "citrusOutput")
     
     # files

@@ -42,6 +42,13 @@ $(DIR_RDATA_AML_MAIN)/outputs_%.RData : $(DIR_RUN_SCRIPTS_AML_MAIN)/run_%.R $(BE
 	( cd $(DIR_RUN_SCRIPTS_AML_MAIN) && Rscript run_$*.R )
 
 
+# remove auto-generated files for CellCnn and Citrus
+.PHONY : clean
+clean :
+	find ../CellCnn_files -type f -delete
+	find ../Citrus_files -type f -delete
+
+
 # show variables
 .PHONY : variables
 variables :
