@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-GLMM-lineage-markers
+# - method: diffcyt-DA-GLMM-main
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -11,6 +11,11 @@
 library(diffcyt)
 library(flowCore)
 library(SummarizedExperiment)
+
+
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_spike_in/data"
+DIR_RDATA <- "../../../../RData/AML_spike_in/main"
+DIR_SESSION_INFO <- "../../../../session_info/AML_spike_in/main"
 
 
 
@@ -29,8 +34,8 @@ cond_names <- c("CN", "CBF")
 contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects
-out_diffcyt_DA_GLMM_lineage_markers <- vector("list", length(thresholds))
-names(out_diffcyt_DA_GLMM_lineage_markers) <- thresholds
+out_diffcyt_DA_GLMM_main <- vector("list", length(thresholds))
+names(out_diffcyt_DA_GLMM_main) <- thresholds
 
 
 
@@ -46,11 +51,11 @@ for (th in 1:length(thresholds)) {
   # ---------
   
   # filenames
-  files_healthy <- list.files("../../../../benchmark_data/AML_spike_in/data/healthy", 
+  files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
                               pattern = "\\.fcs$", full.names = TRUE)
-  files_CN <- list.files("../../../../benchmark_data/AML_spike_in/data/CN", 
+  files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
                          pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
-  files_CBF <- list.files("../../../../benchmark_data/AML_spike_in/data/CBF", 
+  files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
   
   # load data
@@ -155,8 +160,8 @@ for (th in 1:length(thresholds)) {
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_diffcyt_DA_GLMM_lineage_markers[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_GLMM_lineage_markers[[th]]) <- cond_names
+  out_diffcyt_DA_GLMM_main[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_GLMM_main[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -252,7 +257,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_diffcyt_DA_GLMM_lineage_markers[[th]][[j]] <- res
+    out_diffcyt_DA_GLMM_main[[th]][[j]] <- res
     
   }
 }
@@ -264,7 +269,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_GLMM_lineage_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_GLMM_lineage_markers.RData")
+save(out_diffcyt_DA_GLMM_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_diffcyt_DA_GLMM_main.RData"))
 
 
 
@@ -273,7 +278,7 @@ save(out_diffcyt_DA_GLMM_lineage_markers, file = "../../../RData/AML_spike_in/ou
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_diffcyt_DA_GLMM_lineage_markers.txt")
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_spike_in_diffcyt_DA_GLMM_main.txt"))
 sessionInfo()
 sink()
 

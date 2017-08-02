@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: Citrus-lineage-markers
+# - method: Citrus-main
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -10,6 +10,12 @@
 
 library(flowCore)
 library(citrus)
+
+
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_spike_in/data"
+DIR_CITRUS_FILES <- "../../../../Citrus_files"
+DIR_RDATA <- "../../../../RData/AML_spike_in/main"
+DIR_SESSION_INFO <- "../../../../session_info/AML_spike_in/main"
 
 
 
@@ -25,8 +31,8 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-out_Citrus_lineage_markers <- vector("list", length(thresholds))
-names(out_Citrus_lineage_markers) <- thresholds
+out_Citrus_main <- vector("list", length(thresholds))
+names(out_Citrus_main) <- thresholds
 
 
 
@@ -42,11 +48,11 @@ for (th in 1:length(thresholds)) {
   # ---------
   
   # filenames
-  files_healthy <- list.files("../../../../benchmark_data/AML_spike_in/data/healthy", 
+  files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
                               pattern = "\\.fcs$", full.names = TRUE)
-  files_CN <- list.files("../../../../benchmark_data/AML_spike_in/data/CN", 
+  files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
                          pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
-  files_CBF <- list.files("../../../../benchmark_data/AML_spike_in/data/CBF", 
+  files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
   
   # load data
@@ -112,8 +118,8 @@ for (th in 1:length(thresholds)) {
   
   # using modified code from auto-generated file 'runCitrus.R'
   
-  out_Citrus_lineage_markers[[th]] <- vector("list", length(cond_names))
-  names(out_Citrus_lineage_markers[[th]]) <- cond_names
+  out_Citrus_main[[th]] <- vector("list", length(cond_names))
+  names(out_Citrus_main[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -131,7 +137,7 @@ for (th in 1:length(thresholds)) {
     d_input_keep <- d_input[ix_keep]
     
     for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/lineage_markers/", thresholds[th], "/", cond_names[j])
+      path <- paste0(DIR_CITRUS_FILES, "/data_transformed/AML_spike_in/main/", thresholds[th], "/", cond_names[j])
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
       write.FCS(d_input_keep[[i]], filename)
     }
@@ -166,7 +172,7 @@ for (th in 1:length(thresholds)) {
     scaleColumns <- NULL
     
     # directories
-    dataDirectory <- paste0("../../../Citrus_files/data_transformed/AML_spike_in/lineage_markers/", thresholds[th], "/", cond_names[j])
+    dataDirectory <- paste0(DIR_CITRUS_FILES, "/Citrus_files/data_transformed/AML_spike_in/main/", thresholds[th], "/", cond_names[j])
     outputDirectory <- file.path(dataDirectory, "citrusOutput")
     
     # files
@@ -285,7 +291,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_Citrus_lineage_markers[[th]][[j]] <- res
+    out_Citrus_main[[th]][[j]] <- res
     
   }
 }
@@ -297,7 +303,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_Citrus_lineage_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_Citrus_lineage_markers.RData")
+save(out_Citrus_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_Citrus_main.RData"))
 
 
 
@@ -306,7 +312,7 @@ save(out_Citrus_lineage_markers, file = "../../../RData/AML_spike_in/outputs_AML
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_Citrus_lineage_markers.txt")
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_spike_in_Citrus_main.txt"))
 sessionInfo()
 sink()
 

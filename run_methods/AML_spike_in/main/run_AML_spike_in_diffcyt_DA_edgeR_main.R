@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma-fixed-all-markers
+# - method: diffcyt-DA-edgeR-main
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -11,6 +11,11 @@
 library(diffcyt)
 library(flowCore)
 library(SummarizedExperiment)
+
+
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_spike_in/data"
+DIR_RDATA <- "../../../../RData/AML_spike_in/main"
+DIR_SESSION_INFO <- "../../../../session_info/AML_spike_in/main"
 
 
 
@@ -30,8 +35,8 @@ cond_names <- c("CN", "CBF")
 contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
 
 # lists to store objects
-out_diffcyt_DA_limma_fixed_all_markers <- vector("list", length(thresholds))
-names(out_diffcyt_DA_limma_fixed_all_markers) <- thresholds
+out_diffcyt_DA_edgeR_main <- vector("list", length(thresholds))
+names(out_diffcyt_DA_edgeR_main) <- thresholds
 
 
 
@@ -47,11 +52,11 @@ for (th in 1:length(thresholds)) {
   # ---------
   
   # filenames
-  files_healthy <- list.files("../../../../benchmark_data/AML_spike_in/data/healthy", 
+  files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
                               pattern = "\\.fcs$", full.names = TRUE)
-  files_CN <- list.files("../../../../benchmark_data/AML_spike_in/data/CN", 
+  files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
                          pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
-  files_CBF <- list.files("../../../../benchmark_data/AML_spike_in/data/CBF", 
+  files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
   
   # load data
@@ -91,7 +96,7 @@ for (th in 1:length(thresholds)) {
   # choose which markers to use
   # ---------------------------
   
-  cols_to_use <- cols_markers
+  cols_to_use <- cols_lineage
   
   
   
@@ -156,8 +161,8 @@ for (th in 1:length(thresholds)) {
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_diffcyt_DA_limma_fixed_all_markers[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_limma_fixed_all_markers[[th]]) <- cond_names
+  out_diffcyt_DA_edgeR_main[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_edgeR_main[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -172,10 +177,8 @@ for (th in 1:length(thresholds)) {
     contrast
     
     # run tests
-    # - note: include 'block_IDs' as fixed effects in design matrix
-    path <- paste0("../../../plots/AML_spike_in/diffcyt_DA_limma_fixed/all_markers/", thresholds[th], "/", cond_names[j])
     runtime <- system.time(
-      res <- testDA_limma(d_counts, design, contrast, path = path)
+      res <- testDA_edgeR(d_counts, design, contrast)
     )
     
     print(runtime)
@@ -184,12 +187,12 @@ for (th in 1:length(thresholds)) {
     rowData(res)
     
     # sort to show top (most highly significant) clusters first
-    res_sorted <- rowData(res)[order(rowData(res)$adj.P.Val), ]
+    res_sorted <- rowData(res)[order(rowData(res)$FDR), ]
     print(head(res_sorted, 10))
     #View(as.data.frame(res_sorted))
     
     # number of significant DA clusters
-    print(table(res_sorted$adj.P.Val <= 0.05))
+    print(table(res_sorted$FDR <= 0.05))
     
     
     
@@ -223,8 +226,8 @@ for (th in 1:length(thresholds)) {
     
     ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
     
-    p_vals_clusters <- rowData(res)$P.Value
-    p_adj_clusters <- rowData(res)$adj.P.Val
+    p_vals_clusters <- rowData(res)$PValue
+    p_adj_clusters <- rowData(res)$FDR
     
     p_vals_cells <- p_vals_clusters[ix_match]
     p_adj_cells <- p_adj_clusters[ix_match]
@@ -251,7 +254,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_diffcyt_DA_limma_fixed_all_markers[[th]][[j]] <- res
+    out_diffcyt_DA_edgeR_main[[th]][[j]] <- res
     
   }
 }
@@ -263,7 +266,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_fixed_all_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_diffcyt_DA_limma_fixed_all_markers.RData")
+save(out_diffcyt_DA_edgeR_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_diffcyt_DA_edgeR_main.RData"))
 
 
 
@@ -272,7 +275,7 @@ save(out_diffcyt_DA_limma_fixed_all_markers, file = "../../../RData/AML_spike_in
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_diffcyt_DA_limma_fixed_all_markers.txt")
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_spike_in_diffcyt_DA_edgeR_main.txt"))
 sessionInfo()
 sink()
 

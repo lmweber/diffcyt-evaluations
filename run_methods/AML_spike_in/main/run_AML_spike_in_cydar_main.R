@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: cydar-lineage-markers
+# - method: cydar-main
 # - data set: AML-spike-in
 # 
 # Lukas Weber, July 2017
@@ -12,6 +12,11 @@ library(flowCore)
 library(ncdfFlow)
 library(cydar)
 library(edgeR)
+
+
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_spike_in/data"
+DIR_RDATA <- "../../../../RData/AML_spike_in/main"
+DIR_SESSION_INFO <- "../../../../session_info/AML_spike_in/main"
 
 
 
@@ -27,8 +32,8 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-out_cydar_lineage_markers <- vector("list", length(thresholds))
-names(out_cydar_lineage_markers) <- thresholds
+out_cydar_main <- vector("list", length(thresholds))
+names(out_cydar_main) <- thresholds
 
 
 
@@ -44,11 +49,11 @@ for (th in 1:length(thresholds)) {
   # ---------
   
   # filenames
-  files_healthy <- list.files("../../../../benchmark_data/AML_spike_in/data/healthy", 
+  files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
                               pattern = "\\.fcs$", full.names = TRUE)
-  files_CN <- list.files("../../../../benchmark_data/AML_spike_in/data/CN", 
+  files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
                          pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
-  files_CBF <- list.files("../../../../benchmark_data/AML_spike_in/data/CBF", 
+  files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
   
   # load data
@@ -194,8 +199,8 @@ for (th in 1:length(thresholds)) {
   
   # set up contrasts and test separately for each condition
   
-  out_cydar_lineage_markers[[th]] <- vector("list", length(cond_names))
-  names(out_cydar_lineage_markers[[th]]) <- cond_names
+  out_cydar_main[[th]] <- vector("list", length(cond_names))
+  names(out_cydar_main[[th]]) <- cond_names
   
   for (j in 1:length(cond_names)) {
     
@@ -311,7 +316,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_cydar_lineage_markers[[th]][[j]] <- res
+    out_cydar_main[[th]][[j]] <- res
     
   }
 }
@@ -323,7 +328,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_cydar_lineage_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_cydar_lineage_markers.RData")
+save(out_cydar_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_cydar_main.RData"))
 
 
 
@@ -332,7 +337,7 @@ save(out_cydar_lineage_markers, file = "../../../RData/AML_spike_in/outputs_AML_
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_cydar_lineage_markers.txt")
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_spike_in_cydar_main.txt"))
 sessionInfo()
 sink()
 

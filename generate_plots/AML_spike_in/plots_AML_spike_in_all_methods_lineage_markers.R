@@ -69,15 +69,15 @@ for (th in 1:length(thresholds)) {
     # note: provide all available values here:
     # - 'padj' is required for threshold points on TPR-FDR curves
     # - depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_limma_fixed = data_diffcyt_DA_limma_fixed[, "p_vals"], 
-                                             diffcyt_DA_limma_random = data_diffcyt_DA_limma_random[, "p_vals"], 
-                                             diffcyt_DA_edgeR = data_diffcyt_DA_edgeR[, "p_vals"], 
+    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_edgeR = data_diffcyt_DA_edgeR[, "p_vals"], 
                                              diffcyt_DA_GLMM = data_diffcyt_DA_GLMM[, "p_vals"], 
+                                             diffcyt_DA_limma_fixed = data_diffcyt_DA_limma_fixed[, "p_vals"], 
+                                             diffcyt_DA_limma_random = data_diffcyt_DA_limma_random[, "p_vals"], 
                                              cydar = data_cydar[, "p_vals"]), 
-                           padj = data.frame(diffcyt_DA_limma_fixed = data_diffcyt_DA_limma_fixed[, "p_adj"], 
-                                             diffcyt_DA_limma_random = data_diffcyt_DA_limma_random[, "p_adj"], 
-                                             diffcyt_DA_edgeR = data_diffcyt_DA_edgeR[, "p_adj"], 
+                           padj = data.frame(diffcyt_DA_edgeR = data_diffcyt_DA_edgeR[, "p_adj"], 
                                              diffcyt_DA_GLMM = data_diffcyt_DA_GLMM[, "p_adj"], 
+                                             diffcyt_DA_limma_fixed = data_diffcyt_DA_limma_fixed[, "p_adj"], 
+                                             diffcyt_DA_limma_random = data_diffcyt_DA_limma_random[, "p_adj"], 
                                              cydar = data_cydar[, "q_vals"]), 
                            score = data.frame(CellCnn = data_CellCnn[, "scores"], 
                                               Citrus = data_Citrus[, "scores"]), 
@@ -89,8 +89,14 @@ for (th in 1:length(thresholds)) {
                                        binary_truth = "spikein", 
                                        aspects = c("fdrtpr", "fdrtprcurve", "roc"))
     
+    # color scheme
+    # modifed default "Set1" to use different yellow (#FFD92F) from colorbrewer2.org
+    colors <- c('#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#FFD92F', '#A65628', '#F781BF')
+    # re-order for legend
+    colors <- colors[c(3:7, 1:2)]
+    
     # prepare plotting object
-    cobraplot <- prepare_data_for_plot(cobraperf)
+    cobraplot <- prepare_data_for_plot(cobraperf, colorscheme = colors)
     
     
     # ----------

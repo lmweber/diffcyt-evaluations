@@ -14,6 +14,11 @@ library(cydar)
 library(edgeR)
 
 
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_spike_in/data"
+DIR_RDATA <- "../../../../RData/AML_spike_in/all_markers"
+DIR_SESSION_INFO <- "../../../../session_info/AML_spike_in/all_markers"
+
+
 
 
 ################################
@@ -44,11 +49,11 @@ for (th in 1:length(thresholds)) {
   # ---------
   
   # filenames
-  files_healthy <- list.files("../../../../benchmark_data/AML_spike_in/data/healthy", 
+  files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
                               pattern = "\\.fcs$", full.names = TRUE)
-  files_CN <- list.files("../../../../benchmark_data/AML_spike_in/data/CN", 
+  files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
                          pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
-  files_CBF <- list.files("../../../../benchmark_data/AML_spike_in/data/CBF", 
+  files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
   
   # load data
@@ -323,7 +328,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_cydar_all_markers, file = "../../../RData/AML_spike_in/outputs_AML_spike_in_cydar_all_markers.RData")
+save(out_cydar_all_markers, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_cydar_all_markers.RData"))
 
 
 
@@ -332,7 +337,7 @@ save(out_cydar_all_markers, file = "../../../RData/AML_spike_in/outputs_AML_spik
 # Session information
 #####################
 
-sink("../../../session_info/AML_spike_in/session_info_AML_spike_in_cydar_all_markers.txt")
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_spike_in_cydar_all_markers.txt"))
 sessionInfo()
 sink()
 
