@@ -25,32 +25,38 @@ PLOTS_AML_MAIN = $(shell find $(DIR_PLOTS_AML_MAIN) -type f -name '*.pdf')
 # -----
 
 # all
-#.PHONY : all
-#all : plots_main
+.PHONY: all
+all: plots_main
 
 
 # generate plots: main results
-#.PHONY : plots_main
-#plots_main : $(DIR_PLOT_SCRIPTS_AML_MAIN)/%.R $(RDATA_FILES_AML_MAIN)
-#	( cd $(DIR_PLOT_SCRIPTS_AML_MAIN) && Rscript $*.R )
+.PHONY: plots_main
+plots_main: $(PLOTS_AML_MAIN)
 
-#$(PLOTS_AML_MAIN) : $(SCRIPTS_PLOT_AML_MAIN) $(RDATA_FILES_AML_MAIN)
+$(PLOTS_AML_MAIN): plots_main.secondary
+
+.SECONDARY: plots_main.secondary
+plots_main.secondary: $(SCRIPTS_PLOT_AML_MAIN) $(RDATA_FILES_AML_MAIN)
+	( cd $(DIR_PLOT_SCRIPTS_AML_MAIN) && Rscript $(notdir $(SCRIPTS_PLOT_AML_MAIN)) )
 
 
 # run methods to generate RData output files
-.PHONY : RData_files
-RData_files : $(RDATA_FILES_AML_MAIN)
+.PHONY: RData_files
+RData_files: $(RDATA_FILES_AML_MAIN)
 
-$(DIR_RDATA_AML_MAIN)/outputs_%.RData : $(DIR_RUN_SCRIPTS_AML_MAIN)/run_%.R $(BENCHMARK_DATA_FILES_AML)
+$(DIR_RDATA_AML_MAIN)/outputs_%.RData: $(DIR_RUN_SCRIPTS_AML_MAIN)/run_%.R $(BENCHMARK_DATA_FILES_AML)
 	( cd $(DIR_RUN_SCRIPTS_AML_MAIN) && Rscript run_$*.R )
 
 
 # generate benchmark data set
-.PHONY : benchmark_data_AML
-benchmark_data_AML : $(BENCHMARK_DATA_FILES_AML)
-	( cd prepare_data && Rscript prepare_data_AML_spike_in.R )
+.PHONY: benchmark_data_AML
+benchmark_data_AML: $(BENCHMARK_DATA_FILES_AML)
 
-$(BENCHMARK_DATA_FILES_AML) : prepare_data/prepare_data_AML_spike_in.R
+$(BENCHMARK_DATA_FILES_AML): benchmark_data_AML.secondary
+
+.SECONDARY: benchmark_data_AML.secondary
+benchmark_data_AML.secondary: prepare_data/prepare_data_AML_spike_in.R
+	( cd prepare_data && Rscript prepare_data_AML_spike_in.R )
 
 
 
@@ -59,18 +65,18 @@ $(BENCHMARK_DATA_FILES_AML) : prepare_data/prepare_data_AML_spike_in.R
 # -------------
 
 # remove auto-generated files for Citrus
-.PHONY : clean_Citrus
-clean_Citrus :
+.PHONY: clean_Citrus
+clean_Citrus:
 	find ../Citrus_files -type f -delete
 
 # remove auto-generated files for CellCnn
-.PHONY : clean_CellCnn
-clean_CellCnn :
+.PHONY: clean_CellCnn
+clean_CellCnn:
 	find ../CellCnn_files -type f -delete
 
 
 # show variables
-.PHONY : variables
-variables :
-	@echo SCRIPTS_PLOT_AML_MAIN: $(SCRIPTS_PLOT_AML_MAIN)
+.PHONY: variables
+variables:
+	@echo PLOTS_AML_MAIN: $(PLOTS_AML_MAIN)
 
