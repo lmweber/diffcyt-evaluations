@@ -180,7 +180,7 @@ for (th in 1:length(thresholds)) {
     path <- paste0(DIR_PLOTS, "/", thresholds[th], "/", cond_names[j])
     runtime <- system.time(
       res <- testDA_limma(d_counts, design, contrast, 
-                          block_IDs_random = block_IDs, path = path)
+                          block_IDs = block_IDs, path = path)
     )
     
     print(runtime)
