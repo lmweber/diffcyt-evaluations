@@ -10,6 +10,8 @@
 
 # note: run from command line with 'Rscript <filename.R>'
 
+# note: using all markers for CellCnn (using lineage markers only gives errors)
+
 
 library(flowCore)
 library(SummarizedExperiment)
@@ -96,7 +98,7 @@ for (th in 1:length(thresholds)) {
   # choose which markers to use
   # ---------------------------
   
-  cols_to_use <- cols_lineage
+  cols_to_use <- cols_markers
   
   
   # -------------------------------

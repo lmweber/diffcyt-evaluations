@@ -144,7 +144,7 @@ data_healthy_base <- data_healthy_CN <- data_healthy_CBF <-
 names(data_healthy_base) <- names(data_healthy_CN) <- names(data_healthy_CBF) <- 
   names(data_healthy)
 
-set.seed(123)
+set.seed(1001)
 
 for (i in 1:length(data_healthy)) {
   data_i <- data_healthy[[i]]
@@ -194,7 +194,7 @@ thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
 data_blasts <- data_SJ10
 cnd <- "CN"
 
-set.seed(101)
+set.seed(1002)
 
 for (i in 1:length(data_healthy_CN)) {
   data_i <- data_healthy_CN[[i]]
@@ -223,7 +223,7 @@ for (i in 1:length(data_healthy_CN)) {
 data_blasts <- data_SJ4
 cnd <- "CBF"
 
-set.seed(102)
+set.seed(1003)
 
 for (i in 1:length(data_healthy_CBF)) {
   data_i <- data_healthy_CBF[[i]]
