@@ -158,6 +158,8 @@ for (th in 1:length(thresholds)) {
   # Counting cells into hyperspheres
   # --------------------------------
   
+  set.seed(123)
+  
   # prepare 'CyData' object
   cd <- prepareCellData(d_input_cydar)
   
