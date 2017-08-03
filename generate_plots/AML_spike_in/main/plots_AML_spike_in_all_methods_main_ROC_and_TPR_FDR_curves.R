@@ -91,11 +91,14 @@ for (th in 1:length(thresholds)) {
     # color scheme
     # modifed default "Set1" to use different yellow (#FFD92F) from colorbrewer2.org
     colors <- c('#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#FFD92F', '#A65628', '#F781BF')
+    
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
     
     # prepare plotting object
-    cobraplot <- prepare_data_for_plot(cobraperf, colorscheme = colors)
+    cobraplot <- prepare_data_for_plot(cobraperf, 
+                                       colorscheme = colors, 
+                                       conditionalfill = FALSE)
     
     
     # ----------
