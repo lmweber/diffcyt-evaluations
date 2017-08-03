@@ -14,7 +14,6 @@ library(ggplot2)
 
 
 # load saved results
-
 DIR_RDATA <- "../../../../RData/AML_spike_in/main"
 
 load(file.path(DIR_RDATA, "outputs_AML_spike_in_CellCnn_main.RData"))
@@ -24,6 +23,8 @@ load(file.path(DIR_RDATA, "outputs_AML_spike_in_diffcyt_DA_edgeR_main.RData"))
 load(file.path(DIR_RDATA, "outputs_AML_spike_in_diffcyt_DA_GLMM_main.RData"))
 load(file.path(DIR_RDATA, "outputs_AML_spike_in_diffcyt_DA_limma_main.RData"))
 
+
+# path to save plots
 DIR_PLOTS <- "../../../../plots/AML_spike_in/all_methods/main"
 
 
@@ -56,33 +57,30 @@ for (th in 1:length(thresholds)) {
     # -------------------------------------
     
     # create 'COBRAData' object
-    data_CellCnn <- out_CellCnn_main[[th]][[j]]
-    data_Citrus <- out_Citrus_main[[th]][[j]]
-    data_cydar <- out_cydar_main[[th]][[j]]
-    data_diffcyt_DA_edgeR <- out_diffcyt_DA_edgeR_main[[th]][[j]]
-    data_diffcyt_DA_GLMM <- out_diffcyt_DA_GLMM_main[[th]][[j]]
-    data_diffcyt_DA_limma <- out_diffcyt_DA_limma_main[[th]][[j]]
+    data <- list(CellCnn = out_CellCnn_main[[th]][[j]], 
+                 Citrus = out_Citrus_main[[th]][[j]], 
+                 cydar = out_cydar_main[[th]][[j]], 
+                 diffcyt_DA_edgeR = out_diffcyt_DA_edgeR_main[[th]][[j]], 
+                 diffcyt_DA_GLMM = out_diffcyt_DA_GLMM_main[[th]][[j]], 
+                 diffcyt_DA_limma = out_diffcyt_DA_limma_main[[th]][[j]])
     
     # check
-    data_all <- list(data_CellCnn, data_Citrus, data_cydar, data_diffcyt_DA_edgeR, 
-                     data_diffcyt_DA_GLMM, data_diffcyt_DA_limma)
-    
-    stopifnot(all(sapply(data_all, function(d) all(d$spikein == data_diffcyt_DA_limma$spikein))))
+    stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
     
     # note: provide all available values
     # - 'padj' is required for threshold points on TPR-FDR curves
     # - depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-    cobradata <- COBRAData(pval = data.frame(cydar = data_cydar[, "p_vals"], 
-                                             diffcyt_DA_edgeR = data_diffcyt_DA_edgeR[, "p_vals"], 
-                                             diffcyt_DA_GLMM = data_diffcyt_DA_GLMM[, "p_vals"], 
-                                             diffcyt_DA_limma = data_diffcyt_DA_limma[, "p_vals"]), 
-                           padj = data.frame(cydar = data_cydar[, "q_vals"], 
-                                             diffcyt_DA_edgeR = data_diffcyt_DA_edgeR[, "p_adj"], 
-                                             diffcyt_DA_GLMM = data_diffcyt_DA_GLMM[, "p_adj"], 
-                                             diffcyt_DA_limma = data_diffcyt_DA_limma[, "p_adj"]), 
-                           score = data.frame(CellCnn = data_CellCnn[, "scores"], 
-                                              Citrus = data_Citrus[, "scores"]), 
-                           truth = data.frame(spikein = data_diffcyt_DA_limma[, "spikein"]))
+    cobradata <- COBRAData(pval = data.frame(cydar = data[["cydar"]][, "p_vals"], 
+                                             diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_vals"], 
+                                             diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_vals"], 
+                                             diffcyt_DA_limma = data[["diffcyt_DA_limma"]][, "p_vals"]), 
+                           padj = data.frame(cydar = data[["cydar"]][, "q_vals"], 
+                                             diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_adj"], 
+                                             diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_adj"], 
+                                             diffcyt_DA_limma = data[["diffcyt_DA_limma"]][, "p_adj"]), 
+                           score = data.frame(CellCnn = data[["CellCnn"]][, "scores"], 
+                                              Citrus = data[["Citrus"]][, "scores"]), 
+                           truth = data.frame(spikein = data[["diffcyt_DA_limma"]][, "spikein"]))
     
     # calculate performance scores
     # (note: can ignore warning messages when 'padj' not available)
@@ -93,8 +91,8 @@ for (th in 1:length(thresholds)) {
     # color scheme
     # modifed default "Set1" to use different yellow (#FFD92F) from colorbrewer2.org
     colors <- c('#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#FFD92F', '#A65628', '#F781BF')
-    # re-order for legend
-    #colors <- colors[c(3:7, 1:2)]
+    colors <- colors[1:length(data)]
+    names(colors) <- names(data)
     
     # prepare plotting object
     cobraplot <- prepare_data_for_plot(cobraperf, colorscheme = colors)
