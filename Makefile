@@ -65,7 +65,6 @@ clean_Citrus:
 clean_CellCnn:
 	find ../CellCnn_files -type f -delete
 
-
 # show variables
 .PHONY: variables
 variables:
