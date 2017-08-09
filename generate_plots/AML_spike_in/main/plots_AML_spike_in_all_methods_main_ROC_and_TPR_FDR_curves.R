@@ -103,6 +103,9 @@ for (th in 1:length(thresholds)) {
     #                diffcyt_DA_GLMM = "dotdash", 
     #                diffcyt_DA_limma = "solid")
     
+    # x axis labels
+    x_labels <- seq(0, 1, by = 0.1)
+    
     # prepare plotting object
     cobraplot <- prepare_data_for_plot(cobraperf, 
                                        colorscheme = colors, 
@@ -140,6 +143,7 @@ for (th in 1:length(thresholds)) {
     
     p + 
       scale_shape_manual(values = c(22, 21, 23)) + 
+      scale_x_continuous(breaks = x_labels, labels = seq(0, 1, by = 0.1)) + 
       #scale_linetype_manual(values = linetypes, name = "") + 
       coord_fixed() + 
       xlab("False discovery rate") + 
