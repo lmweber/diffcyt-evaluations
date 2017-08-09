@@ -5,7 +5,7 @@
 # - methods: all methods, main results
 # - data set: AML-spike-in
 # 
-# Lukas Weber, July 2017
+# Lukas Weber, August 2017
 ##########################################################################################
 
 
@@ -95,6 +95,14 @@ for (th in 1:length(thresholds)) {
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
     
+    # line types (provide as named vector)
+    # linetypes <- c(CellCnn = "solid", 
+    #                Citrus = "solid", 
+    #                cydar = "solid", 
+    #                diffcyt_DA_edgeR = "longdash", 
+    #                diffcyt_DA_GLMM = "dotdash", 
+    #                diffcyt_DA_limma = "solid")
+    
     # prepare plotting object
     cobraplot <- prepare_data_for_plot(cobraperf, 
                                        colorscheme = colors, 
@@ -109,6 +117,7 @@ for (th in 1:length(thresholds)) {
     p <- plot_roc(cobraplot, linewidth = 0.75)
     
     p + 
+      #scale_linetype_manual(values = linetypes, name = "") + 
       coord_fixed() + 
       xlab("False positive rate") + 
       ylab("True positive rate") + 
@@ -130,13 +139,16 @@ for (th in 1:length(thresholds)) {
     p <- plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4)
     
     p + 
+      scale_shape_manual(values = c(22, 21, 23)) + 
+      #scale_linetype_manual(values = linetypes, name = "") + 
       coord_fixed() + 
       xlab("False discovery rate") + 
       ylab("True positive rate") + 
       ggtitle(paste0("TPR-FDR curves: AML-spike-in, main results, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
-      guides(color = guide_legend(override.aes = list(shape = NA)))
+      guides(color = guide_legend(override.aes = list(shape = NA)), 
+             shape = FALSE)
     
     path <- paste0(file.path(DIR_PLOTS, thresholds[th], cond_names[j]))
     filename <- file.path(path, paste0("results_all_methods_main_TPR_FDR_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
