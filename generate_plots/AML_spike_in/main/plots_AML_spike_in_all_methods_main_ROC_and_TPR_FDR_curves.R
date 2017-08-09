@@ -135,7 +135,8 @@ for (th in 1:length(thresholds)) {
       ylab("True positive rate") + 
       ggtitle(paste0("TPR-FDR curves: AML-spike-in, main results, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw() + 
-      theme(strip.text.x = element_blank())
+      theme(strip.text.x = element_blank()) + 
+      guides(color = guide_legend(override.aes = list(shape = NA)))
     
     path <- paste0(file.path(DIR_PLOTS, thresholds[th], cond_names[j]))
     filename <- file.path(path, paste0("results_all_methods_main_TPR_FDR_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
