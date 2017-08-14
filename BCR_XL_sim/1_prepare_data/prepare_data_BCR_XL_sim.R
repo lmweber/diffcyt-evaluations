@@ -38,7 +38,7 @@ library(flowCore)
 ###########
 
 # load .fcs files
-DIR_RAW_DATA <- "../../../benchmark_data/BCR_XL/raw_data/experiment_15713_files"
+DIR_RAW_DATA <- "../../../../benchmark_data/BCR_XL_sim/raw_data/experiment_15713_files"
 
 files <- list.files(DIR_RAW_DATA, pattern = "\\.fcs$", full.names = TRUE)
 
@@ -51,7 +51,7 @@ data <- lapply(files_all, function(f) exprs(read.FCS(f, transformation = FALSE, 
 
 
 # load population labels
-DIR_LABELS <- "../../../benchmark_data/BCR_XL/population_IDs"
+DIR_LABELS <- "../../../../benchmark_data/BCR_XL_sim/population_IDs"
 file_labels <- list.files(DIR_LABELS, pattern = "\\.csv$", full.names = TRUE)
 data_labels_raw <- read.csv(file_labels)
 
@@ -76,7 +76,7 @@ unique(d_labels$sample)
 # EXPORT FILES: NO SIMULATION
 #############################
 
-DIR_DATA_NOSIM <- "../../../benchmark_data/BCR_XL/data/nosim"
+DIR_DATA_NOSIM <- "../../../../benchmark_data/BCR_XL_sim/data/nosim"
 
 cmds <- paste("cp", files_all, DIR_DATA_NOSIM)
 
@@ -95,7 +95,7 @@ for (cmd in cmds) {
 
 
 # load data for reference samples
-data_ref <- lapply(files_ref, function(f) exprs(read.FCS(f, transformation = FALSE, truncate_max_range = FALSE)))
+#data_ref <- lapply(files_ref, function(f) exprs(read.FCS(f, transformation = FALSE, truncate_max_range = FALSE)))
 
 
 
