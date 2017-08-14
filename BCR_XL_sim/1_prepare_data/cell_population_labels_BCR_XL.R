@@ -547,7 +547,7 @@ unique(sample_ids)
 df_labels <- data.frame(sample = sample_ids, population = cell_clustering1m)
 head(df_labels)
 
-DATA_DIR <- "../../../benchmark_data/BCR_XL/population_IDs"
+DATA_DIR <- "../../../../benchmark_data/BCR_XL_sim/population_IDs"
 fn <- file.path(DATA_DIR, "BCR_XL_population_IDs.csv")
 
 write.csv(df_labels, file = fn, row.names = FALSE)
