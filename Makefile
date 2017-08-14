@@ -4,11 +4,11 @@
 
 
 all:
-	+$(MAKE) -C BCR_XL_sim
+	$(MAKE) -C BCR_XL_sim
 
 
 #all:
-#	+$(MAKE) -C BCR_XL_sim
-#	+$(MAKE) -C AML_sim
+#	$(MAKE) -C BCR_XL_sim
+#	$(MAKE) -C AML_sim
 
 
