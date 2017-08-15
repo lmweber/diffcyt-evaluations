@@ -543,14 +543,29 @@ length(cell_clustering1m) == length(sample_ids)
 unique(sample_ids)
 
 
-# save as .csv file
+# split by sample
 df_labels <- data.frame(sample = sample_ids, population = cell_clustering1m)
 head(df_labels)
 
-DATA_DIR <- "../../../../benchmark_data/BCR_XL_sim/population_IDs"
-fn <- file.path(DATA_DIR, "BCR_XL_population_IDs.csv")
+labels <- split(df_labels$population, df_labels$sample)
 
-write.csv(df_labels, file = fn, row.names = FALSE)
+# note sample IDs are automatically rearranged alphabetically
+names(labels)
+
+# convert sample IDs to same format as .fcs filenames
+names(labels) <- gsub("BCRXL([0-9]+)", "patient\\1_BCR-XL", names(labels))
+names(labels) <- gsub("Ref([0-9]+)", "patient\\1_Reference", names(labels))
+
+names(labels)
+
+
+# save as .csv files (one file per sample)
+DATA_DIR <- "../../../../benchmark_data/BCR_XL_sim/population_IDs"
+
+for (i in 1:length(labels)) {
+  fn <- file.path(DATA_DIR, paste0("population_IDs_", names(labels)[i], ".csv"))
+  write.csv(data.frame(population = labels[[i]]), file = fn, row.names = FALSE)
+}
 
 
 
