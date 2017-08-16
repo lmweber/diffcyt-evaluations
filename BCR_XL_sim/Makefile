@@ -36,6 +36,7 @@ all: $(TIMESTAMP_PLOTS)
 # note: include command for each script manually (otherwise dependencies get too complex)
 $(TIMESTAMP_PLOTS): $(SCRIPTS_PLOTS) $(FILES_RDATA)
 	cd $(DIR_GENERATE_PLOTS) && Rscript plots_BCR_XL_sim_all_methods_ROC_and_TPR_FDR.R
+	cd $(DIR_GENERATE_PLOTS) && rm Rplots.pdf
 
 
 
