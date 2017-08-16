@@ -22,6 +22,8 @@ load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DE_med.RData"))
 # path to save plots
 DIR_PLOTS <- "../../../plots/BCR_XL_sim/all_methods"
 
+DIR_TIMESTAMP <- "../../../plots/BCR_XL_sim"
+
 
 
 
@@ -118,6 +120,19 @@ path <- DIR_PLOTS
 filename <- file.path(path, "results_BCR_XL_sim_all_methods_TPR_FDR_curves.pdf")
 
 ggsave(filename, width = 9, height = 8)
+
+
+
+
+##############################
+# Timestamp file for Makefiles
+##############################
+
+file_timestamp <- file.path(DIR_TIMESTAMP, "timestamp.txt")
+
+sink(file_timestamp)
+Sys.time()
+sink()
 
 
 

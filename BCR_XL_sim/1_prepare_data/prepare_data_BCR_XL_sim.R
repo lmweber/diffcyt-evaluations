@@ -233,3 +233,18 @@ for (i in seq_along(data_export)) {
 
 
 
+
+##############################
+# Timestamp file for Makefiles
+##############################
+
+DIR_DATA <- "../../../../benchmark_data/BCR_XL_sim/data"
+
+file_timestamp <- file.path(DIR_DATA, "timestamp.txt")
+
+sink(file_timestamp)
+Sys.time()
+sink()
+
+
+
