@@ -192,8 +192,18 @@ data_spike <- mapply(function(d, b) {
 DIR_DATA_FULL <- "../../../../benchmark_data/BCR_XL_sim/data/sim_full"
 
 data_export <- c(data_spike, data_base)
+
 conditions_spike <- c(rep("spike", length(data_spike)), rep("base", length(data_base)))
 
+# add column indicating spike-in cells (all B cells in 'spike' samples)
+data_export <- mapply(function(d, cnd) {
+  is_spikein <- as.numeric((d$is_B_cell == 1) & (cnd == "spike"))
+  d$is_spikein <- is_spikein
+  d
+}, data_export, conditions_spike, SIMPLIFY = FALSE)
+
+
+# filenames
 filenames <- file.path(DIR_DATA_FULL, paste0("BCR_XL_sim_", patient_IDs, "_", conditions_spike, ".fcs"))
 
 for (i in seq_along(data_export)) {
