@@ -13,10 +13,10 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/AML_spike_in/data"
-DIR_PLOTS <- "../../../../plots/AML_spike_in/diffcyt_DA_limma/main"
-DIR_RDATA <- "../../../../RData/AML_spike_in/main"
-DIR_SESSION_INFO <- "../../../../session_info/AML_spike_in/main"
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data"
+DIR_PLOTS <- "../../../../plots/AML_sim/diffcyt_DA_limma/main"
+DIR_RDATA <- "../../../../RData/AML_sim/main"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 
 
 
