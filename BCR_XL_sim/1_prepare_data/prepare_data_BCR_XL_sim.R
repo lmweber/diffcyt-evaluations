@@ -198,10 +198,9 @@ filenames <- file.path(DIR_DATA_FULL, paste0("BCR_XL_sim_", patient_IDs, "_", co
 
 for (i in seq_along(data_export)) {
   
-  # remove population label columns (last two columns)
-  n_cols <- ncol(data_export[[i]])
-  d_export_i <- data_export[[i]][, -c(n_cols - 1, n_cols)]
-  
+  # convert to flowFrame
+  d_export_i <- data_export[[i]]
+  d_export_i$population <- as.numeric(d_export_i$population)
   d_export_i <- flowFrame(as.matrix(d_export_i))
   
   # save as .fcs file
