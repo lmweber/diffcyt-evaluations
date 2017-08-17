@@ -1,9 +1,10 @@
 ##########################################################################################
 # Generate plots
 # 
-# - plot type: ROC and TPR-FDR curves
-# - methods: all methods, main results
 # - data set: AML-sim
+# - plot type: ROC and TPR-FDR curves
+# 
+# - main results, all methods
 # 
 # Lukas Weber, August 2017
 ##########################################################################################
@@ -25,7 +26,7 @@ load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/AML_sim/all_methods/main"
+DIR_PLOTS <- "../../../../plots/AML_sim/main"
 
 
 
