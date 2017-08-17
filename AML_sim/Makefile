@@ -41,6 +41,21 @@ $(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_B
 	cd $(DIR_RUN_METHODS)/main && Rscript $(notdir $<)
 
 
+
+# --------------------------
+# Prepare benchmark data set
+# --------------------------
+
+# generate simulated data files (including 'nosim')
+$(TIMESTAMP_BENCHMARK): $(DIR_PREPARE_DATA)/prepare_data_AML_sim.R
+	cd $(DIR_PREPARE_DATA) && Rscript $(notdir $<)
+
+
+
+# -------------
+# Miscellaneous
+# -------------
+
 # remove auto-generated files for Citrus
 .PHONY: clean_Citrus
 clean_Citrus:
@@ -50,15 +65,5 @@ clean_Citrus:
 .PHONY: clean_CellCnn
 clean_CellCnn:
 	find ../../CellCnn_files -type f -delete
-
-
-
-# --------------------------
-# Prepare benchmark data set
-# --------------------------
-
-# generate simulated data files (including 'nosim')
-$(TIMESTAMP_BENCHMARK): $(DIR_PREPARE_DATA)/prepare_data_AML_sim.R
-	cd $(DIR_PREPARE_DATA) && Rscript $(notdir $<)
 
 
