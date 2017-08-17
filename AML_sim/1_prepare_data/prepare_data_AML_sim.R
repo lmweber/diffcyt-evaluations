@@ -31,7 +31,7 @@
 # in the downloaded .tsv files 'experiment_46098_annotations.tsv' and
 # 'experiment_63534_annotations.tsv'.
 #
-# Lukas Weber, July 2017
+# Lukas Weber, August 2017
 ##########################################################################################
 
 
@@ -43,10 +43,10 @@ library(flowCore)
 # Filenames
 # ---------
 
-DIR_RAW_DATA_ALL <- "../../../benchmark_data/AML_spike_in/raw_data/all_cells/experiment_46098_files"
-DIR_RAW_DATA_BLASTS <- "../../../benchmark_data/AML_spike_in/raw_data/CD34_CD45mid_cells/experiment_63534_files"
+DIR_RAW_DATA_ALL <- "../../../../benchmark_data/AML_sim/raw_data/all_cells/experiment_46098_files"
+DIR_RAW_DATA_BLASTS <- "../../../../benchmark_data/AML_sim/raw_data/CD34_CD45mid_cells/experiment_63534_files"
 
-DIR_DATA <- "../../../benchmark_data/AML_spike_in/data"
+DIR_DATA <- "../../../../benchmark_data/AML_sim/data"
 
 files_all <- list.files(DIR_RAW_DATA_ALL, pattern = "\\.fcs$", full.names = TRUE)
 files_healthy <- files_all[grep("H[0-9]+", files_all)]
@@ -117,14 +117,14 @@ sapply(data_healthy, dim)
 
 # SJ10: should be 80.7% of total (Levine et al. 2015, Supplemental Data S3B)
 dim(data_SJ10)
-dim(exprs(read.FCS(paste0("../../../benchmark_data/AML_spike_in/raw_data/all_cells/experiment_46098_files/", 
+dim(exprs(read.FCS(paste0("../../../../benchmark_data/AML_sim/raw_data/all_cells/experiment_46098_files/", 
                           "SJ11d_min3_s0.10_m10_debar1_NoDrug_Basal1_Viable_NoDrug_Basal1_SJ11d.fcs"))))
 # check
 37615 / 46601  # 80.7%
 
 # SJ4: should be 55.2% of total (Levine et al. 2015, Supplemental Data S3B)
 dim(data_SJ4)
-dim(exprs(read.FCS(paste0("../../../benchmark_data/AML_spike_in/raw_data/all_cells/experiment_46098_files/", 
+dim(exprs(read.FCS(paste0("../../../../benchmark_data/AML_sim/raw_data/all_cells/experiment_46098_files/", 
                           "SJ5d_min5_s0.15_m10_debar1_NoDrug_Basal1_Viable_NoDrug_Basal1_SJ5d.fcs"))))
 # check
 14520 / 26321  # 55.2%
@@ -176,7 +176,7 @@ for (i in 1:length(data_healthy_base)) {
   # include spike-in status column so all .fcs files have same shape
   data_out_i <- cbind(data_i, spikein = 0)
   
-  filename <- file.path(DIR_DATA, "healthy", paste0("AML_spike_in_healthy_", nm_i, ".fcs"))
+  filename <- file.path(DIR_DATA, "healthy", paste0("AML_sim_healthy_", nm_i, ".fcs"))
   write.FCS(flowFrame(data_out_i), filename)
 }
 
@@ -212,7 +212,7 @@ for (i in 1:length(data_healthy_CN)) {
     data_out_i <- rbind(data_i, spikein_i)
     data_out_i <- cbind(data_out_i, spikein = is_spikein)
     
-    filename <- file.path(DIR_DATA, cnd, paste0("AML_spike_in_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+    filename <- file.path(DIR_DATA, cnd, paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
     write.FCS(flowFrame(data_out_i), filename)
   }
 }
@@ -241,9 +241,23 @@ for (i in 1:length(data_healthy_CBF)) {
     data_out_i <- rbind(data_i, spikein_i)
     data_out_i <- cbind(data_out_i, spikein = is_spikein)
     
-    filename <- file.path(DIR_DATA, cnd, paste0("AML_spike_in_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+    filename <- file.path(DIR_DATA, cnd, paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
     write.FCS(flowFrame(data_out_i), filename)
   }
 }
+
+
+
+
+###################################
+# Save timestamp file for Makefiles
+###################################
+
+file_timestamp <- file.path(DIR_DATA, "timestamp.txt")
+
+sink(file_timestamp)
+Sys.time()
+sink()
+
 
 
