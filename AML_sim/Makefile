@@ -3,20 +3,22 @@
 ###################################################
 
 
-DIR_BENCHMARK = ../../../benchmark_data/AML_sim
-DIR_PREPARE_DATA = 1_prepare_data
-DIR_RUN_METHODS = 2_run_methods
+DIR_BENCHMARK      = ../../../benchmark_data/AML_sim
+DIR_PREPARE_DATA   = 1_prepare_data
+DIR_RUN_METHODS    = 2_run_methods
 DIR_GENERATE_PLOTS = 3_generate_plots
-DIR_RDATA = ../../RData/AML_sim
-DIR_PLOTS = ../../plots/AML_sim
+DIR_RDATA          = ../../RData/AML_sim
+DIR_PLOTS          = ../../plots/AML_sim
 
-TIMESTAMP_BENCHMARK = $(DIR_BENCHMARK)/data/timestamp.txt
+TIMESTAMP_BENCHMARK             = $(DIR_BENCHMARK)/data/timestamp.txt
+TIMESTAMP_PLOTS_MAIN            = $(DIR_PLOTS)/all_methods/main/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_RESOLUTION = $(DIR_PLOTS)/supp_resolution/timestamp.txt
 
-TIMESTAMP_PLOTS = $(DIR_PLOTS)/timestamp.txt
+SCRIPTS_PLOTS_MAIN            = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
+SCRIPTS_PLOTS_SUPP_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_resolution/*.R)
 
-SCRIPTS_PLOTS = $(shell find $(DIR_GENERATE_PLOTS) -type f -name '*.R')
-
-FILES_RDATA = $(shell find $(DIR_RDATA) -type f -name '*.RData')
+FILES_RDATA_MAIN            = $(wildcard $(DIR_RDATA)/main/*.R)
+FILES_RDATA_SUPP_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_resolution/*.R)
 
 
 
@@ -25,7 +27,10 @@ FILES_RDATA = $(shell find $(DIR_RDATA) -type f -name '*.RData')
 # ------------
 
 .PHONY: all
-all: $(TIMESTAMP_PLOTS)
+all: timestamps_plots
+
+.PHONY: timestamps_plots
+timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_RESOLUTION)
 
 
 
@@ -33,11 +38,13 @@ all: $(TIMESTAMP_PLOTS)
 # Generate plots
 # --------------
 
-# note: using automatic variables for dependencies, but typing in command for each script 
-# manually (otherwise rules get too complex)
-$(TIMESTAMP_PLOTS): $(SCRIPTS_PLOTS) $(FILES_RDATA)
-	cd $(DIR_GENERATE_PLOTS)/main && Rscript plots_AML_sim_all_methods_main_ROC_and_TPR_FDR.R
-	cd $(DIR_GENERATE_PLOTS)/supp_resolution && Rscript plots_AML_sim_all_methods_supp_resolution_ROC_and_TPR_FDR.R
+# note: separate rule for each script (otherwise dependencies too complex)
+
+$(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main && Rscript $(notdir $<)
+
+$(TIMESTAMP_PLOTS_SUPP_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_RESOLUTION) $(FILES_RDATA_SUPP_RESOLUTION)
+	cd $(DIR_GENERATE_PLOTS)/supp_resolution && Rscript $(notdir $<)
 
 
 

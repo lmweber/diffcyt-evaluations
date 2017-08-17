@@ -23,8 +23,6 @@ load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_supp_resolution.RDat
 # path to save plots
 DIR_PLOTS <- "../../../../plots/AML_sim/supp_resolution"
 
-DIR_TIMESTAMP <- "../../../../plots/AML_sim"
-
 
 
 
@@ -145,7 +143,7 @@ for (k in 1:length(resolution)) {
 # Save timestamp file for Makefiles
 ###################################
 
-file_timestamp <- file.path(DIR_TIMESTAMP, "timestamp.txt")
+file_timestamp <- file.path(DIR_PLOTS, "timestamp.txt")
 
 sink(file_timestamp)
 Sys.time()
