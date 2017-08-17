@@ -41,6 +41,17 @@ $(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_B
 	cd $(DIR_RUN_METHODS)/main && Rscript $(notdir $<)
 
 
+# remove auto-generated files for Citrus
+.PHONY: clean_Citrus
+clean_Citrus:
+	find ../../Citrus_files -type f -delete
+
+# remove auto-generated files for CellCnn
+.PHONY: clean_CellCnn
+clean_CellCnn:
+	find ../../CellCnn_files -type f -delete
+
+
 
 # --------------------------
 # Prepare benchmark data set
