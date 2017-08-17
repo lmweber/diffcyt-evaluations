@@ -234,9 +234,9 @@ for (i in seq_along(data_export)) {
 
 
 
-##############################
-# Timestamp file for Makefiles
-##############################
+###################################
+# Save timestamp file for Makefiles
+###################################
 
 DIR_DATA <- "../../../../benchmark_data/BCR_XL_sim/data"
 

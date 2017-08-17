@@ -124,9 +124,9 @@ ggsave(filename, width = 9, height = 8)
 
 
 
-##############################
-# Timestamp file for Makefiles
-##############################
+###################################
+# Save timestamp file for Makefiles
+###################################
 
 file_timestamp <- file.path(DIR_TIMESTAMP, "timestamp.txt")
 

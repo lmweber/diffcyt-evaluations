@@ -569,9 +569,9 @@ for (i in 1:length(labels)) {
 
 
 
-##############################
-# Timestamp file for Makefiles
-##############################
+###################################
+# Save timestamp file for Makefiles
+###################################
 
 file_timestamp <- file.path(DATA_DIR, "timestamp.txt")
 
