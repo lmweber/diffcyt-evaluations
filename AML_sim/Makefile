@@ -11,7 +11,7 @@ DIR_RDATA          = ../../RData/AML_sim
 DIR_PLOTS          = ../../plots/AML_sim
 
 TIMESTAMP_BENCHMARK             = $(DIR_BENCHMARK)/data/timestamp.txt
-TIMESTAMP_PLOTS_MAIN            = $(DIR_PLOTS)/all_methods/main/timestamp.txt
+TIMESTAMP_PLOTS_MAIN            = $(DIR_PLOTS)/main/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_RESOLUTION = $(DIR_PLOTS)/supp_resolution/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN            = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
