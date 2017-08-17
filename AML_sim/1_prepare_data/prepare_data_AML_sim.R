@@ -1,12 +1,12 @@
 ##########################################################################################
-# Script to prepare benchmark data set 'AML-spike-in'
+# Script to prepare benchmark data set 'AML-sim'
 #
-# The 'AML-spike-in' data set is constructed by computationally 'spiking in' small
-# percentages of AML (acute myeloid leukemia) blast cells into samples of healthy BMMCs
-# (bone marrow mononuclear cells). This simulates the phenotype of minimal residual
-# disease (MRD) in AML patients. Raw data is sourced from Levine et al. (2015) (PhenoGraph
-# paper). The data generation strategy is modified from Arvaniti et al. (2017) (CellCnn
-# paper), who generated a similar benchmark data set for their evaluations.
+# The 'AML-sim' data set is constructed by computationally 'spiking in' small percentages
+# of AML (acute myeloid leukemia) blast cells into samples of healthy BMMCs (bone marrow
+# mononuclear cells). This simulates the phenotype of minimal residual disease (MRD) in
+# AML patients. Raw data is sourced from Levine et al. (2015) (PhenoGraph paper). The data
+# generation strategy is modified from Arvaniti et al. (2017) (CellCnn paper), who
+# generated a similar benchmark data set for their evaluations.
 #
 # Raw data downloaded from Cytobank:
 # - all cells (also contains gating scheme for CD34+ CD45 mid cells, i.e. blasts):

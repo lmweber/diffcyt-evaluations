@@ -2,9 +2,9 @@
 # Script to run methods
 # 
 # - method: CellCnn-main
-# - data set: AML-spike-in
+# - data set: AML-sim
 # 
-# Lukas Weber, July 2017
+# Lukas Weber, August 2017
 ##########################################################################################
 
 
@@ -17,11 +17,11 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/AML_spike_in/data"
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data"
 DIR_CELLCNN <- "../../../../../CellCnn/CellCnn"
 DIR_CELLCNN_FILES <- "../../../../CellCnn_files"
-DIR_RDATA <- "../../../../RData/AML_spike_in/main"
-DIR_SESSION_INFO <- "../../../../session_info/AML_spike_in/main"
+DIR_RDATA <- "../../../../RData/AML_sim/main"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 
 
 
@@ -45,13 +45,9 @@ names(out_CellCnn_main) <- thresholds
 
 for (th in 1:length(thresholds)) {
   
-  ######################################
-  # Load data, pre-processing, transform
-  ######################################
-  
-  # ---------
-  # load data
-  # ---------
+  ###########################
+  # Load data, pre-processing
+  ###########################
   
   # filenames
   files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
@@ -67,24 +63,20 @@ for (th in 1:length(thresholds)) {
   
   d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
   
-  # sample IDs, group IDs, block IDs
+  # sample IDs, group IDs, patient IDs
   sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
-                     gsub("^AML_spike_in_", "", 
+                     gsub("^AML_sim_", "", 
                           gsub("\\.fcs$", "", basename(files_load))))
   sample_IDs
   
-  group_IDs <- gsub("_.*$", "", sample_IDs)
+  group_IDs <- factor(gsub("_.*$", "", sample_IDs), levels = c("healthy", "CN", "CBF"))
   group_IDs
   
-  block_IDs <- gsub("^.*_", "", sample_IDs)
-  block_IDs
+  patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
+  patient_IDs
   
-  # set group_IDs reference level (for differential tests)
-  group_IDs <- factor(group_IDs, levels = c("healthy", "CN", "CBF"))
-  group_IDs
-  
-  # check all match correctly
-  data.frame(sample_IDs, group_IDs, block_IDs)
+  # check
+  data.frame(sample_IDs, group_IDs, patient_IDs)
   
   # indices of all marker columns, lineage markers, and functional markers
   # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental 
@@ -94,11 +86,11 @@ for (th in 1:length(thresholds)) {
   cols_func <- setdiff(cols_markers, cols_lineage)
   
   
-  # ---------------------------
-  # choose which markers to use
-  # ---------------------------
+  # ------------------------------------
+  # choose markers to use for clustering
+  # ------------------------------------
   
-  cols_to_use <- cols_markers
+  cols_clustering <- cols_markers
   
   
   # -------------------------------
@@ -111,7 +103,7 @@ for (th in 1:length(thresholds)) {
   }
   all(check)
   
-  marker_names <- colnames(d_input[[1]])[cols_to_use]
+  marker_names <- colnames(d_input[[1]])[cols_clustering]
   
   
   # --------------
@@ -155,7 +147,7 @@ for (th in 1:length(thresholds)) {
     d_input_keep <- d_input[ix_keep]
     
     for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0(DIR_CELLCNN_FILES, "/data_transformed/AML_spike_in/main/", thresholds[th], "/", cond_names[j])
+      path <- paste0(DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j])
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
       write.FCS(d_input_keep[[i]], filename)
     }
@@ -194,11 +186,11 @@ for (th in 1:length(thresholds)) {
     
     # save as .csv files
     
-    fn_samples <- paste0(DIR_CELLCNN_FILES, "/inputs/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/input_samples.csv")
+    fn_samples <- paste0(DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_samples.csv")
     write.csv(df_samples, fn_samples, quote = FALSE, row.names = FALSE)
     
     # need to use 'write.table' to allow removing column names
-    fn_markers <- paste0(DIR_CELLCNN_FILES, "/inputs/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv")
+    fn_markers <- paste0(DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv")
     write.table(df_markers, fn_markers, sep = ",", quote = FALSE, row.names = FALSE, col.names = FALSE)
     
     
@@ -211,10 +203,10 @@ for (th in 1:length(thresholds)) {
     
     # command to run CellCnn analysis
     cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
-                 paste0("-f ", DIR_CELLCNN_FILES, "/inputs/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
-                 paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
-                 paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/"), 
-                 paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-f ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
+                 paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
+                 paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
                  "--export_csv", 
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]))
     
@@ -225,17 +217,17 @@ for (th in 1:length(thresholds)) {
     
     runtime_analysis
     
-    sink(paste0(DIR_CELLCNN_FILES, "/runtime/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/runtime_analysis.txt"))
+    sink(paste0(DIR_CELLCNN_FILES, "/runtime/AML_sim/main/", thresholds[th], "/", cond_names[j], "/runtime_analysis.txt"))
     runtime_analysis
     sink()
     
     
     # command to export selected cells
     cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
-                 paste0("-f ", DIR_CELLCNN_FILES, "/inputs/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
-                 paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
-                 paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/"), 
-                 paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-f ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
+                 paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
+                 paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
                  "--plot", 
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]), 
                  "--filter_response_thres 0.3 --load_results --export_selected_cells")
@@ -247,7 +239,7 @@ for (th in 1:length(thresholds)) {
     
     runtime_select
     
-    sink(paste0(DIR_CELLCNN_FILES, "/runtime/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/runtime_select.txt"))
+    sink(paste0(DIR_CELLCNN_FILES, "/runtime/AML_sim/main/", thresholds[th], "/", cond_names[j], "/runtime_select.txt"))
     runtime_select
     sink()
     
@@ -277,7 +269,7 @@ for (th in 1:length(thresholds)) {
     
     # CellCnn output files
     
-    path_out <- paste0(DIR_CELLCNN_FILES, "/out_CellCnn/AML_spike_in/main/", thresholds[th], "/", cond_names[j], "/selected_cells")
+    path_out <- paste0(DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/selected_cells")
     
     # if no files exist, CellCnn did not run correctly; return all zeros in this case
     if (length(list.files(path_out)) == 0) {
@@ -336,7 +328,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_CellCnn_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_CellCnn_main.RData"))
+save(out_CellCnn_main, file = file.path(DIR_RDATA, "/outputs_AML_sim_CellCnn_main.RData"))
 
 
 
@@ -345,7 +337,7 @@ save(out_CellCnn_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_CellCn
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "/session_info_AML_spike_in_CellCnn_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_sim_CellCnn_main.txt"))
 sessionInfo()
 sink()
 

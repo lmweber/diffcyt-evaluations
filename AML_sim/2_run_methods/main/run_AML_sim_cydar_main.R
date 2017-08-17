@@ -2,9 +2,9 @@
 # Script to run methods
 # 
 # - method: cydar-main
-# - data set: AML-spike-in
+# - data set: AML-sim
 # 
-# Lukas Weber, July 2017
+# Lukas Weber, August 2017
 ##########################################################################################
 
 
@@ -14,9 +14,9 @@ library(cydar)
 library(edgeR)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/AML_spike_in/data"
-DIR_RDATA <- "../../../../RData/AML_spike_in/main"
-DIR_SESSION_INFO <- "../../../../session_info/AML_spike_in/main"
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data"
+DIR_RDATA <- "../../../../RData/AML_sim/main"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 
 
 
@@ -40,13 +40,9 @@ names(out_cydar_main) <- thresholds
 
 for (th in 1:length(thresholds)) {
   
-  ######################################
-  # Load data, pre-processing, transform
-  ######################################
-  
-  # ---------
-  # load data
-  # ---------
+  ###########################
+  # Load data, pre-processing
+  ###########################
   
   # filenames
   files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
@@ -62,24 +58,20 @@ for (th in 1:length(thresholds)) {
   
   d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
   
-  # sample IDs, group IDs, block IDs
+  # sample IDs, group IDs, patient IDs
   sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
-                     gsub("^AML_spike_in_", "", 
+                     gsub("^AML_sim_", "", 
                           gsub("\\.fcs$", "", basename(files_load))))
   sample_IDs
   
-  group_IDs <- gsub("_.*$", "", sample_IDs)
+  group_IDs <- factor(gsub("_.*$", "", sample_IDs), levels = c("healthy", "CN", "CBF"))
   group_IDs
   
-  block_IDs <- gsub("^.*_", "", sample_IDs)
-  block_IDs
+  patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
+  patient_IDs
   
-  # set group_IDs reference level (for differential tests)
-  group_IDs <- factor(group_IDs, levels = c("healthy", "CN", "CBF"))
-  group_IDs
-  
-  # check all match correctly
-  data.frame(sample_IDs, group_IDs, block_IDs)
+  # check
+  data.frame(sample_IDs, group_IDs, patient_IDs)
   
   # indices of all marker columns, lineage markers, and functional markers
   # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental 
@@ -89,11 +81,11 @@ for (th in 1:length(thresholds)) {
   cols_func <- setdiff(cols_markers, cols_lineage)
   
   
-  # ---------------------------
-  # choose which markers to use
-  # ---------------------------
+  # ------------------------------------
+  # choose markers to use for clustering
+  # ------------------------------------
   
-  cols_to_use <- cols_lineage
+  cols_clustering <- cols_lineage
   
   
   # --------------
@@ -131,7 +123,7 @@ for (th in 1:length(thresholds)) {
   
   d_input_cydar <- lapply(d_input, function(d) {
     e <- exprs(d)
-    e <- e[, cols_to_use]
+    e <- e[, cols_clustering]
     flowFrame(e)
   })
   
@@ -191,8 +183,8 @@ for (th in 1:length(thresholds)) {
   y <- y[keep, ]
   
   # design matrix
-  # note: including 'block_IDs' for paired design
-  design <- model.matrix(~ 0 + group_IDs + block_IDs)
+  # note: including 'patient_IDs' for paired design
+  design <- model.matrix(~ 0 + group_IDs + patient_IDs)
   
   # estimate dispersions and fit models
   y <- estimateDisp(y, design)
@@ -330,7 +322,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_cydar_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_cydar_main.RData"))
+save(out_cydar_main, file = file.path(DIR_RDATA, "/outputs_AML_sim_cydar_main.RData"))
 
 
 
@@ -339,7 +331,7 @@ save(out_cydar_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_cydar_ma
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "/session_info_AML_spike_in_cydar_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_sim_cydar_main.txt"))
 sessionInfo()
 sink()
 

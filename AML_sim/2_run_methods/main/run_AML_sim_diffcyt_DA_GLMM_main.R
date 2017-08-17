@@ -1,10 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-edgeR-main
-# - data set: AML-spike-in
+# - method: diffcyt-DA-GLMM-main
+# - data set: AML-sim
 # 
-# Lukas Weber, July 2017
+# Lukas Weber, August 2017
 ##########################################################################################
 
 
@@ -13,9 +13,9 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/AML_spike_in/data"
-DIR_RDATA <- "../../../../RData/AML_spike_in/main"
-DIR_SESSION_INFO <- "../../../../session_info/AML_spike_in/main"
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data"
+DIR_RDATA <- "../../../../RData/AML_sim/main"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 
 
 
@@ -31,25 +31,20 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include zeros for block_IDs fixed effects
-contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
+contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects
-out_diffcyt_DA_edgeR_main <- vector("list", length(thresholds))
-names(out_diffcyt_DA_edgeR_main) <- thresholds
+out_diffcyt_DA_GLMM_main <- vector("list", length(thresholds))
+names(out_diffcyt_DA_GLMM_main) <- thresholds
 
 
 
 
 for (th in 1:length(thresholds)) {
   
-  ######################################
-  # Load data, pre-processing, transform
-  ######################################
-  
-  # ---------
-  # load data
-  # ---------
+  ###########################
+  # Load data, pre-processing
+  ###########################
   
   # filenames
   files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
@@ -65,24 +60,20 @@ for (th in 1:length(thresholds)) {
   
   d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
   
-  # sample IDs, group IDs, block IDs
+  # sample IDs, group IDs, patient IDs
   sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
-                     gsub("^AML_spike_in_", "", 
+                     gsub("^AML_sim_", "", 
                           gsub("\\.fcs$", "", basename(files_load))))
   sample_IDs
   
-  group_IDs <- gsub("_.*$", "", sample_IDs)
+  group_IDs <- factor(gsub("_.*$", "", sample_IDs), levels = c("healthy", "CN", "CBF"))
   group_IDs
   
-  block_IDs <- gsub("^.*_", "", sample_IDs)
-  block_IDs
+  patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
+  patient_IDs
   
-  # set group_IDs reference level (for differential tests)
-  group_IDs <- factor(group_IDs, levels = c("healthy", "CN", "CBF"))
-  group_IDs
-  
-  # check all match correctly
-  data.frame(sample_IDs, group_IDs, block_IDs)
+  # check
+  data.frame(sample_IDs, group_IDs, patient_IDs)
   
   # indices of all marker columns, lineage markers, and functional markers
   # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental 
@@ -92,11 +83,11 @@ for (th in 1:length(thresholds)) {
   cols_func <- setdiff(cols_markers, cols_lineage)
   
   
-  # ---------------------------
-  # choose which markers to use
-  # ---------------------------
+  # ------------------------------------
+  # choose markers to use for clustering
+  # ------------------------------------
   
-  cols_to_use <- cols_lineage
+  cols_clustering <- cols_lineage
   
   
   
@@ -111,9 +102,9 @@ for (th in 1:length(thresholds)) {
   
   # prepare data into required format
   d_se <- prepareData(d_input, sample_IDs, group_IDs, 
-                      cols_markers, cols_to_use, cols_func)
+                      cols_markers, cols_clustering, cols_func)
   
-  colnames(d_se)[cols_to_use]
+  colnames(d_se)[cols_clustering]
   colnames(d_se)[cols_func]
   
   # transform data
@@ -161,16 +152,20 @@ for (th in 1:length(thresholds)) {
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_diffcyt_DA_edgeR_main[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_edgeR_main[[th]]) <- cond_names
+  out_diffcyt_DA_GLMM_main[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_GLMM_main[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
     
-    # set up design matrix
-    # - note: include 'block_IDs' as fixed effects in design matrix
-    design <- createDesignMatrix(group_IDs, block_IDs = block_IDs)
-    design
+    # set up model formula
+    # - random effect for patient_IDs
+    # - random effect for sample_IDs ('observation-level random effect' for overdispersion)
+    formula <- createFormula(group_IDs, 
+                             block_IDs = patient_IDs, block_IDs_type = "random", 
+                             sample_IDs = sample_IDs)
+    formula$formula
+    formula$data
     
     # set up contrast matrix
     contrast <- createContrast(group_IDs, contrast = contrasts_list[[j]])
@@ -178,7 +173,7 @@ for (th in 1:length(thresholds)) {
     
     # run tests
     runtime <- system.time(
-      res <- testDA_edgeR(d_counts, design, contrast)
+      res <- testDA_GLMM(d_counts, formula, contrast)
     )
     
     print(runtime)
@@ -187,12 +182,12 @@ for (th in 1:length(thresholds)) {
     rowData(res)
     
     # sort to show top (most highly significant) clusters first
-    res_sorted <- rowData(res)[order(rowData(res)$FDR), ]
+    res_sorted <- rowData(res)[order(rowData(res)$p_adj), ]
     print(head(res_sorted, 10))
     #View(as.data.frame(res_sorted))
     
     # number of significant DA clusters
-    print(table(res_sorted$FDR <= 0.05))
+    print(table(res_sorted$p_adj <= 0.05))
     
     
     
@@ -226,8 +221,8 @@ for (th in 1:length(thresholds)) {
     
     ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
     
-    p_vals_clusters <- rowData(res)$PValue
-    p_adj_clusters <- rowData(res)$FDR
+    p_vals_clusters <- rowData(res)$p_vals
+    p_adj_clusters <- rowData(res)$p_adj
     
     p_vals_cells <- p_vals_clusters[ix_match]
     p_adj_cells <- p_adj_clusters[ix_match]
@@ -254,7 +249,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_diffcyt_DA_edgeR_main[[th]][[j]] <- res
+    out_diffcyt_DA_GLMM_main[[th]][[j]] <- res
     
   }
 }
@@ -266,7 +261,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_edgeR_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_in_diffcyt_DA_edgeR_main.RData"))
+save(out_diffcyt_DA_GLMM_main, file = file.path(DIR_RDATA, "/outputs_AML_sim_diffcyt_DA_GLMM_main.RData"))
 
 
 
@@ -275,7 +270,7 @@ save(out_diffcyt_DA_edgeR_main, file = file.path(DIR_RDATA, "/outputs_AML_spike_
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "/session_info_AML_spike_in_diffcyt_DA_edgeR_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_sim_diffcyt_DA_GLMM_main.txt"))
 sessionInfo()
 sink()
 
