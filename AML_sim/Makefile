@@ -8,8 +8,12 @@ DIR_PREPARE_DATA = 1_prepare_data
 DIR_RUN_METHODS = 2_run_methods
 DIR_GENERATE_PLOTS = 3_generate_plots
 DIR_RDATA = ../../RData/AML_sim
+DIR_PLOTS = ../../plots/AML_sim
 
 TIMESTAMP_BENCHMARK = $(DIR_BENCHMARK)/data/timestamp.txt
+TIMESTAMP_PLOTS = $(DIR_PLOTS)/timestamp.txt
+
+SCRIPTS_PLOTS = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
 
 FILES_RDATA_MAIN = $(DIR_RDATA)/main/*.RData
 
@@ -20,13 +24,17 @@ FILES_RDATA_MAIN = $(DIR_RDATA)/main/*.RData
 # ------------
 
 .PHONY: all
-all: $(FILES_RDATA_MAIN)
+all: $(TIMESTAMP_PLOTS)
 
 
 
 # --------------
 # Generate plots
 # --------------
+
+# note: include command for each script manually (otherwise dependencies get too complex)
+$(TIMESTAMP_PLOTS): $(SCRIPTS_PLOTS) $(FILES_RDATA)
+	cd $(DIR_GENERATE_PLOTS)/main && Rscript plots_AML_sim_all_methods_main_ROC_and_TPR_FDR.R
 
 
 

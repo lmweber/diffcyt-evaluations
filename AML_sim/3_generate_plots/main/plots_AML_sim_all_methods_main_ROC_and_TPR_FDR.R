@@ -3,7 +3,7 @@
 # 
 # - plot type: ROC and TPR-FDR curves
 # - methods: all methods, main results
-# - data set: AML-spike-in
+# - data set: AML-sim
 # 
 # Lukas Weber, August 2017
 ##########################################################################################
@@ -14,18 +14,20 @@ library(ggplot2)
 
 
 # load saved results
-DIR_RDATA <- "../../../../RData/AML_spike_in/main"
+DIR_RDATA <- "../../../../RData/AML_sim/main"
 
-load(file.path(DIR_RDATA, "outputs_AML_spike_in_CellCnn_main.RData"))
-load(file.path(DIR_RDATA, "outputs_AML_spike_in_Citrus_main.RData"))
-load(file.path(DIR_RDATA, "outputs_AML_spike_in_cydar_main.RData"))
-load(file.path(DIR_RDATA, "outputs_AML_spike_in_diffcyt_DA_edgeR_main.RData"))
-load(file.path(DIR_RDATA, "outputs_AML_spike_in_diffcyt_DA_GLMM_main.RData"))
-load(file.path(DIR_RDATA, "outputs_AML_spike_in_diffcyt_DA_limma_main.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_CellCnn_main.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_Citrus_main.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_cydar_main.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_main.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_GLMM_main.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/AML_spike_in/all_methods/main"
+DIR_PLOTS <- "../../../../plots/AML_sim/all_methods/main"
+
+DIR_TIMESTAMP <- "../../../../plots/AML_sim"
 
 
 
@@ -95,14 +97,6 @@ for (th in 1:length(thresholds)) {
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
     
-    # line types (provide as named vector)
-    # linetypes <- c(CellCnn = "solid", 
-    #                Citrus = "solid", 
-    #                cydar = "solid", 
-    #                diffcyt_DA_edgeR = "longdash", 
-    #                diffcyt_DA_GLMM = "dotdash", 
-    #                diffcyt_DA_limma = "solid")
-    
     # x axis labels
     x_min <- 0
     x_max <- 1
@@ -122,11 +116,10 @@ for (th in 1:length(thresholds)) {
     p <- plot_roc(cobraplot, linewidth = 0.75)
     
     p + 
-      #scale_linetype_manual(values = linetypes, name = "") + 
       coord_fixed() + 
       xlab("False positive rate") + 
       ylab("True positive rate") + 
-      ggtitle(paste0("ROC curves: AML-spike-in, main results, ", cond_names[j], ", ", thresholds[th])) + 
+      ggtitle(paste0("ROC curves: AML-sim, main results, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw() + 
       theme(strip.text.x = element_blank())
     
@@ -146,15 +139,13 @@ for (th in 1:length(thresholds)) {
     p + 
       scale_shape_manual(values = c(22, 21, 23)) + 
       scale_x_continuous(breaks = x_labels, labels = x_labels) + 
-      #scale_linetype_manual(values = linetypes, name = "") + 
       coord_fixed() + 
       xlab("False discovery rate") + 
       ylab("True positive rate") + 
-      ggtitle(paste0("TPR-FDR curves: AML-spike-in, main results, ", cond_names[j], ", ", thresholds[th])) + 
+      ggtitle(paste0("TPR-FDR curves: AML-sim, main results, ", cond_names[j], ", ", thresholds[th])) + 
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
-      guides(color = guide_legend(override.aes = list(shape = NA)), 
-             shape = FALSE)
+      guides(color = guide_legend(override.aes = list(shape = NA)), shape = FALSE)
     
     path <- paste0(file.path(DIR_PLOTS, thresholds[th], cond_names[j]))
     filename <- file.path(path, paste0("results_all_methods_main_TPR_FDR_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
@@ -163,6 +154,19 @@ for (th in 1:length(thresholds)) {
     
   }
 }
+
+
+
+
+###################################
+# Save timestamp file for Makefiles
+###################################
+
+file_timestamp <- file.path(DIR_TIMESTAMP, "timestamp.txt")
+
+sink(file_timestamp)
+Sys.time()
+sink()
 
 
 
