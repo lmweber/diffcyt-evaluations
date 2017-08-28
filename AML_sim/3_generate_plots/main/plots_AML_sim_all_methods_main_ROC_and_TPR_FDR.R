@@ -99,8 +99,10 @@ for (th in 1:length(thresholds)) {
                                        aspects = c("fdrtpr", "fdrtprcurve", "roc"))
     
     # color scheme
-    colors <- c("mediumorchid3", "gold", "salmon", "darkgreen", "limegreen", "olivedrab1")
+    colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "cadetblue1", "deepskyblue")
     
+    # alternative: greens
+    #colors <- c("mediumorchid3", "gold", "salmon", "darkgreen", "limegreen", "olivedrab1")
     # alternative: modifed default "Set1" to use different yellow (#FFD92F) from colorbrewer2.org
     #colors <- c('#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#FFD92F', '#A65628', '#F781BF')
     
