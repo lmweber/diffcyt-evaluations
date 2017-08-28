@@ -99,7 +99,7 @@ for (th in 1:length(thresholds)) {
                                        aspects = c("fdrtpr", "fdrtprcurve", "roc"))
     
     # color scheme
-    colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "cadetblue1", "deepskyblue")
+    colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue", "cadetblue1")
     
     # alternative: greens
     #colors <- c("mediumorchid3", "gold", "salmon", "darkgreen", "limegreen", "olivedrab1")
