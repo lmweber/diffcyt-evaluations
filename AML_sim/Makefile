@@ -44,11 +44,13 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN)
 # Generate plots
 # --------------
 
-# note: separate rule for each script (otherwise dependencies too complex)
+# note: separate rule for each set of results (otherwise dependencies too complex)
 
+# main results
 $(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main && Rscript $(notdir $<)
 
+# supplementary: clustering resolution
 #$(TIMESTAMP_PLOTS_SUPP_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_RESOLUTION) $(FILES_RDATA_SUPP_RESOLUTION)
 #	cd $(DIR_GENERATE_PLOTS)/supp_resolution && Rscript $(notdir $<)
 

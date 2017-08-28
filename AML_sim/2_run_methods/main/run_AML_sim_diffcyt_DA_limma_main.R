@@ -14,7 +14,7 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
-DIR_PLOTS <- "../../../../plots/AML_sim/diffcyt_DA_limma/main"
+DIR_PLOTS <- "../../../../plots/AML_sim/individual_methods/diffcyt_DA_limma/main"
 DIR_RDATA <- "../../../../RData/AML_sim/main"
 DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 
