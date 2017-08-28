@@ -17,7 +17,7 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data"
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
 DIR_CELLCNN <- "../../../../../CellCnn/CellCnn"
 DIR_CELLCNN_FILES <- "../../../../CellCnn_files"
 DIR_RDATA <- "../../../../RData/AML_sim/main"

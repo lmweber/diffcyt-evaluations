@@ -12,7 +12,7 @@ library(flowCore)
 library(citrus)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data"
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
 DIR_CITRUS_FILES <- "../../../../Citrus_files"
 DIR_RDATA <- "../../../../RData/AML_sim/main"
 DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"

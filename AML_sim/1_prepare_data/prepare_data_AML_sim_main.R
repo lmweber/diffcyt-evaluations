@@ -11,20 +11,20 @@
 # Raw data downloaded from Cytobank:
 # - all cells (also contains gating scheme for CD34+ CD45 mid cells, i.e. blasts):
 # https://community.cytobank.org/cytobank/experiments/46098/illustrations/121588
-# - blasts (this repository was cloned from the one for all cells above, using the gating 
-# scheme for CD34+ CD45mid cells; this allows FCS files for the subset to be exported): 
+# - blasts (this repository was cloned from the one for all cells above, using the gating
+# scheme for CD34+ CD45mid cells; this allows FCS files for the subset to be exported):
 # https://community.cytobank.org/cytobank/experiments/63534/illustrations/125318
 #
 # Notes:
 # - Gating plots for blasts are also shown in Levine et al. (2015), Supplemental Data S3B.
-# - Individuals SJ1, SJ2, and SJ3 each contain two replicates; these are in separate FCS 
-# files. The original Cytobank repository combines the two replicates for each individual 
+# - Individuals SJ1, SJ2, and SJ3 each contain two replicates; these are in separate FCS
+# files. The original Cytobank repository combines the two replicates for each individual
 # (see 'Individuals' dimension setup). So should use combined cells from both FCS files in
-# downstream analysis. However, when I tried this for SJ1, the percentage of blasts did 
+# downstream analysis. However, when I tried this for SJ1, the percentage of blasts did
 # not match to the published numbers (shown in Levine et al. 2015, Supplemental Data S3B);
 # so we have not used these samples in the final analysis.
-# - Arvaniti et al. (2017) (CellCnn paper) classified patients SJ10, SJ12, SJ13 as CN 
-# (cytogenetically normal), and SJ1, SJ2, SJ3, SJ4, SJ5 as CBF (core-binding factor 
+# - Arvaniti et al. (2017) (CellCnn paper) classified patients SJ10, SJ12, SJ13 as CN
+# (cytogenetically normal), and SJ1, SJ2, SJ3, SJ4, SJ5 as CBF (core-binding factor
 # translocation); we re-use these classifications here.
 # - Sample names and file names in the raw data are shuffled! (e.g. file H3 is actually
 # sample H1). The matching scheme can be seen in the 'Individuals' setup in Cytobank, or
@@ -46,7 +46,7 @@ library(flowCore)
 DIR_RAW_DATA_ALL <- "../../../../benchmark_data/AML_sim/raw_data/all_cells/experiment_46098_files"
 DIR_RAW_DATA_BLASTS <- "../../../../benchmark_data/AML_sim/raw_data/CD34_CD45mid_cells/experiment_63534_files"
 
-DIR_DATA <- "../../../../benchmark_data/AML_sim/data"
+DIR_DATA <- "../../../../benchmark_data/AML_sim/data/main"
 
 files_all <- list.files(DIR_RAW_DATA_ALL, pattern = "\\.fcs$", full.names = TRUE)
 files_healthy <- files_all[grep("H[0-9]+", files_all)]
@@ -182,11 +182,11 @@ for (i in 1:length(data_healthy_base)) {
 
 
 
-# Blast cells are subsampled at various thresholds (1%, 0.1%, 0.01%) of the number of 
-# healthy cells for each sample, and combined with the healthy cells to create the 
+# Blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the number of
+# healthy cells for each sample, and combined with the healthy cells to create the
 # spike-in data sets.
 
-thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
+thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%
 
 
 # condition CN (patient SJ10)
