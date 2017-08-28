@@ -12,6 +12,7 @@
 
 library(iCOBRA)
 library(ggplot2)
+library(cowplot)
 
 
 # load saved results
@@ -42,16 +43,24 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 
+# store plots in list
+plots_ROC <- plots_TPRFDR <- vector("list", length(thresholds) * length(cond_names))
+
+
 
 
 for (th in 1:length(thresholds)) {
   
-  #####################################
-  # Plots: test results for each method
-  #####################################
+  ##############################################
+  # Generate plots: test results for each method
+  ##############################################
   
   
   for (j in 1:length(cond_names)) {
+    
+    # index to store plots sequentially in list
+    ix <- (th * length(cond_names)) - (length(cond_names) - j)
+    
     
     # -------------------------------------
     # Pre-processing steps for iCOBRA plots
@@ -90,8 +99,10 @@ for (th in 1:length(thresholds)) {
                                        aspects = c("fdrtpr", "fdrtprcurve", "roc"))
     
     # color scheme
-    # modifed default "Set1" to use different yellow (#FFD92F) from colorbrewer2.org
-    colors <- c('#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#FFD92F', '#A65628', '#F781BF')
+    colors <- c("mediumorchid3", "gold", "salmon", "darkgreen", "limegreen", "olivedrab1")
+    
+    # alternative: modifed default "Set1" to use different yellow (#FFD92F) from colorbrewer2.org
+    #colors <- c('#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#FFD92F', '#A65628', '#F781BF')
     
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
@@ -114,18 +125,14 @@ for (th in 1:length(thresholds)) {
     # create plot
     p <- plot_roc(cobraplot, linewidth = 0.75)
     
-    p + 
+    plots_ROC[[ix]] <- 
+      p + 
       coord_fixed() + 
       xlab("False positive rate") + 
       ylab("True positive rate") + 
-      ggtitle(paste0("ROC curves: AML-sim, main results, ", cond_names[j], ", ", thresholds[th])) + 
+      ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(strip.text.x = element_blank())
-    
-    path <- paste0(file.path(DIR_PLOTS, thresholds[th], cond_names[j]))
-    filename <- file.path(path, paste0("results_all_methods_main_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
-    
-    ggsave(filename, width = 9, height = 8)
     
     
     # --------------
@@ -135,24 +142,97 @@ for (th in 1:length(thresholds)) {
     # create plot
     p <- plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4)
     
-    p + 
+    plots_TPRFDR[[ix]] <- 
+      p + 
       scale_shape_manual(values = c(22, 21, 23)) + 
       scale_x_continuous(breaks = x_labels, labels = x_labels) + 
       coord_fixed() + 
       xlab("False discovery rate") + 
       ylab("True positive rate") + 
-      ggtitle(paste0("TPR-FDR curves: AML-sim, main results, ", cond_names[j], ", ", thresholds[th])) + 
+      ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
       guides(color = guide_legend(override.aes = list(shape = NA)), shape = FALSE)
-    
-    path <- paste0(file.path(DIR_PLOTS, thresholds[th], cond_names[j]))
-    filename <- file.path(path, paste0("results_all_methods_main_TPR_FDR_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
-    
-    ggsave(filename, width = 9, height = 8)
-    
   }
 }
+
+
+
+
+####################################
+# Save plots (in multi-panel format)
+####################################
+
+# ----------
+# ROC curves
+# ----------
+
+# remove duplicated annotation
+plots_ROC <- lapply(plots_ROC, function(p) {
+  p + theme(legend.position = "none", 
+            axis.title.x = element_blank(), 
+            axis.title.y = element_blank())
+})
+
+# format into grid
+grid_ROC <- do.call(plot_grid, append(plots_ROC, list(labels = "AUTO", nrow = 4, ncol = 2, 
+                                                      scale = 0.95, label_y = 0.975)))
+
+# add combined axis titles
+xaxis_ROC <- ggdraw() + draw_label("False positive rate", size = 12)
+yaxis_ROC <- ggdraw() + draw_label("True positive rate", size = 12, angle = 90)
+
+grid_ROC <- plot_grid(grid_ROC, xaxis_ROC, ncol = 1, rel_heights = c(50, 1))
+grid_ROC <- plot_grid(yaxis_ROC, grid_ROC, nrow = 1, rel_widths = c(1, 30))
+
+# add combined legend
+legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "bottom"))
+grid_ROC <- plot_grid(grid_ROC, legend_ROC, ncol = 1, rel_heights = c(16, 1))
+
+# add combined title
+title_ROC <- ggdraw() + draw_label("AML-sim, main results: ROC curves", fontface = "bold")
+grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
+
+# save plots
+fn_ROC <- file.path(DIR_PLOTS, "results_all_methods_main_ROC_curves.pdf")
+ggsave(fn_ROC, grid_ROC, width = 10, height = 14.14)
+
+
+
+
+# --------------
+# TPR-FDR curves
+# --------------
+
+# remove duplicated annotation
+plots_TPRFDR <- lapply(plots_TPRFDR, function(p) {
+  p + theme(legend.position = "none", 
+            axis.title.x = element_blank(), 
+            axis.title.y = element_blank())
+})
+
+# format into grid
+grid_TPRFDR <- do.call(plot_grid, append(plots_TPRFDR, list(labels = "AUTO", nrow = 4, ncol = 2, 
+                                                            scale = 0.95, label_y = 0.975)))
+
+# add combined axis titles
+xaxis_TPRFDR <- ggdraw() + draw_label("False discovery rate", size = 12)
+yaxis_TPRFDR <- ggdraw() + draw_label("True positive rate", size = 12, angle = 90)
+
+grid_TPRFDR <- plot_grid(grid_TPRFDR, xaxis_TPRFDR, ncol = 1, rel_heights = c(50, 1))
+grid_TPRFDR <- plot_grid(yaxis_TPRFDR, grid_TPRFDR, nrow = 1, rel_widths = c(1, 30))
+
+# add combined legend
+legend_TPRFDR <- get_legend(plots_TPRFDR[[1]] + theme(legend.position = "bottom"))
+grid_TPRFDR <- plot_grid(grid_TPRFDR, legend_TPRFDR, ncol = 1, rel_heights = c(16, 1))
+
+# add combined title
+title_TPRFDR <- ggdraw() + draw_label("AML-sim, main results: TPR-FDR curves", fontface = "bold")
+grid_TPRFDR <- plot_grid(title_TPRFDR, grid_TPRFDR, ncol = 1, rel_heights = c(1, 32))
+
+# save plots
+fn_TPRFDR <- file.path(DIR_PLOTS, "results_all_methods_main_TPR_FDR_curves.pdf")
+ggsave(fn_TPRFDR, grid_TPRFDR, width = 10, height = 14.14)
 
 
 
