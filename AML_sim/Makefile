@@ -13,7 +13,7 @@ DIR_RDATA          = ../../RData/AML_sim
 DIR_PLOTS          = ../../plots/AML_sim
 
 
-TIMESTAMP_BENCHMARK_MAIN        = $(DIR_BENCHMARK_MAIN)/timestamp.txt
+TIMESTAMP_BENCHMARK_MAIN = $(DIR_BENCHMARK_MAIN)/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN                       = $(DIR_PLOTS)/main/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
@@ -49,7 +49,7 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESO
 # Generate plots
 # --------------
 
-# note: separate rule for each set of results (otherwise dependencies too complex)
+# note: separate rule for each set of results (otherwise dependencies get too complex)
 
 # main results
 $(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
@@ -57,7 +57,7 @@ $(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
 
 # supplementary: clustering resolution
 $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
-#	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && Rscript $(notdir $<)
+	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && Rscript $(notdir $<)
 
 
 

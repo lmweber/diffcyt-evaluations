@@ -32,9 +32,11 @@ DIR_PLOTS <- "../../../../plots/AML_sim/main"
 
 
 
-######################
-# Loop over thresholds
-######################
+################
+# Generate plots
+################
+
+# loop over thresholds (th) and conditions (j)
 
 # spike-in thresholds
 thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
@@ -47,24 +49,16 @@ cond_names <- c("CN", "CBF")
 plots_ROC <- plots_TPRFDR <- vector("list", length(thresholds) * length(cond_names))
 
 
-
-
 for (th in 1:length(thresholds)) {
   
-  ##############################################
-  # Generate plots: test results for each method
-  ##############################################
-  
-  
   for (j in 1:length(cond_names)) {
-    
-    # index to store plots sequentially in list
-    ix <- (th * length(cond_names)) - (length(cond_names) - j)
-    
     
     # -------------------------------------
     # Pre-processing steps for iCOBRA plots
     # -------------------------------------
+    
+    # index to store plots sequentially in list
+    ix <- (th * length(cond_names)) - (length(cond_names) - j)
     
     # create 'COBRAData' object
     data <- list(CellCnn = out_CellCnn_main[[th]][[j]], 
@@ -101,13 +95,13 @@ for (th in 1:length(thresholds)) {
     # color scheme
     colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue", "darkslategray1")
     
+    colors <- colors[1:length(data)]
+    names(colors) <- names(data)
+    
     # alternative: greens
     #colors <- c("mediumorchid3", "gold", "salmon", "darkgreen", "limegreen", "olivedrab1")
     # alternative: modifed default "Set1" to use different yellow (#FFD92F) from colorbrewer2.org
     #colors <- c('#E41A1C', '#377EB8', '#4DAF4A', '#984EA3', '#FF7F00', '#FFD92F', '#A65628', '#F781BF')
-    
-    colors <- colors[1:length(data)]
-    names(colors) <- names(data)
     
     # x axis labels
     x_min <- 0
@@ -118,6 +112,7 @@ for (th in 1:length(thresholds)) {
     cobraplot <- prepare_data_for_plot(cobraperf, 
                                        colorscheme = colors, 
                                        conditionalfill = FALSE)
+    
     
     
     # ----------
@@ -145,6 +140,7 @@ for (th in 1:length(thresholds)) {
     fn <- file.path(DIR_PLOTS, "panels", 
                     paste0("results_all_methods_main_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 7.5, height = 6)
+    
     
     
     # --------------
@@ -221,7 +217,6 @@ ggsave(fn_ROC, grid_ROC, width = 10, height = 14.14)
 
 
 
-
 # --------------
 # TPR-FDR curves
 # --------------
@@ -246,7 +241,7 @@ grid_TPRFDR <- plot_grid(yaxis_TPRFDR, grid_TPRFDR, nrow = 1, rel_widths = c(1, 
 
 # add combined legend
 legend_TPRFDR <- get_legend(plots_TPRFDR[[1]] + theme(legend.position = "right"))
-grid_TPRFDR <- plot_grid(grid_TPRFDR, legend_TPRFDR, nrow = 1, rel_heights = c(5, 1))
+grid_TPRFDR <- plot_grid(grid_TPRFDR, legend_TPRFDR, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
 title_TPRFDR <- ggdraw() + draw_label("AML-sim, main results: TPR vs. FDR", fontface = "bold")
