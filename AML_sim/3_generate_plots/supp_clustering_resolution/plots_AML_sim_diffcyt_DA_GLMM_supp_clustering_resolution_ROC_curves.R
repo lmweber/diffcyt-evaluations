@@ -44,7 +44,7 @@ cond_names <- c("CN", "CBF")
 
 
 # store plots in list
-plots <- vector("list", length(thresholds) * length(cond_names))
+plots_ROC <- vector("list", length(thresholds) * length(cond_names))
 
 
 for (th in 1:length(thresholds)) {

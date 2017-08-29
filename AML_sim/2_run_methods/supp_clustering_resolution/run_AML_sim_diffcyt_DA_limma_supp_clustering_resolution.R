@@ -163,8 +163,8 @@ for (k in 1:length(resolution)) {
     
     # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
     
-    out_diffcyt_DA_limma_supp_resolution[[th]] <- vector("list", length(cond_names))
-    names(out_diffcyt_DA_limma_supp_resolution[[th]]) <- cond_names
+    out_diffcyt_DA_limma_supp_resolution[[k]][[th]] <- vector("list", length(cond_names))
+    names(out_diffcyt_DA_limma_supp_resolution[[k]][[th]]) <- cond_names
     
     
     for (j in 1:length(cond_names)) {
@@ -257,7 +257,7 @@ for (k in 1:length(resolution)) {
                         spikein = is_spikein_cnd)
       
       # store results
-      out_diffcyt_DA_limma_supp_resolution[[th]][[j]] <- res
+      out_diffcyt_DA_limma_supp_resolution[[k]][[th]][[j]] <- res
       
     }
   }
