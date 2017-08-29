@@ -15,9 +15,9 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data"
-DIR_RDATA <- "../../../../RData/AML_sim/supp_resolution"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_resolution"
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
+DIR_RDATA <- "../../../../RData/AML_sim/supp_clustering_resolution"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_clustering_resolution"
 
 
 
@@ -26,7 +26,7 @@ DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_resolution"
 # Loop to run for each threshold
 ################################
 
-# clustering resolution (e.g. grid of 30 x 30 clusters from FlowSOM)
+# clustering resolution: define grid size for FlowSOM (e.g. 30x30 grid)
 resolution <- c(3, 5, 10, 20, 30, 40)
 
 # spike-in thresholds
@@ -270,7 +270,8 @@ for (k in 1:length(resolution)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_edgeR_supp_resolution, file = file.path(DIR_RDATA, "/outputs_AML_sim_diffcyt_DA_edgeR_supp_resolution.RData"))
+save(out_diffcyt_DA_edgeR_supp_resolution, 
+     file = file.path(DIR_RDATA, "/outputs_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
 
 
 
@@ -279,7 +280,7 @@ save(out_diffcyt_DA_edgeR_supp_resolution, file = file.path(DIR_RDATA, "/outputs
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "/session_info_AML_sim_diffcyt_DA_edgeR_supp_resolution.txt"))
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.txt"))
 sessionInfo()
 sink()
 

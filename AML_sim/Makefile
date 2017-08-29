@@ -15,14 +15,14 @@ DIR_PLOTS          = ../../plots/AML_sim
 
 TIMESTAMP_BENCHMARK_MAIN        = $(DIR_BENCHMARK_MAIN)/timestamp.txt
 
-TIMESTAMP_PLOTS_MAIN            = $(DIR_PLOTS)/main/timestamp.txt
-TIMESTAMP_PLOTS_SUPP_RESOLUTION = $(DIR_PLOTS)/supp_resolution/timestamp.txt
+TIMESTAMP_PLOTS_MAIN                       = $(DIR_PLOTS)/main/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 
-SCRIPTS_PLOTS_MAIN            = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
-SCRIPTS_PLOTS_SUPP_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_resolution/*.R)
+SCRIPTS_PLOTS_MAIN                       = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
+SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 
-FILES_RDATA_MAIN            = $(wildcard $(DIR_RDATA)/main/*.RData)
-FILES_RDATA_SUPP_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_resolution/*.RData)
+FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
+FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
 
 
 
@@ -32,11 +32,14 @@ FILES_RDATA_SUPP_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_resolution/*.RData)
 
 .PHONY: all
 all: timestamps_plots
+#all: timestamps_plots RData_files
+
 
 .PHONY: timestamps_plots
-timestamps_plots: $(TIMESTAMP_PLOTS_MAIN)
+timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION)
 
-#timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_RESOLUTION)
+#.PHONY: RData_files
+#RData_files: $(FILES_RDATA_MAIN) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
 
 
 
@@ -51,8 +54,8 @@ $(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main && Rscript $(notdir $<)
 
 # supplementary: clustering resolution
-#$(TIMESTAMP_PLOTS_SUPP_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_RESOLUTION) $(FILES_RDATA_SUPP_RESOLUTION)
-#	cd $(DIR_GENERATE_PLOTS)/supp_resolution && Rscript $(notdir $<)
+$(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
+#	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && Rscript $(notdir $<)
 
 
 
@@ -67,8 +70,8 @@ $(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_B
 	cd $(DIR_RUN_METHODS)/main && Rscript $(notdir $<)
 
 # supplementary: clustering resolution
-#$(DIR_RDATA)/supp_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp_resolution/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/supp_resolution && Rscript $(notdir $<)
+$(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp_clustering_resolution/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_clustering_resolution && Rscript $(notdir $<)
 
 
 
