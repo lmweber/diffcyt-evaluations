@@ -96,7 +96,7 @@ for (th in 1:length(thresholds)) {
                                        aspects = c("roc"))
     
     # color scheme
-    colors <- colorRampPalette(c("darkolivegreen1", "darkgreen"))(7)
+    colors <- colorRampPalette(c("#c7e9c0", "darkgreen"))(7)
     
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
