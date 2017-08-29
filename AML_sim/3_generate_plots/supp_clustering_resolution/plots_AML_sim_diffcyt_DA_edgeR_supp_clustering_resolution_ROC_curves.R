@@ -106,8 +106,8 @@ for (th in 1:length(thresholds)) {
     #names(linetypes) <- names(data)
     
     # axis ranges
-    x_range <- c(0, 0.25)
-    y_range <- c(0.75, 1)
+    x_range <- c(0, 0.5)
+    y_range <- c(0.5, 1)
     
     # prepare plotting object
     cobraplot <- prepare_data_for_plot(cobraperf, colorscheme = colors)
@@ -138,7 +138,7 @@ for (th in 1:length(thresholds)) {
     
     # save individual panel plot
     p <- p + 
-      ggtitle(paste0("diffcyt-DA-edgeR: AML-sim, clustering resolution, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
+      ggtitle(paste0("AML-sim, clustering resolution: diffcyt-DA-edgeR: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
                     paste0("results_diffcyt_DA_edgeR_supp_clustering_resolution_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
@@ -181,7 +181,7 @@ legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "right"))
 grid_ROC <- plot_grid(grid_ROC, legend_ROC, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
-title_ROC <- ggdraw() + draw_label("diffcyt-DA-edgeR: AML-sim, clustering resolution: ROC curves", fontface = "bold")
+title_ROC <- ggdraw() + draw_label("AML-sim, clustering resolution: diffcyt-DA-edgeR: ROC curves", fontface = "bold")
 grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
 
 # save plots

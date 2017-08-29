@@ -57,7 +57,8 @@ $(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
 
 # supplementary: clustering resolution
 $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
-	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && Rscript $(notdir $<)
+#	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && Rscript $(notdir $<)
+### currently only runs one file
 
 
 
