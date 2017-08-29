@@ -127,14 +127,24 @@ for (th in 1:length(thresholds)) {
     # create plot
     p <- plot_roc(cobraplot, linewidth = 0.75)
     
-    plots_ROC[[ix]] <- 
-      p + 
+    # with short title for multi-panel plot
+    p <- p + 
       coord_fixed() + 
       xlab("False positive rate") + 
       ylab("True positive rate") + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(strip.text.x = element_blank())
+    
+    plots_ROC[[ix]] <- p
+    
+    # save individual panel
+    p <- p + 
+      ggtitle(paste0("AML-sim, main results, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
+    
+    fn <- file.path(DIR_PLOTS, "panels", 
+                    paste0("results_all_methods_main_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
+    ggsave(fn, width = 9, height = 8)
     
     
     # --------------
@@ -144,8 +154,8 @@ for (th in 1:length(thresholds)) {
     # create plot
     p <- plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4)
     
-    plots_TPRFDR[[ix]] <- 
-      p + 
+    # with short title for multi-panel plot
+    p <- p + 
       scale_shape_manual(values = c(22, 21, 23)) + 
       scale_x_continuous(breaks = x_labels, labels = x_labels) + 
       coord_fixed() + 
@@ -155,15 +165,25 @@ for (th in 1:length(thresholds)) {
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
       guides(color = guide_legend(override.aes = list(shape = NA)), shape = FALSE)
+    
+    plots_TPRFDR[[ix]] <- p
+    
+    # save individual panel
+    p <- p + 
+      ggtitle(paste0("AML-sim, main results, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": TPR vs. FDR"))
+    
+    fn <- file.path(DIR_PLOTS, "panels", 
+                    paste0("results_all_methods_main_TPR_FDR_", thresholds[th], "_", cond_names[j], ".pdf"))
+    ggsave(fn, width = 9, height = 8)
   }
 }
 
 
 
 
-####################################
-# Save plots (in multi-panel format)
-####################################
+########################
+# Save multi-panel plots
+########################
 
 # ----------
 # ROC curves
@@ -188,8 +208,8 @@ grid_ROC <- plot_grid(grid_ROC, xaxis_ROC, ncol = 1, rel_heights = c(50, 1))
 grid_ROC <- plot_grid(yaxis_ROC, grid_ROC, nrow = 1, rel_widths = c(1, 30))
 
 # add combined legend
-legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "bottom"))
-grid_ROC <- plot_grid(grid_ROC, legend_ROC, ncol = 1, rel_heights = c(16, 1))
+legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "right"))
+grid_ROC <- plot_grid(grid_ROC, legend_ROC, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
 title_ROC <- ggdraw() + draw_label("AML-sim, main results: ROC curves", fontface = "bold")
@@ -225,15 +245,15 @@ grid_TPRFDR <- plot_grid(grid_TPRFDR, xaxis_TPRFDR, ncol = 1, rel_heights = c(50
 grid_TPRFDR <- plot_grid(yaxis_TPRFDR, grid_TPRFDR, nrow = 1, rel_widths = c(1, 30))
 
 # add combined legend
-legend_TPRFDR <- get_legend(plots_TPRFDR[[1]] + theme(legend.position = "bottom"))
-grid_TPRFDR <- plot_grid(grid_TPRFDR, legend_TPRFDR, ncol = 1, rel_heights = c(16, 1))
+legend_TPRFDR <- get_legend(plots_TPRFDR[[1]] + theme(legend.position = "right"))
+grid_TPRFDR <- plot_grid(grid_TPRFDR, legend_TPRFDR, nrow = 1, rel_heights = c(5, 1))
 
 # add combined title
-title_TPRFDR <- ggdraw() + draw_label("AML-sim, main results: TPR-FDR curves", fontface = "bold")
+title_TPRFDR <- ggdraw() + draw_label("AML-sim, main results: TPR vs. FDR", fontface = "bold")
 grid_TPRFDR <- plot_grid(title_TPRFDR, grid_TPRFDR, ncol = 1, rel_heights = c(1, 32))
 
 # save plots
-fn_TPRFDR <- file.path(DIR_PLOTS, "results_all_methods_main_TPR_FDR_curves.pdf")
+fn_TPRFDR <- file.path(DIR_PLOTS, "results_all_methods_main_TPR_FDR.pdf")
 ggsave(fn_TPRFDR, grid_TPRFDR, width = 10, height = 14.14)
 
 
