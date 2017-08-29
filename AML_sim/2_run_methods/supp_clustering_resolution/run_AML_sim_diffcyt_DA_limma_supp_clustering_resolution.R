@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-edgeR
+# - method: diffcyt-DA-limma
 # - data set: AML-sim
 # 
 # - supplementary results: clustering resolution
@@ -36,20 +36,19 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include zeros for patient_IDs fixed effects
-contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
+contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects
-out_diffcyt_DA_edgeR_supp_resolution <- vector("list", length(resolution))
-names(out_diffcyt_DA_edgeR_supp_resolution) <- resolution
+out_diffcyt_DA_limma_supp_resolution <- vector("list", length(thresholds))
+names(out_diffcyt_DA_limma_supp_resolution) <- thresholds
 
 
 
 
 for (k in 1:length(resolution)) {
   
-  out_diffcyt_DA_edgeR_supp_resolution[[k]] <- vector("list", length(thresholds))
-  names(out_diffcyt_DA_edgeR_supp_resolution[[k]]) <- thresholds
+  out_diffcyt_DA_limma_supp_resolution[[k]] <- vector("list", length(thresholds))
+  names(out_diffcyt_DA_limma_supp_resolution[[k]]) <- thresholds
   
   
   for (th in 1:length(thresholds)) {
@@ -164,15 +163,14 @@ for (k in 1:length(resolution)) {
     
     # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
     
-    out_diffcyt_DA_edgeR_supp_resolution[[k]][[th]] <- vector("list", length(cond_names))
-    names(out_diffcyt_DA_edgeR_supp_resolution[[k]][[th]]) <- cond_names
+    out_diffcyt_DA_limma_supp_resolution[[th]] <- vector("list", length(cond_names))
+    names(out_diffcyt_DA_limma_supp_resolution[[th]]) <- cond_names
     
     
     for (j in 1:length(cond_names)) {
       
       # set up design matrix
-      # - note: include 'patient_IDs' as fixed effects in design matrix
-      design <- createDesignMatrix(group_IDs, block_IDs = patient_IDs)
+      design <- createDesignMatrix(group_IDs)
       design
       
       # set up contrast matrix
@@ -180,8 +178,10 @@ for (k in 1:length(resolution)) {
       contrast
       
       # run tests
+      # - note: include 'patient_IDs' as random effects using limma 'duplicateCorrelation' methodology
       runtime <- system.time(
-        res <- testDA_edgeR(d_counts, design, contrast)
+        res <- testDA_limma(d_counts, design, contrast, 
+                            block_IDs = patient_IDs, plot = FALSE)
       )
       
       print(runtime)
@@ -190,12 +190,12 @@ for (k in 1:length(resolution)) {
       rowData(res)
       
       # sort to show top (most highly significant) clusters first
-      res_sorted <- rowData(res)[order(rowData(res)$FDR), ]
+      res_sorted <- rowData(res)[order(rowData(res)$adj.P.Val), ]
       print(head(res_sorted, 10))
       #View(as.data.frame(res_sorted))
       
       # number of significant DA clusters
-      print(table(res_sorted$FDR <= 0.05))
+      print(table(res_sorted$adj.P.Val <= 0.05))
       
       
       
@@ -229,8 +229,8 @@ for (k in 1:length(resolution)) {
       
       ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
       
-      p_vals_clusters <- rowData(res)$PValue
-      p_adj_clusters <- rowData(res)$FDR
+      p_vals_clusters <- rowData(res)$P.Value
+      p_adj_clusters <- rowData(res)$adj.P.Val
       
       p_vals_cells <- p_vals_clusters[ix_match]
       p_adj_cells <- p_adj_clusters[ix_match]
@@ -257,7 +257,7 @@ for (k in 1:length(resolution)) {
                         spikein = is_spikein_cnd)
       
       # store results
-      out_diffcyt_DA_edgeR_supp_resolution[[k]][[th]][[j]] <- res
+      out_diffcyt_DA_limma_supp_resolution[[th]][[j]] <- res
       
     }
   }
@@ -270,8 +270,8 @@ for (k in 1:length(resolution)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_edgeR_supp_resolution, 
-     file = file.path(DIR_RDATA, "/outputs_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
+save(out_diffcyt_DA_limma_supp_resolution, 
+     file = file.path(DIR_RDATA, "/outputs_AML_sim_diffcyt_DA_limma_supp_clustering_resolution.RData"))
 
 
 
@@ -280,7 +280,7 @@ save(out_diffcyt_DA_edgeR_supp_resolution,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "/session_info_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.txt"))
+sink(file.path(DIR_SESSION_INFO, "/session_info_AML_sim_diffcyt_DA_limma_supp_clustering_resolution.txt"))
 sessionInfo()
 sink()
 
