@@ -1,8 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-GLMM-main
+# - method: diffcyt-DA-GLMM
 # - data set: AML-sim
+# 
+# - main results
 # 
 # Lukas Weber, August 2017
 ##########################################################################################

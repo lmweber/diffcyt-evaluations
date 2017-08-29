@@ -1,8 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma-main
+# - method: diffcyt-DA-limma
 # - data set: AML-sim
+# 
+# - main results
 # 
 # Lukas Weber, August 2017
 ##########################################################################################

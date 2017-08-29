@@ -32,6 +32,8 @@ FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering
 
 .PHONY: all
 all: timestamps_plots
+
+#.PHONY: all
 #all: timestamps_plots RData_files
 
 

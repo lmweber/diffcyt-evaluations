@@ -1,8 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-edgeR-main
+# - method: diffcyt-DA-edgeR
 # - data set: AML-sim
+# 
+# - main results
 # 
 # Lukas Weber, August 2017
 ##########################################################################################
