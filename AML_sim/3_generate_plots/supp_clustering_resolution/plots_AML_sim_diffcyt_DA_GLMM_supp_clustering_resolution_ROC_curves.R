@@ -112,6 +112,9 @@ for (th in 1:length(thresholds)) {
     # prepare plotting object
     cobraplot <- prepare_data_for_plot(cobraperf, colorscheme = colors)
     
+    # re-order legend
+    cobraplot <- iCOBRA:::reorder_levels(cobraplot, levels = names(data))
+    
     
     
     # ----------
@@ -130,9 +133,6 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(strip.text.x = element_blank())
-    
-    # re-order legend
-    p$data$method <- factor(p$data$method, levels = unique(p$data$method))
     
     plots_ROC[[ix]] <- p
     
