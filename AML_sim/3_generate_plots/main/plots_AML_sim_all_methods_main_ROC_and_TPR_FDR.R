@@ -138,13 +138,13 @@ for (th in 1:length(thresholds)) {
     
     plots_ROC[[ix]] <- p
     
-    # save individual panel
+    # save individual panel plot
     p <- p + 
       ggtitle(paste0("AML-sim, main results, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
                     paste0("results_all_methods_main_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
-    ggsave(fn, width = 9, height = 8)
+    ggsave(fn, width = 7.5, height = 6)
     
     
     # --------------
@@ -168,13 +168,13 @@ for (th in 1:length(thresholds)) {
     
     plots_TPRFDR[[ix]] <- p
     
-    # save individual panel
+    # save individual panel plot
     p <- p + 
       ggtitle(paste0("AML-sim, main results, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": TPR vs. FDR"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
                     paste0("results_all_methods_main_TPR_FDR_", thresholds[th], "_", cond_names[j], ".pdf"))
-    ggsave(fn, width = 9, height = 8)
+    ggsave(fn, width = 7.5, height = 6)
   }
 }
 
