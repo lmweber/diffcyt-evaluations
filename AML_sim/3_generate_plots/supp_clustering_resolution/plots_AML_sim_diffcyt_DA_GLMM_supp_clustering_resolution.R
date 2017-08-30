@@ -2,7 +2,7 @@
 # Generate plots
 # 
 # - data set: AML-sim
-# - plot type: ROC curves
+# - plot type: ROC curves; pAUC values
 # 
 # - supplementary: clustering resolution; diffcyt-DA-GLMM
 # 
@@ -11,6 +11,8 @@
 
 
 library(iCOBRA)
+library(dplyr)
+library(magrittr)
 library(ggplot2)
 library(cowplot)
 
@@ -44,7 +46,7 @@ cond_names <- c("CN", "CBF")
 
 
 # store plots in list
-plots_ROC <- vector("list", length(thresholds) * length(cond_names))
+plots_ROC <- plots_pAUC <- vector("list", length(thresholds) * length(cond_names))
 
 
 for (th in 1:length(thresholds)) {
@@ -95,6 +97,50 @@ for (th in 1:length(thresholds)) {
                                        binary_truth = "spikein", 
                                        aspects = c("roc"))
     
+    
+    # calculate pAUC values (store in separate vector)
+    pAUC <- rep(NA, length(data))
+    names(pAUC) <- names(data)
+    
+    thresh <- 0.2
+    
+    for (i in 1:length(pAUC)) {
+      roc_i <- roc(cobraperf)[roc(cobraperf)$method == names(pAUC)[i], ]
+      roc_i_less <- roc_i[roc_i$FPR < thresh, ]
+      roc_i_more <- roc_i[roc_i$FPR >= thresh, ]
+      
+      row_insert <- as.data.frame(matrix(NA, nrow = 1, ncol = ncol(roc_i)))
+      colnames(row_insert) <- colnames(roc_i)
+      row_insert[1, "FPR"] <- thresh
+      row_insert[1, "TPR"] <- roc_i_less[nrow(roc_i_less), "TPR"]
+      
+      roc_i <- rbind(roc_i_less, row_insert, roc_i_more)
+      rownames(roc_i) <- NULL
+      
+      #roc_i$FPR <- c(0, FPR[-1])
+      roc_i$dFPR <- c(0, diff(roc_i$FPR))
+      roc_i$dTPR <- c(0, diff(roc_i$TPR))
+      roc_i$TPRs <- c(0, roc_i$TPR[-length(roc_i$TPR)])
+      roc_i$AUC <- cumsum(roc_i$dFPR * roc_i$dTPR/2 + roc_i$dFPR * roc_i$TPRs)
+      
+      # extract pAUC
+      pAUC[i] <- roc_i$AUC[roc_i$FPR == thresh]
+    }
+    
+    
+    # calculate AUC values (store in main object) (code from Charlotte)
+    # roc(cobraperf) <- 
+    #   roc(cobraperf) %>% 
+    #   dplyr::group_by(method) %>% 
+    #   dplyr::mutate(FPR = c(0, FPR[-1])) %>% 
+    #   dplyr::mutate(dFPR = c(0, diff(FPR)), 
+    #                 dTPR = c(0, diff(TPR)), 
+    #                 TPRs = c(0, TPR[-length(TPR)])) %>% 
+    #   dplyr::mutate(AUC = cumsum(dFPR * dTPR/2 + dFPR * TPRs)) %>% 
+    #   dplyr::ungroup() %>% 
+    #   as.data.frame()
+    
+    
     # color scheme
     colors <- colorRampPalette(c("#c7e9c0", "darkgreen"))(7)
     
@@ -108,6 +154,7 @@ for (th in 1:length(thresholds)) {
     # axis ranges
     x_range <- c(0, 0.5)
     y_range <- c(0.5, 1)
+    
     
     # prepare plotting object
     cobraplot <- prepare_data_for_plot(cobraperf, colorscheme = colors)
@@ -142,6 +189,38 @@ for (th in 1:length(thresholds)) {
     
     fn <- file.path(DIR_PLOTS, "panels", 
                     paste0("results_diffcyt_DA_GLMM_supp_clustering_resolution_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
+    ggsave(fn, width = 7.5, height = 6)
+    
+    
+    
+    # ----------
+    # pAUC plots
+    # ----------
+    
+    p_data <- data.frame(method = factor(names(pAUC), levels = names(pAUC)), pAUC = pAUC)
+    
+    y_range_pAUC <- c(0, thresh)
+    
+    # create plot
+    p <- 
+      ggplot(p_data, aes(x = method, y = pAUC, group = 1)) + 
+      geom_line(color = "dodgerblue4", lwd = 0.7) + 
+      geom_point(color = "dodgerblue4", size = 2.25) + 
+      xlab("Number of clusters") + 
+      ylim(y_range_pAUC) + 
+      ylab(paste0("pAUC (FPR < ", thresh, ")")) + 
+      theme_bw() + 
+      ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
+      theme(legend.position = "none")
+    
+    plots_pAUC[[ix]] <- p
+    
+    # save individual panel plot
+    p <- p + 
+      ggtitle(paste0("AML-sim, clustering resolution: diffcyt-DA-GLMM: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": pAUC (FPR < ", thresh, ")"))
+    
+    fn <- file.path(DIR_PLOTS, "panels", 
+                    paste0("results_diffcyt_DA_GLMM_supp_clustering_resolution_pAUC_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 7.5, height = 6)
     
   }
@@ -187,6 +266,42 @@ grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
 # save plots
 fn_ROC <- file.path(DIR_PLOTS, "results_diffcyt_DA_GLMM_supp_clustering_resolution_ROC_curves.pdf")
 ggsave(fn_ROC, grid_ROC, width = 10, height = 14.14)
+
+
+
+# -----------
+# pAUC values
+# -----------
+
+# remove duplicated annotation
+plots_pAUC <- lapply(plots_pAUC, function(p) {
+  p + theme(legend.position = "none", 
+            axis.title.x = element_blank(), 
+            axis.title.y = element_blank())
+})
+
+# format into grid
+grid_pAUC <- do.call(plot_grid, append(plots_pAUC, list(labels = "AUTO", nrow = 4, ncol = 2, 
+                                                        scale = 0.95, label_y = 0.975)))
+
+# add combined axis titles
+xaxis_pAUC <- ggdraw() + draw_label("Number of clusters", size = 12)
+yaxis_pAUC <- ggdraw() + draw_label(paste0("pAUC (FPR < ", thresh, ")"), size = 12, angle = 90)
+
+grid_pAUC <- plot_grid(grid_pAUC, xaxis_pAUC, ncol = 1, rel_heights = c(50, 1))
+grid_pAUC <- plot_grid(yaxis_pAUC, grid_pAUC, nrow = 1, rel_widths = c(1, 30))
+
+# add combined legend
+#legend_pAUC <- get_legend(plots_pAUC[[1]] + theme(legend.position = "right"))
+#grid_pAUC <- plot_grid(grid_pAUC, legend_pAUC, nrow = 1, rel_widths = c(5, 1))
+
+# add combined title
+title_pAUC <- ggdraw() + draw_label(paste0("AML-sim, clustering resolution: diffcyt-DA-GLMM: pAUC (FPR < ", thresh, ")"), fontface = "bold")
+grid_pAUC <- plot_grid(title_pAUC, grid_pAUC, ncol = 1, rel_heights = c(1, 32))
+
+# save plots
+fn_pAUC <- file.path(DIR_PLOTS, "results_diffcyt_DA_GLMM_supp_clustering_resolution_pAUC.pdf")
+ggsave(fn_pAUC, grid_pAUC, width = 10, height = 14.14)
 
 
 
