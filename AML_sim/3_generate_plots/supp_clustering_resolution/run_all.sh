@@ -1,0 +1,5 @@
+# shell script for Makefile: run all .R scripts in this directory
+
+Rscript plots_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.R
+Rscript plots_AML_sim_diffcyt_DA_GLMM_supp_clustering_resolution.R
+Rscript plots_AML_sim_diffcyt_DA_limma_supp_clustering_resolution.R

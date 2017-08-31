@@ -33,15 +33,8 @@ FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering
 .PHONY: all
 all: timestamps_plots
 
-#.PHONY: all
-#all: timestamps_plots RData_files
-
-
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION)
-
-#.PHONY: RData_files
-#RData_files: $(FILES_RDATA_MAIN) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
 
 
 
@@ -57,8 +50,7 @@ $(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
 
 # supplementary: clustering resolution
 $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
-#	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && Rscript $(notdir $<)
-### currently only runs one file
+	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && bash run_all.sh
 
 
 
@@ -66,7 +58,7 @@ $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_R
 # Run methods
 # -----------
 
-# note: can't use as default rule if rule contains '%'
+# note: can't use as default rule if target contains '%'
 
 # main results
 $(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
