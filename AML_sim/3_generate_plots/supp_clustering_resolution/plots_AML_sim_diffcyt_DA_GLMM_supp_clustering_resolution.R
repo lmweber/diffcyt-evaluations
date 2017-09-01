@@ -117,7 +117,7 @@ for (th in 1:length(thresholds)) {
     cobraplot <- prepare_data_for_plot(cobraperf, colorscheme = colors)
     
     # re-order legend
-    cobraplot <- iCOBRA:::reorder_levels(cobraplot, levels = names(data))
+    cobraplot <- reorder_levels(cobraplot, levels = names(data))
     
     
     # ----------
