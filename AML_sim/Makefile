@@ -84,6 +84,9 @@ $(TIMESTAMP_BENCHMARK_MAIN): $(DIR_PREPARE_DATA)/prepare_data_AML_sim_main.R
 # Miscellaneous
 # -------------
 
+### move these commands into the 'run' scripts for Citrus and CellCnn, so everything is fully automatic when running 'make'
+### (simply paste in as shell commands at the beginning of script)
+
 # remove auto-generated files for Citrus
 .PHONY: clean_Citrus
 clean_Citrus:
