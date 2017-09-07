@@ -79,22 +79,3 @@ $(TIMESTAMP_BENCHMARK_MAIN): $(DIR_PREPARE_DATA)/prepare_data_AML_sim_main.R
 	cd $(DIR_PREPARE_DATA) && Rscript $(notdir $<)
 
 
-
-# -------------
-# Miscellaneous
-# -------------
-
-### move these commands into the 'run' scripts for Citrus and CellCnn, so everything is fully automatic when running 'make'
-### (simply paste in as shell commands at the beginning of script)
-
-# remove auto-generated files for Citrus
-.PHONY: clean_Citrus
-clean_Citrus:
-	find ../../Citrus_files -type f -delete
-
-# remove auto-generated files for CellCnn
-.PHONY: clean_CellCnn
-clean_CellCnn:
-	find ../../CellCnn_files -type f -delete
-
-

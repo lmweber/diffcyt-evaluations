@@ -22,6 +22,19 @@ DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 
 
 
+##############################
+# Delete previous output files
+##############################
+
+# delete output files from previous Citrus runs (but leave directory structure intact)
+
+cmd_clean <- paste("find", DIR_CITRUS_FILES, "-type f -delete")
+
+system(cmd_clean)
+
+
+
+
 ################################
 # Loop to run for each threshold
 ################################
