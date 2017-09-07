@@ -55,12 +55,12 @@ FILES_RDATA = $(DIR_RDATA)/*.RData
 # --------------------------
 
 # generate simulated data files (including 'nosim')
-#$(TIMESTAMP_BENCHMARK): $(DIR_PREPARE_DATA)/prepare_data_BCR_XL_sim.R $(TIMESTAMP_LABELS)
-#	cd $(DIR_PREPARE_DATA) && Rscript $(notdir $<)
+$(TIMESTAMP_BENCHMARK): $(DIR_PREPARE_DATA)/prepare_data_BCR_XL_sim.R $(TIMESTAMP_LABELS)
+	cd $(DIR_PREPARE_DATA) && Rscript $(notdir $<)
 
 # reproduce cell population labels from Nowicka et al. (2017); remove temporary files
-#$(TIMESTAMP_LABELS): $(DIR_PREPARE_DATA)/cell_population_labels_BCR_XL.R
-#	cd $(DIR_PREPARE_DATA) && Rscript $(notdir $<)
-#	cd $(DIR_PREPARE_DATA) && rm *.fcs *.xlsx *.pdf *.zip && rm consensus_plots/*.png && rmdir consensus_plots
+$(TIMESTAMP_LABELS): $(DIR_PREPARE_DATA)/cell_population_labels_BCR_XL.R
+	cd $(DIR_PREPARE_DATA) && Rscript $(notdir $<)
+	cd $(DIR_PREPARE_DATA) && rm *.fcs *.xlsx *.pdf *.zip && rm consensus_plots/*.png && rmdir consensus_plots
 
 
