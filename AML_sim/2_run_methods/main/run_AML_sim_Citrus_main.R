@@ -185,8 +185,13 @@ for (th in 1:length(thresholds)) {
     # files
     fileList <- data.frame(defaultCondition = gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep)))
     
+    # number of processor cores
+    n_cores <- 8
+    
     
     # run Citrus
+    
+    Rclusterpp.setThreads(n_cores)
     
     set.seed(123)
     
