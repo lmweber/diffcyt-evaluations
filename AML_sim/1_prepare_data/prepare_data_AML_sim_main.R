@@ -186,7 +186,7 @@ for (i in 1:length(data_healthy_base)) {
 # healthy cells for each sample, and combined with the healthy cells to create the
 # spike-in data sets.
 
-thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%
+thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
 
 
 # condition CN (patient SJ10)
