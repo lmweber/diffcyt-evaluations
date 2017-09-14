@@ -355,7 +355,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_CellCnn_main, file = file.path(DIR_RDATA, "/outputs_AML_sim_CellCnn_main.RData"))
+save(out_CellCnn_main, file = file.path(DIR_RDATA, "outputs_AML_sim_CellCnn_main.RData"))
 
 
 
@@ -364,7 +364,7 @@ save(out_CellCnn_main, file = file.path(DIR_RDATA, "/outputs_AML_sim_CellCnn_mai
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "/session_info_AML_sim_CellCnn_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_CellCnn_main.txt"))
 sessionInfo()
 sink()
 
