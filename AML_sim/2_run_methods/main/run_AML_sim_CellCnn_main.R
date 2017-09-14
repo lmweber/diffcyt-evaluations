@@ -215,6 +215,12 @@ for (th in 1:length(thresholds)) {
     
     # for installation instructions and examples see: https://github.com/eiriniar/CellCnn
     
+    # note: additional advice from authors:
+    # (1) '--no_arcsinh' argument to disable arcsinh transform (since this was already done above)
+    # (2) '--ncell 500' argument to increase size of each training set [this should be at least 
+    # 'n_cells_min = (avg. no. cells per sample) * (no. samples per condition) / 1000'; 
+    # if no memory constraints then increase to '10 * n_cells_min']
+    
     
     # command to run CellCnn analysis
     cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
@@ -222,6 +228,7 @@ for (th in 1:length(thresholds)) {
                  paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
                  paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
                  paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
+                 "--no_arcsinh --ncell 500", 
                  "--export_csv", 
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]))
     
