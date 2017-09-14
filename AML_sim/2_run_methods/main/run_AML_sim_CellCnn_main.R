@@ -215,6 +215,11 @@ for (th in 1:length(thresholds)) {
     
     # for installation instructions and examples see: https://github.com/eiriniar/CellCnn
     
+    # note: for Linux systems, need to paste the following additional lines at the beginning of 
+    # the script 'plotting.py' (before the line 'import matplotlib.pyplot as plt'):
+    # import matplotlib
+    # matplotlib.use('agg')
+    
     # note: additional advice from authors:
     # (1) '--no_arcsinh' argument to disable arcsinh transform (since this was already done above)
     # (2) '--ncell 500' argument to increase size of each training set [this should be at least 
