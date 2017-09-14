@@ -233,7 +233,8 @@ for (th in 1:length(thresholds)) {
                  paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
                  paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
                  paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
-                 "--no_arcsinh --ncell 500", 
+                 #"--no_arcsinh",  ## currently not working
+                 "--ncell 500", 
                  "--export_csv", 
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]))
     
@@ -255,7 +256,6 @@ for (th in 1:length(thresholds)) {
                  paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
                  paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
                  paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
-                 "--plot", 
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]), 
                  "--filter_response_thres 0.3 --load_results --export_selected_cells")
     
