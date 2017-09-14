@@ -6,7 +6,7 @@
 # 
 # - supplementary results: clustering resolution
 # 
-# Lukas Weber, August 2017
+# Lukas Weber, September 2017
 ##########################################################################################
 
 
@@ -271,7 +271,7 @@ for (k in 1:length(resolution)) {
 #####################
 
 save(out_diffcyt_DA_edgeR_supp_resolution, 
-     file = file.path(DIR_RDATA, "/outputs_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
+     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
 
 
 
@@ -280,7 +280,7 @@ save(out_diffcyt_DA_edgeR_supp_resolution,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "/session_info_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.txt"))
 sessionInfo()
 sink()
 
