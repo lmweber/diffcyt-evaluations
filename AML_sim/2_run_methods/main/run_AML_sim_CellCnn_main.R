@@ -125,16 +125,7 @@ for (th in 1:length(thresholds)) {
   # transform data
   # --------------
   
-  # 'asinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2)
-  
-  #cofactor <- 5
-  
-  #d_input <- lapply(d_input, function(d) {
-  #  e <- exprs(d)
-  #  e[, cols_markers] <- asinh(e[, cols_markers] / cofactor)
-  #  flowFrame(e)
-  #})
-  ### disable for now, since '--no_arcsinh' argument doesn't work properly
+  # not required, since CellCnn automatically transforms data
   
   
   
@@ -222,13 +213,12 @@ for (th in 1:length(thresholds)) {
     # matplotlib.use('agg')
     
     # note: additional advice from authors:
-    # (1) '--no_arcsinh' argument to disable arcsinh transform (since this was already done above)
-    # (2) '--ncell 500' argument to increase size of each training set [this should be at least 
+    # (1) '--no_arcsinh' argument to disable arcsinh transform
+    # (2) '--ncell 300' argument to increase size of each training set [this should be at least 
     # 'n_cells_min = (avg. no. cells per sample) * (no. samples per condition) / 1000'; 
-    # if no memory constraints then increase to '10 * n_cells_min']
+    # if no memory constraints then increase to 5 to 10 times 'n_cells_min']
     
     # note: use option '--subset_selection outlier' for extremely rare populations (thresholds 0.1% and 0.01%)
-    
     cmd_outlier <- ifelse(th %in% c(3, 4), "--subset_selection outlier ", "")
     
     # command to run CellCnn analysis
@@ -237,8 +227,8 @@ for (th in 1:length(thresholds)) {
                  paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
                  paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
                  paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
-                 paste0(cmd_outlier, "--ncell 500 --export_csv"), 
-                 #"--no_arcsinh",  ## currently not working
+                 paste0(cmd_outlier, "--ncell 300 --export_csv"), 
+                 #"--no_arcsinh",  ## currently not working correctly
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]))
     
     # run from command line
