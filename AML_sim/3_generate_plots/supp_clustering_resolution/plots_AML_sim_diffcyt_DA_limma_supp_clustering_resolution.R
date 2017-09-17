@@ -6,7 +6,7 @@
 # 
 # - supplementary: clustering resolution; diffcyt-DA-limma
 # 
-# Lukas Weber, August 2017
+# Lukas Weber, September 2017
 ##########################################################################################
 
 
@@ -30,11 +30,11 @@ DIR_PLOTS <- "../../../../plots/AML_sim/supp_clustering_resolution"
 
 
 
-################################################################
-# Generate plots: one panel per threshold (th) and condition (j)
-################################################################
+############################
+# Generate plots: ROC curves
+############################
 
-# loop over thresholds (th) and conditions (j)
+# one panel per threshold (th) and condition (j)
 
 
 # clustering resolution
@@ -110,8 +110,8 @@ for (th in 1:length(thresholds)) {
     #names(linetypes) <- names(data)
     
     # axis ranges
-    x_range <- c(0, 0.5)
-    y_range <- c(0.5, 1)
+    x_range <- c(0, 1)
+    y_range <- c(0, 1)
     
     # prepare plotting object
     cobraplot <- prepare_data_for_plot(cobraperf, colorscheme = colors)
@@ -153,11 +153,11 @@ for (th in 1:length(thresholds)) {
 
 
 
-#############################################
-# Generate plots: one panel per condition (j)
-#############################################
+#############################
+# Generate plots: pAUC values
+#############################
 
-# loop over conditions (j)
+# one panel per condition (j)
 
 
 # clustering resolution
@@ -253,6 +253,9 @@ for (j in 1:length(cond_names)) {
       pAUC[i] <- roc_i$AUC[roc_i$FPR == thresh]
     }
     
+    # normalize pAUC values
+    pAUC <- pAUC / thresh
+    
     # calculate AUC values (store in main object) (code from Charlotte)
     # roc(cobraperf) <- 
     #   roc(cobraperf) %>% 
@@ -283,7 +286,7 @@ for (j in 1:length(cond_names)) {
   names(colors) <- names(pAUC_list)
   
   # axis ranges
-  y_range_pAUC <- c(0, thresh)
+  y_range_pAUC <- c(0, 1)
   
   
   # ----------
@@ -353,7 +356,7 @@ grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
 
 # save plots
 fn_ROC <- file.path(DIR_PLOTS, "results_diffcyt_DA_limma_supp_clustering_resolution_ROC_curves.pdf")
-ggsave(fn_ROC, grid_ROC, width = 10, height = 14.14)
+ggsave(fn_ROC, grid_ROC, width = 10, height = 12)
 
 
 
