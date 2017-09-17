@@ -39,8 +39,8 @@ cond_names <- c("CN", "CBF")
 contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects
-out_diffcyt_DA_GLMM_supp_resolution <- vector("list", length(thresholds))
-names(out_diffcyt_DA_GLMM_supp_resolution) <- thresholds
+out_diffcyt_DA_GLMM_supp_resolution <- vector("list", length(resolution))
+names(out_diffcyt_DA_GLMM_supp_resolution) <- resolution
 
 
 
