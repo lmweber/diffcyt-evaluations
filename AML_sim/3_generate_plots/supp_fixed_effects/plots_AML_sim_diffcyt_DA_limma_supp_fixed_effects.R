@@ -119,7 +119,8 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
-      guides(color = FALSE)
+      guides(color = guide_legend(override.aes = list(linetype = linetypes))) + 
+      scale_linetype(guide = FALSE)
     
     plots_ROC[[ix]] <- p
     
