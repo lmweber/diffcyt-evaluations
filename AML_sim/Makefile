@@ -24,11 +24,13 @@ SCRIPTS_PLOTS_MAIN                       = $(wildcard $(DIR_GENERATE_PLOTS)/main
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects/*.R)
 SCRIPTS_PLOTS_SUPP_ALL_MARKERS           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_all_markers/*.R)
+SCRIPTS_PLOTS_SUPP_LINEAGE_MARKERS       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_lineage_markers/*.R)
 
 FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
 FILES_RDATA_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_RDATA)/supp_fixed_effects/*.RData)
 FILES_RDATA_SUPP_ALL_MARKERS           = $(wildcard $(DIR_RDATA)/supp_all_markers/*.RData)
+FILES_RDATA_SUPP_LINEAGE_MARKERS       = $(wildcard $(DIR_RDATA)/supp_lineage_markers/*.RData)
 
 
 
@@ -41,7 +43,8 @@ all: timestamps_plots
 
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
-                    $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS)
+                    $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
+                    $(TIMESTAMP_PLOTS_SUPP_LINEAGE_MARKERS)
 
 
 
@@ -67,6 +70,10 @@ $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS): $(SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS) $(FIL
 $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS): $(SCRIPTS_PLOTS_SUPP_ALL_MARKERS) $(FILES_RDATA_SUPP_ALL_MARKERS)
 	cd $(DIR_GENERATE_PLOTS)/supp_all_markers && bash run_all.sh
 
+# supplementary: lineage markers (CellCnn)
+$(TIMESTAMP_PLOTS_SUPP_LINEAGE_MARKERS): $(SCRIPTS_PLOTS_SUPP_LINEAGE_MARKERS) $(FILES_RDATA_SUPP_LINEAGE_MARKERS)
+	cd $(DIR_GENERATE_PLOTS)/supp_lineage_markers && Rscript $(notdir $<)
+
 
 
 # -----------
@@ -90,6 +97,10 @@ $(DIR_RDATA)/supp_fixed_effects/outputs_%.RData: $(DIR_RUN_METHODS)/supp_fixed_e
 # supplementary: all markers
 $(DIR_RDATA)/supp_all_markers/outputs_%.RData: $(DIR_RUN_METHODS)/supp_all_markers/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_all_markers && Rscript $(notdir $<)
+
+# supplementary: lineage markers (CellCnn)
+$(DIR_RDATA)/supp_lineage_markers/outputs_%.RData: $(DIR_RUN_METHODS)/supp_lineage_markers/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_lineage_markers && Rscript $(notdir $<)
 
 
 
