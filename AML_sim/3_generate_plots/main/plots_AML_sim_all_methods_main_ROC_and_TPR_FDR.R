@@ -213,7 +213,7 @@ grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
 
 # save plots
 fn_ROC <- file.path(DIR_PLOTS, "results_all_methods_main_ROC_curves.pdf")
-ggsave(fn_ROC, grid_ROC, width = 10, height = 14.14)
+ggsave(fn_ROC, grid_ROC, width = 10, height = 13)
 
 
 
@@ -249,7 +249,7 @@ grid_TPRFDR <- plot_grid(title_TPRFDR, grid_TPRFDR, ncol = 1, rel_heights = c(1,
 
 # save plots
 fn_TPRFDR <- file.path(DIR_PLOTS, "results_all_methods_main_TPR_FDR.pdf")
-ggsave(fn_TPRFDR, grid_TPRFDR, width = 10, height = 14.14)
+ggsave(fn_TPRFDR, grid_TPRFDR, width = 10, height = 13)
 
 
 
