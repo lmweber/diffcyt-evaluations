@@ -4,7 +4,7 @@
 # - data set: AML-sim
 # - plot type: ROC curves
 # 
-# - supplementary results: diffcyt-DA-limma with fixed effects for paired design
+# - supplementary results: all markers, diffcyt-DA-GLMM
 # 
 # Lukas Weber, September 2017
 ##########################################################################################
@@ -17,14 +17,14 @@ library(cowplot)
 
 # load saved results
 DIR_RDATA_MAIN <- "../../../../RData/AML_sim/main"
-DIR_RDATA_SUPP_FIXED_EFFECTS <- "../../../../RData/AML_sim/supp_fixed_effects"
+DIR_RDATA_SUPP_ALL_MARKERS <- "../../../../RData/AML_sim/supp_all_markers"
 
-load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
-load(file.path(DIR_RDATA_SUPP_FIXED_EFFECTS, "outputs_AML_sim_diffcyt_DA_limma_supp_fixed_effects.RData"))
+load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_GLMM_main.RData"))
+load(file.path(DIR_RDATA_SUPP_ALL_MARKERS, "outputs_AML_sim_diffcyt_DA_GLMM_supp_all_markers.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/AML_sim/supp_fixed_effects"
+DIR_PLOTS <- "../../../../plots/AML_sim/supp_all_markers"
 
 
 
@@ -58,8 +58,8 @@ for (th in 1:length(thresholds)) {
     ix <- (th * length(cond_names)) - (length(cond_names) - j)
     
     # create 'COBRAData' object
-    data <- list(random_effects = out_diffcyt_DA_limma_main[[th]][[j]], 
-                 fixed_effects = out_diffcyt_DA_limma_supp_fixed_effects[[th]][[j]])
+    data <- list(lineage_markers = out_diffcyt_DA_GLMM_main[[th]][[j]], 
+                 all_markers = out_diffcyt_DA_GLMM_supp_all_markers[[th]][[j]])
     
     # check
     stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
@@ -67,11 +67,11 @@ for (th in 1:length(thresholds)) {
     # note: provide all available values
     # - 'padj' is required for threshold points on TPR-FDR curves
     # - depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-    cobradata <- COBRAData(pval = data.frame(random_effects = data[["random_effects"]][, "p_vals"], 
-                                             fixed_effects = data[["fixed_effects"]][, "p_vals"]), 
-                           padj = data.frame(random_effects = data[["random_effects"]][, "p_adj"], 
-                                             fixed_effects = data[["fixed_effects"]][, "p_adj"]), 
-                           truth = data.frame(spikein = data[["random_effects"]][, "spikein"]))
+    cobradata <- COBRAData(pval = data.frame(lineage_markers = data[["lineage_markers"]][, "p_vals"], 
+                                             all_markers = data[["all_markers"]][, "p_vals"]), 
+                           padj = data.frame(lineage_markers = data[["lineage_markers"]][, "p_adj"], 
+                                             all_markers = data[["all_markers"]][, "p_adj"]), 
+                           truth = data.frame(spikein = data[["lineage_markers"]][, "spikein"]))
     
     # calculate performance scores
     # (note: can ignore warning messages when 'padj' not available)
@@ -80,8 +80,8 @@ for (th in 1:length(thresholds)) {
                                        aspects = c("roc"))
     
     # color scheme
-    #colors <- c("darkslategray1", "darkslategray1")
-    colors <- c("black", "black")
+    #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue", "darkslategray1")
+    colors <- c("deepskyblue", "deepskyblue")
     
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
@@ -101,6 +101,9 @@ for (th in 1:length(thresholds)) {
                                        colorscheme = colors, 
                                        conditionalfill = FALSE)
     
+    # re-order legend
+    cobraplot <- reorder_levels(cobraplot, levels = names(data))
+    
     
     
     # ----------
@@ -119,16 +122,17 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
-      guides(color = FALSE)
+      guides(color = guide_legend(override.aes = list(linetype = linetypes))) + 
+      scale_linetype(guide = FALSE)
     
     plots_ROC[[ix]] <- p
     
     # save individual panel plot
     p <- p + 
-      ggtitle(paste0("AML-sim, diffcyt-DA-limma, fixed effects: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
+      ggtitle(paste0("AML-sim, all markers: diffcyt-DA-GLMM: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_diffcyt_DA_limma_supp_fixed_effects_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_diffcyt_DA_GLMM_supp_all_markers_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 7.5, height = 6)
   }
 }
@@ -167,11 +171,11 @@ legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "right"))
 grid_ROC <- plot_grid(grid_ROC, legend_ROC, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
-title_ROC <- ggdraw() + draw_label("AML-sim, diffcyt-DA-limma, fixed effects for paired design: ROC curves", fontface = "bold")
+title_ROC <- ggdraw() + draw_label("AML-sim, all markers: diffcyt-DA-GLMM: ROC curves", fontface = "bold")
 grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
 
 # save plots
-fn_ROC <- file.path(DIR_PLOTS, "results_diffcyt_DA_limma_supp_fixed_effects_ROC_curves.pdf")
+fn_ROC <- file.path(DIR_PLOTS, "results_diffcyt_DA_GLMM_supp_all_markers_ROC_curves.pdf")
 ggsave(fn_ROC, grid_ROC, width = 10, height = 13)
 
 
