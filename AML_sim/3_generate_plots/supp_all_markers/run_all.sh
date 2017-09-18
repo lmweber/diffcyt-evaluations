@@ -1,0 +1,7 @@
+# shell script for Makefile: run all .R scripts in this directory
+
+Rscript plots_AML_sim_Citrus_supp_all_markers.R
+Rscript plots_AML_sim_cydar_supp_all_markers.R
+Rscript plots_AML_sim_diffcyt_DA_edgeR_supp_all_markers.R
+Rscript plots_AML_sim_diffcyt_DA_GLMM_supp_all_markers.R
+Rscript plots_AML_sim_diffcyt_DA_limma_supp_all_markers.R
