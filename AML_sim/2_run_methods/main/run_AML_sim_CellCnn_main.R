@@ -154,7 +154,7 @@ for (th in 1:length(thresholds)) {
     d_input_keep <- d_input[ix_keep]
     
     for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0(DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j])
+      path <- paste0(DIR_CELLCNN_FILES, "/data_transformed/AML_sim/", thresholds[th], "/", cond_names[j])
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
       write.FCS(d_input_keep[[i]], filename)
     }
@@ -193,11 +193,11 @@ for (th in 1:length(thresholds)) {
     
     # save as .csv files
     
-    fn_samples <- paste0(DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_samples.csv")
+    fn_samples <- paste0(DIR_CELLCNN_FILES, "/inputs/AML_sim/", thresholds[th], "/", cond_names[j], "/input_samples.csv")
     write.csv(df_samples, fn_samples, quote = FALSE, row.names = FALSE)
     
     # need to use 'write.table' to allow removing column names
-    fn_markers <- paste0(DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv")
+    fn_markers <- paste0(DIR_CELLCNN_FILES, "/inputs/AML_sim/", thresholds[th], "/", cond_names[j], "/input_markers.csv")
     write.table(df_markers, fn_markers, sep = ",", quote = FALSE, row.names = FALSE, col.names = FALSE)
     
     
@@ -223,10 +223,10 @@ for (th in 1:length(thresholds)) {
     
     # command to run CellCnn analysis
     cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
-                 paste0("-f ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
-                 paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
-                 paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
-                 paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-f ", DIR_CELLCNN_FILES, "/inputs/AML_sim/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
+                 paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
+                 paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/", thresholds[th], "/", cond_names[j], "/"), 
                  paste0(cmd_outlier, "--ncell 300 --export_csv"), 
                  #"--no_arcsinh",  ## currently not working correctly
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]))
@@ -238,17 +238,17 @@ for (th in 1:length(thresholds)) {
     
     runtime_analysis
     
-    sink(paste0(DIR_CELLCNN_FILES, "/runtime/AML_sim/main/", thresholds[th], "/", cond_names[j], "/runtime_analysis.txt"))
+    sink(paste0(DIR_CELLCNN_FILES, "/runtime/AML_sim/", thresholds[th], "/", cond_names[j], "/runtime_analysis.txt"))
     runtime_analysis
     sink()
     
     
     # command to export selected cells
     cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
-                 paste0("-f ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
-                 paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/main/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
-                 paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
-                 paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-f ", DIR_CELLCNN_FILES, "/inputs/AML_sim/", thresholds[th], "/", cond_names[j], "/input_samples.csv"), 
+                 paste0("-m ", DIR_CELLCNN_FILES, "/inputs/AML_sim/", thresholds[th], "/", cond_names[j], "/input_markers.csv"), 
+                 paste0("-i ", DIR_CELLCNN_FILES, "/data_transformed/AML_sim/", thresholds[th], "/", cond_names[j], "/"), 
+                 paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/", thresholds[th], "/", cond_names[j], "/"), 
                  paste("--group_a", "Healthy", "--group_b", cond_names[j]), 
                  "--filter_response_thres 0.3 --load_results --export_selected_cells")
     
@@ -259,7 +259,7 @@ for (th in 1:length(thresholds)) {
     
     runtime_select
     
-    sink(paste0(DIR_CELLCNN_FILES, "/runtime/AML_sim/main/", thresholds[th], "/", cond_names[j], "/runtime_select.txt"))
+    sink(paste0(DIR_CELLCNN_FILES, "/runtime/AML_sim/", thresholds[th], "/", cond_names[j], "/runtime_select.txt"))
     runtime_select
     sink()
     
@@ -289,7 +289,7 @@ for (th in 1:length(thresholds)) {
     
     # CellCnn output files
     
-    path_out <- paste0(DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/main/", thresholds[th], "/", cond_names[j], "/selected_cells")
+    path_out <- paste0(DIR_CELLCNN_FILES, "/out_CellCnn/AML_sim/", thresholds[th], "/", cond_names[j], "/selected_cells")
     
     # if no files exist, CellCnn did not run correctly; return all zeros in this case
     if (length(list.files(path_out)) == 0) {
