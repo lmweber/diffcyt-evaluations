@@ -17,12 +17,15 @@ TIMESTAMP_BENCHMARK_MAIN = $(DIR_BENCHMARK_MAIN)/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN                       = $(DIR_PLOTS)/main/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_diffcyt_DA_limma_fixed_effects/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN                       = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
+SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_diffcyt_DA_limma_fixed_effects/*.R)
 
 FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
+FILES_RDATA_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_RDATA)/supp_diffcyt_DA_limma_fixed_effects/*.RData)
 
 
 
@@ -34,7 +37,7 @@ FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering
 all: timestamps_plots
 
 .PHONY: timestamps_plots
-timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION)
+timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS)
 
 
 
@@ -52,6 +55,11 @@ $(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
 $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
 	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && bash run_all.sh
 
+# supplementary: diffcyt-DA-limma fixed effects
+$(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS): $(SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS) $(FILES_RDATA_SUPP_FIXED_EFFECTS)
+	cd $(DIR_GENERATE_PLOTS)/supp_diffcyt_DA_limma_fixed_effects && Rscript $(notdir $<)
+
+
 
 
 # -----------
@@ -67,6 +75,11 @@ $(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_B
 # supplementary: clustering resolution
 $(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp_clustering_resolution/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_clustering_resolution && Rscript $(notdir $<)
+
+# supplementary: diffcyt-DA-limma fixed effects
+$(DIR_RDATA)/supp_diffcyt_DA_limma_fixed_effects/outputs_%.RData: $(DIR_RUN_METHODS)/supp_diffcyt_DA_limma_fixed_effects/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_diffcyt_DA_limma_fixed_effects && Rscript $(notdir $<)
+
 
 
 
