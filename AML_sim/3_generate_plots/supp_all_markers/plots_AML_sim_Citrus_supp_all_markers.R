@@ -67,10 +67,8 @@ for (th in 1:length(thresholds)) {
     # note: provide all available values
     # - 'padj' is required for threshold points on TPR-FDR curves
     # - depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-    cobradata <- COBRAData(pval = data.frame(lineage_markers = data[["lineage_markers"]][, "p_vals"], 
-                                             all_markers = data[["all_markers"]][, "p_vals"]), 
-                           padj = data.frame(lineage_markers = data[["lineage_markers"]][, "p_adj"], 
-                                             all_markers = data[["all_markers"]][, "p_adj"]), 
+    cobradata <- COBRAData(score = data.frame(lineage_markers = data[["lineage_markers"]][, "scores"], 
+                                              all_markers = data[["all_markers"]][, "scores"]), 
                            truth = data.frame(spikein = data[["lineage_markers"]][, "spikein"]))
     
     # calculate performance scores
@@ -81,7 +79,7 @@ for (th in 1:length(thresholds)) {
     
     # color scheme
     #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue", "darkslategray1")
-    colors <- c("darkslategray1", "darkslategray1")
+    colors <- c("gold", "gold")
     
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
