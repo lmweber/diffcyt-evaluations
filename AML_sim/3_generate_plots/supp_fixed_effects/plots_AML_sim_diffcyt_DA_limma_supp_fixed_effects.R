@@ -81,7 +81,7 @@ for (th in 1:length(thresholds)) {
     
     # color scheme
     #colors <- c("darkslategray1", "darkslategray1")
-    colors <- c("black", "black")
+    colors <- c("darkgray", "darkgray")
     
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
