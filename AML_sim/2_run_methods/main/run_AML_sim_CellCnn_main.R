@@ -12,6 +12,8 @@
 
 # note: run from command line with 'Rscript <filename.R>'
 
+# note: CellCnn does not run correctly when using lineage markers only; use all markers for main results
+
 
 library(flowCore)
 library(SummarizedExperiment)
