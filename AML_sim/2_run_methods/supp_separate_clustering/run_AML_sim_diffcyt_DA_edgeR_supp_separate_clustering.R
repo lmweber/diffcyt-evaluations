@@ -116,7 +116,7 @@ for (th in 1:length(thresholds)) {
     ix_subset <- group_IDs %in% c("healthy", cond_names[j])
     
     d_input_sub <- d_input[ix_subset]
-    sample_IDs_sub <- droplevels(sample_IDs[ix_subset])
+    sample_IDs_sub <- sample_IDs[ix_subset]
     group_IDs_sub <- droplevels(group_IDs[ix_subset])
     patient_IDs_sub <- droplevels(patient_IDs[ix_subset])
     
