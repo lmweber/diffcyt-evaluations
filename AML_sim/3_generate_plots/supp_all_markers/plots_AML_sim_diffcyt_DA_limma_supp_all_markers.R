@@ -81,14 +81,14 @@ for (th in 1:length(thresholds)) {
     
     # color scheme
     #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue", "darkslategray1")
-    colors <- c("darkslategray1", "darkslategray1")
+    colors <- c("darkslategray1", "black")
     
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
     
     # linetypes
     #linetypes <- 1:length(data)
-    linetypes <- c("solid", "dashed")
+    linetypes <- c("solid", "dotted")
     names(linetypes) <- names(data)
     
     # x axis labels

@@ -12,8 +12,6 @@
 
 # note: run from command line with 'Rscript <filename.R>'
 
-# note: use all markers for CellCnn (using lineage markers only gives errors)
-
 
 library(flowCore)
 library(SummarizedExperiment)
@@ -105,7 +103,7 @@ for (th in 1:length(thresholds)) {
   # choose markers to use for clustering
   # ------------------------------------
   
-  cols_clustering <- cols_markers
+  cols_clustering <- cols_lineage
   
   
   # -------------------------------

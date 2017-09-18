@@ -4,7 +4,7 @@
 # - data set: AML-sim
 # - plot type: ROC curves
 # 
-# - supplementary results: all markers, Citrus
+# - supplementary results: all markers, CellCnn
 # 
 # Lukas Weber, September 2017
 ##########################################################################################
@@ -19,8 +19,8 @@ library(cowplot)
 DIR_RDATA_MAIN <- "../../../../RData/AML_sim/main"
 DIR_RDATA_SUPP_ALL_MARKERS <- "../../../../RData/AML_sim/supp_all_markers"
 
-load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_Citrus_main.RData"))
-load(file.path(DIR_RDATA_SUPP_ALL_MARKERS, "outputs_AML_sim_Citrus_supp_all_markers.RData"))
+load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_CellCnn_main.RData"))
+load(file.path(DIR_RDATA_SUPP_ALL_MARKERS, "outputs_AML_sim_CellCnn_supp_all_markers.RData"))
 
 
 # path to save plots
@@ -58,8 +58,8 @@ for (th in 1:length(thresholds)) {
     ix <- (th * length(cond_names)) - (length(cond_names) - j)
     
     # create 'COBRAData' object
-    data <- list(lineage_markers = out_Citrus_main[[th]][[j]], 
-                 all_markers = out_Citrus_supp_all_markers[[th]][[j]])
+    data <- list(lineage_markers = out_CellCnn_main[[th]][[j]], 
+                 all_markers = out_CellCnn_supp_all_markers[[th]][[j]])
     
     # check
     stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
@@ -79,7 +79,7 @@ for (th in 1:length(thresholds)) {
     
     # color scheme
     #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue", "darkslategray1")
-    colors <- c("gold", "black")
+    colors <- c("mediumorchid3", "black")
     
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
@@ -127,10 +127,10 @@ for (th in 1:length(thresholds)) {
     
     # save individual panel plot
     p <- p + 
-      ggtitle(paste0("AML-sim, all markers: Citrus: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
+      ggtitle(paste0("AML-sim, all markers: CellCnn: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_Citrus_supp_all_markers_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_CellCnn_supp_all_markers_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 7.5, height = 6)
   }
 }
@@ -169,11 +169,11 @@ legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "right"))
 grid_ROC <- plot_grid(grid_ROC, legend_ROC, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
-title_ROC <- ggdraw() + draw_label("AML-sim, all markers: Citrus: ROC curves", fontface = "bold")
+title_ROC <- ggdraw() + draw_label("AML-sim, all markers: CellCnn: ROC curves", fontface = "bold")
 grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
 
 # save plots
-fn_ROC <- file.path(DIR_PLOTS, "results_Citrus_supp_all_markers_ROC_curves.pdf")
+fn_ROC <- file.path(DIR_PLOTS, "results_CellCnn_supp_all_markers_ROC_curves.pdf")
 ggsave(fn_ROC, grid_ROC, width = 10, height = 13)
 
 
