@@ -20,8 +20,8 @@ library(SummarizedExperiment)
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
 DIR_CELLCNN <- "../../../../../CellCnn/CellCnn"
 DIR_CELLCNN_FILES <- "../../../../CellCnn_files"
-DIR_RDATA <- "../../../../RData/AML_sim/all_markers"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/all_markers"
+DIR_RDATA <- "../../../../RData/AML_sim/supp_all_markers"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_all_markers"
 
 
 
@@ -50,8 +50,8 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-out_CellCnn_all_markers <- vector("list", length(thresholds))
-names(out_CellCnn_all_markers) <- thresholds
+out_CellCnn_supp_all_markers <- vector("list", length(thresholds))
+names(out_CellCnn_supp_all_markers) <- thresholds
 
 
 
@@ -135,8 +135,8 @@ for (th in 1:length(thresholds)) {
   # note: run CellCnn separately for each condition: CN vs. healthy, CBF vs. healthy
   
   
-  out_CellCnn_all_markers[[th]] <- vector("list", length(cond_names))
-  names(out_CellCnn_all_markers[[th]]) <- cond_names
+  out_CellCnn_supp_all_markers[[th]] <- vector("list", length(cond_names))
+  names(out_CellCnn_supp_all_markers[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -334,7 +334,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_CellCnn_all_markers[[th]][[j]] <- res
+    out_CellCnn_supp_all_markers[[th]][[j]] <- res
     
   }
 }
@@ -346,7 +346,7 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_CellCnn_all_markers, file = file.path(DIR_RDATA, "outputs_AML_sim_CellCnn_all_markers.RData"))
+save(out_CellCnn_supp_all_markers, file = file.path(DIR_RDATA, "outputs_AML_sim_CellCnn_supp_all_markers.RData"))
 
 
 
@@ -355,7 +355,7 @@ save(out_CellCnn_all_markers, file = file.path(DIR_RDATA, "outputs_AML_sim_CellC
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_CellCnn_all_markers.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_CellCnn_supp_all_markers.txt"))
 sessionInfo()
 sink()
 
