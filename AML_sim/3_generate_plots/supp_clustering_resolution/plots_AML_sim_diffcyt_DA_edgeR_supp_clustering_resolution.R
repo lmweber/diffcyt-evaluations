@@ -356,7 +356,7 @@ grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
 
 # save plots
 fn_ROC <- file.path(DIR_PLOTS, "results_diffcyt_DA_edgeR_supp_clustering_resolution_ROC_curves.pdf")
-ggsave(fn_ROC, grid_ROC, width = 10, height = 12)
+ggsave(fn_ROC, grid_ROC, width = 10, height = 13)
 
 
 
