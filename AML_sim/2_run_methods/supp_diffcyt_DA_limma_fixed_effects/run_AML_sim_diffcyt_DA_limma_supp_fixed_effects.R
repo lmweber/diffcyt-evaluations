@@ -16,9 +16,9 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
-DIR_PLOTS <- "../../../../plots/AML_sim/individual_methods/diffcyt_DA_limma/supp_diffcyt_DA_limma_fixed_effects"
-DIR_RDATA <- "../../../../RData/AML_sim/supp_diffcyt_DA_limma_fixed_effects"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_diffcyt_DA_limma_fixed_effects"
+DIR_PLOTS <- "../../../../plots/AML_sim/individual_methods/diffcyt_DA_limma/supp_fixed_effects"
+DIR_RDATA <- "../../../../RData/AML_sim/supp_fixed_effects"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_fixed_effects"
 
 
 

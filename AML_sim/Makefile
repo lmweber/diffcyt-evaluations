@@ -17,15 +17,15 @@ TIMESTAMP_BENCHMARK_MAIN = $(DIR_BENCHMARK_MAIN)/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN                       = $(DIR_PLOTS)/main/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
-TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_diffcyt_DA_limma_fixed_effects/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_fixed_effects/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN                       = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
-SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_diffcyt_DA_limma_fixed_effects/*.R)
+SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects/*.R)
 
 FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
-FILES_RDATA_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_RDATA)/supp_diffcyt_DA_limma_fixed_effects/*.RData)
+FILES_RDATA_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_RDATA)/supp_fixed_effects/*.RData)
 
 
 
@@ -57,7 +57,7 @@ $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_R
 
 # supplementary: diffcyt-DA-limma fixed effects
 $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS): $(SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS) $(FILES_RDATA_SUPP_FIXED_EFFECTS)
-	cd $(DIR_GENERATE_PLOTS)/supp_diffcyt_DA_limma_fixed_effects && Rscript $(notdir $<)
+	cd $(DIR_GENERATE_PLOTS)/supp_fixed_effects && Rscript $(notdir $<)
 
 
 
@@ -77,8 +77,8 @@ $(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp
 	cd $(DIR_RUN_METHODS)/supp_clustering_resolution && Rscript $(notdir $<)
 
 # supplementary: diffcyt-DA-limma fixed effects
-$(DIR_RDATA)/supp_diffcyt_DA_limma_fixed_effects/outputs_%.RData: $(DIR_RUN_METHODS)/supp_diffcyt_DA_limma_fixed_effects/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-	cd $(DIR_RUN_METHODS)/supp_diffcyt_DA_limma_fixed_effects && Rscript $(notdir $<)
+$(DIR_RDATA)/supp_fixed_effects/outputs_%.RData: $(DIR_RUN_METHODS)/supp_fixed_effects/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_fixed_effects && Rscript $(notdir $<)
 
 
 
