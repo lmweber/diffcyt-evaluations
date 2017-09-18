@@ -52,7 +52,8 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESO
 # note: separate rule for each set of results (otherwise dependencies get too complex)
 
 # main results
-$(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
+# note: also depends on script and RData file for 'all markers' (since CellCnn gives poor results when using lineage markers)
+$(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN) $(SCRIPTS_PLOTS_SUPP_ALL_MARKERS) $(FILES_RDATA_SUPP_ALL_MARKERS)
 	cd $(DIR_GENERATE_PLOTS)/main && bash run_all.sh
 
 # supplementary: clustering resolution
