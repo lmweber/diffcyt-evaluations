@@ -200,12 +200,12 @@ for (th in 1:length(thresholds)) {
     rowData(res)
     
     # sort to show top (most highly significant) clusters first
-    res_sorted <- rowData(res)[order(rowData(res)$FDR), ]
+    res_sorted <- rowData(res)[order(rowData(res)$adj.P.Val), ]
     print(head(res_sorted, 10))
     #View(as.data.frame(res_sorted))
     
     # number of significant DA clusters
-    print(table(res_sorted$FDR <= 0.05))
+    print(table(res_sorted$adj.P.Val <= 0.05))
     
     
     
@@ -242,8 +242,8 @@ for (th in 1:length(thresholds)) {
     
     ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
     
-    p_vals_clusters <- rowData(res)$PValue
-    p_adj_clusters <- rowData(res)$FDR
+    p_vals_clusters <- rowData(res)$P.Value
+    p_adj_clusters <- rowData(res)$adj.P.Val
     
     p_vals_cells <- p_vals_clusters[ix_match]
     p_adj_cells <- p_adj_clusters[ix_match]
