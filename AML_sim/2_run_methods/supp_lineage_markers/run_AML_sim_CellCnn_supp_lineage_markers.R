@@ -21,7 +21,7 @@ library(SummarizedExperiment)
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
 DIR_CELLCNN <- "../../../../../CellCnn/CellCnn"
-DIR_CELLCNN_FILES <- "../../../../CellCnn_files/supp_lineage_markers"
+DIR_CELLCNN_FILES <- "../../../../CellCnn_files/AML_sim/supp_lineage_markers"
 DIR_RDATA <- "../../../../RData/AML_sim/supp_lineage_markers"
 DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_lineage_markers"
 
