@@ -19,18 +19,21 @@ TIMESTAMP_PLOTS_MAIN                       = $(DIR_PLOTS)/main/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_fixed_effects/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_ALL_MARKERS           = $(DIR_PLOTS)/supp_all_markers/timestamp.txt
+# note no separate plots required for 'lineage markers'
 TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(DIR_PLOTS)/supp_separate_clustering/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN                       = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects/*.R)
 SCRIPTS_PLOTS_SUPP_ALL_MARKERS           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_all_markers/*.R)
+SCRIPTS_PLOTS_SUPP_LINEAGE_MARKERS       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_lineage_markers/*.R)
 SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_separate_clustering/*.R)
 
 FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
 FILES_RDATA_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_RDATA)/supp_fixed_effects/*.RData)
 FILES_RDATA_SUPP_ALL_MARKERS           = $(wildcard $(DIR_RDATA)/supp_all_markers/*.RData)
+FILES_RDATA_SUPP_LINEAGE_MARKERS       = $(wildcard $(DIR_RDATA)/supp_lineage_markers/*.RData)
 FILES_RDATA_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_RDATA)/supp_separate_clustering/*.RData)
 
 
@@ -43,9 +46,11 @@ FILES_RDATA_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_RDATA)/supp_separate_c
 all: timestamps_plots
 
 .PHONY: timestamps_plots
-timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
-                    $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
-                    $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING)
+timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) \
+                  $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
+                  $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) \
+                  $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
+                  $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING)
 
 
 
@@ -56,8 +61,7 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESO
 # note: separate rule for each set of results (otherwise dependencies get too complex)
 
 # main results
-# note: also depends on script and RData file for 'all markers' (since CellCnn gives poor results when using lineage markers)
-$(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN) $(SCRIPTS_PLOTS_SUPP_ALL_MARKERS) $(FILES_RDATA_SUPP_ALL_MARKERS)
+$(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main && bash run_all.sh
 
 # supplementary: clustering resolution
@@ -69,7 +73,8 @@ $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS): $(SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS) $(FIL
 	cd $(DIR_GENERATE_PLOTS)/supp_fixed_effects && bash run_all.sh
 
 # supplementary: all markers
-$(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS): $(SCRIPTS_PLOTS_SUPP_ALL_MARKERS) $(FILES_RDATA_SUPP_ALL_MARKERS)
+# (note: also depends on 'lineage markers' since CellCnn uses 'all markers' for main results)
+$(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS): $(SCRIPTS_PLOTS_SUPP_ALL_MARKERS) $(FILES_RDATA_SUPP_ALL_MARKERS) $(SCRIPTS_PLOTS_SUPP_LINEAGE_MARKERS) $(FILES_RDATA_SUPP_LINEAGE_MARKERS)
 	cd $(DIR_GENERATE_PLOTS)/supp_all_markers && bash run_all.sh
 
 # supplementary: separate_clustering
@@ -100,6 +105,10 @@ $(DIR_RDATA)/supp_fixed_effects/outputs_%.RData: $(DIR_RUN_METHODS)/supp_fixed_e
 $(DIR_RDATA)/supp_all_markers/outputs_%.RData: $(DIR_RUN_METHODS)/supp_all_markers/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_all_markers && Rscript $(notdir $<)
 
+# supplementary: lineage markers
+$(DIR_RDATA)/supp_lineage_markers/outputs_%.RData: $(DIR_RUN_METHODS)/supp_lineage_markers/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_lineage_markers && Rscript $(notdir $<)
+
 # supplementary: separate clustering
 $(DIR_RDATA)/supp_separate_clustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_separate_clustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_separate_clustering && Rscript $(notdir $<)
@@ -113,5 +122,6 @@ $(DIR_RDATA)/supp_separate_clustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_s
 # generate simulated data files
 $(TIMESTAMP_BENCHMARK_MAIN): $(DIR_PREPARE_DATA)/prepare_data_AML_sim_main.R
 	cd $(DIR_PREPARE_DATA) && Rscript $(notdir $<)
+
 
 
