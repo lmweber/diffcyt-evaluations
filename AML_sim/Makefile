@@ -19,7 +19,7 @@ TIMESTAMP_PLOTS_MAIN                       = $(DIR_PLOTS)/main/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_fixed_effects/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_ALL_MARKERS           = $(DIR_PLOTS)/supp_all_markers/timestamp.txt
-# note no separate plots required for 'lineage markers'
+# note no separate plots for 'supp_lineage_markers' (included in 'supp_all_markers')
 TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(DIR_PLOTS)/supp_separate_clustering/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN                       = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
