@@ -15,7 +15,7 @@ library(citrus)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
-DIR_CITRUS_FILES <- "../../../../Citrus_files"
+DIR_CITRUS_FILES <- "../../../../Citrus_files/AML_sim/main"
 DIR_RDATA <- "../../../../RData/AML_sim/main"
 DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 
@@ -144,7 +144,7 @@ for (th in 1:length(thresholds)) {
     d_input_keep <- d_input[ix_keep]
     
     for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0(DIR_CITRUS_FILES, "/data_transformed/AML_sim/", thresholds[th], "/", cond_names[j])
+      path <- paste0(DIR_CITRUS_FILES, "/", thresholds[th], "/", cond_names[j], "/data_transformed")
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
       write.FCS(d_input_keep[[i]], filename)
     }
@@ -179,7 +179,7 @@ for (th in 1:length(thresholds)) {
     scaleColumns <- NULL
     
     # directories
-    dataDirectory <- paste0(DIR_CITRUS_FILES, "/data_transformed/AML_sim/", thresholds[th], "/", cond_names[j])
+    dataDirectory <- paste0(DIR_CITRUS_FILES, "/", thresholds[th], "/", cond_names[j], "/data_transformed")
     outputDirectory <- file.path(dataDirectory, "citrusOutput")
     
     # files
