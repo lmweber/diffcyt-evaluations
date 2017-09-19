@@ -19,16 +19,19 @@ TIMESTAMP_PLOTS_MAIN                       = $(DIR_PLOTS)/main/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_fixed_effects/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_ALL_MARKERS           = $(DIR_PLOTS)/supp_all_markers/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(DIR_PLOTS)/supp_separate_clustering/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN                       = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects/*.R)
 SCRIPTS_PLOTS_SUPP_ALL_MARKERS           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_all_markers/*.R)
+SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_separate_clustering/*.R)
 
 FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
 FILES_RDATA_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_RDATA)/supp_fixed_effects/*.RData)
 FILES_RDATA_SUPP_ALL_MARKERS           = $(wildcard $(DIR_RDATA)/supp_all_markers/*.RData)
+FILES_RDATA_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_RDATA)/supp_separate_clustering/*.RData)
 
 
 
@@ -41,7 +44,8 @@ all: timestamps_plots
 
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
-                    $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS)
+                    $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
+                    $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING)
 
 
 
@@ -68,6 +72,10 @@ $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS): $(SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS) $(FIL
 $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS): $(SCRIPTS_PLOTS_SUPP_ALL_MARKERS) $(FILES_RDATA_SUPP_ALL_MARKERS)
 	cd $(DIR_GENERATE_PLOTS)/supp_all_markers && bash run_all.sh
 
+# supplementary: separate_clustering
+$(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING): $(SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING) $(FILES_RDATA_SUPP_SEPARATE_CLUSTERING)
+	cd $(DIR_GENERATE_PLOTS)/supp_separate_clustering && bash run_all.sh
+
 
 
 # -----------
@@ -91,6 +99,10 @@ $(DIR_RDATA)/supp_fixed_effects/outputs_%.RData: $(DIR_RUN_METHODS)/supp_fixed_e
 # supplementary: all markers
 $(DIR_RDATA)/supp_all_markers/outputs_%.RData: $(DIR_RUN_METHODS)/supp_all_markers/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_all_markers && Rscript $(notdir $<)
+
+# supplementary: separate clustering
+$(DIR_RDATA)/supp_separate_clustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_separate_clustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_separate_clustering && Rscript $(notdir $<)
 
 
 
