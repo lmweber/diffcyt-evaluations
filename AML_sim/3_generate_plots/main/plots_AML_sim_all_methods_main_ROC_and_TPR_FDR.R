@@ -10,6 +10,9 @@
 ##########################################################################################
 
 
+# note: all methods except CellCnn use lineage markers only; CellCnn uses all markers
+
+
 library(iCOBRA)
 library(ggplot2)
 library(cowplot)
@@ -17,11 +20,8 @@ library(cowplot)
 
 # load saved results
 DIR_RDATA <- "../../../../RData/AML_sim/main"
-DIR_RDATA_SUPP_ALL_MARKERS <- "../../../../RData/AML_sim/supp_all_markers"
 
-# note: use 'all markers' results for CellCnn
-load(file.path(DIR_RDATA_SUPP_ALL_MARKERS, "outputs_AML_sim_CellCnn_supp_all_markers.RData"))
-
+load(file.path(DIR_RDATA, "outputs_AML_sim_CellCnn_main.RData"))
 load(file.path(DIR_RDATA, "outputs_AML_sim_Citrus_main.RData"))
 load(file.path(DIR_RDATA, "outputs_AML_sim_cydar_main.RData"))
 load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_main.RData"))
@@ -64,7 +64,7 @@ for (th in 1:length(thresholds)) {
     ix <- (th * length(cond_names)) - (length(cond_names) - j)
     
     # create 'COBRAData' object
-    data <- list(CellCnn = out_CellCnn_supp_all_markers[[th]][[j]], 
+    data <- list(CellCnn = out_CellCnn_main[[th]][[j]], 
                  Citrus = out_Citrus_main[[th]][[j]], 
                  cydar = out_cydar_main[[th]][[j]], 
                  diffcyt_DA_edgeR = out_diffcyt_DA_edgeR_main[[th]][[j]], 

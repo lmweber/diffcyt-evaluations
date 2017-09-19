@@ -10,6 +10,11 @@
 ##########################################################################################
 
 
+# note: CellCnn does not run correctly when using lineage markers only, so we use all
+# markers for the main results; results for lineage markers are stored in a separate
+# directory
+
+
 library(iCOBRA)
 library(ggplot2)
 library(cowplot)
@@ -17,10 +22,10 @@ library(cowplot)
 
 # load saved results
 DIR_RDATA_MAIN <- "../../../../RData/AML_sim/main"
-DIR_RDATA_SUPP_ALL_MARKERS <- "../../../../RData/AML_sim/supp_all_markers"
+DIR_RDATA_SUPP_LINEAGE_MARKERS <- "../../../../RData/AML_sim/supp_lineage_markers"
 
 load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_CellCnn_main.RData"))
-load(file.path(DIR_RDATA_SUPP_ALL_MARKERS, "outputs_AML_sim_CellCnn_supp_all_markers.RData"))
+load(file.path(DIR_RDATA_SUPP_LINEAGE_MARKERS, "outputs_AML_sim_CellCnn_supp_lineage_markers.RData"))
 
 
 # path to save plots
@@ -58,8 +63,8 @@ for (th in 1:length(thresholds)) {
     ix <- (th * length(cond_names)) - (length(cond_names) - j)
     
     # create 'COBRAData' object
-    data <- list(lineage_markers = out_CellCnn_main[[th]][[j]], 
-                 all_markers = out_CellCnn_supp_all_markers[[th]][[j]])
+    data <- list(lineage_markers = out_CellCnn_supp_lineage_markers[[th]][[j]], 
+                 all_markers = out_CellCnn_main[[th]][[j]])
     
     # check
     stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
