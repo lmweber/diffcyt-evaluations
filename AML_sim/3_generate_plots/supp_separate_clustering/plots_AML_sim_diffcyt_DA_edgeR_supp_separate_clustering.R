@@ -1,9 +1,9 @@
 ##########################################################################################
 # Generate plots
 # 
-# - method: diffcyt-DA-edgeR
 # - data set: AML-sim
 # - plot type: ROC curves
+# - method: diffcyt-DA-edgeR
 # 
 # - supplementary results: separate clustering for each condition
 # 

@@ -3,6 +3,7 @@
 # 
 # - data set: AML-sim
 # - plot type: ROC curves
+# - method: diffcyt-DA-limma
 # 
 # - supplementary results: diffcyt-DA-limma with fixed effects for paired design
 # 

@@ -3,8 +3,9 @@
 # 
 # - data set: AML-sim
 # - plot type: ROC and TPR-FDR curves
+# - method: all methods
 # 
-# - main results, all methods
+# - main results
 # 
 # Lukas Weber, September 2017
 ##########################################################################################

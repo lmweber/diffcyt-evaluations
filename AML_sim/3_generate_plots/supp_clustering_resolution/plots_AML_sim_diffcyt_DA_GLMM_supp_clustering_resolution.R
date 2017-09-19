@@ -2,9 +2,10 @@
 # Generate plots
 # 
 # - data set: AML-sim
-# - plot type: ROC curves; pAUC values
+# - plot type: ROC curves and pAUC values
+# - method: diffcyt-DA-GLMM
 # 
-# - supplementary: clustering resolution; diffcyt-DA-GLMM
+# - supplementary results: clustering resolution
 # 
 # Lukas Weber, September 2017
 ##########################################################################################

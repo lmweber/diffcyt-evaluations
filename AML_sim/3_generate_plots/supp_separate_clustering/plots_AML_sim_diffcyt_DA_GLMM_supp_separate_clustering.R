@@ -1,9 +1,9 @@
 ##########################################################################################
 # Generate plots
 # 
-# - method: diffcyt-DA-GLMM
 # - data set: AML-sim
 # - plot type: ROC curves
+# - method: diffcyt-DA-GLMM
 # 
 # - supplementary results: separate clustering for each condition
 # 

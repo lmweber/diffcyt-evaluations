@@ -3,8 +3,9 @@
 # 
 # - data set: AML-sim
 # - plot type: ROC curves
+# - method: cydar
 # 
-# - supplementary results: all markers, cydar
+# - supplementary results: all markers
 # 
 # Lukas Weber, September 2017
 ##########################################################################################
@@ -177,6 +178,7 @@ grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
 # save plots
 fn_ROC <- file.path(DIR_PLOTS, "results_cydar_supp_all_markers_ROC_curves.pdf")
 ggsave(fn_ROC, grid_ROC, width = 10, height = 13)
+
 
 
 
