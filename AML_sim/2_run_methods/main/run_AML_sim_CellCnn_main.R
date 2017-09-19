@@ -105,7 +105,7 @@ for (th in 1:length(thresholds)) {
   # choose markers to use for clustering
   # ------------------------------------
   
-  cols_clustering <- cols_lineage
+  cols_clustering <- cols_markers
   
   
   # -------------------------------
