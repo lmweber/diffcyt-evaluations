@@ -128,7 +128,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
-      guides(color = guide_legend(override.aes = list(linetype = linetypes)))
+      guides(color = guide_legend("random seed"), linetype = guide_legend("random seed"))
     
     plots_ROC[[ix]] <- p
     

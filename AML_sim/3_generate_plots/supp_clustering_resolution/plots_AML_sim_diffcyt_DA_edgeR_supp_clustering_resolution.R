@@ -131,7 +131,8 @@ for (th in 1:length(thresholds)) {
       ylab("True positive rate") + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
-      theme(strip.text.x = element_blank())
+      theme(strip.text.x = element_blank()) + 
+      guides(color = guide_legend("n_clusters"))
     
     plots_ROC[[ix]] <- p
     

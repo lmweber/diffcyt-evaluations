@@ -117,6 +117,9 @@ for (th in 1:length(thresholds)) {
                                        colorscheme = colors, 
                                        conditionalfill = FALSE)
     
+    # re-order legend
+    cobraplot <- reorder_levels(cobraplot, levels = names(data))
+    
     
     
     # ----------
@@ -133,7 +136,8 @@ for (th in 1:length(thresholds)) {
       ylab("True positive rate") + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
-      theme(strip.text.x = element_blank())
+      theme(strip.text.x = element_blank()) + 
+      guides(color = guide_legend("method"))
     
     plots_ROC[[ix]] <- p
     
@@ -164,7 +168,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
-      guides(color = guide_legend(override.aes = list(shape = NA)), shape = FALSE)
+      guides(color = guide_legend("method", override.aes = list(shape = NA)), shape = FALSE)
     
     plots_TPRFDR[[ix]] <- p
     
