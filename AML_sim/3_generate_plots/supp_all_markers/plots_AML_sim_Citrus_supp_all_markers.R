@@ -79,7 +79,7 @@ for (th in 1:length(thresholds)) {
                                        aspects = c("roc"))
     
     # color scheme
-    #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue", "darkslategray1")
+    #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue", "darkslategray2")
     colors <- c("gold", "gold")
     
     colors <- colors[1:length(data)]
