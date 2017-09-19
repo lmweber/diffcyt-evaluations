@@ -106,10 +106,6 @@ for (th in 1:length(thresholds)) {
     colors <- colors[1:length(data)]
     names(colors) <- names(data)
     
-    # linetypes
-    #linetypes <- 1:length(data)
-    #names(linetypes) <- names(data)
-    
     # axis ranges
     x_range <- c(0, 1)
     y_range <- c(0, 1)
@@ -130,7 +126,6 @@ for (th in 1:length(thresholds)) {
     
     # with short title for multi-panel plot
     p <- p + 
-      #scale_linetype_manual(values = linetypes) + 
       coord_fixed(xlim = x_range, ylim = y_range) + 
       xlab("False positive rate") + 
       ylab("True positive rate") + 

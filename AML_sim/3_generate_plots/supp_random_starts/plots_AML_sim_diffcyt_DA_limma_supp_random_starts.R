@@ -94,8 +94,7 @@ for (th in 1:length(thresholds)) {
     names(colors) <- names(data)
     
     # linetypes
-    #linetypes <- 1:length(data)
-    linetypes <- c("solid", "dotted", "dotted", "dotted")
+    linetypes <- c("solid", "dashed", "dashed", "dashed")
     names(linetypes) <- names(data)
     
     # x axis labels
@@ -122,15 +121,14 @@ for (th in 1:length(thresholds)) {
     
     # with short title for multi-panel plot
     p <- p + 
-      scale_linetype_manual(values = linetypes) + 
+      scale_linetype_manual(values = linetypes, guide = FALSE) + 
       coord_fixed() + 
       xlab("False positive rate") + 
       ylab("True positive rate") + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
-      guides(color = guide_legend(override.aes = list(linetype = linetypes))) + 
-      scale_linetype(guide = FALSE)
+      guides(color = guide_legend(override.aes = list(linetype = linetypes)))
     
     plots_ROC[[ix]] <- p
     
