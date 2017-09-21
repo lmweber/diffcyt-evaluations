@@ -52,8 +52,8 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-out_CellCnn_supp_lineage_markers <- vector("list", length(thresholds))
-names(out_CellCnn_supp_lineage_markers) <- thresholds
+out_CellCnn_supp_lineage_markers <- runtime_CellCnn_supp_lineage_markers <- vector("list", length(thresholds))
+names(out_CellCnn_supp_lineage_markers) <- runtime_CellCnn_supp_lineage_markers <- thresholds
 
 
 
@@ -236,12 +236,6 @@ for (th in 1:length(thresholds)) {
       system(cmd)
     )
     
-    runtime_analysis
-    
-    sink(paste0(DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/runtime/runtime_analysis.txt"))
-    runtime_analysis
-    sink()
-    
     
     # command to export selected cells
     cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
@@ -257,11 +251,12 @@ for (th in 1:length(thresholds)) {
       system(cmd)
     )
     
-    runtime_select
     
-    sink(paste0(DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/runtime/runtime_select.txt"))
-    runtime_select
-    sink()
+    # runtime
+    runtime_total <- runtime_analysis[["elapsed"]] + runtime_select[["elapsed"]]
+    print(runtime_total)
+    
+    runtime_CellCnn_supp_lineage_markers[[th]][[j]] <- runtime_total
     
     
     
@@ -348,7 +343,8 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_CellCnn_supp_lineage_markers, file = file.path(DIR_RDATA, "outputs_AML_sim_CellCnn_supp_lineage_markers.RData"))
+save(out_CellCnn_supp_lineage_markers, runtime_CellCnn_supp_lineage_markers, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_CellCnn_supp_lineage_markers.RData"))
 
 
 

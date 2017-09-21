@@ -39,16 +39,16 @@ cond_names <- c("CN", "CBF")
 contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects
-out_diffcyt_DA_limma_supp_resolution <- vector("list", length(resolution))
-names(out_diffcyt_DA_limma_supp_resolution) <- resolution
+out_diffcyt_DA_limma_supp_resolution <- runtime_diffcyt_DA_limma_supp_resolution <- vector("list", length(resolution))
+names(out_diffcyt_DA_limma_supp_resolution) <- runtime_diffcyt_DA_limma_supp_resolution <- resolution
 
 
 
 
 for (k in 1:length(resolution)) {
   
-  out_diffcyt_DA_limma_supp_resolution[[k]] <- vector("list", length(thresholds))
-  names(out_diffcyt_DA_limma_supp_resolution[[k]]) <- thresholds
+  out_diffcyt_DA_limma_supp_resolution[[k]] <- runtime_diffcyt_DA_limma_supp_resolution[[k]] <- vector("list", length(thresholds))
+  names(out_diffcyt_DA_limma_supp_resolution[[k]]) <- names(runtime_diffcyt_DA_limma_supp_resolution[[k]]) <- thresholds
   
   
   for (th in 1:length(thresholds)) {
@@ -111,37 +111,40 @@ for (k in 1:length(resolution)) {
     # pre-processing steps
     # --------------------
     
-    # prepare data into required format
-    d_se <- prepareData(d_input, sample_IDs, group_IDs, 
-                        cols_markers, cols_clustering, cols_func)
-    
-    colnames(d_se)[cols_clustering]
-    colnames(d_se)[cols_func]
-    
-    # transform data
-    d_se <- transformData(d_se, cofactor = 5)
-    
-    # clustering
-    # (note: clustering all samples together)
-    seed <- 123
-    runtime_clustering <- system.time(
+    runtime_preprocessing <- system.time({
+      
+      # prepare data into required format
+      d_se <- prepareData(d_input, sample_IDs, group_IDs, 
+                          cols_markers, cols_clustering, cols_func)
+      
+      colnames(d_se)[cols_clustering]
+      colnames(d_se)[cols_func]
+      
+      # transform data
+      d_se <- transformData(d_se, cofactor = 5)
+      
+      # clustering
+      # (runtime: ~60 sec for 30x30 clusters)
+      # (note: clustering all samples together)
+      seed <- 123
       d_se <- generateClusters(d_se, xdim = resolution[k], ydim = resolution[k], seed = seed)
-    )
+      
+      length(table(rowData(d_se)$cluster))  # number of clusters
+      nrow(rowData(d_se))                   # number of cells
+      sum(table(rowData(d_se)$cluster))
+      min(table(rowData(d_se)$cluster))     # size of smallest cluster
+      max(table(rowData(d_se)$cluster))     # size of largest cluster
+      
+      # calculate cluster cell counts
+      d_counts <- calcCounts(d_se)
+      
+      dim(d_counts)
+      rowData(d_counts)
+      length(assays(d_counts))
+      
+    })
     
-    runtime_clustering  # ~60 sec (30x30 clusters)
-    
-    length(table(rowData(d_se)$cluster))  # number of clusters
-    nrow(rowData(d_se))                   # number of cells
-    sum(table(rowData(d_se)$cluster))
-    min(table(rowData(d_se)$cluster))     # size of smallest cluster
-    max(table(rowData(d_se)$cluster))     # size of largest cluster
-    
-    # calculate cluster cell counts
-    d_counts <- calcCounts(d_se)
-    
-    dim(d_counts)
-    rowData(d_counts)
-    length(assays(d_counts))
+    # following steps not included in runtime since not required for differential testing
     
     # calculate cluster medians by sample
     d_medians <- calcMedians(d_se)
@@ -163,28 +166,28 @@ for (k in 1:length(resolution)) {
     
     # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
     
-    out_diffcyt_DA_limma_supp_resolution[[k]][[th]] <- vector("list", length(cond_names))
-    names(out_diffcyt_DA_limma_supp_resolution[[k]][[th]]) <- cond_names
+    out_diffcyt_DA_limma_supp_resolution[[k]][[th]] <- runtime_diffcyt_DA_limma_supp_resolution[[k]][[th]] <- vector("list", length(cond_names))
+    names(out_diffcyt_DA_limma_supp_resolution[[k]][[th]]) <- names(runtime_diffcyt_DA_limma_supp_resolution[[k]][[th]]) <- cond_names
     
     
     for (j in 1:length(cond_names)) {
       
-      # set up design matrix
-      design <- createDesignMatrix(group_IDs)
-      design
-      
-      # set up contrast matrix
-      contrast <- createContrast(group_IDs, contrast = contrasts_list[[j]])
-      contrast
-      
-      # run tests
-      # - note: include 'patient_IDs' as random effects using limma 'duplicateCorrelation' methodology
-      runtime <- system.time(
+      runtime_j <- system.time({
+        
+        # set up design matrix
+        design <- createDesignMatrix(group_IDs)
+        design
+        
+        # set up contrast matrix
+        contrast <- createContrast(group_IDs, contrast = contrasts_list[[j]])
+        contrast
+        
+        # run tests
+        # - note: include 'patient_IDs' as random effects using limma 'duplicateCorrelation' methodology
         res <- testDA_limma(d_counts, design, contrast, 
                             block_IDs = patient_IDs, plot = FALSE)
-      )
-      
-      print(runtime)
+        
+      })
       
       # show results
       rowData(res)
@@ -196,6 +199,12 @@ for (k in 1:length(resolution)) {
       
       # number of significant DA clusters
       print(table(res_sorted$adj.P.Val <= 0.05))
+      
+      # runtime (~2 min on laptop)
+      runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
+      print(runtime_total)
+      
+      runtime_diffcyt_DA_limma_supp_clustering_resolution[[k]][[th]][[j]] <- runtime_total
       
       
       
@@ -270,7 +279,7 @@ for (k in 1:length(resolution)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_supp_resolution, 
+save(out_diffcyt_DA_limma_supp_resolution, runtime_diffcyt_DA_limma_supp_clustering_resolution, 
      file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_clustering_resolution.RData"))
 
 
