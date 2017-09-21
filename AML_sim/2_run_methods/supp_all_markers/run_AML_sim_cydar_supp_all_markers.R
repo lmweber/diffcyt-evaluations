@@ -34,8 +34,8 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-out_cydar_supp_all_markers <- vector("list", length(thresholds))
-names(out_cydar_supp_all_markers) <- thresholds
+out_cydar_supp_all_markers <- runtime_cydar_supp_all_markers <- vector("list", length(thresholds))
+names(out_cydar_supp_all_markers) <- names(runtime_cydar_supp_all_markers) <- thresholds
 
 
 
@@ -121,51 +121,59 @@ for (th in 1:length(thresholds)) {
   # Pre-processing of intensities
   # -----------------------------
   
-  # Subset markers and convert input data to required format ('ncdfFlowSet' object)
-  
-  d_input_cydar <- lapply(d_input, function(d) {
-    e <- exprs(d)
-    e <- e[, cols_clustering]
-    flowFrame(e)
+  runtime_pre <- system.time({
+    
+    # Subset markers and convert input data to required format ('ncdfFlowSet' object)
+    
+    d_input_cydar <- lapply(d_input, function(d) {
+      e <- exprs(d)
+      e <- e[, cols_clustering]
+      flowFrame(e)
+    })
+    
+    names(d_input_cydar) <- sample_IDs
+    
+    d_input_cydar <- flowSet(d_input_cydar)
+    d_input_cydar <- ncdfFlowSet(d_input_cydar)
+    
+    
+    # Pooling cells together
+    # note: skip this since then 'prepareCellData' in next section doesn't work
+    
+    # Estimating transformation parameters
+    # note: not required here, since we already applied 'asinh' transform above
+    
+    # Gating out uninteresting cells
+    # note: not required for this data set
+    
+    # Normalizing intensities across batches
+    # note: not required (see vignette)
+    
   })
-  
-  names(d_input_cydar) <- sample_IDs
-  
-  d_input_cydar <- flowSet(d_input_cydar)
-  d_input_cydar <- ncdfFlowSet(d_input_cydar)
-  
-  
-  # Pooling cells together
-  # note: skip this since then 'prepareCellData' in next section doesn't work
-  
-  # Estimating transformation parameters
-  # note: not required here, since we already applied 'asinh' transform above
-  
-  # Gating out uninteresting cells
-  # note: not required for this data set
-  
-  # Normalizing intensities across batches
-  # note: not required (see vignette)
   
   
   # --------------------------------
   # Counting cells into hyperspheres
   # --------------------------------
   
-  set.seed(123)
-  
-  # prepare 'CyData' object
-  cd <- prepareCellData(d_input_cydar)
-  
-  # assign cells to hyperspheres
-  cd <- countCells(cd)
-  
-  # check hypersphere counts
-  head(assay(cd))
-  dim(assay(cd))
-  
-  # check hypersphere positions (median intensities)
-  head(intensities(cd))
+  runtime_count <- system.time({
+    
+    set.seed(123)
+    
+    # prepare 'CyData' object
+    cd <- prepareCellData(d_input_cydar)
+    
+    # assign cells to hyperspheres
+    cd <- countCells(cd)
+    
+    # check hypersphere counts
+    head(assay(cd))
+    dim(assay(cd))
+    
+    # check hypersphere positions (median intensities)
+    head(intensities(cd))
+    
+  })
   
   
   # --------------------------------------------------------------------------
@@ -176,35 +184,40 @@ for (th in 1:length(thresholds)) {
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
   
-  # create object
-  y <- DGEList(assay(cd), lib.size = cd$totals)
-  
-  # filtering
-  keep <- aveLogCPM(y) >= aveLogCPM(5, mean(cd$totals))
-  cd <- cd[keep, ]
-  y <- y[keep, ]
-  
-  # design matrix
-  # note: including 'patient_IDs' for paired design
-  design <- model.matrix(~ 0 + group_IDs + patient_IDs)
-  
-  # estimate dispersions and fit models
-  y <- estimateDisp(y, design)
-  fit <- glmQLFit(y, design, robust = TRUE)
+  runtime_test <- system.time({
+    
+    # create object
+    y <- DGEList(assay(cd), lib.size = cd$totals)
+    
+    # filtering
+    keep <- aveLogCPM(y) >= aveLogCPM(5, mean(cd$totals))
+    cd <- cd[keep, ]
+    y <- y[keep, ]
+    
+    # design matrix
+    # note: including 'patient_IDs' for paired design
+    design <- model.matrix(~ 0 + group_IDs + patient_IDs)
+    
+    # estimate dispersions and fit models
+    y <- estimateDisp(y, design)
+    fit <- glmQLFit(y, design, robust = TRUE)
+    
+  })
   
   
   # set up contrasts and test separately for each condition
   
-  out_cydar_supp_all_markers[[th]] <- vector("list", length(cond_names))
-  names(out_cydar_supp_all_markers[[th]]) <- cond_names
+  out_cydar_supp_all_markers[[th]] <- runtime_cydar_supp_all_markers[[th]] <- vector("list", length(cond_names))
+  names(out_cydar_supp_all_markers[[th]]) <- names(runtime_cydar_supp_all_markers[[th]]) <- cond_names
   
   for (j in 1:length(cond_names)) {
     
-    # set up contrast
-    contr_string <- paste0("group_IDs", cond_names[j], " - group_IDshealthy")
-    contrast <- makeContrasts(contr_string, levels = design)
-    
-    runtime_cydar <- system.time({
+    runtime_j <- system.time({
+      
+      # set up contrast
+      contr_string <- paste0("group_IDs", cond_names[j], " - group_IDshealthy")
+      contrast <- makeContrasts(contr_string, levels = design)
+      
       # differential testing
       res_cydar <- glmQLFTest(fit, contrast = contrast)
       
@@ -213,13 +226,12 @@ for (th in 1:length(thresholds)) {
       
       # controlling the spatial false discovery rate (FDR)
       q_vals <- spatialFDR(intensities(cd), res_cydar$table$PValue)
+      
     })
     
     # significant hyperspheres
     is.sig <- q_vals <= 0.9
     print(summary(is.sig))
-    
-    print(runtime_cydar)
     
     # # plots
     # sig.coords <- intensities(cd)[is.sig, ]
@@ -235,6 +247,12 @@ for (th in 1:length(thresholds)) {
     #                     irange=limits[, i], main=all.markers[i])
     # }
     # par(mfrow = c(1, 1))
+    
+    # runtime
+    runtime_total <- runtime_pre[["elapsed"]] + runtime_count[["elapsed"]] + runtime_test[["elapsed"]] + runtime_j[["elapsed"]]
+    print(runtime_total)
+    
+    runtime_cydar_supp_all_markers[[th]][[j]] <- runtime_total
     
     
     
@@ -324,7 +342,8 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_cydar_supp_all_markers, file = file.path(DIR_RDATA, "outputs_AML_sim_cydar_supp_all_markers.RData"))
+save(out_cydar_supp_all_markers, runtime_cydar_supp_all_markers, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_cydar_supp_all_markers.RData"))
 
 
 

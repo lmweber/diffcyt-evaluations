@@ -115,13 +115,10 @@ for (th in 1:length(thresholds)) {
     d_se <- transformData(d_se, cofactor = 5)
     
     # clustering
+    # (runtime: ~60 sec for 30x30 clusters)
     # (note: clustering all samples together)
     seed <- 123
-    runtime_clustering <- system.time(
-      d_se <- generateClusters(d_se, xdim = 30, ydim = 30, seed = seed)
-    )
-    
-    runtime_clustering  # ~60 sec (30x30 clusters)
+    d_se <- generateClusters(d_se, xdim = 30, ydim = 30, seed = seed)
     
     length(table(rowData(d_se)$cluster))  # number of clusters
     nrow(rowData(d_se))                   # number of cells

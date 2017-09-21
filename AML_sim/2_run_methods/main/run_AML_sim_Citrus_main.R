@@ -220,7 +220,7 @@ for (th in 1:length(thresholds)) {
     # Citrus plots
     plot(results, outputDirectory)
     
-    # runtime (~2 min on laptop)
+    # runtime
     runtime_total <- runtime_Citrus[["elapsed"]]
     print(runtime_total)
     

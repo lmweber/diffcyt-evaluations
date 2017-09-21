@@ -46,8 +46,8 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-out_Citrus_supp_all_markers <- vector("list", length(thresholds))
-names(out_Citrus_supp_all_markers) <- thresholds
+out_Citrus_supp_all_markers <- runtime_Citrus_supp_all_markers <- vector("list", length(thresholds))
+names(out_Citrus_supp_all_markers) <- names(runtime_Citrus_supp_all_markers) <- thresholds
 
 
 
@@ -125,8 +125,8 @@ for (th in 1:length(thresholds)) {
   
   # using modified code from auto-generated file 'runCitrus.R'
   
-  out_Citrus_supp_all_markers[[th]] <- vector("list", length(cond_names))
-  names(out_Citrus_supp_all_markers[[th]]) <- cond_names
+  out_Citrus_supp_all_markers[[th]] <- runtime_Citrus_supp_all_markers[[th]] <- vector("list", length(cond_names))
+  names(out_Citrus_supp_all_markers[[th]]) <- names(runtime_Citrus_supp_all_markers[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -191,11 +191,12 @@ for (th in 1:length(thresholds)) {
     
     # run Citrus
     
-    Rclusterpp.setThreads(n_cores)
-    
-    set.seed(123)
-    
-    runtime_Citrus <- system.time(
+    runtime_Citrus <- system.time({
+      
+      Rclusterpp.setThreads(n_cores)
+      
+      set.seed(123)
+      
       results <- citrus.full(
         fileList = fileList, 
         labels = labels, 
@@ -213,12 +214,17 @@ for (th in 1:length(thresholds)) {
         scaleColumns = scaleColumns, 
         medianColumns = medianColumns
       )
-    )
-    
-    print(runtime_Citrus)  ## ~2 minutes on laptop
+      
+    })
     
     # Citrus plots
     plot(results, outputDirectory)
+    
+    # runtime
+    runtime_total <- runtime_Citrus[["elapsed"]]
+    print(runtime_total)
+    
+    runtime_Citrus_supp_all_markers[[th]][[j]] <- runtime_total
     
     
     
@@ -315,7 +321,8 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_Citrus_supp_all_markers, file = file.path(DIR_RDATA, "outputs_AML_sim_Citrus_supp_all_markers.RData"))
+save(out_Citrus_supp_all_markers, runtime_Citrus_supp_all_markers, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_Citrus_supp_all_markers.RData"))
 
 
 

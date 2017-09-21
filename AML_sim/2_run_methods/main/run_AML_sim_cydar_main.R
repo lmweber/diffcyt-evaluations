@@ -121,7 +121,7 @@ for (th in 1:length(thresholds)) {
   # Pre-processing of intensities
   # -----------------------------
   
-  runtime_preprocessing <- system.time({
+  runtime_pre <- system.time({
     
     # Subset markers and convert input data to required format ('ncdfFlowSet' object)
     
@@ -156,7 +156,7 @@ for (th in 1:length(thresholds)) {
   # Counting cells into hyperspheres
   # --------------------------------
   
-  runtime_counting <- system.time({
+  runtime_count <- system.time({
     
     set.seed(123)
     
@@ -249,7 +249,7 @@ for (th in 1:length(thresholds)) {
     # par(mfrow = c(1, 1))
     
     # runtime
-    runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_counting[["elapsed"]] + runtime_test[["elapsed"]] + runtime_j[["elapsed"]]
+    runtime_total <- runtime_pre[["elapsed"]] + runtime_count[["elapsed"]] + runtime_test[["elapsed"]] + runtime_j[["elapsed"]]
     print(runtime_total)
     
     runtime_cydar_main[[th]][[j]] <- runtime_total
