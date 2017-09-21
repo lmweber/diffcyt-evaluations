@@ -46,8 +46,8 @@ thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
 cond_names <- c("CN", "CBF")
 
 # lists to store objects
-out_Citrus_main <- vector("list", length(thresholds))
-names(out_Citrus_main) <- thresholds
+out_Citrus_main <- runtime_Citrus_main <- vector("list", length(thresholds))
+names(out_Citrus_main) <- names(runtime_Citrus_main) <- thresholds
 
 
 
@@ -125,8 +125,8 @@ for (th in 1:length(thresholds)) {
   
   # using modified code from auto-generated file 'runCitrus.R'
   
-  out_Citrus_main[[th]] <- vector("list", length(cond_names))
-  names(out_Citrus_main[[th]]) <- cond_names
+  out_Citrus_main[[th]] <- runtime_Citrus_main[[th]] <- vector("list", length(cond_names))
+  names(out_Citrus_main[[th]]) <- names(runtime_Citrus_main[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -191,11 +191,12 @@ for (th in 1:length(thresholds)) {
     
     # run Citrus
     
-    Rclusterpp.setThreads(n_cores)
-    
-    set.seed(123)
-    
-    runtime_Citrus <- system.time(
+    runtime_Citrus <- system.time({
+      
+      Rclusterpp.setThreads(n_cores)
+      
+      set.seed(123)
+      
       results <- citrus.full(
         fileList = fileList, 
         labels = labels, 
@@ -213,12 +214,17 @@ for (th in 1:length(thresholds)) {
         scaleColumns = scaleColumns, 
         medianColumns = medianColumns
       )
-    )
-    
-    print(runtime_Citrus)  ## ~2 minutes on laptop
+      
+    })
     
     # Citrus plots
     plot(results, outputDirectory)
+    
+    # runtime (~2 min on laptop)
+    runtime_total <- runtime_Citrus[["elapsed"]]
+    print(runtime_total)
+    
+    runtime_Citrus_main[[th]][[j]] <- runtime_total
     
     
     
@@ -315,7 +321,8 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_Citrus_main, file = file.path(DIR_RDATA, "outputs_AML_sim_Citrus_main.RData"))
+save(out_Citrus_main, runtime_Citrus_main, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_Citrus_main.RData"))
 
 
 
