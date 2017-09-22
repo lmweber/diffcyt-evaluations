@@ -204,7 +204,7 @@ for (k in 1:length(resolution)) {
       runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
       print(runtime_total)
       
-      runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]][[j]] <- runtime_total
+      runtime_diffcyt_DA_edgeR_supp_resolution[[k]][[th]][[j]] <- runtime_total
       
       
       

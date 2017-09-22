@@ -204,7 +204,7 @@ for (k in 1:length(resolution)) {
       runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
       print(runtime_total)
       
-      runtime_diffcyt_DA_limma_supp_clustering_resolution[[k]][[th]][[j]] <- runtime_total
+      runtime_diffcyt_DA_limma_supp_resolution[[k]][[th]][[j]] <- runtime_total
       
       
       
@@ -279,7 +279,7 @@ for (k in 1:length(resolution)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_supp_resolution, runtime_diffcyt_DA_limma_supp_clustering_resolution, 
+save(out_diffcyt_DA_limma_supp_resolution, runtime_diffcyt_DA_limma_supp_resolution, 
      file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_clustering_resolution.RData"))
 
 
