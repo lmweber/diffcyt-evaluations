@@ -82,6 +82,9 @@ for (j in 1:length(cond_names)) {
   shapes <- c(21, 24, 22, 23)
   names(shapes) <- thresholds
   
+  # axis ranges
+  y_range <- c(0, 425)
+  
   # create plot
   p <- ggplot(d_plot, aes(x = method, y = runtime, group = method, color = method, fill = method, shape = threshold)) + 
     geom_point(size = 2.25) + 
@@ -89,6 +92,7 @@ for (j in 1:length(cond_names)) {
     scale_fill_manual(values = colors) + 
     scale_shape_manual(values = shapes, guide = guide_legend(override.aes = list(fill = "black"))) + 
     #scale_y_log10() + 
+    ylim(y_range) + 
     ylab("runtime (s)") + 
     ggtitle(cond_names[j]) + 
     theme_bw() + 
