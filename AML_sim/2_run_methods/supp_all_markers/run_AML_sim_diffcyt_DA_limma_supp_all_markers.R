@@ -159,7 +159,7 @@ for (th in 1:length(thresholds)) {
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
   out_diffcyt_DA_limma_supp_all_markers[[th]] <- runtime_diffcyt_DA_limma_supp_all_markers[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_limma_supp_all_markers[[th]]) <- runtime_diffcyt_DA_limma_supp_all_markers[[th]] <- cond_names
+  names(out_diffcyt_DA_limma_supp_all_markers[[th]]) <- names(runtime_diffcyt_DA_limma_supp_all_markers[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {

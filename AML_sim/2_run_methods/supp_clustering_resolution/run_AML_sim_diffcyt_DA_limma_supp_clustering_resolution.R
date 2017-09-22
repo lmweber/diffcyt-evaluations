@@ -40,7 +40,7 @@ contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects
 out_diffcyt_DA_limma_supp_resolution <- runtime_diffcyt_DA_limma_supp_resolution <- vector("list", length(resolution))
-names(out_diffcyt_DA_limma_supp_resolution) <- runtime_diffcyt_DA_limma_supp_resolution <- resolution
+names(out_diffcyt_DA_limma_supp_resolution) <- names(runtime_diffcyt_DA_limma_supp_resolution) <- resolution
 
 
 

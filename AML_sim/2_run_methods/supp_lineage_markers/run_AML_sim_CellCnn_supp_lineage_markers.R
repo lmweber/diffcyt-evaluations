@@ -53,7 +53,7 @@ cond_names <- c("CN", "CBF")
 
 # lists to store objects
 out_CellCnn_supp_lineage_markers <- runtime_CellCnn_supp_lineage_markers <- vector("list", length(thresholds))
-names(out_CellCnn_supp_lineage_markers) <- runtime_CellCnn_supp_lineage_markers <- thresholds
+names(out_CellCnn_supp_lineage_markers) <- names(runtime_CellCnn_supp_lineage_markers) <- thresholds
 
 
 
@@ -137,8 +137,8 @@ for (th in 1:length(thresholds)) {
   # note: run CellCnn separately for each condition: CN vs. healthy, CBF vs. healthy
   
   
-  out_CellCnn_supp_lineage_markers[[th]] <- vector("list", length(cond_names))
-  names(out_CellCnn_supp_lineage_markers[[th]]) <- cond_names
+  out_CellCnn_supp_lineage_markers[[th]] <- runtime_CellCnn_supp_lineage_markers[[th]] <- vector("list", length(cond_names))
+  names(out_CellCnn_supp_lineage_markers[[th]]) <- names(runtime_CellCnn_supp_lineage_markers[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {

@@ -38,7 +38,7 @@ contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0)
 
 # lists to store objects
 out_diffcyt_DA_edgeR_supp_all_markers <- runtime_diffcyt_DA_edgeR_supp_all_markers <- vector("list", length(thresholds))
-names(out_diffcyt_DA_edgeR_supp_all_markers) <- runtime_diffcyt_DA_edgeR_supp_all_markers <- thresholds
+names(out_diffcyt_DA_edgeR_supp_all_markers) <- names(runtime_diffcyt_DA_edgeR_supp_all_markers) <- thresholds
 
 
 
