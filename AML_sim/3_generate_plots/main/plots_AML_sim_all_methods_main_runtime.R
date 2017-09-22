@@ -87,7 +87,7 @@ for (j in 1:length(cond_names)) {
   
   # create plot
   p <- ggplot(d_plot, aes(x = method, y = runtime, group = method, color = method, shape = threshold)) + 
-    geom_point(size = 1.75, stroke = 1) + 
+    geom_point(size = 2.25, stroke = 1.125) + 
     scale_color_manual(values = colors) + 
     #scale_fill_manual(values = colors) + 
     scale_shape_manual(values = shapes) + 
