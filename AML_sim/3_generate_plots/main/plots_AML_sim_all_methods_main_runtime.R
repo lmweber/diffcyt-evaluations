@@ -133,14 +133,15 @@ grid_runtime <- do.call(plot_grid, append(plots_runtime, list(labels = "AUTO", n
 
 # add combined axis titles
 #xaxis_runtime <- ggdraw() + draw_label("", size = 12)
-yaxis_runtime <- ggdraw() + draw_label("runtime (s)", size = 12, angle = 90)
+yaxis_runtime <- ggdraw() + draw_label("runtime (s)", size = 12, angle = 90, hjust = -0.1)
 
 #grid_runtime <- plot_grid(grid_runtime, xaxis_runtime, ncol = 1, rel_heights = c(15, 1))
 grid_runtime <- plot_grid(yaxis_runtime, grid_runtime, nrow = 1, rel_widths = c(1, 30))
 
 # add combined legend
 legend_runtime <- get_legend(plots_runtime[[1]] + theme(legend.position = "right"))
-grid_runtime <- plot_grid(grid_runtime, legend_runtime, nrow = 1, rel_widths = c(10, 1.75))
+grid_legend <- plot_grid(legend_runtime, nrow = 2, rel_heights = c(10, 2.3))
+grid_runtime <- plot_grid(grid_runtime, grid_legend, nrow = 1, rel_widths = c(10, 1.75))
 
 # add combined title
 title_runtime <- ggdraw() + draw_label("AML-sim, main results: runtime", fontface = "bold")
