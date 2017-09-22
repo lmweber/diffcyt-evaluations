@@ -83,7 +83,7 @@ for (j in 1:length(cond_names)) {
   names(shapes) <- thresholds
   
   # axis ranges
-  y_range <- c(0, 425)
+  y_range <- c(0, 500)
   
   # create plot
   p <- ggplot(d_plot, aes(x = method, y = runtime, group = method, color = method, shape = threshold)) + 
