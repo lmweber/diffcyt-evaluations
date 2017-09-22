@@ -86,11 +86,12 @@ for (j in 1:length(cond_names)) {
   y_range <- c(0, 425)
   
   # create plot
-  p <- ggplot(d_plot, aes(x = method, y = runtime, group = method, color = method, fill = method, shape = threshold)) + 
-    geom_point(size = 2.25) + 
+  p <- ggplot(d_plot, aes(x = method, y = runtime, group = method, color = method, shape = threshold)) + 
+    geom_point(size = 1.75, stroke = 1) + 
     scale_color_manual(values = colors) + 
-    scale_fill_manual(values = colors) + 
-    scale_shape_manual(values = shapes, guide = guide_legend(override.aes = list(fill = "black"))) + 
+    #scale_fill_manual(values = colors) + 
+    scale_shape_manual(values = shapes) + 
+    #scale_shape_manual(values = shapes, guide = guide_legend(override.aes = list(fill = "black"))) + 
     #scale_y_log10() + 
     ylim(y_range) + 
     ylab("runtime (s)") + 
@@ -143,7 +144,7 @@ grid_runtime <- plot_grid(grid_runtime, legend_runtime, nrow = 1, rel_widths = c
 
 # add combined title
 title_runtime <- ggdraw() + draw_label("AML-sim, main results: runtime", fontface = "bold")
-grid_runtime <- plot_grid(title_runtime, grid_runtime, ncol = 1, rel_heights = c(1, 15))
+grid_runtime <- plot_grid(title_runtime, grid_runtime, ncol = 1, rel_heights = c(1, 16))
 
 # save plots
 fn_runtime <- file.path(DIR_PLOTS, "results_all_methods_main_runtime.pdf")
