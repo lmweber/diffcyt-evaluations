@@ -17,7 +17,7 @@ library(SummarizedExperiment)
 
 DIR_BENCHMARK <- "../../../../../../benchmark_data/AML_sim/data/random_seeds/seed2"
 DIR_RDATA <- "../../../../../RData/AML_sim/supp_benchmark_random/seed2"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_benchmark_random/seed2"
+DIR_SESSION_INFO <- "../../../../../session_info/AML_sim/supp_benchmark_random/seed2"
 
 
 
