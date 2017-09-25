@@ -35,6 +35,10 @@
 ##########################################################################################
 
 
+# modified to generate randomized replicates of the benchmark data set using different
+# random seeds
+
+
 library(flowCore)
 
 
@@ -48,7 +52,7 @@ DIR_BENCHMARK <- "../../../../../benchmark_data"
 DIR_RAW_DATA_ALL <- file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experiment_46098_files")
 DIR_RAW_DATA_BLASTS <- file.path(DIR_BENCHMARK, "AML_sim/raw_data/CD34_CD45mid_cells/experiment_63534_files")
 
-DIR_DATA_OUT <- file.path(DIR_BENCHMARK, "AML_sim/data/main")
+DIR_DATA_OUT <- file.path(DIR_BENCHMARK, "AML_sim/data/random_seeds")
 
 files_all <- list.files(DIR_RAW_DATA_ALL, pattern = "\\.fcs$", full.names = TRUE)
 files_healthy <- files_all[grep("H[0-9]+", files_all)]
@@ -133,119 +137,138 @@ dim(exprs(read.FCS(file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experime
 
 
 
-# -------------------------
-# Create spike-in data sets
-# -------------------------
+# ---------------------
+# Randomized replicates
+# ---------------------
 
-# First: split each healthy sample (H1-H5) into 3 equal parts. One part will be used as
-# the healthy sample, and the other parts will each have spike-in cells added (for
-# conditions CN and CBF).
+# below: use different random seeds for each replicate
 
-data_healthy_base <- data_healthy_CN <- data_healthy_CBF <- 
-  vector("list", length(data_healthy))
-names(data_healthy_base) <- names(data_healthy_CN) <- names(data_healthy_CBF) <- 
-  names(data_healthy)
+n_replicates <- 3
 
-set.seed(1001)
-
-for (i in 1:length(data_healthy)) {
-  data_i <- data_healthy[[i]]
+for (r in 1:n_replicates) {
   
-  n <- round(nrow(data_i) / 3)
   
-  ix_base <- sample(1:nrow(data_i), n)
-  ix_CN <- sample((1:nrow(data_i))[-ix_base], n)
-  ix_CBF <- setdiff(1:nrow(data_i), c(ix_base, ix_CN))
   
-  data_healthy_base[[i]] <- data_i[ix_base, ]
-  data_healthy_CN[[i]] <- data_i[ix_CN, ]
-  data_healthy_CBF[[i]] <- data_i[ix_CBF, ]
-}
-
-sapply(data_healthy_base, dim)
-sapply(data_healthy_CN, dim)
-sapply(data_healthy_CBF, dim)
-
-
-
-# Export healthy samples (H1-H5)
-
-# save .fcs files
-for (i in 1:length(data_healthy_base)) {
-  data_i <- data_healthy_base[[i]]
-  nm_i <- names(data_healthy_base)[i]
+  # -------------------------
+  # Create spike-in data sets
+  # -------------------------
   
-  # include spike-in status column so all .fcs files have same shape
-  data_out_i <- cbind(data_i, spikein = 0)
+  # First: split each healthy sample (H1-H5) into 3 equal parts. One part will be used as
+  # the healthy sample, and the other parts will each have spike-in cells added (for
+  # conditions CN and CBF).
   
-  filename <- file.path(DIR_DATA_OUT, "healthy", paste0("AML_sim_healthy_", nm_i, ".fcs"))
-  write.FCS(flowFrame(data_out_i), filename)
-}
-
-
-
-# Blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the number of
-# healthy cells for each sample, and combined with the healthy cells to create the
-# spike-in data sets.
-
-thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
-
-
-# condition CN (patient SJ10)
-
-data_blasts <- data_SJ10
-cnd <- "CN"
-
-set.seed(1002)
-
-for (i in 1:length(data_healthy_CN)) {
-  data_i <- data_healthy_CN[[i]]
-  nm_i <- names(data_healthy_CN)[i]
+  data_healthy_base <- data_healthy_CN <- data_healthy_CBF <- 
+    vector("list", length(data_healthy))
+  names(data_healthy_base) <- names(data_healthy_CN) <- names(data_healthy_CBF) <- 
+    names(data_healthy)
   
-  for (th in thresholds) {
-    n_spikein <- ceiling(th * nrow(data_i))
-    is_spikein <- c(rep(0, nrow(data_i)), rep(1, n_spikein))
+  # random seed
+  set.seed(1001 + r)
+  
+  for (i in 1:length(data_healthy)) {
+    data_i <- data_healthy[[i]]
     
-    cat("n =", n_spikein, "\n")
+    n <- round(nrow(data_i) / 3)
     
-    # subsample blasts
-    spikein_i <- data_blasts[sample(1:nrow(data_blasts), n_spikein), ]
+    ix_base <- sample(1:nrow(data_i), n)
+    ix_CN <- sample((1:nrow(data_i))[-ix_base], n)
+    ix_CBF <- setdiff(1:nrow(data_i), c(ix_base, ix_CN))
     
-    data_out_i <- rbind(data_i, spikein_i)
-    data_out_i <- cbind(data_out_i, spikein = is_spikein)
+    data_healthy_base[[i]] <- data_i[ix_base, ]
+    data_healthy_CN[[i]] <- data_i[ix_CN, ]
+    data_healthy_CBF[[i]] <- data_i[ix_CBF, ]
+  }
+  
+  sapply(data_healthy_base, dim)
+  sapply(data_healthy_CN, dim)
+  sapply(data_healthy_CBF, dim)
+  
+  
+  
+  # Export healthy samples (H1-H5)
+  
+  # save .fcs files
+  for (i in 1:length(data_healthy_base)) {
+    data_i <- data_healthy_base[[i]]
+    nm_i <- names(data_healthy_base)[i]
     
-    filename <- file.path(DIR_DATA_OUT, cnd, paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+    # include spike-in status column so all .fcs files have same shape
+    data_out_i <- cbind(data_i, spikein = 0)
+    
+    filename <- file.path(DIR_DATA_OUT, paste0("seed", r), "healthy", paste0("AML_sim_healthy_", nm_i, ".fcs"))
     write.FCS(flowFrame(data_out_i), filename)
   }
-}
-
-
-# condition CBF (patient SJ4)
-
-data_blasts <- data_SJ4
-cnd <- "CBF"
-
-set.seed(1003)
-
-for (i in 1:length(data_healthy_CBF)) {
-  data_i <- data_healthy_CBF[[i]]
-  nm_i <- names(data_healthy_CBF)[i]
   
-  for (th in thresholds) {
-    n_spikein <- ceiling(th * nrow(data_i))
-    is_spikein <- c(rep(0, nrow(data_i)), rep(1, n_spikein))
+  
+  
+  # Blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the number of
+  # healthy cells for each sample, and combined with the healthy cells to create the
+  # spike-in data sets.
+  
+  thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
+  
+  
+  # condition CN (patient SJ10)
+  
+  data_blasts <- data_SJ10
+  cnd <- "CN"
+  
+  # random seed
+  set.seed(1002 + r)
+  
+  for (i in 1:length(data_healthy_CN)) {
+    data_i <- data_healthy_CN[[i]]
+    nm_i <- names(data_healthy_CN)[i]
     
-    cat("n =", n_spikein, "\n")
-    
-    # subsample blasts
-    spikein_i <- data_blasts[sample(1:nrow(data_blasts), n_spikein), ]
-    
-    data_out_i <- rbind(data_i, spikein_i)
-    data_out_i <- cbind(data_out_i, spikein = is_spikein)
-    
-    filename <- file.path(DIR_DATA_OUT, cnd, paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
-    write.FCS(flowFrame(data_out_i), filename)
+    for (th in thresholds) {
+      n_spikein <- ceiling(th * nrow(data_i))
+      is_spikein <- c(rep(0, nrow(data_i)), rep(1, n_spikein))
+      
+      cat("n =", n_spikein, "\n")
+      
+      # subsample blasts
+      spikein_i <- data_blasts[sample(1:nrow(data_blasts), n_spikein), ]
+      
+      data_out_i <- rbind(data_i, spikein_i)
+      data_out_i <- cbind(data_out_i, spikein = is_spikein)
+      
+      filename <- file.path(DIR_DATA_OUT, paste0("seed", r), cnd, 
+                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+      write.FCS(flowFrame(data_out_i), filename)
+    }
   }
+  
+  
+  # condition CBF (patient SJ4)
+  
+  data_blasts <- data_SJ4
+  cnd <- "CBF"
+  
+  # random seed
+  set.seed(1003 + r)
+  
+  for (i in 1:length(data_healthy_CBF)) {
+    data_i <- data_healthy_CBF[[i]]
+    nm_i <- names(data_healthy_CBF)[i]
+    
+    for (th in thresholds) {
+      n_spikein <- ceiling(th * nrow(data_i))
+      is_spikein <- c(rep(0, nrow(data_i)), rep(1, n_spikein))
+      
+      cat("n =", n_spikein, "\n")
+      
+      # subsample blasts
+      spikein_i <- data_blasts[sample(1:nrow(data_blasts), n_spikein), ]
+      
+      data_out_i <- rbind(data_i, spikein_i)
+      data_out_i <- cbind(data_out_i, spikein = is_spikein)
+      
+      filename <- file.path(DIR_DATA_OUT, paste0("seed", r), cnd, 
+                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+      write.FCS(flowFrame(data_out_i), filename)
+    }
+  }
+  
 }
 
 
