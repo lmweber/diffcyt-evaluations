@@ -132,8 +132,8 @@ $(DIR_RDATA)/supp_random_starts/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_
 # --------------------------
 
 # generate simulated data files
-$(TIMESTAMP_BENCHMARK_MAIN): $(DIR_PREPARE_DATA)/prepare_data_AML_sim_main.R
-	cd $(DIR_PREPARE_DATA) && Rscript $(notdir $<)
+$(TIMESTAMP_BENCHMARK_MAIN): $(DIR_PREPARE_DATA)/main/prepare_data_AML_sim_main.R
+	cd $(DIR_PREPARE_DATA)/main && Rscript $(notdir $<)
 
 
 
