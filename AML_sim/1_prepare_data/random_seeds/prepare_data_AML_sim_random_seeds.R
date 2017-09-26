@@ -163,7 +163,8 @@ for (r in 1:n_replicates) {
     names(data_healthy)
   
   # random seed
-  set.seed(1001 + r)
+  seed <- 1000 + r
+  set.seed(seed)
   
   for (i in 1:length(data_healthy)) {
     data_i <- data_healthy[[i]]
@@ -214,7 +215,8 @@ for (r in 1:n_replicates) {
   cnd <- "CN"
   
   # random seed
-  set.seed(1002 + r)
+  seed <- 1100 + r
+  set.seed(seed)
   
   for (i in 1:length(data_healthy_CN)) {
     data_i <- data_healthy_CN[[i]]
@@ -245,7 +247,8 @@ for (r in 1:n_replicates) {
   cnd <- "CBF"
   
   # random seed
-  set.seed(1003 + r)
+  seed <- 1200 + r
+  set.seed(seed)
   
   for (i in 1:length(data_healthy_CBF)) {
     data_i <- data_healthy_CBF[[i]]
