@@ -41,8 +41,8 @@ out_diffcyt_DA_edgeR_main <- runtime_diffcyt_DA_edgeR_main <- vector("list", len
 names(out_diffcyt_DA_edgeR_main) <- names(runtime_diffcyt_DA_edgeR_main) <- thresholds
 
 # lists to store objects for plotting
-plotting_diffcyt_DA_edgeR_main <- vector("list", length(thresholds))
-names(plotting_diffcyt_DA_edgeR_main) <- thresholds
+plot_objects_diffcyt_DA_edgeR_main <- vector("list", length(thresholds))
+names(plot_objects_diffcyt_DA_edgeR_main) <- thresholds
 
 
 
@@ -160,10 +160,10 @@ for (th in 1:length(thresholds)) {
   # store objects for plotting
   # --------------------------
   
-  plotting_diffcyt_DA_edgeR_main[[th]] <- list(d_se = d_se, 
-                                               d_counts = d_counts, 
-                                               d_medians = d_medians, 
-                                               d_medians_all = d_medians_all)
+  plot_objects_diffcyt_DA_edgeR_main[[th]] <- list(d_se = d_se, 
+                                                   d_counts = d_counts, 
+                                                   d_medians = d_medians, 
+                                                   d_medians_all = d_medians_all)
   
   
   # ----------------------------------------------
@@ -286,8 +286,8 @@ for (th in 1:length(thresholds)) {
 save(out_diffcyt_DA_edgeR_main, runtime_diffcyt_DA_edgeR_main, 
      file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_main.RData"))
 
-save(plotting_diffcyt_DA_edgeR_main, 
-     file = file.path(DIR_RDATA, "plotting_AML_sim_diffcyt_DA_edgeR_main.RData"))
+save(plot_objects_diffcyt_DA_edgeR_main, 
+     file = file.path(DIR_RDATA, "plot_objects_AML_sim_diffcyt_DA_edgeR_main.RData"))
 
 
 
