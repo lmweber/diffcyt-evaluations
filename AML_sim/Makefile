@@ -29,7 +29,7 @@ TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM      = $(DIR_PLOTS)/supp_benchmark_random/
 
 SCRIPTS_PLOTS_MAIN_ROC_TPRFDR            = $(wildcard $(DIR_GENERATE_PLOTS)/main_ROC_TPRFDR/*.R)
 SCRIPTS_PLOTS_MAIN_RUNTIME               = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
-SCRIPTS_PLOTS_MAIN_MST                   = $(wildcard $(DIR_GENERATE_PLOTS)/main_mst/*.R)
+SCRIPTS_PLOTS_MAIN_MST                   = $(wildcard $(DIR_GENERATE_PLOTS)/main_MST/*.R)
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects/*.R)
 SCRIPTS_PLOTS_SUPP_ALL_MARKERS           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_all_markers/*.R)
@@ -88,7 +88,7 @@ $(TIMESTAMP_PLOTS_MAIN_RUNTIME): $(SCRIPTS_PLOTS_MAIN_RUNTIME) $(FILES_RDATA_MAI
 
 # main results: MST
 $(TIMESTAMP_PLOTS_MAIN_MST): $(SCRIPTS_PLOTS_MAIN_MST) $(FILES_RDATA_MAIN)
-	cd $(DIR_GENERATE_PLOTS)/main_mst && bash run_all.sh
+	cd $(DIR_GENERATE_PLOTS)/main_MST && bash run_all.sh
 
 # supplementary: clustering resolution
 $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
