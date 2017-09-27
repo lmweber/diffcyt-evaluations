@@ -172,8 +172,10 @@ for (th in 1:length(thresholds)) {
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_diffcyt_DA_edgeR_main[[th]] <- runtime_diffcyt_DA_edgeR_main[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_edgeR_main[[th]]) <- names(runtime_diffcyt_DA_edgeR_main[[th]]) <- cond_names
+  out_diffcyt_DA_edgeR_main[[th]] <- runtime_diffcyt_DA_edgeR_main[[th]] <- 
+    out_clusters_diffcyt_DA_edgeR_main[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_edgeR_main[[th]]) <- names(runtime_diffcyt_DA_edgeR_main[[th]]) <- 
+    names(out_clusters_diffcyt_DA_edgeR_main[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -218,7 +220,7 @@ for (th in 1:length(thresholds)) {
     
     res_clusters <- as.data.frame(rowData(res))
     
-    out_clusters_diffcyt_DA_edgeR_main <- res_clusters
+    out_clusters_diffcyt_DA_edgeR_main[[th]][[j]] <- res_clusters
     
     
     
