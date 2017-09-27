@@ -36,13 +36,13 @@ cond_names <- c("CN", "CBF")
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
 contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
-# lists to store objects
-out_diffcyt_DA_limma_main <- runtime_diffcyt_DA_limma_main <- vector("list", length(thresholds))
-names(out_diffcyt_DA_limma_main) <- names(runtime_diffcyt_DA_limma_main) <- thresholds
-
-# lists to store objects for plotting
-plot_objects_diffcyt_DA_limma_main <- vector("list", length(thresholds))
-names(plot_objects_diffcyt_DA_limma_main) <- thresholds
+# lists to store objects and runtime
+out_diffcyt_DA_limma_main <- runtime_diffcyt_DA_limma_main <- 
+  out_clusters_diffcyt_DA_limma_main <- out_objects_diffcyt_DA_limma_main <- 
+  vector("list", length(thresholds))
+names(out_diffcyt_DA_limma_main) <- names(runtime_diffcyt_DA_limma_main) <- 
+  names(out_clusters_diffcyt_DA_limma_main) <- names(out_objects_diffcyt_DA_limma_main) <- 
+  thresholds
 
 
 
@@ -156,14 +156,14 @@ for (th in 1:length(thresholds)) {
   dim(d_medians_all)
   
   
-  # --------------------------
-  # store objects for plotting
-  # --------------------------
+  # ---------------------------------
+  # store data objects (for plotting)
+  # ---------------------------------
   
-  plot_objects_diffcyt_DA_limma_main[[th]] <- list(d_se = d_se, 
-                                                   d_counts = d_counts, 
-                                                   d_medians = d_medians, 
-                                                   d_medians_all = d_medians_all)
+  out_objects_diffcyt_DA_limma_main[[th]] <- list(d_se = d_se, 
+                                                  d_counts = d_counts, 
+                                                  d_medians = d_medians, 
+                                                  d_medians_all = d_medians_all)
   
   
   # ----------------------------------------------
@@ -212,6 +212,15 @@ for (th in 1:length(thresholds)) {
     print(runtime_total)
     
     runtime_diffcyt_DA_limma_main[[th]][[j]] <- runtime_total
+    
+    
+    # ---------------------------------------------
+    # store results at cluster level (for plotting)
+    # ---------------------------------------------
+    
+    res_clusters <- as.data.frame(rowData(res))
+    
+    out_clusters_diffcyt_DA_limma_main <- res_clusters
     
     
     
@@ -288,8 +297,8 @@ for (th in 1:length(thresholds)) {
 save(out_diffcyt_DA_limma_main, runtime_diffcyt_DA_limma_main, 
      file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
 
-save(plot_objects_diffcyt_DA_limma_main, 
-     file = file.path(DIR_RDATA, "plot_objects_AML_sim_diffcyt_DA_limma_main.RData"))
+save(out_objects_diffcyt_DA_limma_main, 
+     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_main.RData"))
 
 
 
