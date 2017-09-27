@@ -297,6 +297,9 @@ for (th in 1:length(thresholds)) {
 save(out_diffcyt_DA_limma_main, runtime_diffcyt_DA_limma_main, 
      file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
 
+save(out_clusters_diffcyt_DA_limma_main, 
+     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_main.RData"))
+
 save(out_objects_diffcyt_DA_limma_main, 
      file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_main.RData"))
 
