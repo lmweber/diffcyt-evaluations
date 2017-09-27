@@ -16,7 +16,8 @@ DIR_PLOTS          = ../../plots/AML_sim
 TIMESTAMP_BENCHMARK_MAIN   = $(DIR_BENCHMARK)/main/timestamp.txt
 TIMESTAMP_BENCHMARK_RANDOM = $(DIR_BENCHMARK)/random_seeds/timestamp.txt
 
-TIMESTAMP_PLOTS_MAIN                       = $(DIR_PLOTS)/main/timestamp.txt
+TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR            = $(DIR_PLOTS)/main_ROC_TPRFDR/timestamp.txt
+TIMESTAMP_PLOTS_MAIN_RUNTIME               = $(DIR_PLOTS)/main_runtime/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_fixed_effects/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_ALL_MARKERS           = $(DIR_PLOTS)/supp_all_markers/timestamp.txt
@@ -25,7 +26,8 @@ TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(DIR_PLOTS)/supp_separate_clusteri
 TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS         = $(DIR_PLOTS)/supp_random_starts/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM      = $(DIR_PLOTS)/supp_benchmark_random/timestamp.txt
 
-SCRIPTS_PLOTS_MAIN                       = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
+SCRIPTS_PLOTS_MAIN_ROC_TPRFDR            = $(wildcard $(DIR_GENERATE_PLOTS)/main_ROC_TPRFDR/*.R)
+SCRIPTS_PLOTS_MAIN_RUNTIME               = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects/*.R)
 SCRIPTS_PLOTS_SUPP_ALL_MARKERS           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_all_markers/*.R)
@@ -55,7 +57,8 @@ FILES_RDATA_SUPP_BENCHMARK_RANDOM      = $(wildcard $(DIR_RDATA)/supp_benchmark_
 all: timestamps_plots
 
 .PHONY: timestamps_plots
-timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) \
+timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR) \
+                  $(TIMESTAMP_PLOTS_MAIN_RUNTIME) \
                   $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
                   $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) \
                   $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
@@ -72,9 +75,13 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) \
 
 # note: separate rule for each set of results (otherwise dependencies get too complex)
 
-# main results
-$(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
-	cd $(DIR_GENERATE_PLOTS)/main && bash run_all.sh
+# main results: ROC and TPR-FDR curves
+$(TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR): $(SCRIPTS_PLOTS_MAIN_ROC_TPRFDR) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main_ROC_TPRFDR && bash run_all.sh
+
+# main results: runtime
+$(TIMESTAMP_PLOTS_MAIN_RUNTIME): $(SCRIPTS_PLOTS_MAIN_RUNTIME) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main_runtime && bash run_all.sh
 
 # supplementary: clustering resolution
 $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
