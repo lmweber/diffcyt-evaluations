@@ -31,7 +31,7 @@ load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/AML_sim/main"
+DIR_PLOTS <- "../../../../plots/AML_sim/main_runtime"
 
 
 
