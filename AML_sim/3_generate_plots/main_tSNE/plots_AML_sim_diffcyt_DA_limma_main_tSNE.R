@@ -98,7 +98,7 @@ for (th in 1:length(thresholds)) {
     
     # significant differential clusters
     cutoff_sig <- 0.1
-    sig <- d_clus$FDR <= cutoff_sig
+    sig <- d_clus$adj.P.Val <= cutoff_sig
     # set filtered clusters to FALSE
     sig[is.na(sig)] <- FALSE
     
