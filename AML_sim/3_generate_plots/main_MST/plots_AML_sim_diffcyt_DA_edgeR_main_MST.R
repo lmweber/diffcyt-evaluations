@@ -148,9 +148,10 @@ for (th in 1:length(thresholds)) {
     p <- ggplot(d_plot, aes(x = MST_x, y = MST_y, size = n_cells, color = sig)) + 
       # first layer
       geom_point(alpha = 0.5) + 
+      scale_size_area(max_size = 3) + 
       scale_color_manual(values = c("gray70", "red"), labels = c("FALSE", "TRUE")) + 
       # additional layer: outline clusters containing significant proportion spike-in cells
-      geom_point(data = subset(d_plot, spikein == 1), shape = 1, color = "black", stroke = 0.85) + 
+      geom_point(data = subset(d_plot, spikein == 1), shape = 1, color = "black", stroke = 0.75) + 
       # additional layer: emphasize significant differential clusters
       geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.5) + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
@@ -207,7 +208,7 @@ grid_MST <- plot_grid(title_MST, grid_MST, ncol = 1, rel_heights = c(1, 32))
 
 # save plots
 fn_MST <- file.path(DIR_PLOTS, "results_diffcyt_DA_edgeR_main_MST.pdf")
-ggsave(fn_MST, grid_MST, width = 14, height = 18.25)
+ggsave(fn_MST, grid_MST, width = 14, height = 18.2)
 
 
 

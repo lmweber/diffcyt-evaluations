@@ -2,7 +2,7 @@
 # Generate plots
 # 
 # - data set: AML-sim
-# - plot type: t-SNE
+# - plot type: tSNE
 # - method: diffcyt-DA-limma
 # 
 # - main results
@@ -58,7 +58,7 @@ for (th in 1:length(thresholds)) {
   d_counts <- out_objects_diffcyt_DA_limma_main[[th]]$d_counts
   d_medians_all <- out_objects_diffcyt_DA_limma_main[[th]]$d_medians_all
   
-  # run t-SNE
+  # run tSNE
   
   # note: using clustering markers only
   d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_clustering_col]
@@ -169,9 +169,10 @@ for (th in 1:length(thresholds)) {
     p <- ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = sig)) + 
       # first layer
       geom_point(alpha = 0.5) + 
+      scale_size_area(max_size = 3) + 
       scale_color_manual(values = c("gray70", "red"), labels = c("FALSE", "TRUE")) + 
       # additional layer: outline clusters containing significant proportion spike-in cells
-      geom_point(data = subset(d_plot, spikein == 1), shape = 1, color = "black", stroke = 0.85) + 
+      geom_point(data = subset(d_plot, spikein == 1), shape = 1, color = "black", stroke = 0.75) + 
       # additional layer: emphasize significant differential clusters
       geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.5) + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
@@ -184,7 +185,7 @@ for (th in 1:length(thresholds)) {
     
     # save individual panel plot
     p <- p + 
-      ggtitle(paste0("AML-sim, main results: diffcyt-DA-limma: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": t-SNE"))
+      ggtitle(paste0("AML-sim, main results: diffcyt-DA-limma: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": tSNE"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
                     paste0("results_diffcyt_DA_limma_main_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
@@ -223,12 +224,12 @@ legend_tSNE <- get_legend(plots_tSNE[[1]] + theme(legend.position = "right"))
 grid_tSNE <- plot_grid(grid_tSNE, legend_tSNE, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
-title_tSNE <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-limma: t-SNE", fontface = "bold")
+title_tSNE <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-limma: tSNE", fontface = "bold")
 grid_tSNE <- plot_grid(title_tSNE, grid_tSNE, ncol = 1, rel_heights = c(1, 32))
 
 # save plots
 fn_tSNE <- file.path(DIR_PLOTS, "results_diffcyt_DA_limma_main_tSNE.pdf")
-ggsave(fn_tSNE, grid_tSNE, width = 14, height = 18.25)
+ggsave(fn_tSNE, grid_tSNE, width = 14, height = 18.2)
 
 
 
