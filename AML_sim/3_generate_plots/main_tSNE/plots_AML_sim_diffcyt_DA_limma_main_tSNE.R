@@ -2,7 +2,7 @@
 # Generate plots
 # 
 # - data set: AML-sim
-# - plot type: minimum spanning tree (MST)
+# - plot type: t-SNE
 # - method: diffcyt-DA-limma
 # 
 # - main results
@@ -14,6 +14,7 @@
 library(SummarizedExperiment)
 library(dplyr)
 library(magrittr)
+library(Rtsne)
 library(ggplot2)
 library(cowplot)
 
@@ -27,7 +28,7 @@ load(file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_main.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/AML_sim/main_MST"
+DIR_PLOTS <- "../../../../plots/AML_sim/main_tSNE"
 
 
 
@@ -47,7 +48,7 @@ cond_names_all <- c("healthy", cond_names)
 
 
 # store plots in list
-plots_MST <- vector("list", length(thresholds) * length(cond_names))
+plots_tSNE <- vector("list", length(thresholds) * length(cond_names))
 
 
 for (th in 1:length(thresholds)) {
@@ -55,11 +56,31 @@ for (th in 1:length(thresholds)) {
   # load plot data objects (same for both conditions j)
   d_se <- out_objects_diffcyt_DA_limma_main[[th]]$d_se
   d_counts <- out_objects_diffcyt_DA_limma_main[[th]]$d_counts
+  d_medians_all <- out_objects_diffcyt_DA_limma_main[[th]]$d_medians_all
   
-  # MST coordinates
-  mst <- metadata(d_se)$MST
-  mst_coords <- as.data.frame(mst$l)
-  colnames(mst_coords) <- c("MST_x", "MST_y")
+  # run t-SNE
+  
+  # note: using clustering markers only
+  d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_clustering_col]
+  d_tsne <- as.matrix(d_tsne)
+  
+  # remove any duplicate rows (required by Rtsne)
+  dups <- duplicated(d_tsne)
+  d_tsne <- d_tsne[!dups, ]
+  
+  # run Rtsne
+  # (note: initial PCA step not required, since we do not have too many dimensions)
+  set.seed(123)
+  out_tsne <- Rtsne(d_tsne, pca = FALSE, verbose = TRUE)
+  
+  tsne_coords_tmp <- as.data.frame(out_tsne$Y)
+  colnames(tsne_coords_tmp) <- c("tSNE_1", "tSNE_2")
+  
+  # fill in any missing clusters due to duplicate rows
+  tsne_coords <- as.data.frame(matrix(NA, nrow = nlevels(rowData(d_counts)$cluster), ncol = 2))
+  rownames(tsne_coords) <- rowData(d_counts)$cluster
+  colnames(tsne_coords) <- colnames(tsne_coords_tmp)
+  tsne_coords[!dups, ] <- tsne_coords_tmp
   
   
   for (j in 1:length(cond_names)) {
@@ -129,7 +150,7 @@ for (th in 1:length(thresholds)) {
     stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster))
     stopifnot(nrow(d_true) == nrow(d_plot))
     stopifnot(all(d_true$cluster == d_plot$cluster))
-    stopifnot(nrow(d_plot) == nrow(mst_coords))
+    stopifnot(nrow(d_plot) == nrow(tsne_coords))
     
     # identify clusters containing significant proportion of spike-in cells
     cutoff_prop <- 0.1
@@ -139,13 +160,13 @@ for (th in 1:length(thresholds)) {
     d_plot$prop_spikein <- d_true$prop_spikein
     d_plot$spikein <- as.factor(d_true$spikein)
     d_plot$sig <- as.factor(d_plot$sig)
-    d_plot <- cbind(d_plot, mst_coords)
+    d_plot <- cbind(d_plot, tsne_coords)
     
     
     # (iii) create plot
     
     # with short title for multi-panel plot
-    p <- ggplot(d_plot, aes(x = MST_x, y = MST_y, size = n_cells, color = sig)) + 
+    p <- ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = sig)) + 
       # first layer
       geom_point(alpha = 0.5) + 
       scale_color_manual(values = c("gray70", "red"), labels = c("FALSE", "TRUE")) + 
@@ -159,14 +180,14 @@ for (th in 1:length(thresholds)) {
       guides(color = guide_legend("significant"), 
              size = guide_legend(override.aes = list(color = "gray70", stroke = 0.25)))
     
-    plots_MST[[ix]] <- p
+    plots_tSNE[[ix]] <- p
     
     # save individual panel plot
     p <- p + 
-      ggtitle(paste0("AML-sim, main results: diffcyt-DA-limma: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": MST"))
+      ggtitle(paste0("AML-sim, main results: diffcyt-DA-limma: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": t-SNE"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_diffcyt_DA_limma_main_MST_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_diffcyt_DA_limma_main_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 7.5, height = 6)
     
   }
@@ -180,34 +201,34 @@ for (th in 1:length(thresholds)) {
 ########################
 
 # remove duplicated annotation
-plots_MST <- lapply(plots_MST, function(p) {
+plots_tSNE <- lapply(plots_tSNE, function(p) {
   p + theme(legend.position = "none", 
             axis.title.x = element_blank(), 
             axis.title.y = element_blank())
 })
 
 # format into grid
-grid_MST <- do.call(plot_grid, append(plots_MST, list(labels = "AUTO", nrow = 4, ncol = 2, 
-                                                      scale = 0.95, label_y = 0.975)))
+grid_tSNE <- do.call(plot_grid, append(plots_tSNE, list(labels = "AUTO", nrow = 4, ncol = 2, 
+                                                        scale = 0.95, label_y = 0.975)))
 
 # add combined axis titles
-xaxis_MST <- ggdraw() + draw_label("MST dimension x", size = 12)
-yaxis_MST <- ggdraw() + draw_label("MST dimension y", size = 12, angle = 90)
+xaxis_tSNE <- ggdraw() + draw_label("tSNE dimension 1", size = 12)
+yaxis_tSNE <- ggdraw() + draw_label("tSNE dimension 2", size = 12, angle = 90)
 
-grid_MST <- plot_grid(grid_MST, xaxis_MST, ncol = 1, rel_heights = c(50, 1))
-grid_MST <- plot_grid(yaxis_MST, grid_MST, nrow = 1, rel_widths = c(1, 30))
+grid_tSNE <- plot_grid(grid_tSNE, xaxis_tSNE, ncol = 1, rel_heights = c(50, 1))
+grid_tSNE <- plot_grid(yaxis_tSNE, grid_tSNE, nrow = 1, rel_widths = c(1, 30))
 
 # add combined legend
-legend_MST <- get_legend(plots_MST[[1]] + theme(legend.position = "right"))
-grid_MST <- plot_grid(grid_MST, legend_MST, nrow = 1, rel_widths = c(5, 1))
+legend_tSNE <- get_legend(plots_tSNE[[1]] + theme(legend.position = "right"))
+grid_tSNE <- plot_grid(grid_tSNE, legend_tSNE, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
-title_MST <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-limma: MST", fontface = "bold")
-grid_MST <- plot_grid(title_MST, grid_MST, ncol = 1, rel_heights = c(1, 32))
+title_tSNE <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-limma: t-SNE", fontface = "bold")
+grid_tSNE <- plot_grid(title_tSNE, grid_tSNE, ncol = 1, rel_heights = c(1, 32))
 
 # save plots
-fn_MST <- file.path(DIR_PLOTS, "results_diffcyt_DA_limma_main_MST.pdf")
-ggsave(fn_MST, grid_MST, width = 14, height = 18.25)
+fn_tSNE <- file.path(DIR_PLOTS, "results_diffcyt_DA_limma_main_tSNE.pdf")
+ggsave(fn_tSNE, grid_tSNE, width = 14, height = 18.25)
 
 
 

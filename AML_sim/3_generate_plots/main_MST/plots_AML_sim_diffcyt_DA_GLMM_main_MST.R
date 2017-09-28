@@ -56,6 +56,7 @@ for (th in 1:length(thresholds)) {
   d_se <- out_objects_diffcyt_DA_GLMM_main[[th]]$d_se
   d_counts <- out_objects_diffcyt_DA_GLMM_main[[th]]$d_counts
   
+  # MST coordinates
   mst <- metadata(d_se)$MST
   mst_coords <- as.data.frame(mst$l)
   colnames(mst_coords) <- c("MST_x", "MST_y")
@@ -148,10 +149,10 @@ for (th in 1:length(thresholds)) {
       # first layer
       geom_point(alpha = 0.5) + 
       scale_color_manual(values = c("gray70", "red"), labels = c("FALSE", "TRUE")) + 
-      # additional layer: emphasize significant differential clusters
-      geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.5) + 
       # additional layer: outline clusters containing significant proportion spike-in cells
       geom_point(data = subset(d_plot, spikein == 1), shape = 1, color = "black", stroke = 0.85) + 
+      # additional layer: emphasize significant differential clusters
+      geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.5) + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(aspect.ratio = 1) + 
