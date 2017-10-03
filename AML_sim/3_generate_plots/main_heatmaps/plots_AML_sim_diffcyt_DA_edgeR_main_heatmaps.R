@@ -175,7 +175,8 @@ for (th in 1:length(thresholds)) {
     
     fn <- file.path(DIR_PLOTS, paste0("panels/results_diffcyt_DA_edgeR_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
     pdf(fn, width = 7, height = 5.5)
-    plots_heatmaps[[ix]] <- draw(ht + ha_bar, column_title = ht_title, newpage = FALSE)
+    plots_heatmaps[[ix]] <- draw(ht + ha_bar, newpage = FALSE, 
+                                 column_title = ht_title, column_title_gp = gpar(fontface = "bold"))
     dev.off()
     
   }
