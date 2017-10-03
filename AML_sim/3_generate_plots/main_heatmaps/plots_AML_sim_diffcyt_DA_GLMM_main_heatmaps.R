@@ -99,7 +99,7 @@ for (th in 1:length(thresholds)) {
     
     # significant differential clusters
     cutoff_sig <- 0.1
-    sig <- d_clus$FDR <= cutoff_sig
+    sig <- d_clus$p_adj <= cutoff_sig
     # set filtered clusters to FALSE
     sig[is.na(sig)] <- FALSE
     
@@ -171,15 +171,42 @@ for (th in 1:length(thresholds)) {
     ht_title <- paste0("AML-sim, ", cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]), ": diffcyt-DA-GLMM")
     
     
-    # (iv) save plot
+    # (iv) save individual plot
     
-    fn <- file.path(DIR_PLOTS, paste0("results_diffcyt_DA_GLMM_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, paste0("panels/results_diffcyt_DA_GLMM_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
     pdf(fn, width = 7, height = 5.5)
-    ht_list <- draw(ht + ha_bar, column_title = ht_title)
+    plots_heatmaps[[ix]] <- draw(ht + ha_bar, column_title = ht_title, newpage = FALSE)
     dev.off()
     
   }
 }
+
+
+
+
+########################
+# Save multi-panel plots
+########################
+
+fn <- file.path(DIR_PLOTS, paste0("results_diffcyt_DA_GLMM_main_heatmaps.pdf"))
+pdf(fn, width = 16, height = 20.8)
+
+grid.newpage()
+pushViewport(viewport(layout = grid.layout(nr = 4, nc = 2)))
+
+for (th in 1:length(thresholds)) {
+  for (j in 1:length(cond_names)) {
+    ix <- (th * length(cond_names)) - (length(cond_names) - j)
+    
+    pushViewport(viewport(layout.pos.row = th, layout.pos.col = j))
+    draw(plots_heatmaps[[ix]], newpage = FALSE)
+    upViewport()
+  }
+}
+
+upViewport()
+
+dev.off()
 
 
 
