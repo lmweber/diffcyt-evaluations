@@ -2,7 +2,7 @@
 # Generate plots
 # 
 # - data set: AML-sim
-# - plot type: heatmaps
+# - plot type: heatmaps (showing significant and true spike-in clusters only)
 # - method: diffcyt-DA-GLMM
 # 
 # - main results
@@ -49,7 +49,7 @@ cond_names_all <- c("healthy", cond_names)
 
 
 # store plots in list
-plots_heatmaps <- vector("list", length(thresholds) * length(cond_names))
+plots_heatmaps <- plots_heights <- vector("list", length(thresholds) * length(cond_names))
 
 
 for (th in 1:length(thresholds)) {
@@ -60,30 +60,21 @@ for (th in 1:length(thresholds)) {
   d_medians_all <- out_objects_diffcyt_DA_GLMM_main[[th]]$d_medians_all
   
   
-  # -----------------------------------------------------------
-  # create heatmap: main panel showing marker expression values
-  # -----------------------------------------------------------
-  
-  # note: using clustering markers only
-  # note: no additional scaling (using asinh-transformed values directly)
-  d_heatmap <- assay(d_medians_all)[, colData(d_medians_all)$is_clustering_col]
-  
-  colnames(d_heatmap) <- gsub("\\(.*$", "", colnames(d_heatmap))
-  
-  # use 1% and 99% percentiles for color scale
-  colors <- colorRamp2(quantile(d_heatmap, c(0.01, 0.5, 0.99)), 
-                       c("dodgerblue", "white", "darkorange"))
-  
-  ht <- Heatmap(d_heatmap, col = colors, 
-                name = "expression", row_title = "clusters", 
-                column_title = "markers", column_title_side = "bottom", 
-                cluster_columns = FALSE, show_row_names = FALSE)
-  
-  
   for (j in 1:length(cond_names)) {
     
     # index to store plots sequentially in list
     ix <- (th * length(cond_names)) - (length(cond_names) - j)
+    
+    
+    # ------------
+    # heatmap data
+    # ------------
+    
+    # note: using clustering markers only
+    # note: no additional scaling (using asinh-transformed values directly)
+    d_heatmap <- assay(d_medians_all)[, colData(d_medians_all)$is_clustering_col]
+    
+    colnames(d_heatmap) <- gsub("\\(.*$", "", colnames(d_heatmap))
     
     
     # -------------------------------------------------------------
@@ -158,26 +149,105 @@ for (th in 1:length(thresholds)) {
     d_true$spikein <- as.numeric(d_true$prop_spikein > cutoff_prop)
     
     
-    # (iii) add row annotation and title
+    # (iii) select clusters of interest: significant differential and true spike-in
+    
+    clus_keep <- (d_sig$sig == 1) | (d_true$spikein == 1)
+    
+    # skip this iteration if there are no clusters of interest
+    if (sum(clus_keep) == 0) {
+      plots_heatmaps[[ix]] <- textGrob("NA")
+      plots_heights[[ix]] <- 1.5
+      next
+    }
+    
+    d_heatmap <- d_heatmap[clus_keep, , drop = FALSE]
+    d_sig <- d_sig[clus_keep, , drop = FALSE]
+    d_true <- d_true[clus_keep, , drop = FALSE]
+    
+    
+    # (iv) row annotation: significant and true spike-in clusters
     
     d_annot <- data.frame(significant = factor(d_sig$sig, levels = c(0, 1), labels = c("no", "yes")), 
                           spikein = factor(d_true$spikein, levels = c(0, 1), labels = c("no", "yes")))
     
-    ha_bar <- rowAnnotation(df = d_annot, 
+    ha_sig <- rowAnnotation(df = d_annot, 
                             col = list(significant = c("no" = "gray90", "yes" = "red"), 
                                        spikein = c("no" = "gray90", "yes" = "purple4")), 
-                            width = unit(1, "cm"))
+                            width = unit(0.75, "cm"))
+    
+    
+    # (v) row annotation: number of cells per cluster
+    
+    cnd_which <- colData(d_counts)$group %in% c("healthy", cond_names[j])
+    cnd_healthy <- colData(d_counts)$group[cnd_which] == "healthy"
+    cnd_j <- colData(d_counts)$group[cnd_which] == cond_names[j]
+    
+    d_abundance <- assay(d_counts)[clus_keep, cnd_which, drop = FALSE]
+    
+    col <- rep("navy", sum(cnd_which))
+    col[cnd_j] <- "darkturquoise"
+    
+    # see examples in ComplexHeatmap package vignette 'Heatmap Annotations' on Bioconductor website
+    func_anno <- function(index) {
+      n <- length(index)
+      pushViewport(viewport(xscale = range(d_abundance) + c(-1 * max(d_abundance) / 10, max(d_abundance) / 8), 
+                            yscale = c(0.5, n + 0.5)))
+      for (i in 1:ncol(d_abundance)) {
+        # note 'index' argument matches row order to row clustering order
+        grid.points(d_abundance[index, i], rev(seq_along(index)), 
+                    pch = 16, size = unit(0.65, "char"), gp = gpar(col = col[i], alpha = 0.75))
+      }
+      grid.xaxis(at = round(seq(min(d_abundance), max(d_abundance), length.out = 4), digits = 0), 
+                 gp = gpar(fontsize = 10, col = "gray25"))
+      upViewport()
+    }
+    
+    ha_abundance <- rowAnnotation(counts = func_anno, 
+                                  show_annotation_name = TRUE, 
+                                  annotation_name_rot = 0, 
+                                  annotation_name_offset = unit(1.1, "cm"), 
+                                  annotation_name_gp = gpar(fontsize = 12), 
+                                  width = unit(3.5, "cm"))
+    
+    # legend
+    lgd <- Legend(at = c("healthy", cond_names[j]), title = "group", type = "points", size = unit(0.65, "char"), 
+                  legend_gp = gpar(col = c("navy", "darkturquoise")))
+    
+    
+    # (vi) create heatmap
+    
+    # use 1% and 99% percentiles for color scale
+    colors <- colorRamp2(quantile(d_heatmap, c(0.01, 0.5, 0.99)), 
+                         c("dodgerblue", "white", "darkorange"))
     
     ht_title <- paste0("AML-sim, ", cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]), ": diffcyt-DA-GLMM")
     
+    ht <- Heatmap(d_heatmap, col = colors, 
+                  name = "expression", row_title = "clusters", 
+                  column_title = "markers", column_title_side = "bottom", 
+                  cluster_columns = FALSE, show_row_names = FALSE)
     
-    # (iv) save individual plot
     
-    fn <- file.path(DIR_PLOTS, paste0("panels/results_diffcyt_DA_GLMM_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
-    pdf(fn, width = 7, height = 5.5)
-    plots_heatmaps[[ix]] <- draw(ht + ha_bar, newpage = FALSE, 
-                                 column_title = ht_title, column_title_gp = gpar(fontface = "bold"))
+    # (vii) add annotation and save individual plot
+    
+    # save individual plot
+    fn <- file.path(DIR_PLOTS, paste0("panels/results_diffcyt_DA_GLMM_main_heatmap_sub_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
+    pdf(fn, width = 8.5, height = max(2.5, 1.5 + 0.25 * nrow(d_abundance)))
+    draw(ht + ha_sig + ha_abundance, 
+         annotation_legend_list = list(lgd), 
+         column_title = ht_title, column_title_gp = gpar(fontface = "bold"), 
+         newpage = FALSE)
     dev.off()
+    
+    
+    # store plot object for multi-panel plot
+    plots_heatmaps[[ix]] <- grid.grabExpr(draw(ht + ha_sig + ha_abundance, 
+                                               annotation_legend_list = list(lgd), 
+                                               column_title = ht_title, column_title_gp = gpar(fontface = "bold"), 
+                                               newpage = FALSE))
+    
+    # store plot heights for multi-panel plot
+    plots_heights[[ix]] <- max(1.8, 1.6 + 0.19 * nrow(d_abundance))
     
   }
 }
@@ -189,18 +259,23 @@ for (th in 1:length(thresholds)) {
 # Save multi-panel plots
 ########################
 
-fn <- file.path(DIR_PLOTS, paste0("results_diffcyt_DA_GLMM_main_heatmaps.pdf"))
-pdf(fn, width = 16, height = 20.8)
+heights <- sapply(split(unlist(plots_heights), rep(1:length(thresholds), each = length(cond_names))), max)
+widths <- rep(7.7, length(cond_names))
+
+fn <- file.path(DIR_PLOTS, paste0("results_diffcyt_DA_GLMM_main_heatmaps_sub.pdf"))
+
+pdf(fn, width = 16, height = sum(heights) + 0.5)
 
 grid.newpage()
-pushViewport(viewport(layout = grid.layout(nr = 4, nc = 2)))
+pushViewport(viewport(layout = grid.layout(nrow = 4, ncol = 2, just = "top", 
+                                           heights = unit(heights, "inches"), widths = unit(widths, "inches"))))
 
 for (th in 1:length(thresholds)) {
   for (j in 1:length(cond_names)) {
     ix <- (th * length(cond_names)) - (length(cond_names) - j)
     
     pushViewport(viewport(layout.pos.row = th, layout.pos.col = j))
-    draw(plots_heatmaps[[ix]], newpage = FALSE)
+    grid.draw(plots_heatmaps[[ix]])
     upViewport()
   }
 }
