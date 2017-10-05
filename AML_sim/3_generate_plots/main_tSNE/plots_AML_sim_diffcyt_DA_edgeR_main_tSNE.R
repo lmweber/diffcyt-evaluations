@@ -189,7 +189,7 @@ for (th in 1:length(thresholds)) {
     
     fn <- file.path(DIR_PLOTS, "panels", 
                     paste0("results_AML_sim_diffcyt_DA_edgeR_main_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
-    ggsave(fn, width = 7.5, height = 6)
+    ggsave(fn, width = 6.25, height = 5.25)
     
   }
 }
