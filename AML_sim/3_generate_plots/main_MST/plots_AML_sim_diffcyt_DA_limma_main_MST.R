@@ -167,7 +167,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("AML-sim, main results: diffcyt-DA-limma: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": MST"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_diffcyt_DA_limma_main_MST_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_AML_sim_diffcyt_DA_limma_main_MST_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 7.5, height = 6)
     
   }
@@ -180,35 +180,38 @@ for (th in 1:length(thresholds)) {
 # Save multi-panel plots
 ########################
 
-# remove duplicated annotation
+# modify plot elements
 plots_MST <- lapply(plots_MST, function(p) {
   p + theme(legend.position = "none", 
-            axis.title.x = element_blank(), 
-            axis.title.y = element_blank())
+            axis.title.x = element_blank(), axis.title.y = element_blank(), 
+            panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 })
 
 # format into grid
-grid_MST <- do.call(plot_grid, append(plots_MST, list(labels = "AUTO", nrow = 4, ncol = 2, 
-                                                      scale = 0.95, label_y = 0.975)))
+grid_MST <- do.call(plot_grid, append(plots_MST, list(nrow = 4, ncol = 2, 
+                                                      align = "hv", axis = "bl", 
+                                                      scale = 0.975)))
 
 # add combined axis titles
-xaxis_MST <- ggdraw() + draw_label("MST dimension x", size = 12)
-yaxis_MST <- ggdraw() + draw_label("MST dimension y", size = 12, angle = 90)
+xaxis_MST <- ggdraw() + draw_label("MST dimension x", size = 14)
+yaxis_MST <- ggdraw() + draw_label("MST dimension y", size = 14, angle = 90)
 
 grid_MST <- plot_grid(grid_MST, xaxis_MST, ncol = 1, rel_heights = c(50, 1))
 grid_MST <- plot_grid(yaxis_MST, grid_MST, nrow = 1, rel_widths = c(1, 30))
-
-# add combined legend
-legend_MST <- get_legend(plots_MST[[1]] + theme(legend.position = "right"))
-grid_MST <- plot_grid(grid_MST, legend_MST, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
 title_MST <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-limma: MST", fontface = "bold")
 grid_MST <- plot_grid(title_MST, grid_MST, ncol = 1, rel_heights = c(1, 32))
 
+# add combined legend
+legend_MST <- get_legend(plots_MST[[1]] + theme(legend.position = "right", 
+                                                legend.title = element_text(size = 12, face = "bold"), 
+                                                legend.text = element_text(size = 12)))
+grid_MST <- plot_grid(grid_MST, legend_MST, nrow = 1, rel_widths = c(5, 1))
+
 # save plots
-fn_MST <- file.path(DIR_PLOTS, "results_diffcyt_DA_limma_main_MST.pdf")
-ggsave(fn_MST, grid_MST, width = 14, height = 18.2)
+fn_MST <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_main_MST.pdf")
+ggsave(fn_MST, grid_MST, width = 10, height = 13)
 
 
 
