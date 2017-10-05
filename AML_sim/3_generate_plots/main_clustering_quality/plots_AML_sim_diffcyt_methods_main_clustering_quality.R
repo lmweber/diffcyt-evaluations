@@ -210,9 +210,10 @@ for (th in 1:length(thresholds)) {
     shapes <- c(21, 24, 22, 3, 4)
     
     p <- ggplot(d_plot, aes(x = cluster, y = value, color = measure, shape = sample)) + 
-      geom_point(stroke = 1) + 
+      geom_point(stroke = 0.9) + 
       scale_color_manual(values = colors) + 
       scale_shape_manual(values = shapes) + 
+      ylim(c(-0.025, 1.025)) + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(axis.text.x = element_text(angle = 90, vjust = 0.5), 
