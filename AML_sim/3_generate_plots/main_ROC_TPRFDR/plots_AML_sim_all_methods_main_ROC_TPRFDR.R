@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, September 2017
+# Lukas Weber, October 2017
 ##########################################################################################
 
 
@@ -110,7 +110,7 @@ for (th in 1:length(thresholds)) {
     # x axis labels
     x_min <- 0
     x_max <- 1
-    x_labels <- seq(x_min, x_max, by = 0.1)
+    x_labels <- seq(x_min, x_max, by = 0.2)
     
     # prepare plotting object
     cobraplot <- prepare_data_for_plot(cobraperf, 
@@ -146,7 +146,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("AML-sim, main results, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_all_methods_main_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_AML_sim_all_methods_main_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 7.5, height = 6)
     
     
@@ -177,7 +177,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("AML-sim, main results, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": TPR vs. FDR"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_all_methods_main_TPR_FDR_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_AML_sim_all_methods_main_TPR_FDR_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 7.5, height = 6)
   }
 }
@@ -193,35 +193,42 @@ for (th in 1:length(thresholds)) {
 # ROC curves
 # ----------
 
-# remove duplicated annotation
+# re-order plots to fill each condition by row
+ord <- c(2 * (1:4) - 1, 2 * (1:4))
+plots_ROC <- plots_ROC[ord]
+
+# remove plot elements
 plots_ROC <- lapply(plots_ROC, function(p) {
   p + theme(legend.position = "none", 
-            axis.title.x = element_blank(), 
-            axis.title.y = element_blank())
+            axis.title.x = element_blank(), axis.title.y = element_blank(), 
+            panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 })
 
 # format into grid
-grid_ROC <- do.call(plot_grid, append(plots_ROC, list(labels = "AUTO", nrow = 4, ncol = 2, 
-                                                      scale = 0.95, label_y = 0.975)))
+grid_ROC <- do.call(plot_grid, append(plots_ROC, list(nrow = 2, ncol = 4, 
+                                                      align = "hv", axis = "bl", 
+                                                      scale = 0.975)))
 
 # add combined axis titles
-xaxis_ROC <- ggdraw() + draw_label("False positive rate", size = 12)
-yaxis_ROC <- ggdraw() + draw_label("True positive rate", size = 12, angle = 90)
+xaxis_ROC <- ggdraw() + draw_label("False positive rate", size = 14)
+yaxis_ROC <- ggdraw() + draw_label("True positive rate", size = 14, angle = 90)
 
-grid_ROC <- plot_grid(grid_ROC, xaxis_ROC, ncol = 1, rel_heights = c(50, 1))
+grid_ROC <- plot_grid(grid_ROC, xaxis_ROC, ncol = 1, rel_heights = c(12, 1))
 grid_ROC <- plot_grid(yaxis_ROC, grid_ROC, nrow = 1, rel_widths = c(1, 30))
-
-# add combined legend
-legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "right"))
-grid_ROC <- plot_grid(grid_ROC, legend_ROC, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
 title_ROC <- ggdraw() + draw_label("AML-sim, main results: ROC curves", fontface = "bold")
-grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
+grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 13))
+
+# add combined legend
+legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "right", 
+                                                legend.title = element_text(size = 12, face = "bold"), 
+                                                legend.text = element_text(size = 12)))
+grid_ROC <- plot_grid(grid_ROC, legend_ROC, nrow = 1, rel_widths = c(4.8, 1))
 
 # save plots
-fn_ROC <- file.path(DIR_PLOTS, "results_all_methods_main_ROC_curves.pdf")
-ggsave(fn_ROC, grid_ROC, width = 10, height = 13)
+fn_ROC <- file.path(DIR_PLOTS, "results_AML_sim_all_methods_main_ROC_curves.pdf")
+ggsave(fn_ROC, grid_ROC, width = 11, height = 5.4)
 
 
 
@@ -229,35 +236,42 @@ ggsave(fn_ROC, grid_ROC, width = 10, height = 13)
 # TPR-FDR curves
 # --------------
 
-# remove duplicated annotation
+# re-order plots to fill each condition by row
+ord <- c(2 * (1:4) - 1, 2 * (1:4))
+plots_TPRFDR <- plots_TPRFDR[ord]
+
+# remove plot elements
 plots_TPRFDR <- lapply(plots_TPRFDR, function(p) {
   p + theme(legend.position = "none", 
-            axis.title.x = element_blank(), 
-            axis.title.y = element_blank())
+            axis.title.x = element_blank(), axis.title.y = element_blank(), 
+            panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 })
 
 # format into grid
-grid_TPRFDR <- do.call(plot_grid, append(plots_TPRFDR, list(labels = "AUTO", nrow = 4, ncol = 2, 
-                                                            scale = 0.95, label_y = 0.975)))
+grid_TPRFDR <- do.call(plot_grid, append(plots_TPRFDR, list(nrow = 2, ncol = 4, 
+                                                            align = "hv", axis = "bl", 
+                                                            scale = 0.975)))
 
 # add combined axis titles
-xaxis_TPRFDR <- ggdraw() + draw_label("False discovery rate", size = 12)
-yaxis_TPRFDR <- ggdraw() + draw_label("True positive rate", size = 12, angle = 90)
+xaxis_TPRFDR <- ggdraw() + draw_label("False discovery rate", size = 14)
+yaxis_TPRFDR <- ggdraw() + draw_label("True positive rate", size = 14, angle = 90)
 
-grid_TPRFDR <- plot_grid(grid_TPRFDR, xaxis_TPRFDR, ncol = 1, rel_heights = c(50, 1))
+grid_TPRFDR <- plot_grid(grid_TPRFDR, xaxis_TPRFDR, ncol = 1, rel_heights = c(12, 1))
 grid_TPRFDR <- plot_grid(yaxis_TPRFDR, grid_TPRFDR, nrow = 1, rel_widths = c(1, 30))
-
-# add combined legend
-legend_TPRFDR <- get_legend(plots_TPRFDR[[1]] + theme(legend.position = "right"))
-grid_TPRFDR <- plot_grid(grid_TPRFDR, legend_TPRFDR, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
 title_TPRFDR <- ggdraw() + draw_label("AML-sim, main results: TPR vs. FDR", fontface = "bold")
-grid_TPRFDR <- plot_grid(title_TPRFDR, grid_TPRFDR, ncol = 1, rel_heights = c(1, 32))
+grid_TPRFDR <- plot_grid(title_TPRFDR, grid_TPRFDR, ncol = 1, rel_heights = c(1, 13))
+
+# add combined legend
+legend_TPRFDR <- get_legend(plots_TPRFDR[[1]] + theme(legend.position = "right", 
+                                                legend.title = element_text(size = 12, face = "bold"), 
+                                                legend.text = element_text(size = 12)))
+grid_TPRFDR <- plot_grid(grid_TPRFDR, legend_TPRFDR, nrow = 1, rel_widths = c(4.8, 1))
 
 # save plots
-fn_TPRFDR <- file.path(DIR_PLOTS, "results_all_methods_main_TPR_FDR.pdf")
-ggsave(fn_TPRFDR, grid_TPRFDR, width = 10, height = 13)
+fn_TPRFDR <- file.path(DIR_PLOTS, "results_AML_sim_all_methods_main_TPR_FDR.pdf")
+ggsave(fn_TPRFDR, grid_TPRFDR, width = 11, height = 5.4)
 
 
 

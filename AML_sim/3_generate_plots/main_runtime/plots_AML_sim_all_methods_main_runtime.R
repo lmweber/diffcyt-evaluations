@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, September 2017
+# Lukas Weber, October 2017
 ##########################################################################################
 
 
@@ -108,7 +108,7 @@ for (j in 1:length(cond_names)) {
     ggtitle(paste0("AML-sim, main results, ", cond_names[j], ": runtime"))
   
   fn <- file.path(DIR_PLOTS, "panels", 
-                  paste0("results_all_methods_main_runtime_", cond_names[j], ".pdf"))
+                  paste0("results_AML_sim_all_methods_main_runtime_", cond_names[j], ".pdf"))
   ggsave(fn, width = 7.5, height = 5)
   
 }
@@ -120,36 +120,40 @@ for (j in 1:length(cond_names)) {
 # Save multi-panel plots
 ########################
 
-# remove duplicated annotation
+# modify plot elements
 plots_runtime <- lapply(plots_runtime, function(p) {
   p + theme(legend.position = "none", 
             axis.title.x = element_blank(), 
-            axis.title.y = element_blank())
+            axis.title.y = element_blank(), 
+            axis.text.y = element_text(size = 11))
 })
 
 # format into grid
-grid_runtime <- do.call(plot_grid, append(plots_runtime, list(labels = "AUTO", nrow = 1, ncol = 2, 
-                                                              scale = 0.95, label_y = 0.975)))
+grid_runtime <- do.call(plot_grid, append(plots_runtime, list(nrow = 1, ncol = 2, 
+                                                              align = "h", axis = "b", 
+                                                              scale = 0.975)))
 
 # add combined axis titles
-#xaxis_runtime <- ggdraw() + draw_label("", size = 12)
-yaxis_runtime <- ggdraw() + draw_label("runtime (s)", size = 12, angle = 90, hjust = -0.1)
+#xaxis_runtime <- ggdraw() + draw_label("", size = 14)
+yaxis_runtime <- ggdraw() + draw_label("runtime (s)", size = 14, angle = 90, hjust = -0.1)
 
 #grid_runtime <- plot_grid(grid_runtime, xaxis_runtime, ncol = 1, rel_heights = c(15, 1))
 grid_runtime <- plot_grid(yaxis_runtime, grid_runtime, nrow = 1, rel_widths = c(1, 30))
-
-# add combined legend
-legend_runtime <- get_legend(plots_runtime[[1]] + theme(legend.position = "right"))
-grid_legend <- plot_grid(legend_runtime, nrow = 2, rel_heights = c(10, 2.3))
-grid_runtime <- plot_grid(grid_runtime, grid_legend, nrow = 1, rel_widths = c(10, 1.75))
 
 # add combined title
 title_runtime <- ggdraw() + draw_label("AML-sim, main results: runtime", fontface = "bold")
 grid_runtime <- plot_grid(title_runtime, grid_runtime, ncol = 1, rel_heights = c(1, 16))
 
+# add combined legend
+legend_runtime <- get_legend(plots_runtime[[1]] + theme(legend.position = "right", 
+                                                        legend.title = element_text(size = 12, face = "bold"), 
+                                                        legend.text = element_text(size = 12)))
+grid_legend <- plot_grid(legend_runtime, nrow = 2, rel_heights = c(10, 2))
+grid_runtime <- plot_grid(grid_runtime, grid_legend, nrow = 1, rel_widths = c(4.25, 1))
+
 # save plots
-fn_runtime <- file.path(DIR_PLOTS, "results_all_methods_main_runtime.pdf")
-ggsave(fn_runtime, grid_runtime, width = 10, height = 5)
+fn_runtime <- file.path(DIR_PLOTS, "results_AML_sim_all_methods_main_runtime.pdf")
+ggsave(fn_runtime, grid_runtime, width = 9, height = 4.25)
 
 
 
