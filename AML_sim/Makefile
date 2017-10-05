@@ -18,6 +18,7 @@ TIMESTAMP_BENCHMARK_RANDOM = $(DIR_BENCHMARK)/random_seeds/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR            = $(DIR_PLOTS)/main_ROC_TPRFDR/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_RUNTIME               = $(DIR_PLOTS)/main_runtime/timestamp.txt
+TIMESTAMP_PLOTS_MAIN_CLUSTERING            = $(DIR_PLOTS)/main_clustering/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_MST                   = $(DIR_PLOTS)/main_MST/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_TSNE                  = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_HEATMAPS              = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
@@ -31,6 +32,7 @@ TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM      = $(DIR_PLOTS)/supp_benchmark_random/
 
 SCRIPTS_PLOTS_MAIN_ROC_TPRFDR            = $(wildcard $(DIR_GENERATE_PLOTS)/main_ROC_TPRFDR/*.R)
 SCRIPTS_PLOTS_MAIN_RUNTIME               = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
+SCRIPTS_PLOTS_MAIN_CLUSTERING            = $(wildcard $(DIR_GENERATE_PLOTS)/main_clustering/*.R)
 SCRIPTS_PLOTS_MAIN_MST                   = $(wildcard $(DIR_GENERATE_PLOTS)/main_MST/*.R)
 SCRIPTS_PLOTS_MAIN_TSNE                  = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 SCRIPTS_PLOTS_MAIN_HEATMAPS              = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
@@ -65,6 +67,7 @@ all: timestamps_plots
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR) \
                   $(TIMESTAMP_PLOTS_MAIN_RUNTIME) \
+                  $(TIMESTAMP_PLOTS_MAIN_CLUSTERING) \
                   $(TIMESTAMP_PLOTS_MAIN_MST) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
                   $(TIMESTAMP_PLOTS_MAIN_HEATMAPS) \
@@ -91,6 +94,10 @@ $(TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR): $(SCRIPTS_PLOTS_MAIN_ROC_TPRFDR) $(FILES_RDA
 # main results: runtime
 $(TIMESTAMP_PLOTS_MAIN_RUNTIME): $(SCRIPTS_PLOTS_MAIN_RUNTIME) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main_runtime && bash run_all.sh
+
+# main results: clustering quality
+$(TIMESTAMP_PLOTS_MAIN_CLUSTERING): $(SCRIPTS_PLOTS_MAIN_CLUSTERING) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main_clustering && bash run_all.sh
 
 # main results: MST
 $(TIMESTAMP_PLOTS_MAIN_MST): $(SCRIPTS_PLOTS_MAIN_MST) $(FILES_RDATA_MAIN)
