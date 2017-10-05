@@ -79,7 +79,7 @@ for (j in 1:length(cond_names)) {
   colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue2", "darkslategray2")
   
   # shapes
-  shapes <- c(21, 24, 22, 23)
+  shapes <- c(21, 24, 22, 3)
   names(shapes) <- thresholds
   
   # axis ranges
