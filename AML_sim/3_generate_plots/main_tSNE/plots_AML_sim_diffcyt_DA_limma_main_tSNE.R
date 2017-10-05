@@ -188,7 +188,7 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("AML-sim, main results: diffcyt-DA-limma: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": tSNE"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_diffcyt_DA_limma_main_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_AML_sim_diffcyt_DA_limma_main_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 7.5, height = 6)
     
   }
@@ -201,35 +201,38 @@ for (th in 1:length(thresholds)) {
 # Save multi-panel plots
 ########################
 
-# remove duplicated annotation
+# modify plot elements
 plots_tSNE <- lapply(plots_tSNE, function(p) {
   p + theme(legend.position = "none", 
-            axis.title.x = element_blank(), 
-            axis.title.y = element_blank())
+            axis.title.x = element_blank(), axis.title.y = element_blank(), 
+            panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 })
 
 # format into grid
-grid_tSNE <- do.call(plot_grid, append(plots_tSNE, list(labels = "AUTO", nrow = 4, ncol = 2, 
-                                                        scale = 0.95, label_y = 0.975)))
+grid_tSNE <- do.call(plot_grid, append(plots_tSNE, list(nrow = 4, ncol = 2, 
+                                                        align = "hv", axis = "bl", 
+                                                        scale = 0.975)))
 
 # add combined axis titles
-xaxis_tSNE <- ggdraw() + draw_label("tSNE dimension 1", size = 12)
-yaxis_tSNE <- ggdraw() + draw_label("tSNE dimension 2", size = 12, angle = 90)
+xaxis_tSNE <- ggdraw() + draw_label("tSNE dimension 1", size = 14)
+yaxis_tSNE <- ggdraw() + draw_label("tSNE dimension 2", size = 14, angle = 90)
 
 grid_tSNE <- plot_grid(grid_tSNE, xaxis_tSNE, ncol = 1, rel_heights = c(50, 1))
 grid_tSNE <- plot_grid(yaxis_tSNE, grid_tSNE, nrow = 1, rel_widths = c(1, 30))
-
-# add combined legend
-legend_tSNE <- get_legend(plots_tSNE[[1]] + theme(legend.position = "right"))
-grid_tSNE <- plot_grid(grid_tSNE, legend_tSNE, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
 title_tSNE <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-limma: tSNE", fontface = "bold")
 grid_tSNE <- plot_grid(title_tSNE, grid_tSNE, ncol = 1, rel_heights = c(1, 32))
 
+# add combined legend
+legend_tSNE <- get_legend(plots_tSNE[[1]] + theme(legend.position = "right", 
+                                                  legend.title = element_text(size = 12, face = "bold"), 
+                                                  legend.text = element_text(size = 12)))
+grid_tSNE <- plot_grid(grid_tSNE, legend_tSNE, nrow = 1, rel_widths = c(5, 1))
+
 # save plots
-fn_tSNE <- file.path(DIR_PLOTS, "results_diffcyt_DA_limma_main_tSNE.pdf")
-ggsave(fn_tSNE, grid_tSNE, width = 14, height = 18.2)
+fn_tSNE <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_main_tSNE.pdf")
+ggsave(fn_tSNE, grid_tSNE, width = 10, height = 13)
 
 
 
