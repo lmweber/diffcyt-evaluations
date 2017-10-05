@@ -7,7 +7,7 @@
 # 
 # - supplementary results: clustering resolution
 # 
-# Lukas Weber, September 2017
+# Lukas Weber, October 2017
 ##########################################################################################
 
 
@@ -141,8 +141,8 @@ for (th in 1:length(thresholds)) {
       ggtitle(paste0("AML-sim, clustering resolution: diffcyt-DA-GLMM: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": ROC curves"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_diffcyt_DA_GLMM_supp_clustering_resolution_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
-    ggsave(fn, width = 7.5, height = 6)
+                    paste0("results_AML_sim_diffcyt_DA_GLMM_supp_clustering_resolution_ROC_curves_", thresholds[th], "_", cond_names[j], ".pdf"))
+    ggsave(fn, width = 7, height = 5.5)
     
   }
 }
@@ -309,8 +309,8 @@ for (j in 1:length(cond_names)) {
     ggtitle(paste0("AML-sim, clustering resolution: diffcyt-DA-GLMM: ", cond_names[j], ": pAUC (FPR < ", thresh, ")"))
   
   fn <- file.path(DIR_PLOTS, "panels", 
-                  paste0("results_diffcyt_DA_GLMM_supp_clustering_resolution_pAUC_", cond_names[j], ".pdf"))
-  ggsave(fn, width = 7.5, height = 6.5)
+                  paste0("results_AML_sim_diffcyt_DA_GLMM_supp_clustering_resolution_pAUC_", cond_names[j], ".pdf"))
+  ggsave(fn, width = 7, height = 5.5)
   
 }
 
@@ -325,35 +325,42 @@ for (j in 1:length(cond_names)) {
 # ROC curves
 # ----------
 
-# remove duplicated annotation
+# re-order plots to fill each condition by row
+ord <- c(2 * (1:4) - 1, 2 * (1:4))
+plots_ROC <- plots_ROC[ord]
+
+# modify plot elements
 plots_ROC <- lapply(plots_ROC, function(p) {
   p + theme(legend.position = "none", 
-            axis.title.x = element_blank(), 
-            axis.title.y = element_blank())
+            axis.title.x = element_blank(), axis.title.y = element_blank(), 
+            panel.grid.major = element_blank(), panel.grid.minor = element_blank())
 })
 
 # format into grid
-grid_ROC <- do.call(plot_grid, append(plots_ROC, list(labels = "AUTO", nrow = 4, ncol = 2, 
-                                                      scale = 0.95, label_y = 0.975)))
+grid_ROC <- do.call(plot_grid, append(plots_ROC, list(nrow = 2, ncol = 4, 
+                                                      align = "hv", axis = "bl", 
+                                                      scale = 0.975)))
 
 # add combined axis titles
-xaxis_ROC <- ggdraw() + draw_label("False positive rate", size = 12)
-yaxis_ROC <- ggdraw() + draw_label("True positive rate", size = 12, angle = 90)
+xaxis_ROC <- ggdraw() + draw_label("False positive rate", size = 14)
+yaxis_ROC <- ggdraw() + draw_label("True positive rate", size = 14, angle = 90)
 
-grid_ROC <- plot_grid(grid_ROC, xaxis_ROC, ncol = 1, rel_heights = c(50, 1))
+grid_ROC <- plot_grid(grid_ROC, xaxis_ROC, ncol = 1, rel_heights = c(12, 1))
 grid_ROC <- plot_grid(yaxis_ROC, grid_ROC, nrow = 1, rel_widths = c(1, 30))
-
-# add combined legend
-legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "right"))
-grid_ROC <- plot_grid(grid_ROC, legend_ROC, nrow = 1, rel_widths = c(5, 1))
 
 # add combined title
 title_ROC <- ggdraw() + draw_label("AML-sim, clustering resolution: diffcyt-DA-GLMM: ROC curves", fontface = "bold")
-grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 32))
+grid_ROC <- plot_grid(title_ROC, grid_ROC, ncol = 1, rel_heights = c(1, 13))
+
+# add combined legend
+legend_ROC <- get_legend(plots_ROC[[1]] + theme(legend.position = "right", 
+                                                legend.title = element_text(size = 12, face = "bold"), 
+                                                legend.text = element_text(size = 12)))
+grid_ROC <- plot_grid(grid_ROC, legend_ROC, nrow = 1, rel_widths = c(4.8, 1))
 
 # save plots
-fn_ROC <- file.path(DIR_PLOTS, "results_diffcyt_DA_GLMM_supp_clustering_resolution_ROC_curves.pdf")
-ggsave(fn_ROC, grid_ROC, width = 10, height = 13)
+fn_ROC <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_GLMM_supp_clustering_resolution_ROC_curves.pdf")
+ggsave(fn_ROC, grid_ROC, width = 11, height = 5.4)
 
 
 
@@ -361,16 +368,16 @@ ggsave(fn_ROC, grid_ROC, width = 10, height = 13)
 # pAUC values
 # -----------
 
-# remove duplicated annotation
+# modify plot elements
 plots_pAUC <- lapply(plots_pAUC, function(p) {
   p + theme(legend.position = "none", 
-            axis.title.x = element_blank(), 
-            axis.title.y = element_blank())
+            axis.title.x = element_blank(), axis.title.y = element_blank())
 })
 
 # format into grid
-grid_pAUC <- do.call(plot_grid, append(plots_pAUC, list(labels = "AUTO", nrow = 1, ncol = 2, 
-                                                        scale = 0.95, label_y = 0.975)))
+grid_pAUC <- do.call(plot_grid, append(plots_pAUC, list(nrow = 1, ncol = 2, 
+                                                        align = "h", axis = "b", 
+                                                        scale = 0.95)))
 
 # add combined axis titles
 xaxis_pAUC <- ggdraw() + draw_label("Number of clusters", size = 12)
@@ -379,17 +386,19 @@ yaxis_pAUC <- ggdraw() + draw_label(paste0("pAUC (FPR < ", thresh, ")"), size = 
 grid_pAUC <- plot_grid(grid_pAUC, xaxis_pAUC, ncol = 1, rel_heights = c(15, 1))
 grid_pAUC <- plot_grid(yaxis_pAUC, grid_pAUC, nrow = 1, rel_widths = c(1, 30))
 
-# add combined legend
-legend_pAUC <- get_legend(plots_pAUC[[1]] + theme(legend.position = "right"))
-grid_pAUC <- plot_grid(grid_pAUC, legend_pAUC, nrow = 1, rel_widths = c(10, 1))
-
 # add combined title
 title_pAUC <- ggdraw() + draw_label(paste0("AML-sim, clustering resolution: diffcyt-DA-GLMM: pAUC (FPR < ", thresh, ")"), fontface = "bold")
 grid_pAUC <- plot_grid(title_pAUC, grid_pAUC, ncol = 1, rel_heights = c(1, 12))
 
+# add combined legend
+legend_pAUC <- get_legend(plots_pAUC[[1]] + theme(legend.position = "right", 
+                                                  legend.title = element_text(size = 11, face = "bold"), 
+                                                  legend.text = element_text(size = 11)))
+grid_pAUC <- plot_grid(grid_pAUC, legend_pAUC, nrow = 1, rel_widths = c(10, 1))
+
 # save plots
-fn_pAUC <- file.path(DIR_PLOTS, "results_diffcyt_DA_GLMM_supp_clustering_resolution_pAUC.pdf")
-ggsave(fn_pAUC, grid_pAUC, width = 10, height = 4)
+fn_pAUC <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_GLMM_supp_clustering_resolution_pAUC.pdf")
+ggsave(fn_pAUC, grid_pAUC, width = 9, height = 3.6)
 
 
 
