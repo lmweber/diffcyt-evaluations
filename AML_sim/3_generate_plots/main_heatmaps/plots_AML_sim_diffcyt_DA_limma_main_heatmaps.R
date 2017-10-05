@@ -74,9 +74,11 @@ for (th in 1:length(thresholds)) {
   colors <- colorRamp2(quantile(d_heatmap, c(0.01, 0.5, 0.99)), 
                        c("dodgerblue", "white", "darkorange"))
   
-  ht <- Heatmap(d_heatmap, col = colors, 
-                name = "expression", row_title = "clusters", 
-                column_title = "markers", column_title_side = "bottom", 
+  ht <- Heatmap(d_heatmap, col = colors, name = "expression", 
+                row_title = "clusters", row_title_gp = gpar(fontsize = 14), 
+                column_title = "markers", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+                column_names_gp = gpar(fontsize = 12), 
+                heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
                 cluster_columns = FALSE, show_row_names = FALSE)
   
   
@@ -166,6 +168,7 @@ for (th in 1:length(thresholds)) {
     ha_bar <- rowAnnotation(df = d_annot, 
                             col = list(significant = c("no" = "gray90", "yes" = "red"), 
                                        spikein = c("no" = "gray90", "yes" = "purple4")), 
+                            annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
                             width = unit(1, "cm"))
     
     ht_title <- paste0("AML-sim, ", cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]), ": diffcyt-DA-limma")
@@ -173,10 +176,10 @@ for (th in 1:length(thresholds)) {
     
     # (iv) save individual plot
     
-    fn <- file.path(DIR_PLOTS, paste0("panels/results_diffcyt_DA_limma_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
-    pdf(fn, width = 7, height = 5.5)
+    fn <- file.path(DIR_PLOTS, paste0("panels/results_AML_sim_diffcyt_DA_limma_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
+    pdf(fn, width = 6.5, height = 5)
     plots_heatmaps[[ix]] <- draw(ht + ha_bar, newpage = FALSE, 
-                                 column_title = ht_title, column_title_gp = gpar(fontface = "bold"))
+                                 column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
     dev.off()
     
   }
@@ -189,8 +192,8 @@ for (th in 1:length(thresholds)) {
 # Save multi-panel plots
 ########################
 
-fn <- file.path(DIR_PLOTS, paste0("results_diffcyt_DA_limma_main_heatmaps.pdf"))
-pdf(fn, width = 16, height = 20.8)
+fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_limma_main_heatmaps.pdf"))
+pdf(fn, width = 13, height = 17)
 
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 4, nc = 2)))
