@@ -173,6 +173,7 @@ for (th in 1:length(thresholds)) {
     ha_sig <- rowAnnotation(df = d_annot, 
                             col = list(significant = c("no" = "gray90", "yes" = "red"), 
                                        spikein = c("no" = "gray90", "yes" = "purple4")), 
+                            annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
                             width = unit(0.75, "cm"))
     
     
@@ -185,7 +186,7 @@ for (th in 1:length(thresholds)) {
     d_abundance <- assay(d_counts)[clus_keep, cnd_which, drop = FALSE]
     
     col <- rep("navy", sum(cnd_which))
-    col[cnd_j] <- "darkturquoise"
+    col[cnd_j] <- "deepskyblue"
     
     # see examples in ComplexHeatmap package vignette 'Heatmap Annotations' on Bioconductor website
     func_anno <- function(index) {
@@ -198,20 +199,19 @@ for (th in 1:length(thresholds)) {
                     pch = 16, size = unit(0.65, "char"), gp = gpar(col = col[i], alpha = 0.75))
       }
       grid.xaxis(at = round(seq(min(d_abundance), max(d_abundance), length.out = 4), digits = 0), 
-                 gp = gpar(fontsize = 10, col = "gray25"))
+                 gp = gpar(fontsize = 12, col = "gray25"))
       upViewport()
     }
     
-    ha_abundance <- rowAnnotation(counts = func_anno, 
-                                  show_annotation_name = TRUE, 
-                                  annotation_name_rot = 0, 
-                                  annotation_name_offset = unit(1.1, "cm"), 
-                                  annotation_name_gp = gpar(fontsize = 12), 
+    ha_abundance <- rowAnnotation(counts = func_anno, show_annotation_name = TRUE, 
+                                  annotation_name_rot = 0, annotation_name_offset = unit(1.4, "cm"), 
+                                  annotation_name_gp = gpar(fontsize = 14), 
                                   width = unit(3.5, "cm"))
     
     # legend
     lgd <- Legend(at = c("healthy", cond_names[j]), title = "group", type = "points", size = unit(0.65, "char"), 
-                  legend_gp = gpar(col = c("navy", "darkturquoise")))
+                  title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12), 
+                  legend_gp = gpar(col = c("navy", "deepskyblue")))
     
     
     # (vi) create heatmap
@@ -222,20 +222,22 @@ for (th in 1:length(thresholds)) {
     
     ht_title <- paste0("AML-sim, ", cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]), ": diffcyt-DA-edgeR")
     
-    ht <- Heatmap(d_heatmap, col = colors, 
-                  name = "expression", row_title = "clusters", 
-                  column_title = "markers", column_title_side = "bottom", 
+    ht <- Heatmap(d_heatmap, col = colors, name = "expression", 
+                  row_title = "clusters", row_title_gp = gpar(fontsize = 14), 
+                  column_title = "markers", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+                  column_names_gp = gpar(fontsize = 12), 
+                  heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
                   cluster_columns = FALSE, show_row_names = FALSE)
     
     
     # (vii) add annotation and save individual plot
     
     # save individual plot
-    fn <- file.path(DIR_PLOTS, paste0("panels/results_diffcyt_DA_edgeR_main_heatmap_sub_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, paste0("panels/results_AML_sim_diffcyt_DA_edgeR_main_heatmap_sub_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
     pdf(fn, width = 8.5, height = max(2.5, 1.5 + 0.25 * nrow(d_abundance)))
     draw(ht + ha_sig + ha_abundance, 
          annotation_legend_list = list(lgd), 
-         column_title = ht_title, column_title_gp = gpar(fontface = "bold"), 
+         column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 16), 
          newpage = FALSE)
     dev.off()
     
@@ -243,7 +245,7 @@ for (th in 1:length(thresholds)) {
     # store plot object for multi-panel plot
     plots_heatmaps[[ix]] <- grid.grabExpr(draw(ht + ha_sig + ha_abundance, 
                                                annotation_legend_list = list(lgd), 
-                                               column_title = ht_title, column_title_gp = gpar(fontface = "bold"), 
+                                               column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 16), 
                                                newpage = FALSE))
     
     # store plot heights for multi-panel plot
@@ -262,7 +264,7 @@ for (th in 1:length(thresholds)) {
 heights <- sapply(split(unlist(plots_heights), rep(1:length(thresholds), each = length(cond_names))), max)
 widths <- rep(7.7, length(cond_names))
 
-fn <- file.path(DIR_PLOTS, paste0("results_diffcyt_DA_edgeR_main_heatmaps_sub.pdf"))
+fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_edgeR_main_heatmaps_sub.pdf"))
 
 pdf(fn, width = 16, height = sum(heights) + 0.5)
 
