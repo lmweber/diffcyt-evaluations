@@ -197,7 +197,7 @@ for (th in 1:length(thresholds)) {
 ord <- c(2 * (1:4) - 1, 2 * (1:4))
 plots_ROC <- plots_ROC[ord]
 
-# remove plot elements
+# modify plot elements
 plots_ROC <- lapply(plots_ROC, function(p) {
   p + theme(legend.position = "none", 
             axis.title.x = element_blank(), axis.title.y = element_blank(), 
@@ -240,7 +240,7 @@ ggsave(fn_ROC, grid_ROC, width = 11, height = 5.4)
 ord <- c(2 * (1:4) - 1, 2 * (1:4))
 plots_TPRFDR <- plots_TPRFDR[ord]
 
-# remove plot elements
+# modify plot elements
 plots_TPRFDR <- lapply(plots_TPRFDR, function(p) {
   p + theme(legend.position = "none", 
             axis.title.x = element_blank(), axis.title.y = element_blank(), 
