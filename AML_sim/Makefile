@@ -30,6 +30,7 @@ TIMESTAMP_PLOTS_SUPP_ALL_MARKERS           = $(DIR_PLOTS)/supp_all_markers/times
 TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(DIR_PLOTS)/supp_separate_clustering/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS         = $(DIR_PLOTS)/supp_random_starts/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM      = $(DIR_PLOTS)/supp_benchmark_random/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT         = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN_ROC_TPRFDR            = $(wildcard $(DIR_GENERATE_PLOTS)/main_ROC_TPRFDR/*.R)
 SCRIPTS_PLOTS_MAIN_RUNTIME               = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
@@ -44,6 +45,7 @@ SCRIPTS_PLOTS_SUPP_LINEAGE_MARKERS       = $(wildcard $(DIR_GENERATE_PLOTS)/supp
 SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_separate_clustering/*.R)
 SCRIPTS_PLOTS_SUPP_RANDOM_STARTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_starts/*.R)
 SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM      = $(wildcard $(DIR_GENERATE_PLOTS)/supp_benchmark_random/*.R)
+SCRIPTS_PLOTS_SUPP_LESS_DISTINCT         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
 
 FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
@@ -54,6 +56,8 @@ FILES_RDATA_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_RDATA)/supp_separate_c
 FILES_RDATA_SUPP_RANDOM_STARTS         = $(wildcard $(DIR_RDATA)/supp_random_starts/*.RData)
 # note subdirectories (e.g. 'supp_benchmark_random/seed1')
 FILES_RDATA_SUPP_BENCHMARK_RANDOM      = $(wildcard $(DIR_RDATA)/supp_benchmark_random/*/*.RData)
+# note subdirectories (e.g. 'supp_less_distinct/50pc')
+FILES_RDATA_SUPP_LESS_DISTINCT         = $(wildcard $(DIR_RDATA)/supp_less_distinct/*/*.RData)
 
 
 
@@ -77,7 +81,8 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR) \
                   $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
                   $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS) \
-                  $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM)
+                  $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM) \
+                  $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT)
 
 
 
@@ -136,6 +141,10 @@ $(TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS): $(SCRIPTS_PLOTS_SUPP_RANDOM_STARTS) $(FIL
 # supplementary: randomized benchmark data sets
 $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM): $(SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM) $(FILES_RDATA_SUPP_BENCHMARK_RANDOM)
 	cd $(DIR_GENERATE_PLOTS)/supp_benchmark_random && bash run_all.sh
+
+# supplementary: less distinct populations
+$(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT): $(SCRIPTS_PLOTS_SUPP_LESS_DISTINCT) $(FILES_RDATA_SUPP_LESS_DISTINCT)
+	cd $(DIR_GENERATE_PLOTS)/supp_less_distinct && bash run_all.sh
 
 
 
