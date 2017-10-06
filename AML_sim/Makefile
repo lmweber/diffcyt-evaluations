@@ -184,6 +184,13 @@ $(DIR_RDATA)/supp_benchmark_random/seed2/outputs_%.RData: $(DIR_RUN_METHODS)/sup
 $(DIR_RDATA)/supp_benchmark_random/seed3/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed3/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM)
 	cd $(DIR_RUN_METHODS)/supp_benchmark_random/seed3 && Rscript $(notdir $<)
 
+# supplementary: less distinct populations
+$(DIR_RDATA)/supp_less_distinct/50pc/outputs_%.RData: $(DIR_RUN_METHODS)/supp_less_distinct/50pc/run_%.R $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
+	cd $(DIR_RUN_METHODS)/supp_less_distinct/50pc && Rscript $(notdir $<)
+
+$(DIR_RDATA)/supp_less_distinct/75pc/outputs_%.RData: $(DIR_RUN_METHODS)/supp_less_distinct/75pc/run_%.R $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
+	cd $(DIR_RUN_METHODS)/supp_less_distinct/75pc && Rscript $(notdir $<)
+
 
 
 
