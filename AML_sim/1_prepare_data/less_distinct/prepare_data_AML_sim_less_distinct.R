@@ -186,7 +186,7 @@ for (di in 1:length(distinctness)) {
     names(data_healthy)
   
   # note: use same random seed as main results (i.e. select same cells for comparability)
-  set.seed(1000)
+  set.seed(100)
   
   for (i in 1:length(data_healthy)) {
     data_i <- data_healthy[[i]]
@@ -238,7 +238,7 @@ for (di in 1:length(distinctness)) {
   cnd <- "CN"
   
   # note: use same random seed as main results (i.e. select same cells for comparability)
-  set.seed(1100)
+  set.seed(200)
   
   for (i in 1:length(data_healthy_CN)) {
     data_i <- data_healthy_CN[[i]]
@@ -285,7 +285,7 @@ for (di in 1:length(distinctness)) {
   cnd <- "CBF"
   
   # note: use same random seed as main results (i.e. select same cells for comparability)
-  set.seed(1200)
+  set.seed(300)
   
   for (i in 1:length(data_healthy_CBF)) {
     data_i <- data_healthy_CBF[[i]]
