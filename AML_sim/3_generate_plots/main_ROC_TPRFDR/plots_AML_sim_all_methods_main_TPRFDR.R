@@ -143,8 +143,8 @@ for (th in 1:length(thresholds)) {
     # ----------------------
     
     # axis limits
-    x_max_zoom <- 0.2
-    y_min_zoom <- 0.8
+    x_max_zoom <- 0.25
+    y_min_zoom <- 0.75
     
     # create plot
     p <- plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4)
