@@ -66,11 +66,11 @@ for (th in 1:length(thresholds)) {
   
   # filenames
   files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
-                              pattern = "\\.fcs$", full.names = TRUE)
+                              pattern = "_distinctness[0-9]+\\.fcs$", full.names = TRUE)
   files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
-                         pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
+                         pattern = paste0("_", thresholds[th], "_distinctness[0-9]+\\.fcs$"), full.names = TRUE)
   files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
-                          pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
+                          pattern = paste0("_", thresholds[th], "_distinctness[0-9]+\\.fcs$"), full.names = TRUE)
   
   # load data
   files_load <- c(files_healthy, files_CN, files_CBF)
