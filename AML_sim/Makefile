@@ -217,7 +217,7 @@ $(TIMESTAMP_BENCHMARK_RANDOM): $(DIR_PREPARE_DATA)/random_seeds/prepare_data_AML
 
 # generate benchmark data files: less distinct populations
 $(TIMESTAMP_BENCHMARK_LESS_DISTINCT): $(DIR_PREPARE_DATA)/less_distinct/prepare_data_AML_sim_less_distinct.R
-	cd $(DIR_PREPARE_DATA)/less distinct && Rscript $(notdir $<)
+	cd $(DIR_PREPARE_DATA)/less_distinct && Rscript $(notdir $<)
 
 
 
