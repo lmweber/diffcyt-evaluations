@@ -218,7 +218,8 @@ for (di in 1:length(distinctness)) {
     # include spike-in status column so all .fcs files have same shape
     data_out_i <- cbind(data_i, spikein = 0)
     
-    filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), "healthy", paste0("AML_sim_healthy_", nm_i, ".fcs"))
+    filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), "healthy", 
+                          paste0("AML_sim_healthy_", nm_i, "_distinctness", distinctness[di] * 100, ".fcs"))
     write.FCS(flowFrame(data_out_i), filename)
   }
   
@@ -270,7 +271,9 @@ for (di in 1:length(distinctness)) {
       data_out_i <- rbind(data_i, spikein_i)
       data_out_i <- cbind(data_out_i, spikein = is_spikein)
       
-      filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), cnd, paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+      filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), cnd, 
+                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc", 
+                                   "_distinctness", distinctness[di] * 100, ".fcs"))
       write.FCS(flowFrame(data_out_i), filename)
     }
   }
@@ -315,7 +318,9 @@ for (di in 1:length(distinctness)) {
       data_out_i <- rbind(data_i, spikein_i)
       data_out_i <- cbind(data_out_i, spikein = is_spikein)
       
-      filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), cnd, paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+      filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), cnd, 
+                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc", 
+                                   "_distinctness", distinctness[di] * 100, ".fcs"))
       write.FCS(flowFrame(data_out_i), filename)
     }
   }

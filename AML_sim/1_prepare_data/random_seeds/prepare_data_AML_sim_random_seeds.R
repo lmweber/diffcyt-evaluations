@@ -196,7 +196,8 @@ for (r in 1:n_replicates) {
     # include spike-in status column so all .fcs files have same shape
     data_out_i <- cbind(data_i, spikein = 0)
     
-    filename <- file.path(DIR_DATA_OUT, paste0("seed", r), "healthy", paste0("AML_sim_healthy_", nm_i, ".fcs"))
+    filename <- file.path(DIR_DATA_OUT, paste0("seed", r), "healthy", 
+                          paste0("AML_sim_healthy_", nm_i, "_randomseed", r, ".fcs"))
     write.FCS(flowFrame(data_out_i), filename)
   }
   
@@ -235,7 +236,8 @@ for (r in 1:n_replicates) {
       data_out_i <- cbind(data_out_i, spikein = is_spikein)
       
       filename <- file.path(DIR_DATA_OUT, paste0("seed", r), cnd, 
-                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc", 
+                                   "_randomseed", r, ".fcs"))
       write.FCS(flowFrame(data_out_i), filename)
     }
   }
@@ -267,7 +269,8 @@ for (r in 1:n_replicates) {
       data_out_i <- cbind(data_out_i, spikein = is_spikein)
       
       filename <- file.path(DIR_DATA_OUT, paste0("seed", r), cnd, 
-                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc", 
+                                   "_randomseed", r, ".fcs"))
       write.FCS(flowFrame(data_out_i), filename)
     }
   }
