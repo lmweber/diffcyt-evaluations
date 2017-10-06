@@ -6,7 +6,7 @@
 # 
 # - supplementary results: randomized benchmark data sets (random seed 'seed3')
 # 
-# Lukas Weber, September 2017
+# Lukas Weber, October 2017
 ##########################################################################################
 
 
@@ -65,7 +65,7 @@ for (th in 1:length(thresholds)) {
   # sample IDs, group IDs, patient IDs
   sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
                      gsub("^AML_sim_", "", 
-                          gsub("\\.fcs$", "", basename(files_load))))
+                          gsub("_randomseed[0-9]+\\.fcs$", "", basename(files_load))))
   sample_IDs
   
   group_IDs <- factor(gsub("_.*$", "", sample_IDs), levels = c("healthy", "CN", "CBF"))
