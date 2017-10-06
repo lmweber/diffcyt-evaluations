@@ -35,8 +35,10 @@
 ##########################################################################################
 
 
-# modified to generate randomized replicates of the benchmark data set using different
-# random seeds
+# modified to create 'less distinct' blasts population: subtract various proportions (e.g.
+# 50%) of the mean difference (between diseased and healthy blasts) in arcsinh-transformed
+# expression along each dimension (protein markers) for all cells in the blasts population
+# of interest
 
 
 library(flowCore)
@@ -52,7 +54,7 @@ DIR_BENCHMARK <- "../../../../../benchmark_data"
 DIR_RAW_DATA_ALL <- file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experiment_46098_files")
 DIR_RAW_DATA_BLASTS <- file.path(DIR_BENCHMARK, "AML_sim/raw_data/CD34_CD45mid_cells/experiment_63534_files")
 
-DIR_DATA_OUT <- file.path(DIR_BENCHMARK, "AML_sim/data/random_seeds")
+DIR_DATA_OUT <- file.path(DIR_BENCHMARK, "AML_sim/data/less_distinct")
 
 files_all <- list.files(DIR_RAW_DATA_ALL, pattern = "\\.fcs$", full.names = TRUE)
 files_healthy <- files_all[grep("H[0-9]+", files_all)]
@@ -80,6 +82,25 @@ tbl_match_healthy_sub[, c("FCS.Filename", "Individuals")]
 names(data_healthy) <- tbl_match_healthy_sub[, "Individuals"]
 
 length(data_healthy)
+
+
+
+# -----------------------------------------------
+# Load data for blasts from healthy samples H1-H5
+# -----------------------------------------------
+
+# note sample names and filenames are shuffled
+tbl_match_blasts <- read.delim(file_match_samples_blasts)
+tbl_match_blasts[grep("H[0-9]+", tbl_match_blasts[, "FCS.Filename"]), c("FCS.Filename", "Individuals")]
+
+files_blasts_H <- files_blasts[1:5]
+
+data_blasts_H <- lapply(files_blasts_H, function(f) exprs(read.FCS(f, transformation = FALSE, truncate_max_range = FALSE)))
+
+names(data_blasts_H) <- names(data_healthy)
+
+# check numbers of cells
+sapply(data_blasts_H, dim)
 
 
 
@@ -137,15 +158,17 @@ dim(exprs(read.FCS(file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experime
 
 
 
-# ---------------------
-# Randomized replicates
-# ---------------------
+# ----------------------------------------------
+# Replicates: different levels of 'distinctness'
+# ----------------------------------------------
 
-# below: use different random seeds for each replicate
+# replicates: subtract various proportions (e.g. 50%) of mean difference in
+# arcsinh-transformed expression along each dimension (protein marker) for the blasts
+# population of interest
 
-n_replicates <- 3
+distinctness <- c(0.5, 0.75)  # 50%, 75%
 
-for (r in 1:n_replicates) {
+for (di in 1:length(distinctness)) {
   
   
   
@@ -162,9 +185,8 @@ for (r in 1:n_replicates) {
   names(data_healthy_base) <- names(data_healthy_CN) <- names(data_healthy_CBF) <- 
     names(data_healthy)
   
-  # random seed
-  seed <- 1000 + r
-  set.seed(seed)
+  # note: use same random seed as main results (i.e. select same cells for comparability)
+  set.seed(1000)
   
   for (i in 1:length(data_healthy)) {
     data_i <- data_healthy[[i]]
@@ -196,7 +218,7 @@ for (r in 1:n_replicates) {
     # include spike-in status column so all .fcs files have same shape
     data_out_i <- cbind(data_i, spikein = 0)
     
-    filename <- file.path(DIR_DATA_OUT, paste0("seed", r), "healthy", paste0("AML_sim_healthy_", nm_i, ".fcs"))
+    filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), "healthy", paste0("AML_sim_healthy_", nm_i, ".fcs"))
     write.FCS(flowFrame(data_out_i), filename)
   }
   
@@ -214,9 +236,8 @@ for (r in 1:n_replicates) {
   data_blasts_AML <- data_SJ10
   cnd <- "CN"
   
-  # random seed
-  seed <- 1100 + r
-  set.seed(seed)
+  # note: use same random seed as main results (i.e. select same cells for comparability)
+  set.seed(1100)
   
   for (i in 1:length(data_healthy_CN)) {
     data_i <- data_healthy_CN[[i]]
@@ -231,11 +252,25 @@ for (r in 1:n_replicates) {
       # subsample blasts
       spikein_i <- data_blasts_AML[sample(1:nrow(data_blasts_AML), n_spikein), , drop = FALSE]
       
+      
+      # calculate mean difference between AML blasts and healthy blasts along each
+      # dimension, and subtract proportion
+      
+      stopifnot(all(colnames(data_blasts_AML) == colnames(data_blasts_H[[i]])))
+      stopifnot(all(colnames(spikein_i) == colnames(data_blasts_H[[i]])))
+      
+      means_H <- apply(data_blasts_H[[i]], 2, mean)
+      means_AML <- apply(data_blasts_AML, 2, mean)
+      
+      # use transpose to allow vectorized subtraction
+      spikein_i <- t(t(spikein_i) - distinctness[di] * (means_AML - means_H))
+      
+      
+      # export data
       data_out_i <- rbind(data_i, spikein_i)
       data_out_i <- cbind(data_out_i, spikein = is_spikein)
       
-      filename <- file.path(DIR_DATA_OUT, paste0("seed", r), cnd, 
-                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+      filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), cnd, paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
       write.FCS(flowFrame(data_out_i), filename)
     }
   }
@@ -246,9 +281,8 @@ for (r in 1:n_replicates) {
   data_blasts_AML <- data_SJ4
   cnd <- "CBF"
   
-  # random seed
-  seed <- 1200 + r
-  set.seed(seed)
+  # note: use same random seed as main results (i.e. select same cells for comparability)
+  set.seed(1200)
   
   for (i in 1:length(data_healthy_CBF)) {
     data_i <- data_healthy_CBF[[i]]
@@ -263,15 +297,28 @@ for (r in 1:n_replicates) {
       # subsample blasts
       spikein_i <- data_blasts_AML[sample(1:nrow(data_blasts_AML), n_spikein), , drop = FALSE]
       
+      
+      # calculate mean difference between AML blasts and healthy blasts along each
+      # dimension, and subtract proportion
+      
+      stopifnot(all(colnames(data_blasts_AML) == colnames(data_blasts_H[[i]])))
+      stopifnot(all(colnames(spikein_i) == colnames(data_blasts_H[[i]])))
+      
+      means_H <- apply(data_blasts_H[[i]], 2, mean)
+      means_AML <- apply(data_blasts_AML, 2, mean)
+      
+      # use transpose to allow vectorized subtraction
+      spikein_i <- t(t(spikein_i) - distinctness[di] * (means_AML - means_H))
+      
+      
+      # export data
       data_out_i <- rbind(data_i, spikein_i)
       data_out_i <- cbind(data_out_i, spikein = is_spikein)
       
-      filename <- file.path(DIR_DATA_OUT, paste0("seed", r), cnd, 
-                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
+      filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), cnd, paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc.fcs"))
       write.FCS(flowFrame(data_out_i), filename)
     }
   }
-  
 }
 
 

@@ -13,8 +13,9 @@ DIR_RDATA          = ../../RData/AML_sim
 DIR_PLOTS          = ../../plots/AML_sim
 
 
-TIMESTAMP_BENCHMARK_MAIN   = $(DIR_BENCHMARK)/main/timestamp.txt
-TIMESTAMP_BENCHMARK_RANDOM = $(DIR_BENCHMARK)/random_seeds/timestamp.txt
+TIMESTAMP_BENCHMARK_MAIN          = $(DIR_BENCHMARK)/main/timestamp.txt
+TIMESTAMP_BENCHMARK_RANDOM        = $(DIR_BENCHMARK)/random_seeds/timestamp.txt
+TIMESTAMP_BENCHMARK_LESS_DISTINCT = $(DIR_BENCHMARK)/less_distinct/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR            = $(DIR_PLOTS)/main_ROC_TPRFDR/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_RUNTIME               = $(DIR_PLOTS)/main_runtime/timestamp.txt
@@ -197,6 +198,10 @@ $(TIMESTAMP_BENCHMARK_MAIN): $(DIR_PREPARE_DATA)/main/prepare_data_AML_sim_main.
 # generate benchmark data files: random seeds
 $(TIMESTAMP_BENCHMARK_RANDOM): $(DIR_PREPARE_DATA)/random_seeds/prepare_data_AML_sim_random_seeds.R
 	cd $(DIR_PREPARE_DATA)/random_seeds && Rscript $(notdir $<)
+
+# generate benchmark data files: less distinct populations
+$(TIMESTAMP_BENCHMARK_LESS_DISTINCT): $(DIR_PREPARE_DATA)/less_distinct/prepare_data_AML_sim_less_distinct.R
+	cd $(DIR_PREPARE_DATA)/less distinct && Rscript $(notdir $<)
 
 
 

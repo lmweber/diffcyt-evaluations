@@ -31,7 +31,7 @@
 # in the downloaded .tsv files 'experiment_46098_annotations.tsv' and
 # 'experiment_63534_annotations.tsv'.
 #
-# Lukas Weber, September 2017
+# Lukas Weber, October 2017
 ##########################################################################################
 
 
@@ -184,8 +184,8 @@ for (i in 1:length(data_healthy_base)) {
 
 
 
-# Blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the number of
-# healthy cells for each sample, and combined with the healthy cells to create the
+# AML blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the number
+# of healthy cells for each sample, and combined with the healthy cells to create the
 # spike-in data sets.
 
 thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
@@ -193,7 +193,7 @@ thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
 
 # condition CN (patient SJ10)
 
-data_blasts <- data_SJ10
+data_blasts_AML <- data_SJ10
 cnd <- "CN"
 
 set.seed(1100)
@@ -209,7 +209,7 @@ for (i in 1:length(data_healthy_CN)) {
     cat("n =", n_spikein, "\n")
     
     # subsample blasts
-    spikein_i <- data_blasts[sample(1:nrow(data_blasts), n_spikein), ]
+    spikein_i <- data_blasts_AML[sample(1:nrow(data_blasts_AML), n_spikein), , drop = FALSE]
     
     data_out_i <- rbind(data_i, spikein_i)
     data_out_i <- cbind(data_out_i, spikein = is_spikein)
@@ -222,7 +222,7 @@ for (i in 1:length(data_healthy_CN)) {
 
 # condition CBF (patient SJ4)
 
-data_blasts <- data_SJ4
+data_blasts_AML <- data_SJ4
 cnd <- "CBF"
 
 set.seed(1200)
@@ -238,7 +238,7 @@ for (i in 1:length(data_healthy_CBF)) {
     cat("n =", n_spikein, "\n")
     
     # subsample blasts
-    spikein_i <- data_blasts[sample(1:nrow(data_blasts), n_spikein), ]
+    spikein_i <- data_blasts_AML[sample(1:nrow(data_blasts_AML), n_spikein), , drop = FALSE]
     
     data_out_i <- rbind(data_i, spikein_i)
     data_out_i <- cbind(data_out_i, spikein = is_spikein)
