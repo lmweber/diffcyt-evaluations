@@ -249,7 +249,7 @@ for (th in 1:length(thresholds)) {
                                                newpage = FALSE))
     
     # store plot heights for multi-panel plot
-    plots_heights[[ix]] <- max(1.8, 1.6 + 0.19 * nrow(d_abundance))
+    plots_heights[[ix]] <- max(2, 1.8 + 0.14 * nrow(d_abundance))
     
   }
 }
