@@ -170,7 +170,7 @@ for (th in 1:length(thresholds)) {
       # first layer
       geom_point(alpha = 0.5) + 
       scale_size_area(max_size = 3) + 
-      scale_color_manual(values = c("gray70", "red"), labels = c("FALSE", "TRUE")) + 
+      scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
       # additional layer: outline clusters containing significant proportion spike-in cells
       geom_point(data = subset(d_plot, spikein == 1), shape = 1, color = "black", stroke = 0.75) + 
       # additional layer: emphasize significant differential clusters
