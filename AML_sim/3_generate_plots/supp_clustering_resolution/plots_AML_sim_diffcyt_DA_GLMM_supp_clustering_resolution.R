@@ -98,7 +98,7 @@ for (th in 1:length(thresholds)) {
     # (note: can ignore warning messages when 'padj' not available)
     cobraperf <- calculate_performance(cobradata, 
                                        binary_truth = "spikein", 
-                                       aspects = c("roc"))
+                                       aspects = "roc")
     
     # color scheme
     colors <- colorRampPalette(c("#c7e9c0", "darkgreen"))(7)
@@ -219,7 +219,7 @@ for (j in 1:length(cond_names)) {
     # (note: can ignore warning messages when 'padj' not available)
     cobraperf <- calculate_performance(cobradata, 
                                        binary_truth = "spikein", 
-                                       aspects = c("roc"))
+                                       aspects = "roc")
     
     # calculate pAUC values (store in separate vector)
     pAUC <- rep(NA, length(data))

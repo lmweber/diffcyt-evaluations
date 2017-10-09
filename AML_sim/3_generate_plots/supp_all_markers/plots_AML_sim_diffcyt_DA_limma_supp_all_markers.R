@@ -78,7 +78,7 @@ for (th in 1:length(thresholds)) {
     # (note: can ignore warning messages when 'padj' not available)
     cobraperf <- calculate_performance(cobradata, 
                                        binary_truth = "spikein", 
-                                       aspects = c("roc"))
+                                       aspects = "roc")
     
     # color scheme
     #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue2", "darkslategray2")
