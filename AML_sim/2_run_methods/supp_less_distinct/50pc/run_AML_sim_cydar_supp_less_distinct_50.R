@@ -158,7 +158,7 @@ for (th in 1:length(thresholds)) {
   
   runtime_count <- system.time({
     
-    set.seed(123)
+    set.seed(1234)
     
     # prepare 'CyData' object
     cd <- prepareCellData(d_input_cydar)
