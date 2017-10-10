@@ -65,9 +65,9 @@ file_match_samples_blasts <- file.path(DIR_RAW_DATA_BLASTS, "experiment_63534_an
 
 
 
-# ------------------------------------
-# Load data from healthy samples H1-H5
-# ------------------------------------
+# ----------------------------------------------
+# Load data for healthy samples H1-H5: all cells
+# ----------------------------------------------
 
 data_healthy <- lapply(files_healthy, function(f) exprs(read.FCS(f, transformation = FALSE, truncate_max_range = FALSE)))
 
@@ -80,12 +80,13 @@ tbl_match_healthy_sub[, c("FCS.Filename", "Individuals")]
 names(data_healthy) <- tbl_match_healthy_sub[, "Individuals"]
 
 length(data_healthy)
+sapply(data_healthy, dim)
 
 
 
-# ----------------------------------------------------------------
-# Load data from AML patients (CN: patient SJ10; CBF: patient SJ4)
-# ----------------------------------------------------------------
+# ---------------------------------------------------------------
+# Load data for AML patients (CN: patient SJ10; CBF: patient SJ4)
+# ---------------------------------------------------------------
 
 # note sample names and filenames are shuffled
 tbl_match_blasts <- read.delim(file_match_samples_blasts)
@@ -204,8 +205,8 @@ for (r in 1:n_replicates) {
   
   
   # AML blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the
-  # number of healthy cells for each sample, and combined with the healthy cells to create
-  # the spike-in data sets.
+  # total number of healthy cells for each sample, and combined with the healthy cells to
+  # create the spike-in data sets.
   
   thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
   

@@ -61,9 +61,9 @@ file_match_samples_blasts <- file.path(DIR_RAW_DATA_BLASTS, "experiment_63534_an
 
 
 
-# ------------------------------------
-# Load data from healthy samples H1-H5
-# ------------------------------------
+# ----------------------------------------------
+# Load data for healthy samples H1-H5: all cells
+# ----------------------------------------------
 
 data_healthy <- lapply(files_healthy, function(f) exprs(read.FCS(f, transformation = FALSE, truncate_max_range = FALSE)))
 
@@ -76,12 +76,32 @@ tbl_match_healthy_sub[, c("FCS.Filename", "Individuals")]
 names(data_healthy) <- tbl_match_healthy_sub[, "Individuals"]
 
 length(data_healthy)
+sapply(data_healthy, dim)
 
 
 
-# ----------------------------------------------------------------
-# Load data from AML patients (CN: patient SJ10; CBF: patient SJ4)
-# ----------------------------------------------------------------
+# ------------------------------------------------
+# Load data for healthy samples H1-H5: blast cells
+# ------------------------------------------------
+
+# note sample names and filenames are shuffled
+tbl_match_blasts <- read.delim(file_match_samples_blasts)
+tbl_match_blasts[grep("H[0-9]+", tbl_match_blasts[, "FCS.Filename"]), c("FCS.Filename", "Individuals")]
+
+files_blasts_H <- files_blasts[1:5]
+
+data_blasts_H <- lapply(files_blasts_H, function(f) exprs(read.FCS(f, transformation = FALSE, truncate_max_range = FALSE)))
+
+names(data_blasts_H) <- names(data_healthy)
+
+# check numbers of cells
+sapply(data_blasts_H, dim)
+
+
+
+# ---------------------------------------------------------------
+# Load data for AML patients (CN: patient SJ10; CBF: patient SJ4)
+# ---------------------------------------------------------------
 
 # note sample names and filenames are shuffled
 tbl_match_blasts <- read.delim(file_match_samples_blasts)
@@ -116,6 +136,9 @@ all.equal(colnames(data_SJ10), colnames(data_SJ4))
 
 # healthy
 sapply(data_healthy, dim)
+
+# healthy blasts
+sapply(data_blasts_H, dim)
 
 # SJ10: should be 80.7% of total (Levine et al. 2015, Supplemental Data S3B)
 dim(data_SJ10)
@@ -184,9 +207,25 @@ for (i in 1:length(data_healthy_base)) {
 
 
 
-# AML blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the number
-# of healthy cells for each sample, and combined with the healthy cells to create the
-# spike-in data sets.
+# Export blast cells for healthy samples (H1-H5) (for plotting)
+
+# save .fcs files
+for (i in 1:length(data_blasts_H)) {
+  data_i <- data_blasts_H[[i]]
+  nm_i <- names(data_blasts_H)[i]
+  
+  # include spike-in status column so all .fcs files have same shape
+  data_out_i <- cbind(data_i, spikein = 0)
+  
+  filename <- file.path(DIR_DATA_OUT, "healthy_blasts", paste0("AML_sim_healthy_blasts_", nm_i, ".fcs"))
+  write.FCS(flowFrame(data_out_i), filename)
+}
+
+
+
+# AML blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the total
+# number of healthy cells for each sample, and combined with the healthy cells to create
+# the spike-in data sets.
 
 thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
 
