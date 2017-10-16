@@ -280,7 +280,7 @@ for (di in 1:length(distinctness)) {
       # use transpose to allow vectorized subtraction
       spikein_i <- t(t(asinh(spikein_i / cofactor)) - distinctness[di] * (means_AML - means_H))
       # convert back to non-arcsinh-transformed
-      spikein_i <- sinh(spikein_i)
+      spikein_i <- sinh(spikein_i) * cofactor
       
       
       data_out_i <- rbind(data_i, spikein_i)
@@ -331,7 +331,7 @@ for (di in 1:length(distinctness)) {
       # use transpose to allow vectorized subtraction
       spikein_i <- t(t(asinh(spikein_i / cofactor)) - distinctness[di] * (means_AML - means_H))
       # convert back to non-arcsinh-transformed
-      spikein_i <- sinh(spikein_i)
+      spikein_i <- sinh(spikein_i) * cofactor
       
       
       data_out_i <- rbind(data_i, spikein_i)
