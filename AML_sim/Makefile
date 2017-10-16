@@ -31,6 +31,7 @@ TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(DIR_PLOTS)/supp_separate_clusteri
 TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS         = $(DIR_PLOTS)/supp_random_starts/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM      = $(DIR_PLOTS)/supp_benchmark_random/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT         = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
+TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS         = $(DIR_PLOTS)/data_distributions/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN_ROC_TPRFDR            = $(wildcard $(DIR_GENERATE_PLOTS)/main_ROC_TPRFDR/*.R)
 SCRIPTS_PLOTS_MAIN_RUNTIME               = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
@@ -46,6 +47,7 @@ SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_GENERATE_PLOTS)/supp
 SCRIPTS_PLOTS_SUPP_RANDOM_STARTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_starts/*.R)
 SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM      = $(wildcard $(DIR_GENERATE_PLOTS)/supp_benchmark_random/*.R)
 SCRIPTS_PLOTS_SUPP_LESS_DISTINCT         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
+SCRIPTS_PLOTS_DATA_DISTRIBUTIONS         = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
 
 FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
@@ -82,7 +84,8 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR) \
                   $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS) \
                   $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM) \
-                  $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT)
+                  $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
+                  $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS)
 
 
 
@@ -145,6 +148,10 @@ $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM): $(SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM)
 # supplementary: less distinct populations
 $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT): $(SCRIPTS_PLOTS_SUPP_LESS_DISTINCT) $(FILES_RDATA_SUPP_LESS_DISTINCT)
 	cd $(DIR_GENERATE_PLOTS)/supp_less_distinct && bash run_all.sh
+
+# data distributions
+$(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(FILES_RDATA_SUPP_LESS_DISTINCT) $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/data_distributions && bash run_all.sh
 
 
 
