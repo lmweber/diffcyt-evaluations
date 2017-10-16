@@ -105,9 +105,9 @@ sapply(data_healthy_blasts, dim)
 
 
 
-# ---------------------------------------------------------------
-# Load data for AML patients (CN: patient SJ10; CBF: patient SJ4)
-# ---------------------------------------------------------------
+# ----------------------------------------------------------------------------
+# Load data for AML patients: blast cells (CN: patient SJ10; CBF: patient SJ4)
+# ----------------------------------------------------------------------------
 
 # note sample names and filenames are shuffled
 tbl_match_blasts <- read.delim(file_match_samples_blasts)
@@ -224,23 +224,6 @@ for (di in 1:length(distinctness)) {
     
     filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), "healthy", 
                           paste0("AML_sim_healthy_", nm_i, "_distinctness", distinctness[di] * 100, ".fcs"))
-    write.FCS(flowFrame(data_out_i), filename)
-  }
-  
-  
-  
-  # Export blast cells for healthy samples (H1-H5) (for plotting)
-  
-  # save .fcs files
-  for (i in 1:length(data_healthy_blasts)) {
-    data_i <- data_healthy_blasts[[i]]
-    nm_i <- names(data_healthy_blasts)[i]
-    
-    # include spike-in status column so all .fcs files have same shape
-    data_out_i <- cbind(data_i, spikein = 0)
-    
-    filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), "healthy_blasts", 
-                          paste0("AML_sim_healthy_blasts_", nm_i, "_distinctness", distinctness[di] * 100, ".fcs"))
     write.FCS(flowFrame(data_out_i), filename)
   }
   
