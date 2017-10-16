@@ -35,10 +35,10 @@
 ##########################################################################################
 
 
-# modified to create 'less distinct' blasts population: subtract various proportions (e.g.
-# 50%) of the mean difference (between diseased and healthy blasts) in arcsinh-transformed
-# expression along each dimension (protein markers) for all cells in the blasts population
-# of interest
+# modified to create 'less distinct' blasts populations: reduce differences in medians and
+# standard deviations (e.g. by 50%) in arcsinh-transformed expression along each dimension
+# (protein markers), between diseased and healthy blasts, for all cells in the blasts
+# population of interest
 
 
 library(flowCore)
@@ -166,9 +166,10 @@ dim(exprs(read.FCS(file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experime
 # Replicates: different levels of 'distinctness'
 # ----------------------------------------------
 
-# replicates: subtract various proportions (e.g. 50%) of mean difference in
-# arcsinh-transformed expression along each dimension (protein marker) for the blasts
-# population of interest
+# replicates: create 'less distinct' data sets by reducing difference in median and
+# standard deviation of arcsinh-transformed expression by various proportions (e.g. 50%),
+# along each dimension (protein marker), for the blasts population of interest
+
 
 # cofactor for arcsinh transform
 cofactor <- 5
@@ -266,19 +267,22 @@ for (di in 1:length(distinctness)) {
       spikein_i <- data_blasts_AML[sample(1:nrow(data_blasts_AML), n_spikein), , drop = FALSE]
       
       
-      # calculate mean difference between AML blasts and healthy blasts along each
-      # dimension, and subtract proportion
+      # calculate difference in median and standard deviation between AML blasts and
+      # healthy blasts along each dimension, then reduce by certain proportion
       
       # note: use arcsinh-transformed values; then convert back to non-transformed
       
       stopifnot(all(colnames(data_blasts_AML) == colnames(data_healthy_blasts[[i]])))
       stopifnot(all(colnames(spikein_i) == colnames(data_healthy_blasts[[i]])))
       
-      means_H <- apply(asinh(data_healthy_blasts[[i]] / cofactor), 2, mean)
-      means_AML <- apply(asinh(data_blasts_AML / cofactor), 2, mean)
+      medians_H <- apply(asinh(data_healthy_blasts[[i]] / cofactor), 2, median)
+      medians_AML <- apply(asinh(data_blasts_AML / cofactor), 2, median)
+      
+      sds_H <- apply(asinh(data_healthy_blasts[[i]] / cofactor), 2, sd)
+      sds_AML <- apply(asinh(data_blasts_AML / cofactor), 2, sd)
       
       # use transpose to allow vectorized subtraction
-      spikein_i <- t(t(asinh(spikein_i / cofactor)) - distinctness[di] * (means_AML - means_H))
+      spikein_i <- t((t(asinh(spikein_i / cofactor)) - (distinctness[di] * (medians_AML - medians_H))) * (1 - (distinctness[di] * (sds_AML - sds_H)) / sds_AML))
       # convert back to non-arcsinh-transformed
       spikein_i <- sinh(spikein_i) * cofactor
       
@@ -317,19 +321,22 @@ for (di in 1:length(distinctness)) {
       spikein_i <- data_blasts_AML[sample(1:nrow(data_blasts_AML), n_spikein), , drop = FALSE]
       
       
-      # calculate mean difference between AML blasts and healthy blasts along each
-      # dimension, and subtract proportion
+      # calculate difference in median and standard deviation between AML blasts and
+      # healthy blasts along each dimension, then reduce by certain proportion
       
       # note: use arcsinh-transformed values; then convert back to non-transformed
       
       stopifnot(all(colnames(data_blasts_AML) == colnames(data_healthy_blasts[[i]])))
       stopifnot(all(colnames(spikein_i) == colnames(data_healthy_blasts[[i]])))
       
-      means_H <- apply(asinh(data_healthy_blasts[[i]] / cofactor), 2, mean)
-      means_AML <- apply(asinh(data_blasts_AML / cofactor), 2, mean)
+      medians_H <- apply(asinh(data_healthy_blasts[[i]] / cofactor), 2, median)
+      medians_AML <- apply(asinh(data_blasts_AML / cofactor), 2, median)
+      
+      sds_H <- apply(asinh(data_healthy_blasts[[i]] / cofactor), 2, sd)
+      sds_AML <- apply(asinh(data_blasts_AML / cofactor), 2, sd)
       
       # use transpose to allow vectorized subtraction
-      spikein_i <- t(t(asinh(spikein_i / cofactor)) - distinctness[di] * (means_AML - means_H))
+      spikein_i <- t((t(asinh(spikein_i / cofactor)) - (distinctness[di] * (medians_AML - medians_H))) * (1 - (distinctness[di] * (sds_AML - sds_H)) / sds_AML))
       # convert back to non-arcsinh-transformed
       spikein_i <- sinh(spikein_i) * cofactor
       
