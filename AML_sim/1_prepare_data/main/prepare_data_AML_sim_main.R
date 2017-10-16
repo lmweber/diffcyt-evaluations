@@ -61,9 +61,9 @@ file_match_samples_blasts <- file.path(DIR_RAW_DATA_BLASTS, "experiment_63534_an
 
 
 
-# ----------------------------------------------
-# Load data for healthy samples H1-H5: all cells
-# ----------------------------------------------
+# -----------------------------------------------
+# Load data for healthy samples H1-H5 (all cells)
+# -----------------------------------------------
 
 data_healthy <- lapply(files_healthy, function(f) exprs(read.FCS(f, transformation = FALSE, truncate_max_range = FALSE)))
 
@@ -80,22 +80,22 @@ sapply(data_healthy, dim)
 
 
 
-# ------------------------------------------------
-# Load data for healthy samples H1-H5: blast cells
-# ------------------------------------------------
+# -------------------------------------------------
+# Load data for healthy samples H1-H5 (blast cells)
+# -------------------------------------------------
 
 # note sample names and filenames are shuffled
 tbl_match_blasts <- read.delim(file_match_samples_blasts)
 tbl_match_blasts[grep("H[0-9]+", tbl_match_blasts[, "FCS.Filename"]), c("FCS.Filename", "Individuals")]
 
-files_blasts_H <- files_blasts[1:5]
+files_healthy_blasts <- files_blasts[1:5]
 
-data_blasts_H <- lapply(files_blasts_H, function(f) exprs(read.FCS(f, transformation = FALSE, truncate_max_range = FALSE)))
+data_healthy_blasts <- lapply(files_healthy_blasts, function(f) exprs(read.FCS(f, transformation = FALSE, truncate_max_range = FALSE)))
 
-names(data_blasts_H) <- names(data_healthy)
+names(data_healthy_blasts) <- names(data_healthy)
 
 # check numbers of cells
-sapply(data_blasts_H, dim)
+sapply(data_healthy_blasts, dim)
 
 
 
@@ -138,7 +138,7 @@ all.equal(colnames(data_SJ10), colnames(data_SJ4))
 sapply(data_healthy, dim)
 
 # healthy blasts
-sapply(data_blasts_H, dim)
+sapply(data_healthy_blasts, dim)
 
 # SJ10: should be 80.7% of total (Levine et al. 2015, Supplemental Data S3B)
 dim(data_SJ10)
@@ -156,13 +156,13 @@ dim(exprs(read.FCS(file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experime
 
 
 
-# -------------------------
-# Create spike-in data sets
-# -------------------------
+# ---------------------
+# Split healthy samples
+# ---------------------
 
-# First: split each healthy sample (H1-H5) into 3 equal parts. One part will be used as
-# the healthy sample, and the other parts will each have spike-in cells added (for
-# conditions CN and CBF).
+# Split each healthy sample (H1-H5) into 3 equal parts. One part will be used as the
+# healthy sample, and the other parts will each have spike-in cells added (for conditions
+# CN and CBF).
 
 data_healthy_base <- data_healthy_CN <- data_healthy_CBF <- 
   vector("list", length(data_healthy))
@@ -210,9 +210,9 @@ for (i in 1:length(data_healthy_base)) {
 # Export blast cells for healthy samples (H1-H5) (for plotting)
 
 # save .fcs files
-for (i in 1:length(data_blasts_H)) {
-  data_i <- data_blasts_H[[i]]
-  nm_i <- names(data_blasts_H)[i]
+for (i in 1:length(data_healthy_blasts)) {
+  data_i <- data_healthy_blasts[[i]]
+  nm_i <- names(data_healthy_blasts)[i]
   
   # include spike-in status column so all .fcs files have same shape
   data_out_i <- cbind(data_i, spikein = 0)
@@ -222,6 +222,10 @@ for (i in 1:length(data_blasts_H)) {
 }
 
 
+
+# -------------------------
+# Create spike-in data sets
+# -------------------------
 
 # AML blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the total
 # number of healthy cells for each sample, and combined with the healthy cells to create
@@ -257,6 +261,7 @@ for (i in 1:length(data_healthy_CN)) {
     write.FCS(flowFrame(data_out_i), filename)
   }
 }
+
 
 
 # condition CBF (patient SJ4)
