@@ -179,12 +179,11 @@ for (i in 1:length(data_healthy_blasts)) {
 
 # save .fcs files
 data_CN <- data_SJ10
-nm_CN <- "CN"
 
 # include spike-in status column so all .fcs files have same shape
 data_out_CN <- cbind(data_CN, spikein = 0)
 
-filename <- file.path(DIR_DATA_OUT, "blasts_all", paste0("AML_sim_blasts_all_CN_", nm_CN, ".fcs"))
+filename <- file.path(DIR_DATA_OUT, "blasts_all", paste0("AML_sim_blasts_all_CN.fcs"))
 write.FCS(flowFrame(data_out_CN), filename)
 
 
@@ -192,12 +191,11 @@ write.FCS(flowFrame(data_out_CN), filename)
 
 # save .fcs files
 data_CBF <- data_SJ4
-nm_CBF <- "CBF"
 
 # include spike-in status column so all .fcs files have same shape
 data_out_CBF <- cbind(data_CBF, spikein = 0)
 
-filename <- file.path(DIR_DATA_OUT, "blasts_all", paste0("AML_sim_blasts_all_CBF_", nm_CBF, ".fcs"))
+filename <- file.path(DIR_DATA_OUT, "blasts_all", paste0("AML_sim_blasts_all_CBF.fcs"))
 write.FCS(flowFrame(data_out_CBF), filename)
 
 
