@@ -22,9 +22,12 @@ clean_Citrus:
 clean_CellCnn:
 	find ../CellCnn_files -type f -delete
 
-# remove auto-generated diagnostic plots (voom) for diffcyt-DA-limma
-.PHONY: clean_voom
-clean_voom:
+# remove auto-generated 'Rplots.pdf' files
+# (from heatmaps plotting script, and voom diagnostic plots from diffcyt-DA-limma)
+.PHONY: clean_Rplots
+clean_Rplots:
 	find AML_sim/2_run_methods -name "Rplots.pdf" -delete
+	find AML_sim/3_generate_plots -name "Rplots.pdf" -delete
+
 
 
