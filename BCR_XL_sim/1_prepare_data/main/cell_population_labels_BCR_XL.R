@@ -2,10 +2,17 @@
 # Script to reproduce manually merged cell population labels from Nowicka et al. (2017)
 # for 'BCR-XL' data set
 # 
-# See main script 'prepare_data_BCR_XL_sim.R' for more details.
+# See main script 'prepare_data_BCR_XL_sim_main.R' for more details.
 # 
-# Lukas Weber, August 2017
+# Lukas Weber, October 2017
 ##########################################################################################
+
+
+DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim"
+DIR_OUTPUT <- file.path(DIR_BENCHMARK, "population_IDs")
+DIR_TMP <- file.path(DIR_BENCHMARK, "population_IDs/tmp")
+
+DIR_CURRENT <- getwd()
 
 
 
@@ -13,6 +20,8 @@
 ####################################################################
 # Run code from first few sections in Nowicka et al. (2017) workflow
 ####################################################################
+
+setwd(DIR_TMP)
 
 
 # -----------
@@ -517,6 +526,8 @@ plot_clustering_heatmap_wrapper(expr = expr[, lineage_markers_ord],
 # Stop workflow here (for complete workflow, see Nowicka et al. 2017)
 # -------------------------------------------------------------------
 
+setwd(DIR_CURRENT)
+
 
 
 
@@ -560,10 +571,8 @@ names(labels)
 
 
 # save as .csv files (one file per sample)
-DATA_DIR <- "../../../../benchmark_data/BCR_XL_sim/population_IDs"
-
 for (i in 1:length(labels)) {
-  fn <- file.path(DATA_DIR, paste0("population_IDs_", names(labels)[i], ".csv"))
+  fn <- file.path(DIR_OUTPUT, paste0("population_IDs_", names(labels)[i], ".csv"))
   write.csv(data.frame(population = labels[[i]]), file = fn, row.names = FALSE)
 }
 
@@ -573,7 +582,7 @@ for (i in 1:length(labels)) {
 # Save timestamp file for Makefiles
 ###################################
 
-file_timestamp <- file.path(DATA_DIR, "timestamp.txt")
+file_timestamp <- file.path(DIR_OUTPUT, "timestamp.txt")
 
 sink(file_timestamp)
 Sys.time()
