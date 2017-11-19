@@ -92,7 +92,7 @@ p <-
 
 # save plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_methods_main_TPR.pdf")
-ggsave(fn, width = 6.5, height = 6.5)
+ggsave(fn, width = 6.5, height = 4.5)
 
 
 
