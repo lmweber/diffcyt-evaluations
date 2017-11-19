@@ -2,7 +2,7 @@
 # Generate plots
 # 
 # - data set: BCR-XL-sim
-# - plot type: TPR-FDR curves
+# - plot type: TPR plots
 # - method: diffcyt methods
 # 
 # - main results
@@ -55,7 +55,7 @@ cobradata <- COBRAData(pval = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"
 # (note: can ignore warning messages when 'padj' not available)
 cobraperf <- calculate_performance(cobradata, 
                                    binary_truth = "spikein", 
-                                   aspects = c("fdrtpr", "fdrtprcurve"))
+                                   aspects = "tpr")
 
 # color scheme
 #colors <- c("darkblue", "deepskyblue2", "darkslategray2")
@@ -74,31 +74,24 @@ cobraplot <- reorder_levels(cobraplot, levels = names(data))
 
 
 
-# --------------
-# TPR-FDR curves
-# --------------
-
-# axis limits
-x_max <- 1
-y_min <- 0
+# ---------
+# TPR plots
+# ---------
 
 # create plot
 p <- 
-  plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4) + 
-  scale_shape_manual(values = c(22, 21, 23)) + 
+  plot_tpr(cobraplot, pointsize = 5) + 
+  scale_shape_manual(values = c(15, 19, 17)) + 
   coord_fixed() + 
-  xlim(c(0, x_max)) + 
-  ylim(c(y_min, 1)) + 
-  xlab("False discovery rate") + 
-  ylab("True positive rate") + 
-  ggtitle(paste0("BCR-XL-sim, main results: TPR vs. FDR")) + 
+  xlab("True positive rate") + 
+  ggtitle(paste0("BCR-XL-sim, main results: TPR")) + 
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   guides(color = guide_legend("method", override.aes = list(shape = NA)), shape = FALSE)
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_methods_main_TPRFDR.pdf")
-ggsave(fn, width = 6.5, height = 5.25)
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_methods_main_TPR.pdf")
+ggsave(fn, width = 6, height = 6)
 
 
 
