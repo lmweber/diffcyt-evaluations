@@ -29,7 +29,7 @@
 ##########################################################################################
 
 
-# 'main' simulation: contains the full differential expression signal for pS6
+# null simulation: no differential signal (i.e. not spiking in any stimulated B cells)
 
 
 library(flowCore)
@@ -110,35 +110,6 @@ data <- mapply(function(d, l) {
 
 
 
-# ----------------------
-# Export unmodified data
-# ----------------------
-
-# export key for population labels/names
-
-DIR_DATA_OUT <- file.path(DIR_BENCHMARK, "BCR_XL_sim/data")
-
-labels_key <- data.frame(label = 1:length(levels(labels[[1]]$population)), 
-                         name = levels(labels[[1]]$population))
-
-file_key <- file.path(DIR_DATA_OUT, "population_names.csv")
-write.csv(labels_key, file = file_key, row.names = FALSE)
-
-
-# export unmodified data
-
-for (i in 1:length(data)) {
-  data_i <- data[[i]]
-  
-  # include spike-in status column so all .fcs files have same shape
-  data_out_i <- cbind(data_i, spikein = 0)
-  
-  file_i <- file.path(DIR_DATA_OUT, "unmodified", basename(files_all)[i])
-  write.FCS(flowFrame(data_out_i), file_i)
-}
-
-
-
 # ---------------------------------------------------------------
 # Split each reference sample into two halves: 'base' and 'spike'
 # ---------------------------------------------------------------
@@ -165,70 +136,23 @@ data_spike <- mapply(function(d, i) d[i, ], data_ref, inds_spike, SIMPLIFY = FAL
 
 
 
-# -------------------------------------------------------------------------------------
-# Replace B cells in 'spike' samples with an equivalent number of B cells from 'BCR-XL'
-# (stimulated) condition
-# -------------------------------------------------------------------------------------
-
-# note: for some samples, not enough B cells are available; use all available B cells in
-# this case
-
-# B cells from 'BCR-XL' (stimulated) condition
-data_BCRXL <- data[conditions == "BCR-XL"]
-
-B_cells_BCRXL <- lapply(data_BCRXL, function(d) {
-  d[d[, "B_cell"] == 1, ]
-})
-
-# number of B cells available
-sapply(B_cells_BCRXL, nrow)
-
-# number of B cells needed
-n_spike <- sapply(data_spike, function(d) {
-  sum(d[, "B_cell"] == 1)
-})
-n_spike
-
-# select correct number of B cells from 'BCR-XL' (stimulated) condition for each sample
-
-set.seed(123)
-
-B_cells_spike <- mapply(function(b, n) {
-  # reduce 'n' if not enough B cells available
-  n <- min(n, nrow(b))
-  ixs <- sample(seq_len(nrow(b)), n)
-  b[ixs, ]
-}, B_cells_BCRXL, n_spike, SIMPLIFY = FALSE)
-
-sapply(B_cells_spike, nrow)
-
-# replace B cells in 'spike' samples
-
-data_spike <- mapply(function(d, b) {
-  d <- d[d[, "B_cell"] == 0, ]
-  d <- rbind(d, b)
-  rownames(d) <- NULL
-  d
-}, data_spike, B_cells_spike, SIMPLIFY = FALSE)
-
-
-
 # -----------
 # Export data
 # -----------
+
+DIR_DATA_OUT <- file.path(DIR_BENCHMARK, "BCR_XL_sim/data")
 
 data_export <- c(data_base, data_spike)
 
 conditions_spike <- c(rep("base", length(data_base)), rep("spike", length(data_spike)))
 
-# add column indicating spike-in cells (all B cells in 'spike' samples)
-data_export <- mapply(function(d, cnd) {
-  spikein <- as.numeric((d[, "B_cell"] == 1) & (cnd == "spike"))
-  cbind(d, spikein = spikein)
-}, data_export, conditions_spike, SIMPLIFY = FALSE)
+# add column indicating spike-in cells
+# note: there are no spike-in cells in this data set (null simulation); include column
+# of zeros for consistency with shape of .fcs files from main simulation
+data_export <- lapply(data_export, function(d) cbind(d, spikein = 0))
 
 
-filenames <- file.path(DIR_DATA_OUT, "main", paste0("BCR_XL_sim_", patient_IDs, "_", conditions_spike, ".fcs"))
+filenames <- file.path(DIR_DATA_OUT, "null_simulation", paste0("BCR_XL_sim_", patient_IDs, "_", conditions_spike, ".fcs"))
 
 for (i in 1:length(data_export)) {
   write.FCS(flowFrame(data_export[[i]]), filename = filenames[i])
