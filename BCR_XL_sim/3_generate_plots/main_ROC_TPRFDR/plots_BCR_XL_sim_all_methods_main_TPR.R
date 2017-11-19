@@ -81,17 +81,18 @@ cobraplot <- reorder_levels(cobraplot, levels = names(data))
 # create plot
 p <- 
   plot_tpr(cobraplot, pointsize = 5) + 
-  scale_shape_manual(values = c(15, 19, 17)) + 
+  scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
   coord_fixed() + 
   xlab("True positive rate") + 
   ggtitle(paste0("BCR-XL-sim, main results: TPR")) + 
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
-  guides(color = guide_legend("method", override.aes = list(shape = NA)), shape = FALSE)
+  guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
+         color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_methods_main_TPR.pdf")
-ggsave(fn, width = 6, height = 6)
+ggsave(fn, width = 6.5, height = 6.5)
 
 
 

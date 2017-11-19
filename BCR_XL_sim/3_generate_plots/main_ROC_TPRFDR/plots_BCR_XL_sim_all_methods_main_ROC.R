@@ -88,7 +88,7 @@ p <-
 
 # save plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_all_methods_main_ROC_curves.pdf")
-ggsave(fn, width = 7.5, height = 6)
+ggsave(fn, width = 6, height = 5)
 
 
 
