@@ -159,7 +159,7 @@ runtime_test <- system.time({
   y <- DGEList(assay(cd), lib.size = cd$totals)
   
   # filtering
-  keep <- aveLogCPM(y) >= aveLogCPM(5, mean(cd$totals))
+  keep <- aveLogCPM(y) >= aveLogCPM(1, mean(cd$totals))
   cd <- cd[keep, ]
   y <- y[keep, ]
   
@@ -195,7 +195,7 @@ runtime_qvals <- system.time({
 })
 
 # significant hyperspheres
-is.sig <- q_vals <= 0.5
+is.sig <- q_vals <= 0.1
 print(summary(is.sig))
 
 # plots
