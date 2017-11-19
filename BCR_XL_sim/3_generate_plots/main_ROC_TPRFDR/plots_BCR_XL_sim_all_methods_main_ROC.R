@@ -19,6 +19,7 @@ library(ggplot2)
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
 
 load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_cydar_main.RData"))
 
 
 # path to save plots
@@ -36,7 +37,8 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_ROC_TPRFDR"
 # -------------------------------------
 
 # create 'COBRAData' object
-data <- list(diffcyt_DS_med = out_diffcyt_DS_med_main)
+data <- list(cydar = out_cydar_main, 
+             diffcyt_DS_med = out_diffcyt_DS_med_main)
 
 # check
 stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
@@ -44,8 +46,10 @@ stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
 # note: provide all available values
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-cobradata <- COBRAData(pval = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_vals"]), 
-                       padj = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_adj"]), 
+cobradata <- COBRAData(pval = data.frame(cydar = data[["cydar"]][, "p_vals"], 
+                                         diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_vals"]), 
+                       padj = data.frame(cydar = data[["cydar"]][, "q_vals"], 
+                                         diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_adj"]), 
                        truth = data.frame(spikein = data[["diffcyt_DS_med"]][, "spikein"]))
 
 # calculate performance scores
@@ -56,7 +60,7 @@ cobraperf <- calculate_performance(cobradata,
 
 # color scheme
 #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue2", "darkslategray2")
-colors <- "darkblue"
+colors <- c("salmon", "darkblue")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
