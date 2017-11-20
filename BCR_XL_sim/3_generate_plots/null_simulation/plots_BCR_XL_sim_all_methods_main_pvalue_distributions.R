@@ -43,7 +43,7 @@ d_plot <- out_diffcyt_DS_med_null
 dim(d_plot)
 
 ggplot(d_plot, aes(x = p_vals)) + 
-  geom_histogram(bins = 25, color = "black", fill = "darkblue") + 
+  geom_histogram(bins = 20, color = "black", fill = "darkblue") + 
   ggtitle("BCR-XL-sim, null simulation, p-value distribution (cell level): diffcyt-DS-med") + 
   xlab("p-values") + 
   theme_bw()
@@ -65,7 +65,7 @@ dim(d_plot)
 d_plot[is.na(d_plot$P.Value), "P.Value"] <- 1
 
 ggplot(d_plot, aes(x = P.Value)) + 
-  geom_histogram(bins = 25, color = "black", fill = "darkblue") + 
+  geom_histogram(bins = 20, color = "black", fill = "darkblue") + 
   ggtitle("BCR-XL-sim, null simulation, p-value distribution (cluster level): diffcyt-DS-med") + 
   scale_y_continuous(breaks = seq(0, 16, by = 2)) + 
   xlab("p-values") + 

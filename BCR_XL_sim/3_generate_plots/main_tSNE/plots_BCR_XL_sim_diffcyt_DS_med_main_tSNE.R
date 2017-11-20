@@ -80,6 +80,8 @@ sig <- d_clus$adj.P.Val <= cutoff_sig
 # set filtered clusters to FALSE
 sig[is.na(sig)] <- FALSE
 
+table(sig)
+
 # set up data frame for plotting
 d_plot <- data.frame(cluster = rowData(d_counts)$cluster, 
                      sig = as.numeric(sig), 
@@ -88,19 +90,16 @@ d_plot <- data.frame(cluster = rowData(d_counts)$cluster,
 
 # (ii) from cell-level results
 
-# load spike-in status at cell level
-spikein <- out_diffcyt_DS_med_main$spikein
+# load true B-cell status of each cell
+B_cells <- out_diffcyt_DS_med_main$B_cell
 
-# include cells from both 'base' and 'spike' conditions
-spikein_all <- c(rep(0, sum(rowData(d_se)$group == "base")), spikein)
-
-# calculate proportion true spike-in cells for each cluster
+# calculate proportion true B-cells for each cluster
 df_tmp <- as.data.frame(rowData(d_se))
-stopifnot(nrow(df_tmp) == length(spikein_all))
+stopifnot(nrow(df_tmp) == length(B_cells))
 
-df_tmp$spikein <- spikein_all
+df_tmp$B_cells <- B_cells
 
-d_true <- df_tmp %>% group_by(cluster) %>% summarize(prop_spikein = mean(spikein)) %>% as.data.frame
+d_true <- df_tmp %>% group_by(cluster) %>% summarize(prop_B_cells = mean(B_cells)) %>% as.data.frame
 
 # fill in any missing clusters (zero cells)
 if (nrow(d_true) < nlevels(rowData(d_se)$cluster)) {
@@ -120,26 +119,85 @@ stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster),
           nrow(d_plot) == nrow(tsne_coords))
 
 # identify clusters containing significant proportion of spike-in cells
-cutoff_prop <- 0.1
-d_true$spikein <- as.numeric(d_true$prop_spikein > cutoff_prop)
+d_true$B_cells_0.9 <- as.numeric(d_true$prop_B_cells > 0.9)
+d_true$B_cells_0.5 <- as.numeric(d_true$prop_B_cells > 0.5)
+d_true$B_cells_0.1 <- as.numeric(d_true$prop_B_cells > 0.1)
 
 # data frame for plotting
-d_plot$prop_spikein <- d_true$prop_spikein
-d_plot$spikein <- as.factor(d_true$spikein)
+d_plot$prop_B_cells <- d_true$prop_B_cells
+d_plot$B_cells_0.9 <- as.factor(d_true$B_cells_0.9)
+d_plot$B_cells_0.5 <- as.factor(d_true$B_cells_0.5)
+d_plot$B_cells_0.1 <- as.factor(d_true$B_cells_0.1)
 d_plot$sig <- as.factor(d_plot$sig)
 d_plot <- cbind(d_plot, tsne_coords)
 
 
-# (iii) create plot
+# (iii) create plots
 
-p <- 
+# one plot for each threshold defining 'true' clusters ('true' clusters are defined as
+# containing at least x% true B cells)
+
+
+# threshold 90%
+
+p_0.9 <- 
   ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = sig)) + 
   # first layer
   geom_point(alpha = 0.5) + 
   scale_size_area(max_size = 3) + 
   scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
-  # additional layer: outline clusters containing significant proportion spike-in cells
-  geom_point(data = subset(d_plot, spikein == 1), aes(shape = spikein), color = "black", stroke = 2) + 
+  # additional layer: outline clusters containing significant proportion true B cells
+  geom_point(data = subset(d_plot, B_cells_0.9 == 1), aes(shape = B_cells_0.9), color = "black", stroke = 2) + 
+  scale_shape_manual(values = 1, labels = ">90%") + 
+  # additional layer: emphasize significant differential clusters
+  geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+  ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
+  theme_bw() + 
+  theme(aspect.ratio = 1) + 
+  guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
+         shape = guide_legend("truth (B cells)", override.aes = list(size = 1.5), order = 2), 
+         size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
+
+# save plot
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.9.pdf")
+ggsave(fn, width = 6.25, height = 5.25)
+
+
+# threshold 50%
+
+p_0.5 <- 
+  ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = sig)) + 
+  # first layer
+  geom_point(alpha = 0.5) + 
+  scale_size_area(max_size = 3) + 
+  scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
+  # additional layer: outline clusters containing significant proportion true B cells
+  geom_point(data = subset(d_plot, B_cells_0.5 == 1), aes(shape = B_cells_0.5), color = "black", stroke = 2) + 
+  scale_shape_manual(values = 1, labels = ">50%") + 
+  # additional layer: emphasize significant differential clusters
+  geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+  ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
+  theme_bw() + 
+  theme(aspect.ratio = 1) + 
+  guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
+         shape = guide_legend("truth (B cells)", override.aes = list(size = 1.5), order = 2), 
+         size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
+
+# save plot
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.5.pdf")
+ggsave(fn, width = 6.25, height = 5.25)
+
+
+# threshold 10%
+
+p_0.1 <- 
+  ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = sig)) + 
+  # first layer
+  geom_point(alpha = 0.5) + 
+  scale_size_area(max_size = 3) + 
+  scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
+  # additional layer: outline clusters containing significant proportion true B cells
+  geom_point(data = subset(d_plot, B_cells_0.1 == 1), aes(shape = B_cells_0.1), color = "black", stroke = 2) + 
   scale_shape_manual(values = 1, labels = ">10%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
@@ -147,11 +205,11 @@ p <-
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-         shape = guide_legend("spike-in", override.aes = list(size = 1.5), order = 2), 
+         shape = guide_legend("truth (B cells)", override.aes = list(size = 1.5), order = 2), 
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.1.pdf")
 ggsave(fn, width = 6.25, height = 5.25)
 
 

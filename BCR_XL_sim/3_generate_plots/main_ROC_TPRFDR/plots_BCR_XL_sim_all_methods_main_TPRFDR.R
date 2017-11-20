@@ -42,19 +42,19 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_ROC_TPRFDR"
 data <- list(diffcyt_DS_med = out_diffcyt_DS_med_main)
 
 # check
-stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
+stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 
 # note: provide all available values
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
 cobradata <- COBRAData(pval = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_vals"]), 
                        padj = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_adj"]), 
-                       truth = data.frame(spikein = data[["diffcyt_DS_med"]][, "spikein"]))
+                       truth = data.frame(B_cell = data[["diffcyt_DS_med"]][, "B_cell"]))
 
 # calculate performance scores
 # (note: can ignore warning messages when 'padj' not available)
 cobraperf <- calculate_performance(cobradata, 
-                                   binary_truth = "spikein", 
+                                   binary_truth = "B_cell", 
                                    aspects = c("fdrtpr", "fdrtprcurve"))
 
 # color scheme
@@ -78,17 +78,10 @@ cobraplot <- reorder_levels(cobraplot, levels = names(data))
 # TPR-FDR curves
 # --------------
 
-# axis limits
-x_max <- 1
-y_min <- 0
-
 # create plot
-p <- 
-  plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4) + 
+plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4) + 
   scale_shape_manual(values = c(22, 21, 23)) + 
   coord_fixed() + 
-  xlim(c(0, x_max)) + 
-  ylim(c(y_min, 1)) + 
   xlab("False discovery rate") + 
   ylab("True positive rate") + 
   ggtitle(paste0("BCR-XL-sim, main results: TPR vs. FDR")) + 

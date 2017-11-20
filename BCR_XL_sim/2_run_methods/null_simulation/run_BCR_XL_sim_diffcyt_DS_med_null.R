@@ -94,7 +94,7 @@ runtime_preprocessing <- system.time({
   
   # clustering
   # (runtime: ~5 sec with xdim = 10, ydim = 10)
-  seed <- 100
+  seed <- 1000
   d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed = seed)
   
   length(table(rowData(d_se)$cluster))  # number of clusters
@@ -124,17 +124,17 @@ runtime_preprocessing <- system.time({
   dim(d_medians_all)
   length(assays(d_medians_all))
   
-  # calculate ECDFs (runtime: ~10 sec)
-  d_ecdfs <- calcECDFs(d_se)
-  
-  dim(d_ecdfs)
-  length(assays(d_ecdfs))
-  
-  # subset marker expression values
-  d_vals <- calcSubsetVals(d_se)
-  
-  dim(d_vals)
-  length(assays(d_vals))
+  # # calculate ECDFs (runtime: ~10 sec)
+  # d_ecdfs <- calcECDFs(d_se)
+  # 
+  # dim(d_ecdfs)
+  # length(assays(d_ecdfs))
+  # 
+  # # subset marker expression values
+  # d_vals <- calcSubsetVals(d_se)
+  # 
+  # dim(d_vals)
+  # length(assays(d_vals))
   
 })
 
@@ -180,9 +180,9 @@ print(head(res_sorted, 10))
 #View(as.data.frame(res_sorted))
 
 # number of significant tests (note: one test per cluster-marker combination)
-print(table(res_sorted$adj.P.Val <= 0.05))
+print(table(res_sorted$adj.P.Val <= 0.1))
 
-# runtime (~1 min on laptop)
+# runtime (~30 sec on laptop)
 runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_tests[["elapsed"]]
 print(runtime_total)
 
@@ -216,9 +216,10 @@ out_clusters_diffcyt_DS_med_null <- res_clusters
 # number of cells per sample (including spike-in cells)
 n_cells <- sapply(d_input, nrow)
 
-# spike-in status for each cell
-is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
-stopifnot(length(is_spikein) == sum(n_cells))
+# identify B cells (these contain the true differential signal; from both 'base' and
+# 'spike' conditions)
+is_B_cell <- unlist(sapply(d_input, function(d) exprs(d)[, "B_cell"]))
+stopifnot(length(is_B_cell) == sum(n_cells))
 
 
 # match cluster-level p-values for marker pS6 to individual cells
@@ -240,26 +241,21 @@ p_vals_cells <- p_vals_clusters[ix_match]
 p_adj_cells <- p_adj_clusters[ix_match]
 
 
-# set up data frame with results (for marker pS6) and true spike-in status at cell level
+# set up data frame with results (for marker pS6) and true B-cell status at cell level
 
-# select results from spike-in samples only
-which_keep <- rowData(d_se)$group == "spike"
-
-is_spikein_keep <- is_spikein[which_keep]
-
-res_p_vals <- p_vals_cells[which_keep]
-res_p_adj <- p_adj_cells[which_keep]
+res_p_vals <- p_vals_cells
+res_p_adj <- p_adj_cells
 
 # replace NAs (due to filtering) to ensure same cells are returned for all methods
 res_p_vals[is.na(res_p_vals)] <- 1
 res_p_adj[is.na(res_p_adj)] <- 1
 
 stopifnot(length(res_p_vals) == length(res_p_adj), 
-          length(res_p_vals) == length(is_spikein_keep))
+          length(res_p_vals) == length(is_B_cell))
 
 res <- data.frame(p_vals = res_p_vals, 
                   p_adj = res_p_adj, 
-                  spikein = is_spikein_keep)
+                  B_cell = is_B_cell)
 
 # store results
 out_diffcyt_DS_med_null <- res

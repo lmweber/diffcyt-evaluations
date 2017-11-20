@@ -37,30 +37,31 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_ROC_TPRFDR"
 # -------------------------------------
 
 # create 'COBRAData' object
-data <- list(cydar = out_cydar_main, 
+data <- list(#cydar = out_cydar_main, 
              diffcyt_DS_med = out_diffcyt_DS_med_main)
 
 # check
-stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
+stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 
 # note: provide all available values
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-cobradata <- COBRAData(pval = data.frame(cydar = data[["cydar"]][, "p_vals"], 
+cobradata <- COBRAData(pval = data.frame(#cydar = data[["cydar"]][, "p_vals"], 
                                          diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_vals"]), 
-                       padj = data.frame(cydar = data[["cydar"]][, "q_vals"], 
+                       padj = data.frame(#cydar = data[["cydar"]][, "q_vals"], 
                                          diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_adj"]), 
-                       truth = data.frame(spikein = data[["diffcyt_DS_med"]][, "spikein"]))
+                       truth = data.frame(B_cell = data[["diffcyt_DS_med"]][, "B_cell"]))
 
 # calculate performance scores
 # (note: can ignore warning messages when 'padj' not available)
 cobraperf <- calculate_performance(cobradata, 
-                                   binary_truth = "spikein", 
+                                   binary_truth = "B_cell", 
                                    aspects = "roc")
 
 # color scheme
 #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue2", "darkslategray2")
-colors <- c("salmon", "darkblue")
+#colors <- c("salmon", "darkblue")
+colors <- c("darkblue")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
@@ -80,8 +81,7 @@ cobraplot <- reorder_levels(cobraplot, levels = names(data))
 # ----------
 
 # create plot
-p <- 
-  plot_roc(cobraplot, linewidth = 0.75) + 
+plot_roc(cobraplot, linewidth = 0.75) + 
   coord_fixed() + 
   xlab("False positive rate") + 
   ylab("True positive rate") + 

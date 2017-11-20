@@ -108,6 +108,8 @@ sig <- d_clus$adj.P.Val <= cutoff_sig
 # set filtered clusters to FALSE
 sig[is.na(sig)] <- FALSE
 
+table(sig)
+
 # set up data frame
 d_sig <- data.frame(cluster = rowData(d_counts)$cluster, 
                     sig = as.numeric(sig), 
@@ -116,19 +118,16 @@ d_sig <- data.frame(cluster = rowData(d_counts)$cluster,
 
 # (ii) from cell-level results
 
-# load spike-in status at cell level
-spikein <- out_diffcyt_DS_med_main$spikein
+# load true B-cell status of each cell
+B_cells <- out_diffcyt_DS_med_main$B_cell
 
-# include cells from both 'base' and 'spike' conditions
-spikein_all <- c(rep(0, sum(rowData(d_se)$group == "base")), spikein)
-
-# calculate proportion true spike-in cells for each cluster
+# calculate proportion true B-cells for each cluster
 df_tmp <- as.data.frame(rowData(d_se))
-stopifnot(nrow(df_tmp) == length(spikein_all))
+stopifnot(nrow(df_tmp) == length(B_cells))
 
-df_tmp$spikein <- spikein_all
+df_tmp$B_cells <- B_cells
 
-d_true <- df_tmp %>% group_by(cluster) %>% summarize(prop_spikein = mean(spikein)) %>% as.data.frame
+d_true <- df_tmp %>% group_by(cluster) %>% summarize(prop_B_cells = mean(B_cells)) %>% as.data.frame
 
 # fill in any missing clusters (zero cells)
 if (nrow(d_true) < nlevels(rowData(d_se)$cluster)) {
@@ -148,20 +147,19 @@ stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster),
           nrow(d_sig) == nrow(d_heatmap))
 
 # identify clusters containing significant proportion of spike-in cells
-cutoff_prop <- 0.1
-d_true$spikein <- as.numeric(d_true$prop_spikein > cutoff_prop)
+d_true$B_cells <- as.numeric(d_true$prop_B_cells > 0.5)
 
 
 # (iii) add row annotation and title
 
 row_annot <- data.frame(
   significant = factor(d_sig$sig, levels = c(0, 1), labels = c("no", "yes")), 
-  spikein = factor(d_true$spikein, levels = c(0, 1), labels = c("no", "yes"))
+  true_B_cells = factor(d_true$B_cells, levels = c(0, 1), labels = c("no", "yes"))
 )
 
 ha_row <- rowAnnotation(df = row_annot, 
                         col = list(significant = c("no" = "gray90", "yes" = "red"), 
-                                   spikein = c("no" = "gray90", "yes" = "black")), 
+                                   true_B_cells = c("no" = "gray90", "yes" = "black")), 
                         annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
                         width = unit(1, "cm"))
 
@@ -171,7 +169,7 @@ ht_title <- "BCR-XL-sim: diffcyt-DS-med"
 # (iv) save individual plot
 
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_heatmap.pdf")
-pdf(fn, width = 8, height = 8)
+pdf(fn, width = 8.25, height = 8)
 draw(ht + ha_row, newpage = FALSE, 
      column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
 dev.off()
