@@ -67,11 +67,12 @@ d_heatmap <- cbind(d_heatmap[, seq_len(n_identity)][, order(colnames(d_heatmap)[
 
 # column annotation
 col_annot <- data.frame(
-  marker_type = factor(c(rep("identity", n_identity), rep("functional", n_func)), levels = c("identity", "functional"))
+  "marker type" = factor(c(rep("identity", n_identity), rep("functional", n_func)), levels = c("identity", "functional")), 
+  check.names = FALSE
 )
 
 ha_col <- columnAnnotation(df = col_annot, 
-                           col = list(marker_type = c("identity" = "gold", "functional" = "darkgreen")), 
+                           col = list("marker type" = c("identity" = "gold", "functional" = "darkgreen")), 
                            colname = anno_text(colnames(d_heatmap), rot = 90, just = "right", offset = unit(1, "npc") - unit(2, "mm")), 
                            annotation_height = unit.c(unit(4, "mm"), max_text_width(colnames(d_heatmap)) + unit(2, "mm")), 
                            annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)))
@@ -153,13 +154,14 @@ d_true$B_cells <- as.numeric(d_true$prop_B_cells > 0.5)
 # (iii) add row annotation and title
 
 row_annot <- data.frame(
-  significant = factor(d_sig$sig, levels = c(0, 1), labels = c("no", "yes")), 
-  true_B_cells = factor(d_true$B_cells, levels = c(0, 1), labels = c("no", "yes"))
+  "significant" = factor(d_sig$sig, levels = c(0, 1), labels = c("no", "yes")), 
+  "true B cells" = factor(d_true$B_cells, levels = c(0, 1), labels = c("no", "yes")), 
+  check.names = FALSE
 )
 
 ha_row <- rowAnnotation(df = row_annot, 
-                        col = list(significant = c("no" = "gray90", "yes" = "red"), 
-                                   true_B_cells = c("no" = "gray90", "yes" = "black")), 
+                        col = list("significant" = c("no" = "gray90", "yes" = "red"), 
+                                   "true B cells" = c("no" = "gray90", "yes" = "black")), 
                         annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
                         width = unit(1, "cm"))
 
