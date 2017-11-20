@@ -153,11 +153,13 @@ p_0.99 <-
   scale_shape_manual(values = 1, labels = ">99%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+  xlab("tSNE 1") + 
+  ylab("tSNE 2") + 
   ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-         shape = guide_legend("truth (B cells)", override.aes = list(size = 1.5), order = 2), 
+         shape = guide_legend("true B cells", override.aes = list(size = 1.5), order = 2), 
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
@@ -178,11 +180,13 @@ p_0.9 <-
   scale_shape_manual(values = 1, labels = ">90%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+  xlab("tSNE 1") + 
+  ylab("tSNE 2") + 
   ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-         shape = guide_legend("truth (B cells)", override.aes = list(size = 1.5), order = 2), 
+         shape = guide_legend("true B cells", override.aes = list(size = 1.5), order = 2), 
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
@@ -203,11 +207,13 @@ p_0.5 <-
   scale_shape_manual(values = 1, labels = ">50%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+  xlab("tSNE 1") + 
+  ylab("tSNE 2") + 
   ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-         shape = guide_legend("truth (B cells)", override.aes = list(size = 1.5), order = 2), 
+         shape = guide_legend("true B cells", override.aes = list(size = 1.5), order = 2), 
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
@@ -228,11 +234,13 @@ p_0.1 <-
   scale_shape_manual(values = 1, labels = ">10%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+  xlab("tSNE 1") + 
+  ylab("tSNE 2") + 
   ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-         shape = guide_legend("truth (B cells)", override.aes = list(size = 1.5), order = 2), 
+         shape = guide_legend("true B cells", override.aes = list(size = 1.5), order = 2), 
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot

@@ -88,6 +88,7 @@ ht <- Heatmap(d_heatmap, col = colors, name = "expression",
               column_names_gp = gpar(fontsize = 12), 
               heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
               cluster_columns = FALSE, show_row_names = FALSE, 
+              clustering_distance_rows = "euclidean", clustering_method_rows = "median", 
               bottom_annotation = ha_col)
 
 
