@@ -119,12 +119,14 @@ stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster),
           nrow(d_plot) == nrow(tsne_coords))
 
 # identify clusters containing significant proportion of spike-in cells
+d_true$B_cells_0.99 <- as.numeric(d_true$prop_B_cells > 0.99)
 d_true$B_cells_0.9 <- as.numeric(d_true$prop_B_cells > 0.9)
 d_true$B_cells_0.5 <- as.numeric(d_true$prop_B_cells > 0.5)
 d_true$B_cells_0.1 <- as.numeric(d_true$prop_B_cells > 0.1)
 
 # data frame for plotting
 d_plot$prop_B_cells <- d_true$prop_B_cells
+d_plot$B_cells_0.99 <- as.factor(d_true$B_cells_0.99)
 d_plot$B_cells_0.9 <- as.factor(d_true$B_cells_0.9)
 d_plot$B_cells_0.5 <- as.factor(d_true$B_cells_0.5)
 d_plot$B_cells_0.1 <- as.factor(d_true$B_cells_0.1)
@@ -136,6 +138,31 @@ d_plot <- cbind(d_plot, tsne_coords)
 
 # one plot for each threshold defining 'true' clusters ('true' clusters are defined as
 # containing at least x% true B cells)
+
+
+# threshold 99%
+
+p_0.99 <- 
+  ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = sig)) + 
+  # first layer
+  geom_point(alpha = 0.5) + 
+  scale_size_area(max_size = 3) + 
+  scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
+  # additional layer: outline clusters containing significant proportion true B cells
+  geom_point(data = subset(d_plot, B_cells_0.99 == 1), aes(shape = B_cells_0.99), color = "black", stroke = 2) + 
+  scale_shape_manual(values = 1, labels = ">99%") + 
+  # additional layer: emphasize significant differential clusters
+  geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+  ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
+  theme_bw() + 
+  theme(aspect.ratio = 1) + 
+  guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
+         shape = guide_legend("truth (B cells)", override.aes = list(size = 1.5), order = 2), 
+         size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
+
+# save plot
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.99.pdf")
+ggsave(fn, width = 6.25, height = 5.25)
 
 
 # threshold 90%
