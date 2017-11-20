@@ -25,7 +25,7 @@ load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_ROC_TPRFDR"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_ROC_TPR_FDR"
 
 
 

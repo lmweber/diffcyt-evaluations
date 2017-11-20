@@ -22,7 +22,7 @@ load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_ROC_TPRFDR"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_ROC_TPR_FDR"
 
 
 
@@ -80,14 +80,15 @@ plot_roc(cobraplot, linewidth = 0.75) +
   coord_fixed() + 
   xlab("False positive rate") + 
   ylab("True positive rate") + 
-  ggtitle(paste0("BCR-XL-sim, main results: ROC curves")) + 
+  ggtitle(paste0("BCR-XL-sim: main results"), 
+          subtitle = "ROC curves") + 
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   guides(color = guide_legend("method"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_all_methods_main_ROC_curves.pdf")
-ggsave(fn, width = 6, height = 5)
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_all_methods_main_ROC.pdf")
+ggsave(fn, width = 4.75, height = 3.75)
 
 
 
