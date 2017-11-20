@@ -61,6 +61,16 @@ cols_func <- setdiff(cols_markers, cols_lineage)
 
 
 # --------------
+# markers to use
+# --------------
+
+# note: running cydar on all markers does not work correctly; use a subset of markers instead
+
+# all lineage markers plus pS6
+cols_to_use <- c(cols_lineage, 30)
+
+
+# --------------
 # transform data
 # --------------
 
@@ -97,7 +107,7 @@ runtime_pre <- system.time({
   
   d_input_cydar <- lapply(d_input, function(d) {
     e <- exprs(d)
-    e <- e[, cols_lineage]
+    e <- e[, cols_to_use]
     flowFrame(e)
   })
   
@@ -196,7 +206,7 @@ runtime_qvals <- system.time({
 
 # significant hyperspheres
 is.sig <- q_vals <= 0.1
-print(summary(is.sig))
+print(table(is.sig))
 
 # plots
 sig.coords <- intensities(cd)[is.sig, ]
@@ -204,7 +214,7 @@ sig.res <- res_cydar$table[is.sig, ]
 coords <- prcomp(sig.coords)
 plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
 
-par(mfrow = c(4, 4), mar = c(2.1, 1.1, 3.1, 1.1))
+par(mfrow = c(6, 4), mar = c(2.1, 1.1, 3.1, 1.1))
 limits <- intensityRanges(cd, p = 0.05)
 all.markers <- rownames(markerData(cd))
 for (i in order(all.markers)) {
@@ -235,12 +245,10 @@ runtime_cydar_main <- runtime_total
 # number of cells per sample (including spike-in cells)
 n_cells <- sapply(d_input, nrow)
 
-# spike-in status for each cell
-is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
-stopifnot(length(is_spikein) == sum(n_cells))
-
-# select samples for this condition
-which_keep <- group_IDs == "spike"
+# identify B cells (these contain the true differential signal; from both 'base' and
+# 'spike' conditions)
+is_B_cell <- unlist(sapply(d_input, function(d) exprs(d)[, "B_cell"]))
+stopifnot(length(is_B_cell) == sum(n_cells))
 
 
 # get smallest q-value for each cell, across all hyperspheres
@@ -276,23 +284,21 @@ q_vals_all[names(cells_q_vals)] <- cells_q_vals
 stopifnot(length(p_vals_all) == length(q_vals_all))
 
 
-# set up data frame with results and true spike-in status at cell level
+# set up data frame with results (for marker pS6) and true B-cell status at cell level
 
-which_tmp <- rep(which_keep, n_cells)
-is_spikein_tmp <- is_spikein[which_tmp]
-stopifnot(length(p_vals_all[which_tmp]) == length(is_spikein_tmp))
+res_p_vals <- p_vals_all
+res_p_adj <- q_vals_all
 
-res_p_vals <- p_vals_all[which_tmp]
-res_q_vals <- q_vals_all[which_tmp]
-
-# replace any NAs to ensure same set of cells is returned for all methods
+# replace NAs (due to filtering) to ensure same cells are returned for all methods
 res_p_vals[is.na(res_p_vals)] <- 1
-res_q_vals[is.na(res_q_vals)] <- 1
+res_p_adj[is.na(res_p_adj)] <- 1
 
-# return values for this condition only
+stopifnot(length(res_p_vals) == length(res_p_adj), 
+          length(res_p_vals) == length(is_B_cell))
+
 res <- data.frame(p_vals = res_p_vals, 
-                  q_vals = res_q_vals, 
-                  spikein = is_spikein_tmp)
+                  q_vals = res_p_adj, 
+                  B_cell = is_B_cell)
 
 # store results
 out_cydar_main <- res
