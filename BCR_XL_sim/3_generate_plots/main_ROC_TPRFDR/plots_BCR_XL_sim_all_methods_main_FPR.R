@@ -2,7 +2,7 @@
 # Generate plots
 # 
 # - data set: BCR-XL-sim
-# - plot type: TPR plots
+# - plot type: FPR plots
 # - method: all methods
 # 
 # - main results
@@ -52,7 +52,7 @@ cobradata <- COBRAData(pval = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"
 # (note: can ignore warning messages when 'padj' not available)
 cobraperf <- calculate_performance(cobradata, 
                                    binary_truth = "B_cell", 
-                                   aspects = "tpr")
+                                   aspects = "fpr")
 
 # color scheme
 #colors <- c("darkblue", "deepskyblue2", "darkslategray2")
@@ -72,21 +72,21 @@ cobraplot <- reorder_levels(cobraplot, levels = names(data))
 
 
 # ---------
-# TPR plots
+# FPR plots
 # ---------
 
 # create plot
-plot_tpr(cobraplot, pointsize = 5) + 
+plot_fpr(cobraplot, pointsize = 5) + 
   scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
-  xlab("True positive rate") + 
-  ggtitle(paste0("BCR-XL-sim, main results: TPR")) + 
+  xlab("False positive rate") + 
+  ggtitle(paste0("BCR-XL-sim, main results: FPR")) + 
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_all_methods_main_TPR.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_all_methods_main_FPR.pdf")
 ggsave(fn, width = 6.5, height = 4.5)
 
 

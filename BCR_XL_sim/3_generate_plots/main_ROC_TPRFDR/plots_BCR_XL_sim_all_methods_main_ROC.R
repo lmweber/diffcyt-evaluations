@@ -19,7 +19,6 @@ library(ggplot2)
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
 
 load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
-load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_cydar_main.RData"))
 
 
 # path to save plots
