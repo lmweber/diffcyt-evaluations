@@ -164,7 +164,7 @@ for (i in 1:length(data_export)) {
 # Save timestamp file for Makefiles
 # ---------------------------------
 
-file_timestamp <- file.path(DIR_DATA_OUT, "timestamp.txt")
+file_timestamp <- file.path(DIR_DATA_OUT, "null_simulation/timestamp.txt")
 
 sink(file_timestamp)
 Sys.time()
