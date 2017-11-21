@@ -28,6 +28,8 @@ clean_CellCnn:
 clean_Rplots:
 	find AML_sim/2_run_methods -name "Rplots.pdf" -delete
 	find AML_sim/3_generate_plots -name "Rplots.pdf" -delete
+	find BCR_XL_sim/2_run_methods -name "Rplots.pdf" -delete
+	find BCR_XL_sim/3_generate_plots -name "Rplots.pdf" -delete
 
 
 
