@@ -189,8 +189,14 @@ plots_multi <- plot_grid(plotlist = plots_list,
 legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(4, 1))
 
+# add combined title
+title_single <- p_ROC$labels$title
+plots_title <- ggdraw() + draw_label(title_single, fontface = "bold")
+plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 15))
+
+# save multi-panel plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_performance.pdf")
-ggsave(fn, width = 7.5, height = 6.25)
+ggsave(fn, width = 7.5, height = 6.75)
 
 
 
