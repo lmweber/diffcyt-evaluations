@@ -185,14 +185,14 @@ plots_multi <- plot_grid(plotlist = plots_list,
                          nrow = 2, ncol = 2, align = "hv", axis = "bl", scale = 0.98, 
                          labels = "AUTO", label_x = 0.01, label_y = 0.99)
 
-# add combined legend
-legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
-plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(4, 1))
-
 # add combined title
 title_single <- p_ROC$labels$title
 plots_title <- ggdraw() + draw_label(title_single, fontface = "bold")
 plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 15))
+
+# add combined legend
+legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
+plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(4, 1))
 
 # save multi-panel plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_performance.pdf")
