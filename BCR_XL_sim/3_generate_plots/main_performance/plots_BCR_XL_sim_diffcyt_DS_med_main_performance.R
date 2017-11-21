@@ -182,7 +182,8 @@ plots_list <- lapply(plots_list, function(p) {
 })
 
 plots_multi <- plot_grid(plotlist = plots_list, 
-                         nrow = 2, ncol = 2, align = "hv", axis = "bl", scale = 0.975)
+                         nrow = 2, ncol = 2, align = "hv", axis = "bl", scale = 0.98, 
+                         labels = "AUTO", label_x = 0.01, label_y = 0.99)
 
 # add combined legend
 legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
