@@ -16,7 +16,7 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/null_simulation"
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/null_simulation_diagnostic/diffcyt_DS_med"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/null_simulation/diagnostic/diffcyt_DS_med"
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/null_simulation"
 DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/null_simulation"
 

@@ -13,7 +13,6 @@
 
 library(iCOBRA)
 library(ggplot2)
-library(grid)
 library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 
 
@@ -187,7 +186,7 @@ plots_multi <- plot_grid(plotlist = plots_list,
 
 # add combined title
 title_single <- p_ROC$labels$title
-plots_title <- ggdraw() + draw_label(title_single, fontface = "bold")
+plots_title <- ggdraw() + draw_label(title_single)
 plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 15))
 
 # add combined legend

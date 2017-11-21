@@ -16,6 +16,7 @@ library(dplyr)
 library(magrittr)
 library(Rtsne)
 library(ggplot2)
+library(cowplot)
 
 
 # load saved results
@@ -149,7 +150,7 @@ p_0.99 <-
   scale_size_area(max_size = 3) + 
   scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
   # additional layer: outline clusters containing significant proportion true B cells
-  geom_point(data = subset(d_plot, B_cells_0.99 == 1), aes(shape = B_cells_0.99), color = "black", stroke = 2) + 
+  geom_point(data = subset(d_plot, B_cells_0.99 == 1), aes(shape = B_cells_0.99), color = "black", stroke = 1.5) + 
   scale_shape_manual(values = 1, labels = ">99%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
@@ -159,12 +160,12 @@ p_0.99 <-
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-         shape = guide_legend("true B cells", override.aes = list(size = 1.5), order = 2), 
+         shape = guide_legend("true B cells", override.aes = list(size = 2, stroke = 1.25), order = 2), 
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.99.pdf")
-ggsave(fn, width = 6.25, height = 5.25)
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.99.pdf")
+ggsave(fn, width = 6, height = 5)
 
 
 # threshold 90%
@@ -176,7 +177,7 @@ p_0.9 <-
   scale_size_area(max_size = 3) + 
   scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
   # additional layer: outline clusters containing significant proportion true B cells
-  geom_point(data = subset(d_plot, B_cells_0.9 == 1), aes(shape = B_cells_0.9), color = "black", stroke = 2) + 
+  geom_point(data = subset(d_plot, B_cells_0.9 == 1), aes(shape = B_cells_0.9), color = "black", stroke = 1.5) + 
   scale_shape_manual(values = 1, labels = ">90%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
@@ -186,12 +187,12 @@ p_0.9 <-
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-         shape = guide_legend("true B cells", override.aes = list(size = 1.5), order = 2), 
+         shape = guide_legend("true B cells", override.aes = list(size = 2, stroke = 1.25), order = 2), 
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.9.pdf")
-ggsave(fn, width = 6.25, height = 5.25)
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.9.pdf")
+ggsave(fn, width = 6, height = 5)
 
 
 # threshold 50%
@@ -203,7 +204,7 @@ p_0.5 <-
   scale_size_area(max_size = 3) + 
   scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
   # additional layer: outline clusters containing significant proportion true B cells
-  geom_point(data = subset(d_plot, B_cells_0.5 == 1), aes(shape = B_cells_0.5), color = "black", stroke = 2) + 
+  geom_point(data = subset(d_plot, B_cells_0.5 == 1), aes(shape = B_cells_0.5), color = "black", stroke = 1.5) + 
   scale_shape_manual(values = 1, labels = ">50%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
@@ -213,12 +214,12 @@ p_0.5 <-
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-         shape = guide_legend("true B cells", override.aes = list(size = 1.5), order = 2), 
+         shape = guide_legend("true B cells", override.aes = list(size = 2, stroke = 1.25), order = 2), 
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.5.pdf")
-ggsave(fn, width = 6.25, height = 5.25)
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.5.pdf")
+ggsave(fn, width = 6, height = 5)
 
 
 # threshold 10%
@@ -230,7 +231,7 @@ p_0.1 <-
   scale_size_area(max_size = 3) + 
   scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
   # additional layer: outline clusters containing significant proportion true B cells
-  geom_point(data = subset(d_plot, B_cells_0.1 == 1), aes(shape = B_cells_0.1), color = "black", stroke = 2) + 
+  geom_point(data = subset(d_plot, B_cells_0.1 == 1), aes(shape = B_cells_0.1), color = "black", stroke = 1.5) + 
   scale_shape_manual(values = 1, labels = ">10%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
@@ -240,12 +241,46 @@ p_0.1 <-
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-         shape = guide_legend("true B cells", override.aes = list(size = 1.5), order = 2), 
+         shape = guide_legend("true B cells", override.aes = list(size = 2, stroke = 1.25), order = 2), 
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.1.pdf")
-ggsave(fn, width = 6.25, height = 5.25)
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.1.pdf")
+ggsave(fn, width = 6, height = 5)
+
+
+
+
+##################
+# Multi-panel plot
+##################
+
+plots_list <- list(p_0.99, p_0.9, p_0.5, p_0.1)
+
+# modify plot elements
+plots_list <- lapply(plots_list, function(p) {
+  p + 
+    theme(plot.title = element_blank(), 
+          legend.position = "none")
+})
+
+plots_multi <- plot_grid(plotlist = plots_list, 
+                         nrow = 2, ncol = 2, align = "hv", axis = "bl", scale = 0.98, 
+                         labels = "AUTO", label_x = 0.01, label_y = 0.99)
+
+# add combined title
+title_single <- p_0.99$labels$title
+plots_title <- ggdraw() + draw_label(title_single)
+plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 20))
+
+# add combined legend
+legend_single <- get_legend(plots_list[[1]] + theme(legend.position = "right"))
+plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6, 1))
+
+# save multi-panel plot
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_all.pdf")
+ggsave(fn, width = 7.5, height = 6.75)
+
 
 
 

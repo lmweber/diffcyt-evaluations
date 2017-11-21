@@ -46,7 +46,7 @@ ggplot(d_plot, aes(x = p_vals)) +
   theme_bw()
 
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_null_pvalues_cell.pdf")
-ggsave(fn, width = 4.75, height = 4)
+ggsave(fn, width = 4.5, height = 3.75)
 
 
 
@@ -69,7 +69,7 @@ ggplot(d_plot, aes(x = P.Value)) +
   theme_bw()
 
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_null_pvalues_cluster.pdf")
-ggsave(fn, width = 4.75, height = 4)
+ggsave(fn, width = 4.5, height = 3.75)
 
 
 
