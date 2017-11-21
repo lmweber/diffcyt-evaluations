@@ -68,7 +68,7 @@ $(TIMESTAMP_PLOTS_MAIN_HEATMAPS): $(SCRIPTS_PLOTS_MAIN_HEATMAPS) $(FILES_RDATA_M
 
 # null simulation
 $(TIMESTAMP_PLOTS_NULL_SIMULATION): $(SCRIPTS_PLOTS_NULL_SIMULATION) $(FILES_RDATA_MAIN)
-	cd $(DIR_GENERATE_PLOTS)/main_null_simulation && bash run_all.sh
+	cd $(DIR_GENERATE_PLOTS)/null_simulation && bash run_all.sh
 
 
 
