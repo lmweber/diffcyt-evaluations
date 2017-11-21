@@ -90,7 +90,7 @@ p_ROC <-
 
 # save plot
 fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_ROC.pdf")
-ggsave(fn, width = 4.75, height = 3.75)
+ggsave(fn, width = 4.75, height = 3.5)
 
 
 
@@ -115,7 +115,7 @@ p_TPRFDR <-
 
 # save plot
 fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_TPRFDR.pdf")
-ggsave(fn, plot = p_TPRFDR, width = 4.75, height = 3.75)
+ggsave(fn, width = 4.75, height = 3.5)
 
 
 
@@ -139,7 +139,7 @@ p_TPR <-
 
 # save plot
 fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_TPR.pdf")
-ggsave(fn, width = 4, height = 3.75)
+ggsave(fn, width = 4.5, height = 3.5)
 
 
 
@@ -163,7 +163,7 @@ p_FPR <-
 
 # save plot
 fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_FPR.pdf")
-ggsave(fn, width = 4, height = 3.75)
+ggsave(fn, width = 4.5, height = 3.5)
 
 
 

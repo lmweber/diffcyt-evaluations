@@ -3,15 +3,12 @@
 # 
 # - data set: BCR-XL-sim
 # - plot type: histograms of p-value distributions for null simulation
-# - method: diffcyt methods
+# - method: diffcyt-DS-med
 # 
 # - main results
 # 
 # Lukas Weber, November 2017
 ##########################################################################################
-
-
-# note: showing 'diffcyt' methods only
 
 
 library(ggplot2)
@@ -44,12 +41,12 @@ dim(d_plot)
 
 ggplot(d_plot, aes(x = p_vals)) + 
   geom_histogram(bins = 20, color = "black", fill = "darkblue") + 
-  ggtitle("BCR-XL-sim, null simulation, p-value distribution (cell level): diffcyt-DS-med") + 
+  ggtitle("BCR-XL-sim, null simulation: diffcyt-DS-med", subtitle = "p-value distribution (cell level)") + 
   xlab("p-values") + 
   theme_bw()
 
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_null_pvalues_cell.pdf")
-ggsave(fn, width = 7.5, height = 6.5)
+ggsave(fn, width = 4.75, height = 4)
 
 
 
@@ -66,13 +63,13 @@ d_plot[is.na(d_plot$P.Value), "P.Value"] <- 1
 
 ggplot(d_plot, aes(x = P.Value)) + 
   geom_histogram(bins = 20, color = "black", fill = "darkblue") + 
-  ggtitle("BCR-XL-sim, null simulation, p-value distribution (cluster level): diffcyt-DS-med") + 
+  ggtitle("BCR-XL-sim, null simulation: diffcyt-DS-med", subtitle = "p-value distribution (cluster level)") + 
   scale_y_continuous(breaks = seq(0, 16, by = 2)) + 
   xlab("p-values") + 
   theme_bw()
 
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_null_pvalues_cluster.pdf")
-ggsave(fn, width = 7.5, height = 6.5)
+ggsave(fn, width = 4.75, height = 4)
 
 
 
