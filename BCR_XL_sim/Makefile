@@ -14,7 +14,7 @@ DIR_PLOTS          = ../../plots/BCR_XL_sim
 
 
 TIMESTAMP_BENCHMARK_MAIN            = $(DIR_BENCHMARK)/main/timestamp.txt
-TIMESTAMP_BENCHMARK_NULL_SIMULATION = (DIR_BENCHMARK)/null_simulation/timestamp.txt
+TIMESTAMP_BENCHMARK_NULL_SIMULATION = $(DIR_BENCHMARK)/null_simulation/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN_PERFORMANCE = $(DIR_PLOTS)/main_performance/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_TSNE        = $(DIR_PLOTS)/main_tSNE/timestamp.txt
