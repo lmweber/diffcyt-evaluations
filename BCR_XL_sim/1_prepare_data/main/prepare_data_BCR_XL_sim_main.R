@@ -121,7 +121,7 @@ DIR_DATA_OUT <- file.path(DIR_BENCHMARK, "BCR_XL_sim/data")
 labels_key <- data.frame(label = 1:length(levels(labels[[1]]$population)), 
                          name = levels(labels[[1]]$population))
 
-file_key <- file.path(DIR_DATA_OUT, "population_names.csv")
+file_key <- file.path(DIR_DATA_OUT, "population_names/population_names.csv")
 write.csv(labels_key, file = file_key, row.names = FALSE)
 
 
@@ -240,7 +240,7 @@ for (i in 1:length(data_export)) {
 # Save timestamp file for Makefiles
 # ---------------------------------
 
-file_timestamp <- file.path(DIR_DATA_OUT, "timestamp.txt")
+file_timestamp <- file.path(DIR_DATA_OUT, "main/timestamp.txt")
 
 sink(file_timestamp)
 Sys.time()
