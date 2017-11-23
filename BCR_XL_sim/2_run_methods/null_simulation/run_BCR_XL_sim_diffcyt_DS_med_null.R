@@ -94,7 +94,7 @@ runtime_preprocessing <- system.time({
   
   # clustering
   # (runtime: ~5 sec with xdim = 10, ydim = 10)
-  seed <- 1000
+  seed <- 123
   d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed = seed)
   
   length(table(rowData(d_se)$cluster))  # number of clusters
@@ -165,9 +165,8 @@ runtime_tests <- system.time({
   contrast
   
   # run tests
-  # note: including 'patient_IDs' as fixed effects ('block_IDs' argument)
-  res <- testDS_med(d_counts, d_medians, design, contrast, 
-                    block_IDs = patient_IDs, path = DIR_PLOTS)
+  # note: including 'patient_IDs' as fixed effects in design matrix
+  res <- testDS_med(d_counts, d_medians, design, contrast, path = DIR_PLOTS)
   
 })
 
