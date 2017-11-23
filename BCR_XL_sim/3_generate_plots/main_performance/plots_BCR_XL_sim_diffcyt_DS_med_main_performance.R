@@ -202,10 +202,10 @@ fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_performance_2
 ggsave(fn, width = 7.5, height = 6.75)
 
 
+
 # -----------------
 # Horizontal layout
 # -----------------
-
 
 plots_list <- list(p_ROC, p_TPRFDR, p_TPR, p_FPR)
 
