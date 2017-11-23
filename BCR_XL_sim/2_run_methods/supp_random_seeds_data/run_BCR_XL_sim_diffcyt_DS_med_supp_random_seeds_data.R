@@ -112,7 +112,7 @@ for (s in 1:length(seed_names)) {
     
     # clustering
     # (runtime: ~5 sec with xdim = 10, ydim = 10)
-    seed <- 1234
+    seed <- 123
     d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed = seed)
     
     length(table(rowData(d_se)$cluster))  # number of clusters

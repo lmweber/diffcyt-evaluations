@@ -111,7 +111,7 @@ for (k in 1:length(resolution)) {
     
     # clustering
     # (runtime: ~5 sec with xdim = 10, ydim = 10)
-    seed <- 1234
+    seed <- 123
     d_se <- generateClusters(d_se, xdim = resolution[k], ydim = resolution[k], seed = seed)
     
     length(table(rowData(d_se)$cluster))  # number of clusters
