@@ -35,8 +35,7 @@
 ##########################################################################################
 
 
-# modified to generate randomized replicates of the benchmark data set using different
-# random seeds
+# modified to generate randomized replicate data sets using different random seeds
 
 
 library(flowCore)
@@ -164,7 +163,7 @@ dim(exprs(read.FCS(file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experime
 # Randomized replicates
 # ---------------------
 
-# use different random seeds for each replicate
+# use different random seed for each replicate
 
 n_replicates <- 3
 

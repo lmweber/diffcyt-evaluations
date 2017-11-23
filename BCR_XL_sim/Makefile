@@ -15,6 +15,7 @@ DIR_PLOTS          = ../../plots/BCR_XL_sim
 
 TIMESTAMP_BENCHMARK_MAIN            = $(DIR_BENCHMARK)/main/timestamp.txt
 TIMESTAMP_BENCHMARK_NULL_SIMULATION = $(DIR_BENCHMARK)/null_simulation/timestamp.txt
+TIMESTAMP_BENCHMARK_RANDOM_SEEDS    = $(DIR_BENCHMARK)/random_seeds/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
@@ -146,9 +147,13 @@ $(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp
 $(TIMESTAMP_BENCHMARK_MAIN): $(DIR_PREPARE_DATA)/main/prepare_data_BCR_XL_sim_main.R
 	cd $(DIR_PREPARE_DATA)/main && Rscript $(notdir $<)
 
-# generate benchmark data files: main
+# generate benchmark data files: null simulation
 $(TIMESTAMP_BENCHMARK_NULL_SIMULATION): $(DIR_PREPARE_DATA)/null_simulation/prepare_data_BCR_XL_sim_null.R
 	cd $(DIR_PREPARE_DATA)/null_simulation && Rscript $(notdir $<)
+
+# generate benchmark data files: random seeds
+$(TIMESTAMP_BENCHMARK_RANDOM_SEEDS): $(DIR_PREPARE_DATA)/random_seeds/prepare_data_BCR_XL_sim_random_seeds.R
+	cd $(DIR_PREPARE_DATA)/random_seeds && Rscript $(notdir $<)
 
 
 
