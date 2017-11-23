@@ -23,6 +23,7 @@ TIMESTAMP_PLOTS_NULL_SIMULATION              = $(DIR_PLOTS)/null_simulation/time
 TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS          = $(DIR_PLOTS)/supp_random_effects/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_METACLUSTERING          = $(DIR_PLOTS)/supp_metaclustering/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(DIR_PLOTS)/supp_random_seeds_clustering/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
 SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
@@ -31,12 +32,14 @@ SCRIPTS_PLOTS_NULL_SIMULATION              = $(wildcard $(DIR_GENERATE_PLOTS)/nu
 SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS          = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_effects/*.R)
 SCRIPTS_PLOTS_SUPP_METACLUSTERING          = $(wildcard $(DIR_GENERATE_PLOTS)/supp_metaclustering/*.R)
 SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_seeds_clustering/*.R)
+SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 
 FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_NULL_SIMULATION              = $(wildcard $(DIR_RDATA)/null_simulation/*.RData)
 FILES_RDATA_SUPP_RANDOM_EFFECTS          = $(wildcard $(DIR_RDATA)/supp_random_effects/*.RData)
 FILES_RDATA_SUPP_METACLUSTERING          = $(wildcard $(DIR_RDATA)/supp_metaclustering/*.RData)
 FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_RDATA)/supp_random_seeds_clustering/*.RData)
+FILES_RDATA_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
 
 
 
@@ -55,7 +58,8 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
                   $(TIMESTAMP_PLOTS_NULL_SIMULATION) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS) \
                   $(TIMESTAMP_PLOTS_SUPP_METACLUSTERING) \
-                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING)
+                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) \
+                  $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION)
 
 
 
@@ -90,9 +94,13 @@ $(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS): $(SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS) $(F
 $(TIMESTAMP_PLOTS_SUPP_METACLUSTERING): $(SCRIPTS_PLOTS_SUPP_METACLUSTERING) $(FILES_RDATA_SUPP_METACLUSTERING)
 	cd $(DIR_GENERATE_PLOTS)/supp_metaclustering && bash run_all.sh
 
-# supplementary: random seeds for clustering
+# supplementary: varying random seeds for clustering
 $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) $(FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING)
 	cd $(DIR_GENERATE_PLOTS)/supp_random_seeds_clustering && bash run_all.sh
+
+# supplementary: varying clustering resolution
+$(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
+	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && bash run_all.sh
 
 
 
@@ -119,9 +127,13 @@ $(DIR_RDATA)/supp_random_effects/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random
 $(DIR_RDATA)/supp_metaclustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_metaclustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_metaclustering && Rscript $(notdir $<)
 
-# supplementary: random seeds for clustering
+# supplementary: varying random seeds for clustering
 $(DIR_RDATA)/supp_random_seeds_clustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_seeds_clustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_random_seeds_clustering && Rscript $(notdir $<)
+
+# supplementary: varying clustering resolution
+$(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp_clustering_resolution/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_clustering_resolution && Rscript $(notdir $<)
 
 
 
