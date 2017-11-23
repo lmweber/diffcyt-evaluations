@@ -4,7 +4,7 @@
 # - method: diffcyt-DS-med
 # - data set: BCR-XL-sim
 # 
-# - using FlowSOM meta-clustering
+# - supplementary results: using FlowSOM meta-clustering
 # 
 # Lukas Weber, November 2017
 ##########################################################################################

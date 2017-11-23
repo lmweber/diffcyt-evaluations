@@ -5,7 +5,7 @@
 # - plot type: performance metrics
 # - method: diffcyt-DS-med
 # 
-# - using FlowSOM meta-clustering
+# - supplementary results: using FlowSOM meta-clustering
 # 
 # Lukas Weber, November 2017
 ##########################################################################################

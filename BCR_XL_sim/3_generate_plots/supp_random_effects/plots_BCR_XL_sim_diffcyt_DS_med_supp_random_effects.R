@@ -5,7 +5,7 @@
 # - plot type: performance metrics
 # - method: diffcyt-DS-med
 # 
-# - using random effects instead of fixed effects for patient IDs
+# - supplementary results: using random effects instead of fixed effects for patient IDs
 # 
 # Lukas Weber, November 2017
 ##########################################################################################

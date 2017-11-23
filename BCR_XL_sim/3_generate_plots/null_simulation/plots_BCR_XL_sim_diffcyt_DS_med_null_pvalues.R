@@ -5,7 +5,7 @@
 # - plot type: histograms of p-value distributions for null simulation
 # - method: diffcyt-DS-med
 # 
-# - main results
+# - null simulation
 # 
 # Lukas Weber, November 2017
 ##########################################################################################
