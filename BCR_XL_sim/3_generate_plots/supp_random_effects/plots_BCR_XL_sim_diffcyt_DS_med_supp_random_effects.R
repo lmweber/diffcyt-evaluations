@@ -5,7 +5,7 @@
 # - plot type: performance metrics
 # - method: diffcyt-DS-med
 # 
-# - main results
+# - using random effects instead of fixed effects for patient IDs
 # 
 # Lukas Weber, November 2017
 ##########################################################################################
@@ -17,13 +17,13 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 
 
 # load saved results
-DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
+DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_random_effects"
 
-load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_supp_random_effects.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_performance"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_random_effects"
 
 
 
@@ -37,7 +37,7 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_performance"
 # -------------------------------------
 
 # create 'COBRAData' object
-data <- list(diffcyt_DS_med = out_diffcyt_DS_med_main)
+data <- list(diffcyt_DS_med = out_diffcyt_DS_med_supp_random_effects)
 
 # check
 stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
@@ -56,7 +56,6 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-#colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue2", "darkslategray2")
 colors <- c("darkblue")
 
 colors <- colors[1:length(data)]
@@ -82,13 +81,13 @@ p_ROC <-
   coord_fixed() + 
   xlab("False positive rate") + 
   ylab("True positive rate") + 
-  ggtitle("BCR-XL-sim: main results", subtitle = "ROC curve") + 
+  ggtitle("BCR-XL-sim: random effects", subtitle = "ROC curve") + 
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   guides(color = guide_legend("method"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_ROC.pdf")
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects_ROC.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -106,14 +105,14 @@ p_TPRFDR <-
   xlab("False discovery rate") + 
   ylab("True positive rate") + 
   scale_x_continuous(breaks = seq(0, 1, by = 0.2)) + 
-  ggtitle("BCR-XL-sim: main results", subtitle = "TPR vs. FDR") + 
+  ggtitle("BCR-XL-sim: random effects", subtitle = "TPR vs. FDR") + 
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
          color = guide_legend("method", order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_TPRFDR.pdf")
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects_TPRFDR.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -129,7 +128,7 @@ p_TPR <-
   scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
   coord_fixed() + 
   xlab("True positive rate") + 
-  ggtitle("BCR-XL-sim: main results", subtitle = "TPR") + 
+  ggtitle("BCR-XL-sim: random effects", subtitle = "TPR") + 
   theme_bw() + 
   theme(strip.text.x = element_blank(), 
         axis.text.y = element_blank()) + 
@@ -137,7 +136,7 @@ p_TPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_TPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects_TPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -153,7 +152,7 @@ p_FPR <-
   scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
   coord_fixed() + 
   xlab("False positive rate") + 
-  ggtitle("BCR-XL-sim, main results", subtitle = "FPR") + 
+  ggtitle("BCR-XL-sim, random effects", subtitle = "FPR") + 
   theme_bw() + 
   theme(strip.text.x = element_blank(), 
         axis.text.y = element_blank()) + 
@@ -161,7 +160,7 @@ p_FPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_FPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects_FPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -170,42 +169,6 @@ ggsave(fn, width = 4.5, height = 3.5)
 ##################
 # Multi-panel plot
 ##################
-
-# ----------
-# 2x2 layout
-# ----------
-
-plots_list <- list(p_ROC, p_TPRFDR, p_TPR, p_FPR)
-
-# modify plot elements
-plots_list <- lapply(plots_list, function(p) {
-  p + 
-    labs(title = p$labels$subtitle, subtitle = element_blank()) + 
-    theme(legend.position = "none")
-})
-
-plots_multi <- plot_grid(plotlist = plots_list, 
-                         nrow = 2, ncol = 2, align = "hv", axis = "bl", scale = 0.98, 
-                         labels = "AUTO", label_x = 0.01, label_y = 0.99)
-
-# add combined title
-title_single <- p_ROC$labels$title
-plots_title <- ggdraw() + draw_label(title_single)
-plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 15))
-
-# add combined legend
-legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
-plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(4, 1))
-
-# save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_performance_2x2.pdf")
-ggsave(fn, width = 7.5, height = 6.75)
-
-
-# -----------------
-# Horizontal layout
-# -----------------
-
 
 plots_list <- list(p_ROC, p_TPRFDR, p_TPR, p_FPR)
 
@@ -230,7 +193,7 @@ legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_performance.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects.pdf")
 ggsave(fn, width = 11, height = 3)
 
 

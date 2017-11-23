@@ -4,7 +4,7 @@
 # - method: diffcyt-DS-med
 # - data set: BCR-XL-sim
 # 
-# - main results
+# - using random effects instead of fixed effects for patient IDs
 # 
 # Lukas Weber, November 2017
 ##########################################################################################
@@ -16,9 +16,9 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_diagnostic/diffcyt_DS_med"
-DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
-DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/main"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_random_effects_diagnostic/diffcyt_DS_med"
+DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_random_effects"
+DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_random_effects"
 
 
 
@@ -28,8 +28,8 @@ DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/main"
 #############
 
 # contrast (to compare 'spike' vs. 'base')
-# note: include zeros for patient_IDs fixed effects
-contrasts_list <- list(spike = c(0, 1, 0, 0, 0, 0, 0, 0, 0))
+# note: no fixed effects terms for patient_IDs in contrast (since including random effects instead)
+contrasts_list <- list(spike = c(0, 1))
 
 
 
@@ -131,10 +131,10 @@ runtime_preprocessing <- system.time({
 # store data objects (for plotting)
 # ---------------------------------
 
-out_objects_diffcyt_DS_med_main <- list(d_se = d_se, 
-                                        d_counts = d_counts, 
-                                        d_medians = d_medians, 
-                                        d_medians_all = d_medians_all)
+out_objects_diffcyt_DS_med_supp_random_effects <- list(d_se = d_se, 
+                                                       d_counts = d_counts, 
+                                                       d_medians = d_medians, 
+                                                       d_medians_all = d_medians_all)
 
 
 # -------------------------------------------------------
@@ -144,8 +144,8 @@ out_objects_diffcyt_DS_med_main <- list(d_se = d_se,
 runtime_tests <- system.time({
   
   # set up design matrix
-  # note: include 'patient_IDs' as fixed effects ('block_IDs' argument)
-  design <- createDesignMatrix(group_IDs, block_IDs = patient_IDs)
+  # note: including 'patient_IDs' as random effects in 'testDS_med' below
+  design <- createDesignMatrix(group_IDs)
   design
   
   # set up contrast matrix
@@ -153,8 +153,10 @@ runtime_tests <- system.time({
   contrast
   
   # run tests
-  # note: including 'patient_IDs' as fixed effects in design matrix
-  res <- testDS_med(d_counts, d_medians, design, contrast, path = DIR_PLOTS)
+  # note: include 'patient_IDs' as random effects using limma 'duplicateCorrelation' methodology
+  path <- DIR_PLOTS
+  res <- testDS_med(d_counts, d_medians, design, contrast, 
+                    block_IDs = patient_IDs, path = DIR_PLOTS)
   
 })
 
@@ -173,7 +175,7 @@ print(table(res_sorted$adj.P.Val <= 0.1))
 runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_tests[["elapsed"]]
 print(runtime_total)
 
-runtime_diffcyt_DS_med_main <- runtime_total
+runtime_diffcyt_DS_med_supp_random_effects <- runtime_total
 
 
 # ---------------------------------------------
@@ -182,7 +184,7 @@ runtime_diffcyt_DS_med_main <- runtime_total
 
 res_clusters <- as.data.frame(rowData(res))
 
-out_clusters_diffcyt_DS_med_main <- res_clusters
+out_clusters_diffcyt_DS_med_supp_random_effects <- res_clusters
 
 
 
@@ -245,7 +247,7 @@ res <- data.frame(p_vals = res_p_vals,
                   B_cell = is_B_cell)
 
 # store results
-out_diffcyt_DS_med_main <- res
+out_diffcyt_DS_med_supp_random_effects <- res
 
 
 
@@ -254,14 +256,14 @@ out_diffcyt_DS_med_main <- res
 # Save output objects
 #####################
 
-save(out_diffcyt_DS_med_main, runtime_diffcyt_DS_med_main, 
-     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+save(out_diffcyt_DS_med_supp_random_effects, runtime_diffcyt_DS_med_supp_random_effects, 
+     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_supp_random_effects.RData"))
 
-save(out_clusters_diffcyt_DS_med_main, 
-     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+save(out_clusters_diffcyt_DS_med_supp_random_effects, 
+     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_med_supp_random_effects.RData"))
 
-save(out_objects_diffcyt_DS_med_main, 
-     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+save(out_objects_diffcyt_DS_med_supp_random_effects, 
+     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_med_supp_random_effects.RData"))
 
 
 
@@ -270,7 +272,7 @@ save(out_objects_diffcyt_DS_med_main,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_med_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_med_supp_random_effects.txt"))
 sessionInfo()
 sink()
 
