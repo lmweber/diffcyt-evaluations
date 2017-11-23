@@ -94,7 +94,7 @@ runtime_preprocessing <- system.time({
   
   # clustering
   # (runtime: ~5 sec with xdim = 10, ydim = 10)
-  seed <- 123
+  seed <- 1234
   d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed = seed)
   
   length(table(rowData(d_se)$cluster))  # number of clusters

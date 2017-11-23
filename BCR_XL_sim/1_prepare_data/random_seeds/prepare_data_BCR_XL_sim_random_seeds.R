@@ -219,7 +219,7 @@ for (r in 1:n_replicates) {
   
   
   filenames <- file.path(DIR_DATA_OUT, "random_seeds", paste0("seed", r), 
-                         paste0("BCR_XL_sim_", patient_IDs, "_", conditions_spike, "_", "seed", r, ".fcs"))
+                         paste0("BCR_XL_sim_", patient_IDs, "_", conditions_spike, ".fcs"))
   
   for (i in 1:length(data_export)) {
     write.FCS(flowFrame(data_export[[i]]), filename = filenames[i])

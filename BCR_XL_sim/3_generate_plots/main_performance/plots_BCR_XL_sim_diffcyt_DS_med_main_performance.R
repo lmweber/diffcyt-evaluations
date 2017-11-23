@@ -88,7 +88,7 @@ p_ROC <-
   guides(color = guide_legend("method"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_ROC.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_ROC.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -113,7 +113,7 @@ p_TPRFDR <-
          color = guide_legend("method", order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_TPRFDR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_TPRFDR.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -137,7 +137,7 @@ p_TPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_TPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_TPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -161,7 +161,7 @@ p_FPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_FPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_FPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 

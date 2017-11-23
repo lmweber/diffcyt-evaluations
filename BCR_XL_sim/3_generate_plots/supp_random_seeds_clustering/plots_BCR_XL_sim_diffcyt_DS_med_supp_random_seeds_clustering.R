@@ -40,9 +40,9 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_random_seeds_clustering"
 
 # create 'COBRAData' object
 data <- list(seed_main = out_diffcyt_DS_med_main, 
-             seed_alt_1 = out_diffcyt_DS_med_supp_random_seeds_clustering[[1]], 
-             seed_alt_2 = out_diffcyt_DS_med_supp_random_seeds_clustering[[2]], 
-             seed_alt_3 = out_diffcyt_DS_med_supp_random_seeds_clustering[[3]])
+             seed_1 = out_diffcyt_DS_med_supp_random_seeds_clustering[[1]], 
+             seed_2 = out_diffcyt_DS_med_supp_random_seeds_clustering[[2]], 
+             seed_3 = out_diffcyt_DS_med_supp_random_seeds_clustering[[3]])
 
 # check
 stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
@@ -51,13 +51,13 @@ stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
 cobradata <- COBRAData(pval = data.frame(seed_main = data[["seed_main"]][, "p_vals"], 
-                                         seed_alt_1 = data[["seed_alt_1"]][, "p_vals"], 
-                                         seed_alt_2 = data[["seed_alt_2"]][, "p_vals"], 
-                                         seed_alt_3 = data[["seed_alt_3"]][, "p_vals"]), 
+                                         seed_1 = data[["seed_1"]][, "p_vals"], 
+                                         seed_2 = data[["seed_2"]][, "p_vals"], 
+                                         seed_3 = data[["seed_3"]][, "p_vals"]), 
                        padj = data.frame(seed_main = data[["seed_main"]][, "p_adj"], 
-                                         seed_alt_1 = data[["seed_alt_1"]][, "p_adj"], 
-                                         seed_alt_2 = data[["seed_alt_2"]][, "p_adj"], 
-                                         seed_alt_3 = data[["seed_alt_3"]][, "p_adj"]), 
+                                         seed_1 = data[["seed_1"]][, "p_adj"], 
+                                         seed_2 = data[["seed_2"]][, "p_adj"], 
+                                         seed_3 = data[["seed_3"]][, "p_adj"]), 
                        truth = data.frame(B_cell = data[["seed_main"]][, "B_cell"]))
 
 # calculate performance scores

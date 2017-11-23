@@ -4,7 +4,7 @@
 # - method: diffcyt-DS-med
 # - data set: BCR-XL-sim
 # 
-# - supplementary results: varying clustering resolution
+# - supplementary results: varying random seeds for generating benchmark data
 # 
 # Lukas Weber, November 2017
 ##########################################################################################
@@ -15,10 +15,10 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_clustering_resolution/diagnostic/diffcyt_DS_med"
-DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_clustering_resolution"
-DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_clustering_resolution"
+DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/random_seeds"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_random_seeds_data/diagnostic/diffcyt_DS_med"
+DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_random_seeds_data"
+DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_random_seeds_data"
 
 
 
@@ -31,32 +31,33 @@ DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_clustering_resolut
 # note: include zeros for patient_IDs fixed effects
 contrasts_list <- list(spike = c(0, 1, 0, 0, 0, 0, 0, 0, 0))
 
-# varying clustering resolution: grid size for FlowSOM (e.g. 30x30 grid)
-resolution <- c(3, 5, 7, 10, 14, 20, 30)
-resolution_sq <- resolution^2
+# names of random seeds used
+seed_names <- c("seed1", "seed2", "seed3")
 
 # lists to store objects
-out_diffcyt_DS_med_supp_clustering_resolution <- 
-  out_clusters_diffcyt_DS_med_supp_clustering_resolution <- 
-  out_objects_diffcyt_DS_med_supp_clustering_resolution <- 
-  runtime_diffcyt_DS_med_supp_clustering_resolution <- vector("list", length(resolution))
-names(out_diffcyt_DS_med_supp_clustering_resolution) <- 
-  names(out_clusters_diffcyt_DS_med_supp_clustering_resolution) <- 
-  names(out_objects_diffcyt_DS_med_supp_clustering_resolution) <- 
-  names(runtime_diffcyt_DS_med_supp_clustering_resolution) <- paste("k", resolution_sq, sep = "_")
+out_diffcyt_DS_med_supp_random_seeds_data <- 
+  out_clusters_diffcyt_DS_med_supp_random_seeds_data <- 
+  out_objects_diffcyt_DS_med_supp_random_seeds_data <- 
+  runtime_diffcyt_DS_med_supp_random_seeds_data <- vector("list", length(seed_names))
+names(out_diffcyt_DS_med_supp_random_seeds_data) <- 
+  names(out_clusters_diffcyt_DS_med_supp_random_seeds_data) <- 
+  names(out_objects_diffcyt_DS_med_supp_random_seeds_data) <- 
+  names(runtime_diffcyt_DS_med_supp_random_seeds_data) <- seed_names
 
 
 
 
-for (k in 1:length(resolution)) {
+for (s in 1:length(seed_names)) {
   
   
   ###########################
   # Load data, pre-processing
   ###########################
   
+  # load data from each random seed
+  
   # filenames
-  files <- list.files(DIR_BENCHMARK, pattern = "\\.fcs$", full.names = TRUE)
+  files <- list.files(file.path(DIR_BENCHMARK, seed_names[s]), pattern = "\\.fcs$", full.names = TRUE)
   files_base <- files[grep("base\\.fcs$", files)]
   files_spike <- files[grep("spike\\.fcs$", files)]
   
@@ -112,7 +113,7 @@ for (k in 1:length(resolution)) {
     # clustering
     # (runtime: ~5 sec with xdim = 10, ydim = 10)
     seed <- 1234
-    d_se <- generateClusters(d_se, xdim = resolution[k], ydim = resolution[k], seed = seed)
+    d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed = seed)
     
     length(table(rowData(d_se)$cluster))  # number of clusters
     nrow(rowData(d_se))                   # number of cells
@@ -148,7 +149,7 @@ for (k in 1:length(resolution)) {
   # store data objects (for plotting)
   # ---------------------------------
   
-  out_objects_diffcyt_DS_med_supp_clustering_resolution[[k]] <- 
+  out_objects_diffcyt_DS_med_supp_random_seeds_data[[s]] <- 
     list(d_se = d_se, 
          d_counts = d_counts, 
          d_medians = d_medians, 
@@ -191,7 +192,7 @@ for (k in 1:length(resolution)) {
   runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_tests[["elapsed"]]
   print(runtime_total)
   
-  runtime_diffcyt_DS_med_supp_clustering_resolution[[k]] <- runtime_total
+  runtime_diffcyt_DS_med_supp_random_seeds_data[[s]] <- runtime_total
   
   
   # ---------------------------------------------
@@ -200,7 +201,7 @@ for (k in 1:length(resolution)) {
   
   res_clusters <- as.data.frame(rowData(res))
   
-  out_clusters_diffcyt_DS_med_supp_clustering_resolution[[k]] <- res_clusters
+  out_clusters_diffcyt_DS_med_supp_random_seeds_data[[s]] <- res_clusters
   
   
   
@@ -263,7 +264,7 @@ for (k in 1:length(resolution)) {
                     B_cell = is_B_cell)
   
   # store results
-  out_diffcyt_DS_med_supp_clustering_resolution[[k]] <- res
+  out_diffcyt_DS_med_supp_random_seeds_data[[s]] <- res
 
 }
 
@@ -274,14 +275,14 @@ for (k in 1:length(resolution)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DS_med_supp_clustering_resolution, runtime_diffcyt_DS_med_supp_clustering_resolution, 
-     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_supp_clustering_resolution.RData"))
+save(out_diffcyt_DS_med_supp_random_seeds_data, runtime_diffcyt_DS_med_supp_random_seeds_data, 
+     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_supp_random_seeds_data.RData"))
 
-save(out_clusters_diffcyt_DS_med_supp_clustering_resolution, 
-     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_med_supp_clustering_resolution.RData"))
+save(out_clusters_diffcyt_DS_med_supp_random_seeds_data, 
+     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_med_supp_random_seeds_data.RData"))
 
-save(out_objects_diffcyt_DS_med_supp_clustering_resolution, 
-     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_med_supp_clustering_resolution.RData"))
+save(out_objects_diffcyt_DS_med_supp_random_seeds_data, 
+     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_med_supp_random_seeds_data.RData"))
 
 
 
@@ -290,7 +291,7 @@ save(out_objects_diffcyt_DS_med_supp_clustering_resolution,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_med_supp_clustering_resolution.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_med_supp_random_seeds_data.txt"))
 sessionInfo()
 sink()
 

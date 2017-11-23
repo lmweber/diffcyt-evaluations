@@ -164,7 +164,7 @@ p_0.99 <-
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.99.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.99.pdf")
 ggsave(fn, width = 6, height = 5)
 
 
@@ -191,7 +191,7 @@ p_0.9 <-
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.9.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.9.pdf")
 ggsave(fn, width = 6, height = 5)
 
 
@@ -218,7 +218,7 @@ p_0.5 <-
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.5.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.5.pdf")
 ggsave(fn, width = 6, height = 5)
 
 
@@ -245,7 +245,7 @@ p_0.1 <-
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.1.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.1.pdf")
 ggsave(fn, width = 6, height = 5)
 
 
