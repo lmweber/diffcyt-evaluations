@@ -153,7 +153,7 @@ p_FPR <-
   scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
   coord_fixed() + 
   xlab("False positive rate") + 
-  ggtitle("BCR-XL-sim, main results", subtitle = "FPR") + 
+  ggtitle("BCR-XL-sim: main results", subtitle = "FPR") + 
   theme_bw() + 
   theme(strip.text.x = element_blank(), 
         axis.text.y = element_blank()) + 

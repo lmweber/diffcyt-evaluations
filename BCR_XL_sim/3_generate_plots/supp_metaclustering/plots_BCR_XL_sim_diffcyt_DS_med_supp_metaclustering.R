@@ -5,7 +5,7 @@
 # - plot type: performance metrics
 # - method: diffcyt-DS-med
 # 
-# - using random effects instead of fixed effects for patient IDs
+# - using FlowSOM meta-clustering
 # 
 # Lukas Weber, November 2017
 ##########################################################################################
@@ -17,13 +17,13 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 
 
 # load saved results
-DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_random_effects"
+DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_metaclustering"
 
-load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_supp_random_effects.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_supp_metaclustering.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_random_effects"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_metaclustering"
 
 
 
@@ -37,7 +37,7 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_random_effects"
 # -------------------------------------
 
 # create 'COBRAData' object
-data <- list(diffcyt_DS_med = out_diffcyt_DS_med_supp_random_effects)
+data <- list(diffcyt_DS_med = out_diffcyt_DS_med_supp_metaclustering)
 
 # check
 stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
@@ -81,13 +81,13 @@ p_ROC <-
   coord_fixed() + 
   xlab("False positive rate") + 
   ylab("True positive rate") + 
-  ggtitle("BCR-XL-sim: random effects", subtitle = "ROC curve") + 
+  ggtitle("BCR-XL-sim: meta-clustering", subtitle = "ROC curve") + 
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   guides(color = guide_legend("method"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects_ROC.pdf")
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_meta_clustering_ROC.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -105,14 +105,14 @@ p_TPRFDR <-
   xlab("False discovery rate") + 
   ylab("True positive rate") + 
   scale_x_continuous(breaks = seq(0, 1, by = 0.2)) + 
-  ggtitle("BCR-XL-sim: random effects", subtitle = "TPR vs. FDR") + 
+  ggtitle("BCR-XL-sim: meta-clustering", subtitle = "TPR vs. FDR") + 
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
          color = guide_legend("method", order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects_TPRFDR.pdf")
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_meta_clustering_TPRFDR.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -128,7 +128,7 @@ p_TPR <-
   scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
   coord_fixed() + 
   xlab("True positive rate") + 
-  ggtitle("BCR-XL-sim: random effects", subtitle = "TPR") + 
+  ggtitle("BCR-XL-sim: meta-clustering", subtitle = "TPR") + 
   theme_bw() + 
   theme(strip.text.x = element_blank(), 
         axis.text.y = element_blank()) + 
@@ -136,7 +136,7 @@ p_TPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects_TPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_meta_clustering_TPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -152,7 +152,7 @@ p_FPR <-
   scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
   coord_fixed() + 
   xlab("False positive rate") + 
-  ggtitle("BCR-XL-sim: random effects", subtitle = "FPR") + 
+  ggtitle("BCR-XL-sim: meta-clustering", subtitle = "FPR") + 
   theme_bw() + 
   theme(strip.text.x = element_blank(), 
         axis.text.y = element_blank()) + 
@@ -160,7 +160,7 @@ p_FPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects_FPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels/results_BCR_XL_sim_diffcyt_DS_med_supp_meta_clustering_FPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -192,7 +192,7 @@ legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_supp_random_effects.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_supp_metaclustering.pdf")
 ggsave(fn, width = 10, height = 2.75)
 
 
