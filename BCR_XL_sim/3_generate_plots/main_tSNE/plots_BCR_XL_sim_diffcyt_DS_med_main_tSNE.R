@@ -260,8 +260,7 @@ plots_list <- list(p_0.99, p_0.9, p_0.5, p_0.1)
 # modify plot elements
 plots_list <- lapply(plots_list, function(p) {
   p + 
-    theme(plot.title = element_blank(), 
-          legend.position = "none")
+    theme(plot.title = element_blank())
 })
 
 plots_multi <- plot_grid(plotlist = plots_list, 
@@ -273,13 +272,9 @@ title_single <- p_0.99$labels$title
 plots_title <- ggdraw() + draw_label(title_single)
 plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 20))
 
-# add combined legend
-legend_single <- get_legend(plots_list[[1]] + theme(legend.position = "right"))
-plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6, 1))
-
 # save multi-panel plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_all.pdf")
-ggsave(fn, width = 7.5, height = 6.75)
+ggsave(fn, width = 9, height = 7)
 
 
 
