@@ -162,9 +162,9 @@ dim(exprs(read.FCS(file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experime
 
 
 
-# ----------------------------------------------
-# Replicates: different levels of 'distinctness'
-# ----------------------------------------------
+# --------------------------------------------
+# Replicates: reduced levels of 'distinctness'
+# --------------------------------------------
 
 # replicates: create 'less distinct' data sets by reducing difference in median and
 # standard deviation of arcsinh-transformed expression by various proportions (e.g. 50%),
@@ -176,6 +176,7 @@ cofactor <- 5
 
 
 distinctness <- c(0.5, 0.75)  # 50%, 75%
+
 
 for (di in 1:length(distinctness)) {
   

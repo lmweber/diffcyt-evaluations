@@ -16,6 +16,7 @@ DIR_PLOTS          = ../../plots/BCR_XL_sim
 TIMESTAMP_BENCHMARK_MAIN            = $(DIR_BENCHMARK)/main/timestamp.txt
 TIMESTAMP_BENCHMARK_NULL_SIMULATION = $(DIR_BENCHMARK)/null_simulation/timestamp.txt
 TIMESTAMP_BENCHMARK_RANDOM_SEEDS    = $(DIR_BENCHMARK)/random_seeds/timestamp.txt
+TIMESTAMP_BENCHMARK_LESS_DISTINCT   = $(DIR_BENCHMARK)/less_distinct/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
@@ -27,6 +28,7 @@ TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(DIR_PLOTS)/supp_random_seeds_cl
 TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA       = $(DIR_PLOTS)/supp_random_seeds_data/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES            = $(DIR_PLOTS)/supp_sample_sizes/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT           = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
 SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
@@ -38,6 +40,7 @@ SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_GENERATE_PLOTS)/su
 SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_DATA       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_seeds_data/*.R)
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 SCRIPTS_PLOTS_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_GENERATE_PLOTS)/supp_sample_sizes/*.R)
+SCRIPTS_PLOTS_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
 
 FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_NULL_SIMULATION              = $(wildcard $(DIR_RDATA)/null_simulation/*.RData)
@@ -47,6 +50,7 @@ FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_RDATA)/supp_random_s
 FILES_RDATA_SUPP_RANDOM_SEEDS_DATA       = $(wildcard $(DIR_RDATA)/supp_random_seeds_data/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
 FILES_RDATA_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_RDATA)/supp_sample_sizes/*.RData)
+FILES_RDATA_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_RDATA)/supp_less_distinct/*.RData)
 
 
 
@@ -68,7 +72,8 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA) \
                   $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
-                  $(TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES)
+                  $(TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES) \
+                  $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT)
 
 
 
@@ -119,6 +124,10 @@ $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_R
 $(TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES): $(SCRIPTS_PLOTS_SUPP_SAMPLE_SIZES) $(FILES_RDATA_SUPP_SAMPLE_SIZES)
 	cd $(DIR_GENERATE_PLOTS)/supp_sample_sizes && bash run_all.sh
 
+# supplementary: 'less distinct' benchmark data
+$(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT): $(SCRIPTS_PLOTS_SUPP_LESS_DISTINCT) $(FILES_RDATA_SUPP_LESS_DISTINCT)
+	cd $(DIR_GENERATE_PLOTS)/supp_less_distinct && bash run_all.sh
+
 
 
 
@@ -160,6 +169,10 @@ $(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp
 $(DIR_RDATA)/supp_sample_sizes/outputs_%.RData: $(DIR_RUN_METHODS)/supp_sample_sizes/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_sample_sizes && Rscript $(notdir $<)
 
+# supplementary: 'less distinct' benchmark data
+$(DIR_RDATA)/supp_less_distinct/outputs_%.RData: $(DIR_RUN_METHODS)/supp_less_distinct/run_%.R $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
+	cd $(DIR_RUN_METHODS)/supp_less_distinct && Rscript $(notdir $<)
+
 
 
 
@@ -178,6 +191,10 @@ $(TIMESTAMP_BENCHMARK_NULL_SIMULATION): $(DIR_PREPARE_DATA)/null_simulation/prep
 # generate benchmark data files: random seeds
 $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS): $(DIR_PREPARE_DATA)/random_seeds/prepare_data_BCR_XL_sim_random_seeds.R
 	cd $(DIR_PREPARE_DATA)/random_seeds && Rscript $(notdir $<)
+
+# generate benchmark data files: 'less distinct' data sets
+$(TIMESTAMP_BENCHMARK_LESS_DISTINCT): $(DIR_PREPARE_DATA)/less_distinct/prepare_data_BCR_XL_sim_less_distinct.R
+	cd $(DIR_PREPARE_DATA)/less_distinct && Rscript $(notdir $<)
 
 
 
