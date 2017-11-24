@@ -30,9 +30,213 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_less_distinct"
 
 
 
-################
-# Generate plots
-################
+#########################################
+# Generate plots: all performance metrics
+#########################################
+
+# -------------------------------------
+# Pre-processing steps for iCOBRA plots
+# -------------------------------------
+
+# note: create separate objects for each level of 'distinctness'
+
+
+# create 'COBRAData' objects
+data_less_50pc <- list(diffcyt_DS_med = out_diffcyt_DS_med_supp_less_distinct[["less_50pc"]])
+data_less_75pc <- list(diffcyt_DS_med = out_diffcyt_DS_med_supp_less_distinct[["less_75pc"]])
+
+cobradata_less_50pc <- COBRAData(pval = data.frame(diffcyt_DS_med = data_less_50pc[["diffcyt_DS_med"]][, "p_vals"]), 
+                                 padj = data.frame(diffcyt_DS_med = data_less_50pc[["diffcyt_DS_med"]][, "p_adj"]), 
+                                 truth = data.frame(B_cell = data_less_50pc[["diffcyt_DS_med"]][, "B_cell"]))
+
+cobradata_less_75pc <- COBRAData(pval = data.frame(diffcyt_DS_med = data_less_75pc[["diffcyt_DS_med"]][, "p_vals"]), 
+                                 padj = data.frame(diffcyt_DS_med = data_less_75pc[["diffcyt_DS_med"]][, "p_adj"]), 
+                                 truth = data.frame(B_cell = data_less_75pc[["diffcyt_DS_med"]][, "B_cell"]))
+
+# calculate performance scores
+cobraperf_less_50pc <- calculate_performance(cobradata_less_50pc, 
+                                             binary_truth = "B_cell", 
+                                             aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
+
+cobraperf_less_75pc <- calculate_performance(cobradata_less_75pc, 
+                                             binary_truth = "B_cell", 
+                                             aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
+
+# color scheme
+colors <- c("darkblue")
+
+# prepare plotting objects
+cobraplot_less_50pc <- prepare_data_for_plot(cobraperf_less_50pc, 
+                                             colorscheme = colors, 
+                                             conditionalfill = FALSE)
+
+cobraplot_less_75pc <- prepare_data_for_plot(cobraperf_less_75pc, 
+                                             colorscheme = colors, 
+                                             conditionalfill = FALSE)
+
+
+
+# -----------------------------------------------
+# Generate plots for each level of 'distinctness'
+# -----------------------------------------------
+
+cobraplot_list <- list(less_50pc = cobraplot_less_50pc, 
+                       less_75pc = cobraplot_less_75pc)
+
+
+for (i in 1:length(cobraplot_list)) {
+  
+  
+  # select 'cobraplot' object from correct sample size
+  cobraplot <- cobraplot_list[[i]]
+  
+  
+  # ----------
+  # ROC curves
+  # ----------
+  
+  # create plot
+  p_ROC <- 
+    plot_roc(cobraplot, linewidth = 0.75) + 
+    coord_fixed() + 
+    xlab("False positive rate") + 
+    ylab("True positive rate") + 
+    ggtitle(paste0("BCR-XL-sim: 'less distinct' data: reduced ", 
+                   gsub("pc$", "\\%", gsub("^less_", "", names(cobraplot_list)[i]))), 
+            subtitle = "ROC curve") + 
+    theme_bw() + 
+    theme(strip.text.x = element_blank()) + 
+    guides(color = guide_legend("method"))
+  
+  # save plot
+  fn <- file.path(DIR_PLOTS, "panels", 
+                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_less_distinct_ROC_", names(cobraplot_list)[i], ".pdf"))
+  ggsave(fn, width = 4.75, height = 3.5)
+  
+  
+  
+  # --------------
+  # TPR-FDR curves
+  # --------------
+  
+  # create plot
+  p_TPRFDR <- 
+    plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4) + 
+    #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
+    scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
+    coord_fixed() + 
+    xlab("False discovery rate") + 
+    ylab("True positive rate") + 
+    scale_x_continuous(breaks = seq(0, 1, by = 0.2)) + 
+    ggtitle(paste0("BCR-XL-sim: 'less distinct' data: reduced ", 
+                   gsub("pc$", "\\%", gsub("^less_", "", names(cobraplot_list)[i]))), 
+            subtitle = "TPR vs. FDR") + 
+    theme_bw() + 
+    theme(strip.text.x = element_blank()) + 
+    guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
+           color = guide_legend("method", order = 2))
+  
+  # save plot
+  fn <- file.path(DIR_PLOTS, "panels", 
+                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_less_distinct_TPRFDR_", names(cobraplot_list)[i], ".pdf"))
+  ggsave(fn, width = 4.75, height = 3.5)
+  
+  
+  
+  # ---------
+  # TPR plots
+  # ---------
+  
+  # create plot
+  p_TPR <- 
+    plot_tpr(cobraplot, pointsize = 4) + 
+    #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
+    scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
+    coord_fixed() + 
+    xlab("True positive rate") + 
+    ggtitle(paste0("BCR-XL-sim: 'less distinct' data: reduced ", 
+                   gsub("pc$", "\\%", gsub("^less_", "", names(cobraplot_list)[i]))), 
+            subtitle = "TPR") + 
+    theme_bw() + 
+    theme(strip.text.x = element_blank(), 
+          axis.text.y = element_blank()) + 
+    guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
+           color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
+  
+  # save plot
+  fn <- file.path(DIR_PLOTS, "panels", 
+                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_less_distinct_TPR_", names(cobraplot_list)[i], ".pdf"))
+  ggsave(fn, width = 4.5, height = 3.5)
+  
+  
+  
+  # ---------
+  # FPR plots
+  # ---------
+  
+  # create plot
+  p_FPR <- 
+    plot_fpr(cobraplot, pointsize = 4) + 
+    #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
+    scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
+    coord_fixed() + 
+    xlab("False positive rate") + 
+    ggtitle(paste0("BCR-XL-sim: 'less distinct' data: reduced ", 
+                   gsub("pc$", "\\%", gsub("^less_", "", names(cobraplot_list)[i]))), 
+            subtitle = "FPR") + 
+    theme_bw() + 
+    theme(strip.text.x = element_blank(), 
+          axis.text.y = element_blank()) + 
+    guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
+           color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
+  
+  # save plot
+  fn <- file.path(DIR_PLOTS, "panels", 
+                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_less_distinct_FPR_", names(cobraplot_list)[i], ".pdf"))
+  ggsave(fn, width = 4.5, height = 3.5)
+  
+  
+  
+  
+  ##################
+  # Multi-panel plot
+  ##################
+  
+  plots_list <- list(p_ROC, p_TPRFDR, p_TPR, p_FPR)
+  
+  # modify plot elements
+  plots_list <- lapply(plots_list, function(p) {
+    p + 
+      labs(title = p$labels$subtitle, subtitle = element_blank()) + 
+      theme(legend.position = "none")
+  })
+  
+  plots_multi <- plot_grid(plotlist = plots_list, 
+                           nrow = 1, ncol = 4, align = "hv", axis = "bl")
+  
+  # add combined title
+  title_single <- p_ROC$labels$title
+  plots_title <- ggdraw() + draw_label(title_single)
+  plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 7))
+  
+  # add combined legend
+  legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
+  plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6, 1))
+  
+  # save multi-panel plot
+  fn <- file.path(DIR_PLOTS, 
+                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_less_distinct_", 
+                         gsub("^less_", "", names(cobraplot_list)[i]), ".pdf"))
+  ggsave(fn, width = 10, height = 2.75)
+  
+}
+
+
+
+
+#############################################
+# Generate plots: combined plot of ROC curves
+#############################################
 
 # -------------------------------------
 # Pre-processing steps for iCOBRA plots
@@ -83,9 +287,9 @@ cobraplot <- reorder_levels(cobraplot, levels = names(data))
 
 
 
-# ----------
-# ROC curves
-# ----------
+# -------------------------
+# ROC curves: combined plot
+# -------------------------
 
 # create plot
 p_ROC <- 
@@ -100,7 +304,7 @@ p_ROC <-
   guides(color = guide_legend("distinctness"), linetype = guide_legend("distinctness"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_supp_less_distinct_ROC.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_supp_less_distinct_ROC_combined.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
