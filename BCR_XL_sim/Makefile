@@ -19,6 +19,7 @@ TIMESTAMP_BENCHMARK_RANDOM_SEEDS    = $(DIR_BENCHMARK)/random_seeds/timestamp.tx
 TIMESTAMP_BENCHMARK_LESS_DISTINCT   = $(DIR_BENCHMARK)/less_distinct/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
+TIMESTAMP_PLOTS_MAIN_RUNTIME                 = $(DIR_PLOTS)/main_runtime/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_HEATMAPS                = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
 TIMESTAMP_PLOTS_NULL_SIMULATION              = $(DIR_PLOTS)/null_simulation/timestamp.txt
@@ -31,6 +32,7 @@ TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES            = $(DIR_PLOTS)/supp_sample_sizes/ti
 TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT           = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
+SCRIPTS_PLOTS_MAIN_RUNTIME                 = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
 SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 SCRIPTS_PLOTS_MAIN_HEATMAPS                = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
 SCRIPTS_PLOTS_NULL_SIMULATION              = $(wildcard $(DIR_GENERATE_PLOTS)/null_simulation/*.R)
@@ -64,6 +66,7 @@ all: timestamps_plots
 
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
+                  $(TIMESTAMP_PLOTS_MAIN_RUNTIME) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
                   $(TIMESTAMP_PLOTS_MAIN_HEATMAPS) \
                   $(TIMESTAMP_PLOTS_NULL_SIMULATION) \
@@ -87,6 +90,10 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
 # main results: performance metrics
 $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main_performance && bash run_all.sh
+
+# main results: runtime
+$(TIMESTAMP_PLOTS_MAIN_RUNTIME): $(SCRIPTS_PLOTS_MAIN_RUNTIME) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main_runtime && bash run_all.sh
 
 # main results: tSNE plots
 $(TIMESTAMP_PLOTS_MAIN_TSNE): $(SCRIPTS_PLOTS_MAIN_TSNE) $(FILES_RDATA_MAIN)
