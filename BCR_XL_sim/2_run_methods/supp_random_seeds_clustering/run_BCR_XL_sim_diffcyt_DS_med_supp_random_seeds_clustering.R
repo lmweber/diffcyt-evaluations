@@ -32,7 +32,7 @@ DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_random_seeds_clust
 contrasts_list <- list(spike = c(0, 1, 0, 0, 0, 0, 0, 0, 0))
 
 # varying random seeds for clustering
-seeds <- c(1001, 1002, 1003)
+seeds <- c(101, 102, 103)
 
 # lists to store objects
 out_diffcyt_DS_med_supp_random_seeds_clustering <- 

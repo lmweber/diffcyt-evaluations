@@ -19,7 +19,6 @@ TIMESTAMP_BENCHMARK_RANDOM_SEEDS    = $(DIR_BENCHMARK)/random_seeds/timestamp.tx
 TIMESTAMP_BENCHMARK_LESS_DISTINCT   = $(DIR_BENCHMARK)/less_distinct/timestamp.txt
 
 TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
-TIMESTAMP_PLOTS_MAIN_RUNTIME                 = $(DIR_PLOTS)/main_runtime/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_ONE_SENSE               = $(DIR_PLOTS)/main_One_SENSE/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_HEATMAPS                = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
@@ -34,9 +33,9 @@ TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT           = $(DIR_PLOTS)/supp_less_distinct/t
 TIMESTAMP_PLOTS_COMPARISONS_CYDAR            = $(DIR_PLOTS)/comparisons_cydar/timestamp.txt
 TIMESTAMP_PLOTS_COMPARISONS_CELLCNN          = $(DIR_PLOTS)/comparisons_CellCnn/timestamp.txt
 TIMESTAMP_PLOTS_COMPARISONS_CITRUS           = $(DIR_PLOTS)/comparisons_Citrus/timestamp.txt
+TIMESTAMP_PLOTS_RUNTIMES                     = $(DIR_PLOTS)/runtimes/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
-SCRIPTS_PLOTS_MAIN_RUNTIME                 = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
 SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 SCRIPTS_PLOTS_MAIN_ONE_SENSE               = $(wildcard $(DIR_GENERATE_PLOTS)/main_One_SENSE/*.R)
 SCRIPTS_PLOTS_MAIN_HEATMAPS                = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
@@ -51,6 +50,7 @@ SCRIPTS_PLOTS_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_GENERATE_PLOTS)/su
 SCRIPTS_PLOTS_COMPARISONS_CYDAR            = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_cydar/*.R)
 SCRIPTS_PLOTS_COMPARISONS_CELLCNN          = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_CellCnn/*.R)
 SCRIPTS_PLOTS_COMPARISONS_CITRUS           = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_Citrus/*.R)
+SCRIPTS_PLOTS_RUNTIMES                     = $(wildcard $(DIR_GENERATE_PLOTS)/runtimes/*.R)
 
 FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_NULL_SIMULATION              = $(wildcard $(DIR_RDATA)/null_simulation/*.RData)
@@ -77,7 +77,6 @@ all: timestamps_plots
 
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
-                  $(TIMESTAMP_PLOTS_MAIN_RUNTIME) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
                   $(TIMESTAMP_PLOTS_MAIN_ONE_SENSE) \
                   $(TIMESTAMP_PLOTS_MAIN_HEATMAPS) \
@@ -91,7 +90,8 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
                   $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
                   $(TIMESTAMP_PLOTS_COMPARISONS_CYDAR) \
                   $(TIMESTAMP_PLOTS_COMPARISONS_CELLCNN) \
-                  $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS)
+                  $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS) \
+                  $(TIMESTAMP_PLOTS_RUNTIMES)
 
 
 
@@ -102,13 +102,10 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
 
 # note: separate rule for each set of results (otherwise dependencies get too complex)
 
+
 # main results: performance metrics
 $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main_performance && bash run_all.sh
-
-# main results: runtime
-$(TIMESTAMP_PLOTS_MAIN_RUNTIME): $(SCRIPTS_PLOTS_MAIN_RUNTIME) $(FILES_RDATA_MAIN)
-	cd $(DIR_GENERATE_PLOTS)/main_runtime && bash run_all.sh
 
 # main results: tSNE plots
 $(TIMESTAMP_PLOTS_MAIN_TSNE): $(SCRIPTS_PLOTS_MAIN_TSNE) $(FILES_RDATA_MAIN)
@@ -126,6 +123,7 @@ $(TIMESTAMP_PLOTS_MAIN_HEATMAPS): $(SCRIPTS_PLOTS_MAIN_HEATMAPS) $(FILES_RDATA_M
 $(TIMESTAMP_PLOTS_NULL_SIMULATION): $(SCRIPTS_PLOTS_NULL_SIMULATION) $(FILES_RDATA_NULL_SIMULATION)
 	cd $(DIR_GENERATE_PLOTS)/null_simulation && bash run_all.sh
 
+
 # supplementary: random effects
 $(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS): $(SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS) $(FILES_RDATA_SUPP_RANDOM_EFFECTS)
 	cd $(DIR_GENERATE_PLOTS)/supp_random_effects && bash run_all.sh
@@ -135,11 +133,11 @@ $(TIMESTAMP_PLOTS_SUPP_METACLUSTERING): $(SCRIPTS_PLOTS_SUPP_METACLUSTERING) $(F
 	cd $(DIR_GENERATE_PLOTS)/supp_metaclustering && bash run_all.sh
 
 # supplementary: varying random seeds for clustering
-$(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) $(FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING)
+$(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) $(FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/supp_random_seeds_clustering && bash run_all.sh
 
 # supplementary: varying random seeds for data generation
-$(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_DATA) $(FILES_RDATA_SUPP_RANDOM_SEEDS_DATA)
+$(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_DATA) $(FILES_RDATA_SUPP_RANDOM_SEEDS_DATA) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/supp_random_seeds_data && bash run_all.sh
 
 # supplementary: clustering resolution
@@ -151,8 +149,9 @@ $(TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES): $(SCRIPTS_PLOTS_SUPP_SAMPLE_SIZES) $(FILES
 	cd $(DIR_GENERATE_PLOTS)/supp_sample_sizes && bash run_all.sh
 
 # supplementary: 'less distinct' benchmark data
-$(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT): $(SCRIPTS_PLOTS_SUPP_LESS_DISTINCT) $(FILES_RDATA_SUPP_LESS_DISTINCT)
+$(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT): $(SCRIPTS_PLOTS_SUPP_LESS_DISTINCT) $(FILES_RDATA_SUPP_LESS_DISTINCT) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/supp_less_distinct && bash run_all.sh
+
 
 # comparisons: cydar
 $(TIMESTAMP_PLOTS_COMPARISONS_CYDAR): $(SCRIPTS_PLOTS_COMPARISONS_CYDAR) $(FILES_RDATA_COMPARISONS_CYDAR) $(FILES_RDATA_MAIN)
@@ -167,6 +166,11 @@ $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS): $(SCRIPTS_PLOTS_COMPARISONS_CITRUS) $(FIL
 	cd $(DIR_GENERATE_PLOTS)/comparisons_Citrus && bash run_all.sh
 
 
+# runtimes
+$(TIMESTAMP_PLOTS_RUNTIMES): $(SCRIPTS_PLOTS_RUNTIMES) $(FILES_RDATA_MAIN) $(FILES_RDATA_COMPARISONS_CYDAR) $(FILES_RDATA_COMPARISONS_CELLCNN) $(FILES_RDATA_COMPARISONS_CITRUS)
+	cd $(DIR_GENERATE_PLOTS)/runtimes && bash run_all.sh
+
+
 
 
 # -----------
@@ -175,6 +179,7 @@ $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS): $(SCRIPTS_PLOTS_COMPARISONS_CITRUS) $(FIL
 
 # note: can't use as default rule if target contains '%'
 
+
 # main results: performance metrics
 $(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/main && Rscript $(notdir $<)
@@ -182,6 +187,7 @@ $(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_B
 # null simulation
 $(DIR_RDATA)/null_simulation/outputs_%.RData: $(DIR_RUN_METHODS)/null_simulation/run_%.R $(TIMESTAMP_BENCHMARK_NULL_SIMULATION)
 	cd $(DIR_RUN_METHODS)/null_simulation && Rscript $(notdir $<)
+
 
 # supplementary: random effects
 $(DIR_RDATA)/supp_random_effects/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_effects/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
@@ -210,6 +216,7 @@ $(DIR_RDATA)/supp_sample_sizes/outputs_%.RData: $(DIR_RUN_METHODS)/supp_sample_s
 # supplementary: 'less distinct' benchmark data
 $(DIR_RDATA)/supp_less_distinct/outputs_%.RData: $(DIR_RUN_METHODS)/supp_less_distinct/run_%.R $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
 	cd $(DIR_RUN_METHODS)/supp_less_distinct && Rscript $(notdir $<)
+
 
 # comparisons: cydar
 $(DIR_RDATA)/comparisons_cydar/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_cydar/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
