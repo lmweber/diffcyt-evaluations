@@ -3,7 +3,7 @@
 # 
 # - data set: BCR-XL-sim
 # - plot type: performance metrics
-# - method: CellCnn
+# - method: Citrus
 # 
 # - main results
 # 
@@ -18,17 +18,17 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 
 # load saved results
 DIR_RDATA_MAIN <- "../../../../RData/BCR_XL_sim/main"
-DIR_RDATA_CELLCNN <- "../../../../RData/BCR_XL_sim/comparisons_CellCnn"
+DIR_RDATA_CITRUS <- "../../../../RData/BCR_XL_sim/comparisons_Citrus"
 
 load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
-load(file.path(DIR_RDATA_CELLCNN, "outputs_BCR_XL_sim_CellCnn_main.RData"))
+load(file.path(DIR_RDATA_CITRUS, "outputs_BCR_XL_sim_Citrus_main.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_CellCnn"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_Citrus"
 
-# path where automatically generated CellCnn plots are saved
-DIR_CELLCNN_FILES <- "../../../../CellCnn_files/BCR_XL_sim/main"
+# path where automatically generated Citrus plots are saved
+DIR_CITRUS_FILES <- "../../../../Citrus_files/BCR_XL_sim/main"
 
 
 
@@ -42,7 +42,7 @@ DIR_CELLCNN_FILES <- "../../../../CellCnn_files/BCR_XL_sim/main"
 # -------------------------------------
 
 # create 'COBRAData' object
-data <- list(CellCnn = out_CellCnn_main, 
+data <- list(Citrus = out_Citrus_main, 
              diffcyt_DS_med = out_diffcyt_DS_med_main)
 
 # check
@@ -53,7 +53,7 @@ stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
 cobradata <- COBRAData(pval = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_vals"]), 
                        padj = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_adj"]), 
-                       score = data.frame(CellCnn = data[["CellCnn"]][, "scores"]), 
+                       score = data.frame(Citrus = data[["Citrus"]][, "scores"]), 
                        truth = data.frame(B_cell = data[["diffcyt_DS_med"]][, "B_cell"]))
 
 # calculate performance scores
@@ -63,7 +63,7 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-colors <- c("mediumorchid3", "darkblue")
+colors <- c("gold", "darkblue")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
@@ -94,7 +94,7 @@ p_ROC <-
   guides(color = guide_legend("method"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_ROC.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_Citrus_main_ROC.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -119,7 +119,7 @@ p_TPRFDR <-
          color = guide_legend("method", order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_TPRFDR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_Citrus_main_TPRFDR.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -143,7 +143,7 @@ p_TPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_TPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_Citrus_main_TPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -167,7 +167,7 @@ p_FPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_FPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_Citrus_main_FPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -177,7 +177,7 @@ ggsave(fn, width = 4.5, height = 3.5)
 # Multi-panel plot
 ##################
 
-# note: ROC and TPR-FDR plots only (for CellCnn)
+# note: ROC and TPR-FDR plots only (for Citrus)
 
 
 plots_list <- list(p_ROC, p_TPRFDR)
@@ -202,22 +202,24 @@ legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(3, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_CellCnn_main_performance.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_Citrus_main_performance.pdf")
 ggsave(fn, width = 7, height = 2.625)
 
 
 
 
-####################
-# Copy CellCnn plots
-####################
+###################
+# Copy Citrus plots
+###################
 
-# copy automatically generated CellCnn plots
+# copy automatically generated Citrus plots
 
-plots_CellCnn <- list.files(file.path(DIR_CELLCNN_FILES, "out_CellCnn", "plots"), 
-                            "selected_population*", full.names = TRUE)
+plots_Citrus <- c(file.path(DIR_CITRUS_FILES, "citrusOutput/defaultCondition", 
+                            "markerPlotsAll.pdf"), 
+                  file.path(DIR_CITRUS_FILES, "citrusOutput/defaultCondition/glmnet_results", 
+                            c("clusters-cv_min.pdf", "featurePlots_cv.min.pdf", "features-cv_min.pdf")))
 
-cmds <- paste("cp", plots_CellCnn, DIR_PLOTS)
+cmds <- paste("cp", plots_Citrus, DIR_PLOTS)
 
 for (i in 1:length(cmds)) {
   system(cmds[i])

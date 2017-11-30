@@ -265,7 +265,7 @@ for (f in 1:length(files_cells)) {
 filter_continuous <- unlist(filter_continuous)
 
 
-# set up data frame with results (for marker pS6) and true B-cell status at cell level
+# set up data frame with results and true B-cell status at cell level
 
 scores <- filter_continuous
 

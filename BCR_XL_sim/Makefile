@@ -33,6 +33,7 @@ TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES            = $(DIR_PLOTS)/supp_sample_sizes/ti
 TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT           = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
 TIMESTAMP_PLOTS_COMPARISONS_CYDAR            = $(DIR_PLOTS)/comparisons_cydar/timestamp.txt
 TIMESTAMP_PLOTS_COMPARISONS_CELLCNN          = $(DIR_PLOTS)/comparisons_CellCnn/timestamp.txt
+TIMESTAMP_PLOTS_COMPARISONS_CITRUS           = $(DIR_PLOTS)/comparisons_Citrus/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
 SCRIPTS_PLOTS_MAIN_RUNTIME                 = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
@@ -49,6 +50,7 @@ SCRIPTS_PLOTS_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_GENERATE_PLOTS)/su
 SCRIPTS_PLOTS_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
 SCRIPTS_PLOTS_COMPARISONS_CYDAR            = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_cydar/*.R)
 SCRIPTS_PLOTS_COMPARISONS_CELLCNN          = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_CellCnn/*.R)
+SCRIPTS_PLOTS_COMPARISONS_CITRUS           = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_Citrus/*.R)
 
 FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_NULL_SIMULATION              = $(wildcard $(DIR_RDATA)/null_simulation/*.RData)
@@ -61,6 +63,7 @@ FILES_RDATA_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_RDATA)/supp_sample_s
 FILES_RDATA_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_RDATA)/supp_less_distinct/*.RData)
 FILES_RDATA_COMPARISONS_CYDAR            = $(wildcard $(DIR_RDATA)/comparisons_cydar/*.RData)
 FILES_RDATA_COMPARISONS_CELLCNN          = $(wildcard $(DIR_RDATA)/comparisons_CellCnn/*.RData)
+FILES_RDATA_COMPARISONS_CITRUS           = $(wildcard $(DIR_RDATA)/comparisons_Citrus/*.RData)
 
 
 
@@ -87,7 +90,8 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
                   $(TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES) \
                   $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
                   $(TIMESTAMP_PLOTS_COMPARISONS_CYDAR) \
-                  $(TIMESTAMP_PLOTS_COMPARISONS_CELLCNN)
+                  $(TIMESTAMP_PLOTS_COMPARISONS_CELLCNN) \
+                  $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS)
 
 
 
@@ -158,6 +162,10 @@ $(TIMESTAMP_PLOTS_COMPARISONS_CYDAR): $(SCRIPTS_PLOTS_COMPARISONS_CYDAR) $(FILES
 $(TIMESTAMP_PLOTS_COMPARISONS_CELLCNN): $(SCRIPTS_PLOTS_COMPARISONS_CELLCNN) $(FILES_RDATA_COMPARISONS_CELLCNN) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/comparisons_CellCnn && bash run_all.sh
 
+# comparisons: Citrus
+$(TIMESTAMP_PLOTS_COMPARISONS_CITRUS): $(SCRIPTS_PLOTS_COMPARISONS_CITRUS) $(FILES_RDATA_COMPARISONS_CITRUS) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/comparisons_Citrus && bash run_all.sh
+
 
 
 
@@ -210,6 +218,10 @@ $(DIR_RDATA)/comparisons_cydar/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_c
 # comparisons: CellCnn
 $(DIR_RDATA)/comparisons_CellCnn/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_CellCnn/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/comparisons_CellCnn && Rscript $(notdir $<)
+
+# comparisons: Citrus
+$(DIR_RDATA)/comparisons_Citrus/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_Citrus/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/comparisons_Citrus && Rscript $(notdir $<)
 
 
 
