@@ -15,11 +15,13 @@ library(flowCore)
 library(ncdfFlow)
 library(edgeR)
 library(SummarizedExperiment)
+library(Rtsne)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
-DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
-DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/main"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_cydar"
+DIR_RDATA <- "../../../../RData/BCR_XL_sim/comparisons_cydar"
+DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/comparisons_cydar"
 
 
 
@@ -37,7 +39,8 @@ files_spike <- files[grep("spike\\.fcs$", files)]
 files_load <- c(files_base, files_spike)
 files_load
 
-d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
+# load as ncdfFlowSet object
+d_input <- read.ncdfFlowSet(files_load, transformation = FALSE, truncate_max_range = FALSE)
 
 # sample IDs, group IDs, patient IDs
 sample_IDs <- gsub("^BCR_XL_sim_", "", 
@@ -64,28 +67,7 @@ cols_func <- setdiff(cols_markers, cols_lineage)
 # markers to use
 # --------------
 
-# note: running cydar on all markers does not work correctly; use a subset of markers instead
-
-# all lineage markers plus pS6
-cols_to_use <- c(cols_lineage, 30)
-
-
-# --------------
-# transform data
-# --------------
-
-# 'asinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2)
-
-# note: 'cydar' vignette uses biexponential transform instead (using 'estimateLogicle'
-# function from 'flowCore' package)
-
-cofactor <- 5
-
-d_input <- lapply(d_input, function(d) {
-  e <- exprs(d)
-  e[, cols_markers] <- asinh(e[, cols_markers] / cofactor)
-  flowFrame(e)
-})
+cols_to_use <- cols_markers
 
 
 
@@ -103,31 +85,33 @@ d_input <- lapply(d_input, function(d) {
 
 runtime_pre <- system.time({
   
-  # Subset markers and convert input data to required format ('ncdfFlowSet' object)
-  
-  d_input_cydar <- lapply(d_input, function(d) {
-    e <- exprs(d)
-    e <- e[, cols_to_use]
-    flowFrame(e)
-  })
-  
-  names(d_input_cydar) <- sample_IDs
-  
-  d_input_cydar <- flowSet(d_input_cydar)
-  d_input_cydar <- ncdfFlowSet(d_input_cydar)
-  
-  
   # Pooling cells together
-  # note: skip this since then 'prepareCellData' in next section doesn't work
+  # note: keep all cells
+  
+  pool.ff <- poolCells(d_input, equalize = FALSE)
+  
   
   # Estimating transformation parameters
-  # note: not required here, since we already applied 'asinh' transform above
+  # note: we use 'asinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2), 
+  # instead of 'logicle' as shown in Bioconductor vignette
+  
+  cofactor <- 5
+  
+  transf_exprs <- asinh(exprs(pool.ff)[, cols_markers] / cofactor)
+  
+  proc.ff <- pool.ff
+  exprs(proc.ff)[, cols_markers] <- transf_exprs
+  
   
   # Gating out uninteresting cells
   # note: not required for this data set
   
+  # keep only markers of interest
+  processed.exprs <- proc.ff[, cols_to_use]
+  
+  
   # Normalizing intensities across batches
-  # note: not required (see vignette)
+  # note: not required for this data set
   
 })
 
@@ -138,13 +122,28 @@ runtime_pre <- system.time({
 
 runtime_count <- system.time({
   
+  # note: data object must be list (or ncdfFlowSet object), with one list item per sample
+  
+  # convert processed data to named list (this step is not shown in Bioconductor vignette)
+  
+  # check sample order
+  sampleNames(d_input)
+  sample_IDs
+  
+  n_cells <- as.vector(fsApply(d_input, nrow))
+  sample_IDs_rep <- rep(sample_IDs, n_cells)
+  sample_IDs_rep <- factor(sample_IDs_rep, levels = unique(sample_IDs_rep))
+  
+  d_list <- split.data.frame(exprs(processed.exprs), sample_IDs_rep)
+  
+  
   set.seed(1234)
   
   # prepare 'CyData' object
-  cd <- prepareCellData(d_input_cydar)
+  cd <- prepareCellData(d_list)
   
   # assign cells to hyperspheres
-  cd <- countCells(cd)
+  cd <- countCells(cd, tol = 0.5)
   
   # check hypersphere counts
   head(assay(cd))
@@ -161,11 +160,10 @@ runtime_count <- system.time({
 # --------------------------------------------------------------------------
 
 # using 'edgeR' for testing
-# note: test separately for each condition: CN vs. healthy, CBF vs. healthy
 
 runtime_test <- system.time({
   
-  # create object
+  # create object for edgeR
   y <- DGEList(assay(cd), lib.size = cd$totals)
   
   # filtering
@@ -182,18 +180,11 @@ runtime_test <- system.time({
   y <- estimateDisp(y, design)
   fit <- glmQLFit(y, design, robust = TRUE)
   
-})
-
-
-# set up contrast and calculate tests
-
-runtime_qvals <- system.time({
-  
   # set up contrast
   contr_string <- "group_IDsspike"
   contrast <- makeContrasts(contr_string, levels = design)
   
-  # differential testing
+  # calculate differential tests
   res_cydar <- glmQLFTest(fit, contrast = contrast)
   
   # raw p-values
@@ -202,29 +193,61 @@ runtime_qvals <- system.time({
   # controlling the spatial false discovery rate (FDR)
   q_vals <- spatialFDR(intensities(cd), res_cydar$table$PValue)
   
+  # significant hyperspheres
+  is.sig <- q_vals <= 0.99
+  print(table(is.sig))
+  
 })
 
-# significant hyperspheres
-is.sig <- q_vals <= 0.1
-print(table(is.sig))
 
-# plots
+# ---------------------------------------------------------------------
+# Visualizing and interpreting the results (from Bioconductor vignette)
+# ---------------------------------------------------------------------
+
+# 2D PCA plots
+pdf(file.path(DIR_PLOTS, "cydar_populations_main.pdf"))
+
 sig.coords <- intensities(cd)[is.sig, ]
 sig.res <- res_cydar$table[is.sig, ]
 coords <- prcomp(sig.coords)
+
 plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
 
-par(mfrow = c(6, 4), mar = c(2.1, 1.1, 3.1, 1.1))
+dev.off()
+
+
+# 2D tSNE plots (does not work)
+# sig.coords <- intensities(cd)[is.sig, ]
+# sig.res <- res_cydar$table[is.sig, ]
+# 
+# set.seed(123)
+# out_tsne <- Rtsne(sig.coords, pca = FALSE, verbose = TRUE)
+# tsne_coords <- as.data.frame(out_tsne$Y)
+# colnames(tsne_coords) <- c("tSNE_1", "tSNE_2")
+# 
+# plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
+
+
+# Median marker intensities of each hypersphere
+pdf(file.path(DIR_PLOTS, "cydar_medians_main.pdf"), width = 8, height = 7)
+
+par(mfrow = c(4, 6), mar = c(2.1, 1.1, 3.1, 1.1))
 limits <- intensityRanges(cd, p = 0.05)
 all.markers <- rownames(markerData(cd))
-for (i in order(all.markers)) {
-  plotCellIntensity(coords$x[, 1], coords$x[, 2], sig.coords[, i],
-                    irange=limits[, i], main=all.markers[i])
+for (i in order(all.markers)) { 
+  plotCellIntensity(coords$x[, 1], coords$x[, 2], sig.coords[, i], 
+                    irange = limits[, i], main = all.markers[i])
 }
 par(mfrow = c(1, 1))
 
-# runtime
-runtime_total <- runtime_pre[["elapsed"]] + runtime_count[["elapsed"]] + runtime_test[["elapsed"]] + runtime_qvals[["elapsed"]]
+dev.off()
+
+
+# -------
+# Runtime
+# -------
+
+runtime_total <- runtime_pre[["elapsed"]] + runtime_count[["elapsed"]] + runtime_test[["elapsed"]]
 print(runtime_total)
 
 runtime_cydar_main <- runtime_total
@@ -243,11 +266,11 @@ runtime_cydar_main <- runtime_total
 
 
 # number of cells per sample (including spike-in cells)
-n_cells <- sapply(d_input, nrow)
+n_cells <- as.vector(fsApply(d_input, nrow))
 
 # identify B cells (these contain the true differential signal; from both 'base' and
 # 'spike' conditions)
-is_B_cell <- unlist(sapply(d_input, function(d) exprs(d)[, "B_cell"]))
+is_B_cell <- exprs(pool.ff)[, "B_cell"]
 stopifnot(length(is_B_cell) == sum(n_cells))
 
 
