@@ -3,9 +3,9 @@
 # 
 # - data set: BCR-XL-sim
 # - plot type: performance metrics
-# - method: cydar
+# - method: CellCnn
 # 
-# - using subset of markers (for cydar)
+# - main results
 # 
 # Lukas Weber, November 2017
 ##########################################################################################
@@ -18,14 +18,14 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 
 # load saved results
 DIR_RDATA_MAIN <- "../../../../RData/BCR_XL_sim/main"
-DIR_RDATA_CYDAR <- "../../../../RData/BCR_XL_sim/comparisons_cydar"
+DIR_RDATA_CELLCNN <- "../../../../RData/BCR_XL_sim/comparisons_CellCnn"
 
 load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
-load(file.path(DIR_RDATA_CYDAR, "outputs_BCR_XL_sim_cydar_subset_markers.RData"))
+load(file.path(DIR_RDATA_CELLCNN, "outputs_BCR_XL_sim_CellCnn_main.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_cydar"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_CellCnn"
 
 
 
@@ -39,7 +39,7 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_cydar"
 # -------------------------------------
 
 # create 'COBRAData' object
-data <- list(cydar = out_cydar_subset_markers, 
+data <- list(CellCnn = out_CellCnn_main, 
              diffcyt_DS_med = out_diffcyt_DS_med_main)
 
 # check
@@ -48,10 +48,9 @@ stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 # note: provide all available values
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-cobradata <- COBRAData(pval = data.frame(cydar = data[["cydar"]][, "p_vals"], 
-                                         diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_vals"]), 
-                       padj = data.frame(cydar = data[["cydar"]][, "q_vals"], 
-                                         diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_adj"]), 
+cobradata <- COBRAData(pval = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_vals"]), 
+                       padj = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_adj"]), 
+                       score = data.frame(CellCnn = data[["CellCnn"]][, "scores"]), 
                        truth = data.frame(B_cell = data[["diffcyt_DS_med"]][, "B_cell"]))
 
 # calculate performance scores
@@ -61,7 +60,7 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-colors <- c("salmon", "darkblue")
+colors <- c("mediumorchid3", "darkblue")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
@@ -92,7 +91,7 @@ p_ROC <-
   guides(color = guide_legend("method"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_cydar_subset_markers_ROC.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_ROC.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -117,7 +116,7 @@ p_TPRFDR <-
          color = guide_legend("method", order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_cydar_subset_markers_TPRFDR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_TPRFDR.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -141,7 +140,7 @@ p_TPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_cydar_subset_markers_TPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_TPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -165,7 +164,7 @@ p_FPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_cydar_subset_markers_FPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_FPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -197,7 +196,7 @@ legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_cydar_subset_markers_performance.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_CellCnn_main_performance.pdf")
 ggsave(fn, width = 10, height = 2.625)
 
 
