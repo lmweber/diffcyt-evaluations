@@ -6,7 +6,7 @@
 # 
 # - data distributions for main benchmark data
 # 
-# Lukas Weber, October 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
@@ -284,12 +284,12 @@ p <- ggplot(d_plot, aes(x = expression, y = marker, fill = condition)) +
   xlab("arcsinh transformed expression") + 
   ylab("density per marker") + 
   theme_bw() + 
-  ggtitle("AML-sim, marker distributions for blasts")
+  ggtitle("AML-sim, blast cells")
 
 
 # save plot
 filename <- file.path(DIR_PLOTS, "AML_sim_data_distributions_conditions_main.pdf")
-ggsave(filename, width = 4.5, height = 7)
+ggsave(filename, width = 4, height = 7)
 
 
 
@@ -349,7 +349,7 @@ p <- ggplot(d_plot, aes(x = expression, y = marker, fill = condition)) +
 
 # save plot
 filename <- file.path(DIR_PLOTS, "AML_sim_data_distributions_conditions_less_distinct.pdf")
-ggsave(filename, width = 9, height = 7)
+ggsave(filename, width = 7, height = 7)
 
 
 

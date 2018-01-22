@@ -23,7 +23,7 @@ clean_CellCnn:
 	find ../CellCnn_files -type f -delete
 
 # remove auto-generated 'Rplots.pdf' files
-# (from heatmaps plotting script, and voom diagnostic plots from diffcyt-DA-limma)
+# (from plotting scripts and voom diagnostic plots)
 .PHONY: clean_Rplots
 clean_Rplots:
 	find AML_sim/2_run_methods -name "Rplots.pdf" -delete

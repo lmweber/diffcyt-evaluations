@@ -11,31 +11,31 @@
 # Raw data downloaded from Cytobank:
 # - all cells (also contains gating scheme for CD34+ CD45 mid cells, i.e. blasts):
 # https://community.cytobank.org/cytobank/experiments/46098/illustrations/121588
-# - blasts (this repository was cloned from the one for all cells above, using the gating
-# scheme for CD34+ CD45mid cells; this allows FCS files for the subset to be exported):
+# - blasts (repository cloned from the one for 'all cells' above, using the gating scheme
+# for CD34+ CD45 mid cells; this allows .fcs files for the subset to be exported):
 # https://community.cytobank.org/cytobank/experiments/63534/illustrations/125318
 #
 # Notes:
 # - Gating plots for blasts are also shown in Levine et al. (2015), Supplemental Data S3B.
-# - Individuals SJ1, SJ2, and SJ3 each contain two replicates; these are in separate FCS
+# - Individuals SJ1, SJ2, and SJ3 each contain two replicates; these are in separate .fcs
 # files. The original Cytobank repository combines the two replicates for each individual
-# (see 'Individuals' dimension setup). So should use combined cells from both FCS files in
-# downstream analysis. However, when I tried this for SJ1, the percentage of blasts did
-# not match to the published numbers (shown in Levine et al. 2015, Supplemental Data S3B);
-# so we have not used these samples in the final analysis.
+# (see 'Individuals' dimension setup); so we should use combined cells from both .fcs
+# files in downstream analysis. However, when I tried this for SJ1, the percentage of
+# blasts did not match to the published numbers (shown in Levine et al. 2015, Supplemental
+# Data S3B); so we have not used these samples in the final analysis.
 # - Arvaniti et al. (2017) (CellCnn paper) classified patients SJ10, SJ12, SJ13 as CN
 # (cytogenetically normal), and SJ1, SJ2, SJ3, SJ4, SJ5 as CBF (core-binding factor
 # translocation); we re-use these classifications here.
-# - Sample names and file names in the raw data are shuffled! (e.g. file H3 is actually
+# - Sample names and filenames in the raw data are shuffled (e.g. file H3 is actually
 # sample H1). The matching scheme can be seen in the 'Individuals' setup in Cytobank, or
 # in the downloaded .tsv files 'experiment_46098_annotations.tsv' and
 # 'experiment_63534_annotations.tsv'.
 #
-# Lukas Weber, October 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
-# modified to generate randomized replicate data sets using different random seeds
+# modified to generate randomized benchmark data sets using different random seeds
 
 
 library(flowCore)
@@ -131,34 +131,6 @@ all.equal(colnames(data_SJ10), colnames(data_SJ4))
 
 
 
-# ----------------------
-# Check numbers of cells
-# ----------------------
-
-# check numbers of cells
-
-# healthy
-sapply(data_healthy, dim)
-
-# healthy blasts
-sapply(data_healthy_blasts, dim)
-
-# SJ10: should be 80.7% of total (Levine et al. 2015, Supplemental Data S3B)
-dim(data_SJ10)
-dim(exprs(read.FCS(file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experiment_46098_files", 
-                             "SJ11d_min3_s0.10_m10_debar1_NoDrug_Basal1_Viable_NoDrug_Basal1_SJ11d.fcs"))))
-# check
-37615 / 46601  # 80.7%
-
-# SJ4: should be 55.2% of total (Levine et al. 2015, Supplemental Data S3B)
-dim(data_SJ4)
-dim(exprs(read.FCS(file.path(DIR_BENCHMARK, "AML_sim/raw_data/all_cells/experiment_46098_files", 
-                             "SJ5d_min5_s0.15_m10_debar1_NoDrug_Basal1_Viable_NoDrug_Basal1_SJ5d.fcs"))))
-# check
-14520 / 26321  # 55.2%
-
-
-
 # ---------------------
 # Randomized replicates
 # ---------------------
@@ -184,12 +156,14 @@ for (r in 1:n_replicates) {
   names(data_healthy_base) <- names(data_healthy_CN) <- names(data_healthy_CBF) <- 
     names(data_healthy)
   
-  # random seed
-  seed <- 100 + r
-  set.seed(seed)
+  # modified random seed for each replicate
+  seed <- 1000 + 100 * r
   
   for (i in 1:length(data_healthy)) {
     data_i <- data_healthy[[i]]
+    
+    # modified random seed for each replicate
+    set.seed(seed + i)
     
     n <- round(nrow(data_i) / 3)
     
@@ -229,11 +203,11 @@ for (r in 1:n_replicates) {
   # Create spike-in data sets
   # -------------------------
   
-  # AML blast cells are subsampled at various thresholds (5%, 1%, 0.1%, 0.01%) of the total
-  # number of healthy cells for each sample, and combined with the healthy cells to create
-  # the spike-in data sets.
+  # AML blast cells are subsampled at various thresholds (5%, 1%, 0.1%) of the total number
+  # of healthy cells for each sample, and combined with the healthy cells to create the
+  # spike-in data sets.
   
-  thresholds <- c(0.05, 0.01, 0.001, 0.0001)  # 5%, 1%, 0.1%, 0.01%
+  thresholds <- c(0.05, 0.01, 0.001)  # 5%, 1%, 0.1%
   
   
   # condition CN (patient SJ10)
@@ -241,15 +215,18 @@ for (r in 1:n_replicates) {
   data_blasts_AML <- data_SJ10
   cnd <- "CN"
   
-  # random seed
-  seed <- 200 + r
-  set.seed(seed)
+  # modified random seed for each replicate
+  seed <- 2000 + 100 * r
   
   for (i in 1:length(data_healthy_CN)) {
     data_i <- data_healthy_CN[[i]]
     nm_i <- names(data_healthy_CN)[i]
     
     for (th in thresholds) {
+      
+      # modified random seed for each replicate
+      set.seed(seed + 10 * th + i)
+      
       n_spikein <- ceiling(th * nrow(data_i))
       is_spikein <- c(rep(0, nrow(data_i)), rep(1, n_spikein))
       
@@ -275,15 +252,18 @@ for (r in 1:n_replicates) {
   data_blasts_AML <- data_SJ4
   cnd <- "CBF"
   
-  # random seed
-  seed <- 300 + r
-  set.seed(seed)
+  # modified random seed for each replicate
+  seed <- 3000 + 100 * r
   
   for (i in 1:length(data_healthy_CBF)) {
     data_i <- data_healthy_CBF[[i]]
     nm_i <- names(data_healthy_CBF)[i]
     
     for (th in thresholds) {
+      
+      # modified random seed for each replicate
+      set.seed(seed + 10 * th + i)
+      
       n_spikein <- ceiling(th * nrow(data_i))
       is_spikein <- c(rep(0, nrow(data_i)), rep(1, n_spikein))
       
