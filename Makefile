@@ -5,6 +5,7 @@
 
 all:
 	$(MAKE) -C AML_sim
+	$(MAKE) -C BCR_XL_sim
 
 
 

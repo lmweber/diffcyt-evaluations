@@ -123,7 +123,7 @@ colnames(data_CBF) <- gsub("\\(.*$", "", colnames(data_CBF))
 
 # 50% less distinct
 
-files_blasts_50pc_CN <- list.files(file.path(DIR_BENCHMARK_LESS_DISTINCT, "50pc/CN"), 
+files_blasts_50pc_CN <- list.files(file.path(DIR_BENCHMARK_LESS_DISTINCT, "less_50pc/CN"), 
                                    pattern = "^AML_sim_CN_H[0-9]+_5pc", full.names = TRUE)
 
 data_50pc_CN_samples <- 
@@ -147,7 +147,7 @@ colnames(data_50pc_CN_samples)[colnames(data_50pc_CN_samples) == "HLA"] <- "HLA-
 
 # 75% less distinct
 
-files_blasts_75pc_CN <- list.files(file.path(DIR_BENCHMARK_LESS_DISTINCT, "75pc/CN"), 
+files_blasts_75pc_CN <- list.files(file.path(DIR_BENCHMARK_LESS_DISTINCT, "less_75pc/CN"), 
                                    pattern = "^AML_sim_CN_H[0-9]+_5pc", full.names = TRUE)
 
 data_75pc_CN_samples <- 
@@ -176,7 +176,7 @@ colnames(data_75pc_CN_samples)[colnames(data_75pc_CN_samples) == "HLA"] <- "HLA-
 
 # 50% less distinct
 
-files_blasts_50pc_CBF <- list.files(file.path(DIR_BENCHMARK_LESS_DISTINCT, "50pc/CBF"), 
+files_blasts_50pc_CBF <- list.files(file.path(DIR_BENCHMARK_LESS_DISTINCT, "less_50pc/CBF"), 
                                     pattern = "^AML_sim_CBF_H[0-9]+_5pc", full.names = TRUE)
 
 data_50pc_CBF_samples <- 
@@ -200,7 +200,7 @@ colnames(data_50pc_CBF_samples)[colnames(data_50pc_CBF_samples) == "HLA"] <- "HL
 
 # 75% less distinct
 
-files_blasts_75pc_CBF <- list.files(file.path(DIR_BENCHMARK_LESS_DISTINCT, "75pc/CBF"), 
+files_blasts_75pc_CBF <- list.files(file.path(DIR_BENCHMARK_LESS_DISTINCT, "less_75pc/CBF"), 
                                     pattern = "^AML_sim_CBF_H[0-9]+_5pc", full.names = TRUE)
 
 data_75pc_CBF_samples <- 

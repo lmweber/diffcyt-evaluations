@@ -10,27 +10,27 @@
 # - direct link to Cytobank repository:
 # https://community.cytobank.org/cytobank/experiments/15713/download_files
 # 
-# Cell population labels are reproduced from Nowicka et al. (2017), F1000Research, using a
-# strategy of expert-guided manual merging of automatically generated clusters from the
-# FlowSOM algorithm. Code to reproduce the cell population labels is available in the
-# script 'cell_population_labels_BCR_XL.R'.
+# Cell population labels are reproduced from Nowicka et al. (2017), where they were
+# generated using a strategy of expert-guided manual merging of automatically generated
+# clusters from the FlowSOM algorithm. Code to reproduce the cell population labels is
+# available in the script 'cell_population_labels_BCR_XL.R'.
 # 
-# The simulations in this script are generated as follows:
-# - select reference (unstimulated) samples from the main 'BCR-XL' data set
-# - randomly split each sample into two halves
+# The 'BCR-XL-sim' data set in this script is generated as follows:
+# - select unstimulated reference samples from the main 'BCR-XL' data set (8 individuals)
+# - randomly split each unstimulaed sample into two halves
 # - in one half, replace B cells with equivalent number of B cells from the corresponding
-# stimulated sample
-# - adjust 'difficulty' of the simulation by scaling the average difference in pS6 signal
+# paired sample from BCR-XL stimulated condition
 # 
 # Methods are then evaluated by their ability to detect the known strong differential
-# signal in pS6 expression.
+# expression signal of the functional marker pS6 in B cells.
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
-# modified to create 'less distinct' data: reduced difference in expression profiles
-# (median and standard deviation) between B cells from stimulated and reference conditions
+# modified to create 'less distinct' spike-in cells: reduce differences in expression
+# profiles (medians and standard deviations of arcsinh-transformed values) between
+# stimulated and unstimulated B cells
 
 
 library(flowCore)
@@ -65,6 +65,11 @@ files_labels_BCRXL <- files_labels[grep("patient[1-8]_BCR-XL\\.csv$", files_labe
 files_labels_ref <- files_labels[grep("patient[1-8]_Reference\\.csv$", files_labels)]
 
 files_labels_all <- c(files_labels_BCRXL, files_labels_ref)
+
+
+# output directory
+
+DIR_DATA_OUT <- file.path(DIR_BENCHMARK, "BCR_XL_sim/data")
 
 
 
@@ -139,7 +144,8 @@ for (di in 1:length(distinctness)) {
   
   n_cells_ref <- sapply(data_ref, nrow)
   
-  set.seed(123)
+  # note: use same random seed as in main results (i.e. select same cells for comparability)
+  set.seed(100)
   
   # generate random indices
   inds <- lapply(n_cells_ref, function(n) {
@@ -172,8 +178,14 @@ for (di in 1:length(distinctness)) {
     d[d[, "B_cell"] == 1, ]
   })
   
-  # number of B cells available
+  # number of B cells available in stimulated condition
   sapply(B_cells_BCRXL, nrow)
+  
+  # total number of B cells in reference condition
+  n_spike_ref <- sapply(data_ref, function(d) {
+    sum(d[, "B_cell"] == 1)
+  })
+  n_spike_ref
   
   # number of B cells needed
   n_spike <- sapply(data_spike, function(d) {
@@ -184,7 +196,8 @@ for (di in 1:length(distinctness)) {
   
   # select correct number of B cells from 'BCR-XL' (stimulated) condition for each sample
   
-  set.seed(123)
+  # note: use same random seed as in main results (i.e. select same cells for comparability)
+  set.seed(100)
   
   B_cells_spike <- mapply(function(b, n) {
     # reduce 'n' if not enough B cells available
@@ -245,8 +258,6 @@ for (di in 1:length(distinctness)) {
   # Export data
   # -----------
   
-  DIR_DATA_OUT <- file.path(DIR_BENCHMARK, "BCR_XL_sim/data")
-  
   data_export <- c(data_base, data_spike)
   
   conditions_spike <- c(rep("base", length(data_base)), rep("spike", length(data_spike)))
@@ -259,7 +270,7 @@ for (di in 1:length(distinctness)) {
   
   
   filenames <- file.path(DIR_DATA_OUT, "less_distinct", names(distinctness)[di], 
-                         paste0("BCR_XL_sim_", patient_IDs, "_", conditions_spike, ".fcs"))
+                         paste0("BCR_XL_sim_", patient_IDs, "_", conditions_spike, "_", names(distinctness)[di], ".fcs"))
   
   for (i in 1:length(data_export)) {
     write.FCS(flowFrame(data_export[[i]]), filename = filenames[i])

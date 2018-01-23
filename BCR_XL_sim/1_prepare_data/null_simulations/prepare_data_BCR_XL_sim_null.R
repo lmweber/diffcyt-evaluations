@@ -28,7 +28,7 @@
 ##########################################################################################
 
 
-# modified to generate randomized benchmark data sets using different random seeds
+# modified to create 'null' simulations: no true spike-in cells
 
 
 library(flowCore)
@@ -123,9 +123,9 @@ data <- mapply(function(d, l) {
 n_replicates <- 3
 
 for (r in 1:n_replicates) {
-  
-  
-  
+
+
+
   # ---------------------------------------------------------------
   # Split each reference sample into two halves: 'base' and 'spike'
   # ---------------------------------------------------------------
@@ -135,78 +135,21 @@ for (r in 1:n_replicates) {
   n_cells_ref <- sapply(data_ref, nrow)
   
   # modified random seed for each replicate
-  seed <- 100 + r
-  set.seed(seed)
+  seed <- 10000 + 100 * r
   
   # generate random indices
   inds <- lapply(n_cells_ref, function(n) {
-    i_base <- sort(sample(seq_len(n), floor(n / 2)))
-    i_spike <- setdiff(seq_len(n), i_base)
-    list(base = i_base, spike = i_spike)
+    i_null_1 <- sort(sample(seq_len(n), floor(n / 2)))
+    i_null_2 <- setdiff(seq_len(n), i_null_1)
+    list(null_1 = i_null_1, null_2 = i_null_2)
   })
   
-  inds_base <- lapply(inds, function(l) l[[1]])
-  inds_spike <- lapply(inds, function(l) l[[2]])
+  inds_null_1 <- lapply(inds, function(l) l[[1]])
+  inds_null_2 <- lapply(inds, function(l) l[[2]])
   
   # subset data
-  data_base <- mapply(function(d, i) d[i, ], data_ref, inds_base, SIMPLIFY = FALSE)
-  data_spike <- mapply(function(d, i) d[i, ], data_ref, inds_spike, SIMPLIFY = FALSE)
-  
-  
-  
-  # -------------------------------------------------------------------------------------
-  # Replace B cells in 'spike' samples with an equivalent number of B cells from 'BCR-XL'
-  # (stimulated) condition
-  # -------------------------------------------------------------------------------------
-  
-  # note: for some samples, not enough B cells are available; use all available B cells in
-  # this case
-  
-  # B cells from 'BCR-XL' (stimulated) condition
-  data_BCRXL <- data[conditions == "BCR-XL"]
-  
-  B_cells_BCRXL <- lapply(data_BCRXL, function(d) {
-    d[d[, "B_cell"] == 1, ]
-  })
-  
-  # number of B cells available in stimulated condition
-  sapply(B_cells_BCRXL, nrow)
-  
-  # total number of B cells in reference condition
-  n_spike_ref <- sapply(data_ref, function(d) {
-    sum(d[, "B_cell"] == 1)
-  })
-  n_spike_ref
-  
-  # number of B cells needed
-  n_spike <- sapply(data_spike, function(d) {
-    sum(d[, "B_cell"] == 1)
-  })
-  n_spike
-  
-  # select correct number of B cells from 'BCR-XL' (stimulated) condition for each sample
-  
-  # modified random seed for each replicate
-  seed <- 100 + r
-  set.seed(seed)
-  
-  B_cells_spike <- mapply(function(b, n) {
-    # reduce 'n' if not enough B cells available
-    n <- min(n, nrow(b))
-    ixs <- sample(seq_len(nrow(b)), n)
-    b[ixs, ]
-  }, B_cells_BCRXL, n_spike, SIMPLIFY = FALSE)
-  
-  sapply(B_cells_spike, nrow)
-  
-  # replace B cells in 'spike' samples
-  
-  data_spike <- mapply(function(d, b) {
-    d <- d[d[, "B_cell"] == 0, ]
-    d <- rbind(d, b)
-    rownames(d) <- NULL
-    d
-  }, data_spike, B_cells_spike, SIMPLIFY = FALSE)
+  data_null_1 <- mapply(function(d, i) d[i, ], data_ref, inds_null_1, SIMPLIFY = FALSE)
+  data_null_2 <- mapply(function(d, i) d[i, ], data_ref, inds_null_2, SIMPLIFY = FALSE)
   
   
   
@@ -214,33 +157,31 @@ for (r in 1:n_replicates) {
   # Export data
   # -----------
   
-  data_export <- c(data_base, data_spike)
+  data_export <- c(data_null_1, data_null_2)
   
-  conditions_spike <- c(rep("base", length(data_base)), rep("spike", length(data_spike)))
+  conditions_null <- c(rep("null1", length(data_null_1)), rep("null2", length(data_null_2)))
   
-  # add column indicating spike-in cells (all B cells in 'spike' samples)
-  data_export <- mapply(function(d, cnd) {
-    spikein <- as.numeric((d[, "B_cell"] == 1) & (cnd == "spike"))
-    cbind(d, spikein = spikein)
-  }, data_export, conditions_spike, SIMPLIFY = FALSE)
+  # add column indicating spike-in cells
+  # note: there are no spike-in cells in this data set (null simulation); include column
+  # of zeros for consistency with shape of .fcs files from main simulation
+  data_export <- lapply(data_export, function(d) cbind(d, spikein = 0))
   
   
-  filenames <- file.path(DIR_DATA_OUT, "random_seeds", paste0("seed", r), 
-                         paste0("BCR_XL_sim_", patient_IDs, "_", conditions_spike, "_randomseed", r, ".fcs"))
+  filenames <- file.path(DIR_DATA_OUT, "null_simulations", paste0("seed", r), 
+                         paste0(conditions_null, "/BCR_XL_sim_", patient_IDs, "_seed", r, "_", conditions_null, ".fcs"))
   
   for (i in 1:length(data_export)) {
     write.FCS(flowFrame(data_export[[i]]), filename = filenames[i])
   }
-
+  
 }
-
 
 
 # ---------------------------------
 # Save timestamp file for Makefiles
 # ---------------------------------
 
-file_timestamp <- file.path(DIR_DATA_OUT, "random_seeds/timestamp.txt")
+file_timestamp <- file.path(DIR_DATA_OUT, "null_simulations/timestamp.txt")
 
 sink(file_timestamp)
 Sys.time()

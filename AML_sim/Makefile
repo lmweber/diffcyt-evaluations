@@ -13,10 +13,10 @@ DIR_GENERATE_PLOTS = 3_generate_plots
 DIR_PLOTS          = ../../plots/AML_sim
 
 
-TIMESTAMP_BENCHMARK_MAIN          = $(DIR_BENCHMARK)/main/timestamp.txt
-TIMESTAMP_BENCHMARK_RANDOM        = $(DIR_BENCHMARK)/random_seeds/timestamp.txt
-TIMESTAMP_BENCHMARK_LESS_DISTINCT = $(DIR_BENCHMARK)/less_distinct/timestamp.txt
-TIMESTAMP_BENCHMARK_NULL          = $(DIR_BENCHMARK)/null_simulations/timestamp.txt
+TIMESTAMP_BENCHMARK_MAIN             = $(DIR_BENCHMARK)/main/timestamp.txt
+TIMESTAMP_BENCHMARK_RANDOM_SEEDS     = $(DIR_BENCHMARK)/random_seeds/timestamp.txt
+TIMESTAMP_BENCHMARK_LESS_DISTINCT    = $(DIR_BENCHMARK)/less_distinct/timestamp.txt
+TIMESTAMP_BENCHMARK_NULL_SIMULATIONS = $(DIR_BENCHMARK)/null_simulations/timestamp.txt
 
 TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS         = $(DIR_PLOTS)/data_distributions/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR            = $(DIR_PLOTS)/main_ROC_TPRFDR/timestamp.txt
@@ -31,7 +31,7 @@ TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS         = $(DIR_PLOTS)/data_distributions/tim
 # note no separate plots for 'supp_lineage_markers' (included in 'supp_all_markers')
 #TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(DIR_PLOTS)/supp_separate_clustering/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS         = $(DIR_PLOTS)/supp_random_starts/timestamp.txt
-#TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM      = $(DIR_PLOTS)/supp_benchmark_random/timestamp.txt
+#TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS      = $(DIR_PLOTS)/supp_benchmark_random/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT         = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
 
 SCRIPTS_PLOTS_DATA_DISTRIBUTIONS         = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
@@ -47,7 +47,7 @@ SCRIPTS_PLOTS_DATA_DISTRIBUTIONS         = $(wildcard $(DIR_GENERATE_PLOTS)/data
 #SCRIPTS_PLOTS_SUPP_LINEAGE_MARKERS       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_lineage_markers/*.R)
 #SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_separate_clustering/*.R)
 #SCRIPTS_PLOTS_SUPP_RANDOM_STARTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_starts/*.R)
-#SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM      = $(wildcard $(DIR_GENERATE_PLOTS)/supp_benchmark_random/*.R)
+#SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS      = $(wildcard $(DIR_GENERATE_PLOTS)/supp_benchmark_random/*.R)
 #SCRIPTS_PLOTS_SUPP_LESS_DISTINCT         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
 
 #FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
@@ -58,7 +58,7 @@ SCRIPTS_PLOTS_DATA_DISTRIBUTIONS         = $(wildcard $(DIR_GENERATE_PLOTS)/data
 #FILES_RDATA_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_RDATA)/supp_separate_clustering/*.RData)
 #FILES_RDATA_SUPP_RANDOM_STARTS         = $(wildcard $(DIR_RDATA)/supp_random_starts/*.RData)
 # note subdirectories (e.g. 'supp_benchmark_random/seed1')
-#FILES_RDATA_SUPP_BENCHMARK_RANDOM      = $(wildcard $(DIR_RDATA)/supp_benchmark_random/*/*.RData)
+#FILES_RDATA_SUPP_BENCHMARK_RANDOM_SEEDS      = $(wildcard $(DIR_RDATA)/supp_benchmark_random/*/*.RData)
 # note subdirectories (e.g. 'supp_less_distinct/50pc')
 #FILES_RDATA_SUPP_LESS_DISTINCT         = $(wildcard $(DIR_RDATA)/supp_less_distinct/*/*.RData)
 
@@ -86,7 +86,7 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS)
                   $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
                   $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS) \
-                  $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM) \
+                  $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS) \
                   $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
                   $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS)
 
@@ -149,7 +149,7 @@ $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIM
 #	cd $(DIR_GENERATE_PLOTS)/supp_random_starts && bash run_all.sh
 
 # supplementary: randomized benchmark data sets
-#$(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM): $(SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM) $(FILES_RDATA_SUPP_BENCHMARK_RANDOM)
+#$(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS): $(SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS) $(FILES_RDATA_SUPP_BENCHMARK_RANDOM_SEEDS)
 #	cd $(DIR_GENERATE_PLOTS)/supp_benchmark_random && bash run_all.sh
 
 # supplementary: less distinct populations
@@ -194,13 +194,13 @@ $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIM
 #	cd $(DIR_RUN_METHODS)/supp_random_starts && Rscript $(notdir $<)
 
 # supplementary: randomized benchmark data sets
-#$(DIR_RDATA)/supp_benchmark_random/seed1/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed1/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM)
+#$(DIR_RDATA)/supp_benchmark_random/seed1/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed1/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS)
 #	cd $(DIR_RUN_METHODS)/supp_benchmark_random/seed1 && Rscript $(notdir $<)
 
-#$(DIR_RDATA)/supp_benchmark_random/seed2/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed2/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM)
+#$(DIR_RDATA)/supp_benchmark_random/seed2/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed2/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS)
 #	cd $(DIR_RUN_METHODS)/supp_benchmark_random/seed2 && Rscript $(notdir $<)
 
-#$(DIR_RDATA)/supp_benchmark_random/seed3/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed3/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM)
+#$(DIR_RDATA)/supp_benchmark_random/seed3/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed3/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS)
 #	cd $(DIR_RUN_METHODS)/supp_benchmark_random/seed3 && Rscript $(notdir $<)
 
 # supplementary: less distinct populations
@@ -222,7 +222,7 @@ $(TIMESTAMP_BENCHMARK_MAIN): $(DIR_PREPARE_DATA)/main/prepare_data_AML_sim_main.
 	cd $(DIR_PREPARE_DATA)/main && Rscript $(notdir $<)
 
 # generate benchmark data files: random seeds
-$(TIMESTAMP_BENCHMARK_RANDOM): $(DIR_PREPARE_DATA)/random_seeds/prepare_data_AML_sim_random_seeds.R
+$(TIMESTAMP_BENCHMARK_RANDOM_SEEDS): $(DIR_PREPARE_DATA)/random_seeds/prepare_data_AML_sim_random_seeds.R
 	cd $(DIR_PREPARE_DATA)/random_seeds && Rscript $(notdir $<)
 
 # generate benchmark data files: less distinct populations
@@ -230,7 +230,7 @@ $(TIMESTAMP_BENCHMARK_LESS_DISTINCT): $(DIR_PREPARE_DATA)/less_distinct/prepare_
 	cd $(DIR_PREPARE_DATA)/less_distinct && Rscript $(notdir $<)
 
 # generate benchmark data files: null simulations
-$(TIMESTAMP_BENCHMARK_NULL): $(DIR_PREPARE_DATA)/null_simulations/prepare_data_AML_sim_null.R
+$(TIMESTAMP_BENCHMARK_NULL_SIMULATIONS): $(DIR_PREPARE_DATA)/null_simulations/prepare_data_AML_sim_null.R
 	cd $(DIR_PREPARE_DATA)/null_simulations && Rscript $(notdir $<)
 
 

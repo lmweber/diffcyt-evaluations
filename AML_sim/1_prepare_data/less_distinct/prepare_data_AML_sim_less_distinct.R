@@ -35,10 +35,9 @@
 ##########################################################################################
 
 
-# modified to create 'less distinct' blast populations: reduce differences in medians and
-# standard deviations (e.g. by 50%) in arcsinh-transformed expression along each dimension
-# (protein markers), between diseased and healthy blasts, for all cells in the blast
-# population of interest
+# modified to create 'less distinct' spike-in cells: reduce differences in expression
+# profiles (medians and standard deviations of arcsinh-transformed values) between
+# diseased and healthy blast cells
 
 
 library(flowCore)
@@ -148,6 +147,7 @@ cofactor <- 5
 
 
 distinctness <- c(0.5, 0.75)  # 50%, 75%
+names(distinctness) <- c("less_50pc", "less_75pc")
 
 
 for (di in 1:length(distinctness)) {
@@ -203,8 +203,8 @@ for (di in 1:length(distinctness)) {
     # include spike-in status column so all .fcs files have same shape
     data_out_i <- cbind(data_i, spikein = 0)
     
-    filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), "healthy", 
-                          paste0("AML_sim_healthy_", nm_i, "_distinctness", distinctness[di] * 100, ".fcs"))
+    filename <- file.path(DIR_DATA_OUT, names(distinctness)[di], "healthy", 
+                          paste0("AML_sim_healthy_", nm_i, "_", names(distinctness)[di], ".fcs"))
     write.FCS(flowFrame(data_out_i), filename)
   }
   
@@ -270,9 +270,8 @@ for (di in 1:length(distinctness)) {
       data_out_i <- rbind(data_i, spikein_i)
       data_out_i <- cbind(data_out_i, spikein = is_spikein)
       
-      filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), cnd, 
-                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc", 
-                                   "_distinctness", distinctness[di] * 100, ".fcs"))
+      filename <- file.path(DIR_DATA_OUT, names(distinctness)[di], cnd, 
+                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc", "_", names(distinctness)[di], ".fcs"))
       write.FCS(flowFrame(data_out_i), filename)
     }
   }
@@ -328,9 +327,8 @@ for (di in 1:length(distinctness)) {
       data_out_i <- rbind(data_i, spikein_i)
       data_out_i <- cbind(data_out_i, spikein = is_spikein)
       
-      filename <- file.path(DIR_DATA_OUT, paste0(distinctness[di] * 100, "pc"), cnd, 
-                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc", 
-                                   "_distinctness", distinctness[di] * 100, ".fcs"))
+      filename <- file.path(DIR_DATA_OUT, names(distinctness)[di], cnd, 
+                            paste0("AML_sim_", cnd, "_", nm_i, "_", th * 100, "pc", "_", names(distinctness)[di], ".fcs"))
       write.FCS(flowFrame(data_out_i), filename)
     }
   }
