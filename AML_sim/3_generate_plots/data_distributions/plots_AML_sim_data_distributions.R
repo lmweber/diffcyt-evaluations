@@ -241,7 +241,7 @@ p <- ggplot(d_plot, aes(x = expression, y = marker)) +
   geom_density_ridges(fill = "royalblue", alpha = 0.5, lwd = 0.25) + 
   facet_grid(~ sample) + 
   xlab("arcsinh transformed expression") + 
-  ylab("density per marker") + 
+  ylab("density") + 
   theme_bw() + 
   ggtitle("AML-sim, marker distributions for blast cells, healthy samples")
 
@@ -282,14 +282,14 @@ p <- ggplot(d_plot, aes(x = expression, y = marker, fill = condition)) +
   geom_density_ridges(alpha = 0.5, lwd = 0.25) + 
   scale_fill_cyclical(values = colors, guide = "legend") + 
   xlab("arcsinh transformed expression") + 
-  ylab("density per marker") + 
+  ylab("density") + 
   theme_bw() + 
-  ggtitle("AML-sim, blast cells")
+  ggtitle("AML-sim: blast cells")
 
 
 # save plot
 filename <- file.path(DIR_PLOTS, "AML_sim_data_distributions_conditions_main.pdf")
-ggsave(filename, width = 4, height = 7)
+ggsave(filename, width = 4.5, height = 7)
 
 
 
@@ -342,9 +342,9 @@ p <- ggplot(d_plot, aes(x = expression, y = marker, fill = condition)) +
   facet_grid(~ less_distinct) + 
   xlim(c(-2, 8)) + 
   xlab("arcsinh transformed expression") + 
-  ylab("density per marker") + 
+  ylab("density") + 
   theme_bw() + 
-  ggtitle("AML-sim, marker distributions for blast cells, 'less distinct' blast populations")
+  ggtitle("AML-sim: 'less distinct' blast cell populations")
 
 
 # save plot

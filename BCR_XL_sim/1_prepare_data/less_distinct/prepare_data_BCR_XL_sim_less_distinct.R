@@ -225,11 +225,11 @@ for (di in 1:length(distinctness)) {
   # marker columns
   markers <- 3:35
   
-  medians_ref <- sapply(data_ref, function(d) apply(asinh(d / cofactor), 2, median))[markers, ]
-  medians_spike <- sapply(data_spike, function(d) apply(asinh(d / cofactor), 2, median))[markers, ]
+  medians_ref <- sapply(B_cells_ref, function(d) apply(asinh(d / cofactor), 2, median))[markers, ]
+  medians_spike <- sapply(B_cells_spike, function(d) apply(asinh(d / cofactor), 2, median))[markers, ]
   
-  sds_ref <- sapply(data_ref, function(d) apply(asinh(d / cofactor), 2, sd))[markers, ]
-  sds_spike <- sapply(data_spike, function(d) apply(asinh(d / cofactor), 2, sd))[markers, ]
+  sds_ref <- sapply(B_cells_ref, function(d) apply(asinh(d / cofactor), 2, sd))[markers, ]
+  sds_spike <- sapply(B_cells_spike, function(d) apply(asinh(d / cofactor), 2, sd))[markers, ]
   
   B_cells_spike_di <- B_cells_spike
   
