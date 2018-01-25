@@ -296,7 +296,7 @@ p +
 
 # save plot
 filename <- file.path(DIR_PLOTS, "BCR_XL_sim_data_distributions_conditions_main.pdf")
-ggsave(filename, width = 4.5, height = 7)
+ggsave(filename, width = 4, height = 7)
 
 
 
