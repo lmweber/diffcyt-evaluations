@@ -243,7 +243,7 @@ p <- ggplot(d_plot, aes(x = expression, y = marker)) +
   xlab("arcsinh transformed expression") + 
   ylab("density") + 
   theme_bw() + 
-  ggtitle("AML-sim, marker distributions for blast cells, healthy samples")
+  ggtitle("AML-sim: marker distributions for blast cells, healthy samples")
 
 
 # save plot
@@ -289,7 +289,7 @@ p <- ggplot(d_plot, aes(x = expression, y = marker, fill = condition)) +
 
 # save plot
 filename <- file.path(DIR_PLOTS, "AML_sim_data_distributions_conditions_main.pdf")
-ggsave(filename, width = 4.5, height = 7)
+ggsave(filename, width = 4, height = 7)
 
 
 
