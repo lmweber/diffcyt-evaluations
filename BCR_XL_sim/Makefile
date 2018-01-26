@@ -6,10 +6,10 @@
 DIR_BENCHMARK      = ../../../benchmark_data/BCR_XL_sim/data
 
 DIR_PREPARE_DATA   = 1_prepare_data
-#DIR_RUN_METHODS    = 2_run_methods
+DIR_RUN_METHODS    = 2_run_methods
 DIR_GENERATE_PLOTS = 3_generate_plots
 
-#DIR_RDATA          = ../../RData/BCR_XL_sim
+DIR_RDATA          = ../../RData/BCR_XL_sim
 DIR_PLOTS          = ../../plots/BCR_XL_sim
 
 
@@ -19,7 +19,7 @@ TIMESTAMP_BENCHMARK_LESS_DISTINCT    = $(DIR_BENCHMARK)/less_distinct/timestamp.
 TIMESTAMP_BENCHMARK_NULL_SIMULATIONS = $(DIR_BENCHMARK)/null_simulations/timestamp.txt
 
 TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS            = $(DIR_PLOTS)/data_distributions/timestamp.txt
-#TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
+TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_ONE_SENSE               = $(DIR_PLOTS)/main_One_SENSE/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_HEATMAPS                = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
@@ -37,7 +37,7 @@ TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS            = $(DIR_PLOTS)/data_distributions/
 #TIMESTAMP_PLOTS_RUNTIMES                     = $(DIR_PLOTS)/runtimes/timestamp.txt
 
 SCRIPTS_PLOTS_DATA_DISTRIBUTIONS            = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
-#SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
+SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
 #SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 #SCRIPTS_PLOTS_MAIN_ONE_SENSE               = $(wildcard $(DIR_GENERATE_PLOTS)/main_One_SENSE/*.R)
 #SCRIPTS_PLOTS_MAIN_HEATMAPS                = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
@@ -54,7 +54,7 @@ SCRIPTS_PLOTS_DATA_DISTRIBUTIONS            = $(wildcard $(DIR_GENERATE_PLOTS)/d
 #SCRIPTS_PLOTS_COMPARISONS_CITRUS           = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_Citrus/*.R)
 #SCRIPTS_PLOTS_RUNTIMES                     = $(wildcard $(DIR_GENERATE_PLOTS)/runtimes/*.R)
 
-#FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
+FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
 #FILES_RDATA_NULL_SIMULATIONS             = $(wildcard $(DIR_RDATA)/null_simulations/*.RData)
 #FILES_RDATA_SUPP_RANDOM_EFFECTS          = $(wildcard $(DIR_RDATA)/supp_random_effects/*.RData)
 #FILES_RDATA_SUPP_METACLUSTERING          = $(wildcard $(DIR_RDATA)/supp_metaclustering/*.RData)
@@ -78,7 +78,8 @@ SCRIPTS_PLOTS_DATA_DISTRIBUTIONS            = $(wildcard $(DIR_GENERATE_PLOTS)/d
 all: timestamps_plots
 
 .PHONY: timestamps_plots
-timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS)
+timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
+                  $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE)
 
 #timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
@@ -111,8 +112,8 @@ $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIM
 	cd $(DIR_GENERATE_PLOTS)/data_distributions && bash run_all.sh
 
 # main results: performance metrics
-#$(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_RDATA_MAIN)
-#	cd $(DIR_GENERATE_PLOTS)/main_performance && bash run_all.sh
+$(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main_performance && bash run_all.sh
 
 # main results: tSNE plots
 #$(TIMESTAMP_PLOTS_MAIN_TSNE): $(SCRIPTS_PLOTS_MAIN_TSNE) $(FILES_RDATA_MAIN)
@@ -188,8 +189,8 @@ $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIM
 
 
 # main results: performance metrics
-#$(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/main && Rscript $(notdir $<)
+$(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/main && Rscript $(notdir $<)
 
 # null simulation
 #$(DIR_RDATA)/null_simulations/outputs_%.RData: $(DIR_RUN_METHODS)/null_simulations/run_%.R $(TIMESTAMP_BENCHMARK_NULL_SIMULATIONS)

@@ -3,11 +3,11 @@
 # 
 # - data set: BCR-XL-sim
 # - plot type: performance metrics
-# - method: diffcyt-DS-med
+# - method: diffcyt methods
 # 
 # - main results
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
@@ -19,7 +19,8 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 # load saved results
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
 
-load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_limma_main.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
 
 
 # path to save plots
@@ -37,7 +38,8 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_performance"
 # -------------------------------------
 
 # create 'COBRAData' object
-data <- list(diffcyt_DS_med = out_diffcyt_DS_med_main)
+data <- list(diffcyt_DS_limma = out_diffcyt_DS_limma_main, 
+             diffcyt_DS_LMM = out_diffcyt_DS_LMM_main)
 
 # check
 stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
@@ -45,9 +47,11 @@ stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 # note: provide all available values
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-cobradata <- COBRAData(pval = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_vals"]), 
-                       padj = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_adj"]), 
-                       truth = data.frame(B_cell = data[["diffcyt_DS_med"]][, "B_cell"]))
+cobradata <- COBRAData(pval = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_vals"], 
+                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_vals"]), 
+                       padj = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_adj"], 
+                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_adj"]), 
+                       truth = data.frame(B_cell = data[["diffcyt_DS_limma"]][, "B_cell"]))
 
 # calculate performance scores
 # (note: can ignore warning messages when 'padj' not available)
@@ -57,7 +61,7 @@ cobraperf <- calculate_performance(cobradata,
 
 # color scheme
 #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue2", "darkslategray2")
-colors <- c("darkblue")
+colors <- c("darkturquoise", "cadetblue4")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
@@ -88,7 +92,7 @@ p_ROC <-
   guides(color = guide_legend("method"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_ROC.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_limma_main_ROC.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -113,7 +117,7 @@ p_TPRFDR <-
          color = guide_legend("method", order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_TPRFDR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_limma_main_TPRFDR.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -127,7 +131,7 @@ p_TPR <-
   plot_tpr(cobraplot, pointsize = 4) + 
   #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
   scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
-  coord_fixed() + 
+  #coord_fixed() + 
   xlab("True positive rate") + 
   ggtitle("BCR-XL-sim: main results", subtitle = "TPR") + 
   theme_bw() + 
@@ -137,7 +141,7 @@ p_TPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_TPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_limma_main_TPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -151,7 +155,7 @@ p_FPR <-
   plot_fpr(cobraplot, pointsize = 4) + 
   #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
   scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
-  coord_fixed() + 
+  #coord_fixed() + 
   xlab("False positive rate") + 
   ggtitle("BCR-XL-sim: main results", subtitle = "FPR") + 
   theme_bw() + 
@@ -161,7 +165,7 @@ p_FPR <-
          color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_FPR.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_limma_main_FPR.pdf")
 ggsave(fn, width = 4.5, height = 3.5)
 
 
@@ -170,42 +174,6 @@ ggsave(fn, width = 4.5, height = 3.5)
 ##################
 # Multi-panel plot
 ##################
-
-# ----------
-# 2x2 layout
-# ----------
-
-plots_list <- list(p_ROC, p_TPRFDR, p_TPR, p_FPR)
-
-# modify plot elements
-plots_list <- lapply(plots_list, function(p) {
-  p + 
-    labs(title = p$labels$subtitle, subtitle = element_blank()) + 
-    theme(legend.position = "none")
-})
-
-plots_multi <- plot_grid(plotlist = plots_list, 
-                         nrow = 2, ncol = 2, align = "hv", axis = "bl", scale = 0.98, 
-                         labels = "AUTO", label_x = 0.01, label_y = 0.99)
-
-# add combined title
-title_single <- p_ROC$labels$title
-plots_title <- ggdraw() + draw_label(title_single)
-plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 15))
-
-# add combined legend
-legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
-plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(4, 1))
-
-# save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_performance_2x2.pdf")
-ggsave(fn, width = 7.5, height = 6.75)
-
-
-
-# -----------------
-# Horizontal layout
-# -----------------
 
 plots_list <- list(p_ROC, p_TPRFDR, p_TPR, p_FPR)
 
@@ -229,8 +197,8 @@ legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_performance.pdf")
-ggsave(fn, width = 10, height = 2.75)
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_limma_main_performance.pdf")
+ggsave(fn, width = 10, height = 2.625)
 
 
 

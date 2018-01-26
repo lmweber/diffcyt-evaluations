@@ -1,12 +1,12 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DS-med
+# - method: diffcyt-DS-LMM
 # - data set: BCR-XL-sim
 # 
 # - main results
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
@@ -16,20 +16,9 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_diagnostic/diffcyt_DS_med"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_diagnostic/diffcyt_DS_LMM"
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
 DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/main"
-
-
-
-
-#############
-# Preliminary
-#############
-
-# contrast (to compare 'spike' vs. 'base')
-# note: include zeros for patient_IDs fixed effects
-contrasts_list <- list(spike = c(0, 1, 0, 0, 0, 0, 0, 0, 0))
 
 
 
@@ -39,17 +28,20 @@ contrasts_list <- list(spike = c(0, 1, 0, 0, 0, 0, 0, 0, 0))
 ###########################
 
 # filenames
+
 files <- list.files(DIR_BENCHMARK, pattern = "\\.fcs$", full.names = TRUE)
 files_base <- files[grep("base\\.fcs$", files)]
 files_spike <- files[grep("spike\\.fcs$", files)]
 
-# load data
 files_load <- c(files_base, files_spike)
 files_load
 
+# load data
+
 d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
 
-# sample IDs, group IDs, patient IDs
+# sample information
+
 sample_IDs <- gsub("^BCR_XL_sim_", "", 
                    gsub("\\.fcs$", "", basename(files_load)))
 sample_IDs
@@ -60,14 +52,28 @@ group_IDs
 patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
 patient_IDs
 
-# check
-data.frame(sample_IDs, group_IDs, patient_IDs)
+sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+sample_info
+
+# marker information
 
 # indices of all marker columns, lineage markers, and functional markers
 # (10 surface markers / 14 functional markers; see Bruggner et al. 2014, Table 1)
 cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
 cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
 cols_func <- setdiff(cols_markers, cols_lineage)
+
+marker_names <- colnames(d_input[[1]])
+marker_names <- gsub("\\(.*$", "", marker_names)
+
+is_marker <- is_type_marker <- is_state_marker <- rep(FALSE, length(marker_names))
+
+is_marker[cols_markers] <- TRUE
+is_type_marker[cols_lineage] <- TRUE
+is_state_marker[cols_func] <- TRUE
+
+marker_info <- data.frame(marker_names, is_marker, is_type_marker, is_state_marker)
+marker_info
 
 
 
@@ -83,11 +89,10 @@ cols_func <- setdiff(cols_markers, cols_lineage)
 runtime_preprocessing <- system.time({
   
   # prepare data into required format
-  d_se <- prepareData(d_input, sample_IDs, group_IDs, 
-                      cols_markers, cols_lineage, cols_func)
+  d_se <- prepareData(d_input, sample_info, marker_info)
   
-  colnames(d_se)[cols_lineage]
-  colnames(d_se)[cols_func]
+  colnames(d_se)[is_type_marker]
+  colnames(d_se)[is_state_marker]
   
   # transform data
   d_se <- transformData(d_se, cofactor = 5)
@@ -131,30 +136,35 @@ runtime_preprocessing <- system.time({
 # store data objects (for plotting)
 # ---------------------------------
 
-out_objects_diffcyt_DS_med_main <- list(d_se = d_se, 
-                                        d_counts = d_counts, 
-                                        d_medians = d_medians, 
-                                        d_medians_all = d_medians_all)
+out_objects_diffcyt_DS_LMM_main <- list(
+  d_se = d_se, 
+  d_counts = d_counts, 
+  d_medians = d_medians, 
+  d_medians_all = d_medians_all
+)
 
 
 # -------------------------------------------------------
 # test for differential functional states within clusters
 # -------------------------------------------------------
 
+# contrast (to compare 'spike' vs. 'base')
+contrast_vec <- c(0, 1)
+
 runtime_tests <- system.time({
   
   # set up design matrix
-  # note: include 'patient_IDs' as fixed effects ('block_IDs' argument)
-  design <- createDesignMatrix(group_IDs, block_IDs = patient_IDs)
-  design
+  # note: include 'patient_IDs' as random effects
+  # note: use 'colData(d_medians)' instead of 'sample_info' because sample order has changed
+  formula <- createFormula(as.data.frame(colData(d_medians)), cols_fixed = 1, cols_random = 2)
+  formula
   
   # set up contrast matrix
-  contrast <- createContrast(group_IDs, contrast = contrasts_list$spike)
+  contrast <- createContrast(contrast_vec)
   contrast
   
   # run tests
-  # note: including 'patient_IDs' as fixed effects in design matrix
-  res <- testDS_med(d_counts, d_medians, design, contrast, path = DIR_PLOTS)
+  res <- testDS_LMM(d_counts, d_medians, formula, contrast)
   
 })
 
@@ -162,18 +172,18 @@ runtime_tests <- system.time({
 rowData(res)
 
 # sort to show top (most highly significant) cluster-marker combinations first
-res_sorted <- rowData(res)[order(rowData(res)$adj.P.Val), ]
+res_sorted <- rowData(res)[order(rowData(res)$p_adj), ]
 print(head(res_sorted, 10))
 #View(as.data.frame(res_sorted))
 
 # number of significant tests (note: one test per cluster-marker combination)
-print(table(res_sorted$adj.P.Val <= 0.1))
+print(table(res_sorted$p_adj <= 0.1))
 
 # runtime (~30 sec on laptop)
 runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_tests[["elapsed"]]
 print(runtime_total)
 
-runtime_diffcyt_DS_med_main <- runtime_total
+runtime_diffcyt_DS_LMM_main <- runtime_total
 
 
 # ---------------------------------------------
@@ -182,7 +192,7 @@ runtime_diffcyt_DS_med_main <- runtime_total
 
 res_clusters <- as.data.frame(rowData(res))
 
-out_clusters_diffcyt_DS_med_main <- res_clusters
+out_clusters_diffcyt_DS_LMM_main <- res_clusters
 
 
 
@@ -216,13 +226,13 @@ stopifnot(nrow(rowData(res)) == nlevels(rowData(d_se)$cluster) * length(cols_fun
           all(levels(rowData(res)$cluster) %in% rowData(res)$cluster))
 
 # select results for pS6
-res_pS6 <- res[rowData(res)$marker == "pS6(Yb172)Dd", ]
+res_pS6 <- res[rowData(res)$marker == "pS6", ]
 
 # match cells to clusters
 ix_match <- match(rowData(d_se)$cluster, rowData(res_pS6)$cluster)
 
-p_vals_clusters <- rowData(res_pS6)$P.Value
-p_adj_clusters <- rowData(res_pS6)$adj.P.Val
+p_vals_clusters <- rowData(res_pS6)$p_vals
+p_adj_clusters <- rowData(res_pS6)$p_adj
 
 p_vals_cells <- p_vals_clusters[ix_match]
 p_adj_cells <- p_adj_clusters[ix_match]
@@ -245,7 +255,7 @@ res <- data.frame(p_vals = res_p_vals,
                   B_cell = is_B_cell)
 
 # store results
-out_diffcyt_DS_med_main <- res
+out_diffcyt_DS_LMM_main <- res
 
 
 
@@ -254,14 +264,14 @@ out_diffcyt_DS_med_main <- res
 # Save output objects
 #####################
 
-save(out_diffcyt_DS_med_main, runtime_diffcyt_DS_med_main, 
-     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+save(out_diffcyt_DS_LMM_main, runtime_diffcyt_DS_LMM_main, 
+     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
 
-save(out_clusters_diffcyt_DS_med_main, 
-     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+save(out_clusters_diffcyt_DS_LMM_main, 
+     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
 
-save(out_objects_diffcyt_DS_med_main, 
-     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+save(out_objects_diffcyt_DS_LMM_main, 
+     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
 
 
 
@@ -270,7 +280,7 @@ save(out_objects_diffcyt_DS_med_main,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_med_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_LMM_main.txt"))
 sessionInfo()
 sink()
 
