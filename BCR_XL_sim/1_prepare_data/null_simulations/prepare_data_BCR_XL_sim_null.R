@@ -135,7 +135,7 @@ for (r in 1:n_replicates) {
   n_cells_ref <- sapply(data_ref, nrow)
   
   # modified random seed for each replicate
-  seed <- 10000 + 100 * r
+  set.seed(10000 + 100 * r)
   
   # generate random indices
   inds <- lapply(n_cells_ref, function(n) {

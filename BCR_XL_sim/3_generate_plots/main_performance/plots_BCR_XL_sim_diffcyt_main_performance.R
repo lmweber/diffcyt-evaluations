@@ -61,7 +61,7 @@ cobraperf <- calculate_performance(cobradata,
 
 # color scheme
 #colors <- c("mediumorchid3", "gold", "salmon", "darkblue", "deepskyblue2", "darkslategray2")
-colors <- c("darkturquoise", "cadetblue4")
+colors <- c("darkturquoise", "darkslategray4")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)

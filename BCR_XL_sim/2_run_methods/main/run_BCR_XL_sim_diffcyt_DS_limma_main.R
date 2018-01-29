@@ -156,8 +156,10 @@ runtime_tests <- system.time({
   
   # set up design matrix
   # note: include 'patient_IDs' as fixed effects
-  # note: use 'colData(d_medians)' instead of 'sample_info' because sample order has changed
-  design <- createDesignMatrix(as.data.frame(colData(d_medians)), cols_include = 1:2)
+  # note: order of samples has changed
+  sample_info_ordered <- as.data.frame(colData(d_medians))
+  sample_info_ordered
+  design <- createDesignMatrix(sample_info_ordered, cols_include = 1:2)
   design
   
   # set up contrast matrix
@@ -194,7 +196,6 @@ runtime_diffcyt_DS_limma_main <- runtime_total
 res_clusters <- as.data.frame(rowData(res))
 
 out_clusters_diffcyt_DS_limma_main <- res_clusters
-
 
 
 

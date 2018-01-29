@@ -16,7 +16,6 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_diagnostic/diffcyt_DS_LMM"
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
 DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/main"
 
@@ -155,8 +154,10 @@ runtime_tests <- system.time({
   
   # set up design matrix
   # note: include 'patient_IDs' as random effects
-  # note: use 'colData(d_medians)' instead of 'sample_info' because sample order has changed
-  formula <- createFormula(as.data.frame(colData(d_medians)), cols_fixed = 1, cols_random = 2)
+  # note: order of samples has changed
+  sample_info_ordered <- as.data.frame(colData(d_medians))
+  sample_info_ordered
+  formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2)
   formula
   
   # set up contrast matrix

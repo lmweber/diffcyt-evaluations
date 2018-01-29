@@ -18,12 +18,12 @@ TIMESTAMP_BENCHMARK_RANDOM_SEEDS     = $(DIR_BENCHMARK)/random_seeds/timestamp.t
 TIMESTAMP_BENCHMARK_LESS_DISTINCT    = $(DIR_BENCHMARK)/less_distinct/timestamp.txt
 TIMESTAMP_BENCHMARK_NULL_SIMULATIONS = $(DIR_BENCHMARK)/null_simulations/timestamp.txt
 
-TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS            = $(DIR_PLOTS)/data_distributions/timestamp.txt
+TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS           = $(DIR_PLOTS)/data_distributions/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
+TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_ONE_SENSE               = $(DIR_PLOTS)/main_One_SENSE/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_HEATMAPS                = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
-#TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS          = $(DIR_PLOTS)/supp_random_effects/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_METACLUSTERING          = $(DIR_PLOTS)/supp_metaclustering/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(DIR_PLOTS)/supp_random_seeds_clustering/timestamp.txt
@@ -36,12 +36,12 @@ TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/tim
 #TIMESTAMP_PLOTS_COMPARISONS_CITRUS           = $(DIR_PLOTS)/comparisons_Citrus/timestamp.txt
 #TIMESTAMP_PLOTS_RUNTIMES                     = $(DIR_PLOTS)/runtimes/timestamp.txt
 
-SCRIPTS_PLOTS_DATA_DISTRIBUTIONS            = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
+SCRIPTS_PLOTS_DATA_DISTRIBUTIONS           = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
 SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
+SCRIPTS_PLOTS_NULL_SIMULATIONS             = $(wildcard $(DIR_GENERATE_PLOTS)/null_simulations/*.R)
 #SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 #SCRIPTS_PLOTS_MAIN_ONE_SENSE               = $(wildcard $(DIR_GENERATE_PLOTS)/main_One_SENSE/*.R)
 #SCRIPTS_PLOTS_MAIN_HEATMAPS                = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
-#SCRIPTS_PLOTS_NULL_SIMULATIONS             = $(wildcard $(DIR_GENERATE_PLOTS)s/null_simulations/*.R)
 #SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS          = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_effects/*.R)
 #SCRIPTS_PLOTS_SUPP_METACLUSTERING          = $(wildcard $(DIR_GENERATE_PLOTS)/supp_metaclustering/*.R)
 #SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_seeds_clustering/*.R)
@@ -55,7 +55,7 @@ SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/ma
 #SCRIPTS_PLOTS_RUNTIMES                     = $(wildcard $(DIR_GENERATE_PLOTS)/runtimes/*.R)
 
 FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
-#FILES_RDATA_NULL_SIMULATIONS             = $(wildcard $(DIR_RDATA)/null_simulations/*.RData)
+FILES_RDATA_NULL_SIMULATIONS             = $(wildcard $(DIR_RDATA)/null_simulations/*.RData)
 #FILES_RDATA_SUPP_RANDOM_EFFECTS          = $(wildcard $(DIR_RDATA)/supp_random_effects/*.RData)
 #FILES_RDATA_SUPP_METACLUSTERING          = $(wildcard $(DIR_RDATA)/supp_metaclustering/*.RData)
 #FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_RDATA)/supp_random_seeds_clustering/*.RData)
@@ -79,8 +79,9 @@ all: timestamps_plots
 
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
-                  $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE)
-
+                  $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
+                  $(TIMESTAMP_PLOTS_NULL_SIMULATIONS)
+                  
 #timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
                   $(TIMESTAMP_PLOTS_MAIN_ONE_SENSE) \
@@ -115,6 +116,10 @@ $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIM
 $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main_performance && bash run_all.sh
 
+# null simulations
+$(TIMESTAMP_PLOTS_NULL_SIMULATIONS): $(SCRIPTS_PLOTS_NULL_SIMULATIONS) $(FILES_RDATA_NULL_SIMULATIONS)
+	cd $(DIR_GENERATE_PLOTS)/null_simulations && bash run_all.sh
+
 # main results: tSNE plots
 #$(TIMESTAMP_PLOTS_MAIN_TSNE): $(SCRIPTS_PLOTS_MAIN_TSNE) $(FILES_RDATA_MAIN)
 #	cd $(DIR_GENERATE_PLOTS)/main_tSNE && bash run_all.sh
@@ -126,10 +131,6 @@ $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_R
 # main results: heatmaps
 #$(TIMESTAMP_PLOTS_MAIN_HEATMAPS): $(SCRIPTS_PLOTS_MAIN_HEATMAPS) $(FILES_RDATA_MAIN)
 #	cd $(DIR_GENERATE_PLOTS)/main_heatmaps && bash run_all.sh
-
-# null simulation
-#$(TIMESTAMP_PLOTS_NULL_SIMULATIONS): $(SCRIPTS_PLOTS_NULL_SIMULATIONS) $(FILES_RDATA_NULL_SIMULATIONS)
-#	cd $(DIR_GENERATE_PLOTS)/null_simulations && bash run_all.sh
 
 
 # supplementary: random effects
@@ -192,9 +193,9 @@ $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_R
 $(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/main && Rscript $(notdir $<)
 
-# null simulation
-#$(DIR_RDATA)/null_simulations/outputs_%.RData: $(DIR_RUN_METHODS)/null_simulations/run_%.R $(TIMESTAMP_BENCHMARK_NULL_SIMULATIONS)
-#	cd $(DIR_RUN_METHODS)/null_simulations && Rscript $(notdir $<)
+# null simulations
+$(DIR_RDATA)/null_simulations/outputs_%.RData: $(DIR_RUN_METHODS)/null_simulations/run_%.R $(TIMESTAMP_BENCHMARK_NULL_SIMULATIONS)
+	cd $(DIR_RUN_METHODS)/null_simulations && Rscript $(notdir $<)
 
 
 # supplementary: random effects
