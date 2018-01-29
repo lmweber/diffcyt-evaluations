@@ -2,12 +2,12 @@
 # Generate plots
 # 
 # - data set: BCR-XL-sim
-# - plot type: tSNE
-# - method: diffcyt-DS-med
+# - plot type: t-SNE
+# - method: diffcyt-DS-LMM
 # 
 # - main results
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
@@ -22,9 +22,9 @@ library(cowplot)
 # load saved results
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
 
-load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
-load(file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_med_main.RData"))
-load(file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
+load(file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
+load(file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
 
 
 # path to save plots
@@ -38,14 +38,14 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_tSNE"
 ################
 
 # load plot data objects
-d_se <- out_objects_diffcyt_DS_med_main$d_se
-d_counts <- out_objects_diffcyt_DS_med_main$d_counts
-d_medians_all <- out_objects_diffcyt_DS_med_main$d_medians_all
+d_se <- out_objects_diffcyt_DS_LMM_main$d_se
+d_counts <- out_objects_diffcyt_DS_LMM_main$d_counts
+d_medians_all <- out_objects_diffcyt_DS_LMM_main$d_medians_all
 
-# run tSNE
+# run t-SNE
 
 # note: using identity markers only
-d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_identity_col]
+d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_type_marker]
 d_tsne <- as.matrix(d_tsne)
 
 # remove any duplicate rows (required by Rtsne)
@@ -70,14 +70,14 @@ tsne_coords[!dups, ] <- tsne_coords_tmp
 # (i) from cluster-level results
 
 # load cluster-level results (note: marker pS6 only)
-d_clus <- out_clusters_diffcyt_DS_med_main[out_clusters_diffcyt_DS_med_main$marker == "pS6(Yb172)Dd", ]
+d_clus <- out_clusters_diffcyt_DS_LMM_main[out_clusters_diffcyt_DS_LMM_main$marker == "pS6", ]
 
 stopifnot(nrow(d_clus) == nrow(rowData(d_counts)), 
           all(d_clus$cluster == rowData(d_counts)$cluster))
 
 # significant differential clusters
 cutoff_sig <- 0.1
-sig <- d_clus$adj.P.Val <= cutoff_sig
+sig <- d_clus$p_adj <= cutoff_sig
 # set filtered clusters to FALSE
 sig[is.na(sig)] <- FALSE
 
@@ -92,7 +92,7 @@ d_plot <- data.frame(cluster = rowData(d_counts)$cluster,
 # (ii) from cell-level results
 
 # load true B-cell status of each cell
-B_cells <- out_diffcyt_DS_med_main$B_cell
+B_cells <- out_diffcyt_DS_LMM_main$B_cell
 
 # calculate proportion true B-cells for each cluster
 df_tmp <- as.data.frame(rowData(d_se))
@@ -154,9 +154,9 @@ p_0.99 <-
   scale_shape_manual(values = 1, labels = ">99%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
-  xlab("tSNE 1") + 
-  ylab("tSNE 2") + 
-  ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
+  xlab("t-SNE 1") + 
+  ylab("t-SNE 2") + 
+  ggtitle("BCR-XL-sim, main results: diffcyt-DS-LMM: t-SNE") + 
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
@@ -164,7 +164,7 @@ p_0.99 <-
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.99.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_LMM_main_tSNE_0.99.pdf")
 ggsave(fn, width = 6, height = 5)
 
 
@@ -181,9 +181,9 @@ p_0.9 <-
   scale_shape_manual(values = 1, labels = ">90%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
-  xlab("tSNE 1") + 
-  ylab("tSNE 2") + 
-  ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
+  xlab("t-SNE 1") + 
+  ylab("t-SNE 2") + 
+  ggtitle("BCR-XL-sim, main results: diffcyt-DS-LMM: t-SNE") + 
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
@@ -191,7 +191,7 @@ p_0.9 <-
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.9.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_LMM_main_tSNE_0.9.pdf")
 ggsave(fn, width = 6, height = 5)
 
 
@@ -208,9 +208,9 @@ p_0.5 <-
   scale_shape_manual(values = 1, labels = ">50%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
-  xlab("tSNE 1") + 
-  ylab("tSNE 2") + 
-  ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
+  xlab("t-SNE 1") + 
+  ylab("t-SNE 2") + 
+  ggtitle("BCR-XL-sim, main results: diffcyt-DS-LMM: t-SNE") + 
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
@@ -218,7 +218,7 @@ p_0.5 <-
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.5.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_LMM_main_tSNE_0.5.pdf")
 ggsave(fn, width = 6, height = 5)
 
 
@@ -235,9 +235,9 @@ p_0.1 <-
   scale_shape_manual(values = 1, labels = ">10%") + 
   # additional layer: emphasize significant differential clusters
   geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
-  xlab("tSNE 1") + 
-  ylab("tSNE 2") + 
-  ggtitle("BCR-XL-sim, main results: diffcyt-DS-med: tSNE") + 
+  xlab("t-SNE 1") + 
+  ylab("t-SNE 2") + 
+  ggtitle("BCR-XL-sim, main results: diffcyt-DS-LMM: t-SNE") + 
   theme_bw() + 
   theme(aspect.ratio = 1) + 
   guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
@@ -245,7 +245,7 @@ p_0.1 <-
          size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_0.1.pdf")
+fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_diffcyt_DS_LMM_main_tSNE_0.1.pdf")
 ggsave(fn, width = 6, height = 5)
 
 
@@ -273,8 +273,8 @@ plots_title <- ggdraw() + draw_label(title_single)
 plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 20))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_tSNE_all.pdf")
-ggsave(fn, width = 9, height = 7)
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_LMM_main_tSNE_all.pdf")
+ggsave(fn, width = 10, height = 7.5)
 
 
 
