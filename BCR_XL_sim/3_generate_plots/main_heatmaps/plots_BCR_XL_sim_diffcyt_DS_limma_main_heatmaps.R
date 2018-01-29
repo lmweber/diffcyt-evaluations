@@ -3,11 +3,11 @@
 # 
 # - data set: BCR-XL-sim
 # - plot type: heatmaps
-# - method: diffcyt-DS-med
+# - method: diffcyt-DS-limma
 # 
 # - main results
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
@@ -23,9 +23,9 @@ library(gridExtra)
 # load saved results
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
 
-load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
-load(file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_med_main.RData"))
-load(file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_limma_main.RData"))
+load(file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_limma_main.RData"))
+load(file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_limma_main.RData"))
 
 
 # path to save plots
@@ -39,9 +39,9 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_heatmaps"
 ################
 
 # load plot data objects
-d_se <- out_objects_diffcyt_DS_med_main$d_se
-d_counts <- out_objects_diffcyt_DS_med_main$d_counts
-d_medians_all <- out_objects_diffcyt_DS_med_main$d_medians_all
+d_se <- out_objects_diffcyt_DS_limma_main$d_se
+d_counts <- out_objects_diffcyt_DS_limma_main$d_counts
+d_medians_all <- out_objects_diffcyt_DS_limma_main$d_medians_all
 
 
 # -----------------------------------------------------------
@@ -51,28 +51,26 @@ d_medians_all <- out_objects_diffcyt_DS_med_main$d_medians_all
 # note: using all markers
 # note: no additional scaling (using asinh-transformed values directly)
 
-d_heatmap <- assay(d_medians_all)[, colData(d_medians_all)$is_marker_col]
-
-colnames(d_heatmap) <- gsub("\\(.*$", "", colnames(d_heatmap))
+d_heatmap <- assay(d_medians_all)[, colData(d_medians_all)$is_marker]
 
 # arrange columns (identity and functional markers)
-d_heatmap <- cbind(d_heatmap[, metadata(d_medians_all)$id_identity_markers], 
-                   d_heatmap[, metadata(d_medians_all)$id_func_markers])
+d_heatmap <- cbind(d_heatmap[, metadata(d_medians_all)$id_type_markers], 
+                   d_heatmap[, metadata(d_medians_all)$id_state_markers])
 
 # arrange each group (identity and functional) alphabetically
-n_identity <- sum(metadata(d_medians_all)$id_identity_markers)
-n_func <- sum(metadata(d_medians_all)$id_func_markers)
+n_identity <- sum(metadata(d_medians_all)$id_type_markers)
+n_func <- sum(metadata(d_medians_all)$id_state_markers)
 d_heatmap <- cbind(d_heatmap[, seq_len(n_identity)][, order(colnames(d_heatmap)[seq_len(n_identity)])], 
                    d_heatmap[, (seq_len(n_func)) + n_identity][, order(colnames(d_heatmap)[(seq_len(n_func)) + n_identity])])
 
 # column annotation
 col_annot <- data.frame(
-  "marker type" = factor(c(rep("identity", n_identity), rep("functional", n_func)), levels = c("identity", "functional")), 
+  "marker type" = factor(c(rep("cell type", n_identity), rep("state", n_func)), levels = c("cell type", "state")), 
   check.names = FALSE
 )
 
 ha_col <- columnAnnotation(df = col_annot, 
-                           col = list("marker type" = c("identity" = "gold", "functional" = "darkgreen")), 
+                           col = list("marker type" = c("cell type" = "gold", "state" = "darkgreen")), 
                            colname = anno_text(colnames(d_heatmap), rot = 90, just = "right", offset = unit(1, "npc") - unit(2, "mm")), 
                            annotation_height = unit.c(unit(4, "mm"), max_text_width(colnames(d_heatmap)) + unit(2, "mm")), 
                            annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)))
@@ -99,7 +97,7 @@ ht <- Heatmap(d_heatmap, col = colors, name = "expression",
 # (i) from cluster-level results
 
 # load cluster-level results (note: marker pS6 only)
-d_clus <- out_clusters_diffcyt_DS_med_main[out_clusters_diffcyt_DS_med_main$marker == "pS6(Yb172)Dd", ]
+d_clus <- out_clusters_diffcyt_DS_limma_main[out_clusters_diffcyt_DS_limma_main$marker == "pS6", ]
 
 stopifnot(nrow(d_clus) == nrow(rowData(d_counts)), 
           all(d_clus$cluster == rowData(d_counts)$cluster))
@@ -121,7 +119,7 @@ d_sig <- data.frame(cluster = rowData(d_counts)$cluster,
 # (ii) from cell-level results
 
 # load true B-cell status of each cell
-B_cells <- out_diffcyt_DS_med_main$B_cell
+B_cells <- out_diffcyt_DS_limma_main$B_cell
 
 # calculate proportion true B-cells for each cluster
 df_tmp <- as.data.frame(rowData(d_se))
@@ -166,12 +164,12 @@ ha_row <- rowAnnotation(df = row_annot,
                         annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
                         width = unit(1, "cm"))
 
-ht_title <- "BCR-XL-sim: diffcyt-DS-med"
+ht_title <- "BCR-XL-sim: diffcyt-DS-limma"
 
 
 # (iv) save individual plot
 
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_main_heatmap.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_limma_main_heatmap.pdf")
 pdf(fn, width = 8.25, height = 8)
 draw(ht + ha_row, newpage = FALSE, 
      column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
