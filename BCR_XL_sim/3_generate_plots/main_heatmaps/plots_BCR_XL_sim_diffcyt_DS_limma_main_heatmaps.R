@@ -53,19 +53,19 @@ d_medians_all <- out_objects_diffcyt_DS_limma_main$d_medians_all
 
 d_heatmap <- assay(d_medians_all)[, colData(d_medians_all)$is_marker]
 
-# arrange columns (identity and functional markers)
-d_heatmap <- cbind(d_heatmap[, metadata(d_medians_all)$id_type_markers], 
+# arrange columns (cell type and state markers)
+d_heatmap <- cbind(d_heatmap[, metadata(d_medians_all)$id_celltype_markers], 
                    d_heatmap[, metadata(d_medians_all)$id_state_markers])
 
-# arrange each group (identity and functional) alphabetically
-n_identity <- sum(metadata(d_medians_all)$id_type_markers)
-n_func <- sum(metadata(d_medians_all)$id_state_markers)
-d_heatmap <- cbind(d_heatmap[, seq_len(n_identity)][, order(colnames(d_heatmap)[seq_len(n_identity)])], 
-                   d_heatmap[, (seq_len(n_func)) + n_identity][, order(colnames(d_heatmap)[(seq_len(n_func)) + n_identity])])
+# arrange each group (cell type and state) alphabetically
+n_celltype <- sum(metadata(d_medians_all)$id_celltype_markers)
+n_state <- sum(metadata(d_medians_all)$id_state_markers)
+d_heatmap <- cbind(d_heatmap[, seq_len(n_celltype)][, order(colnames(d_heatmap)[seq_len(n_celltype)])], 
+                   d_heatmap[, (seq_len(n_state)) + n_celltype][, order(colnames(d_heatmap)[(seq_len(n_state)) + n_celltype])])
 
 # column annotation
 col_annot <- data.frame(
-  "marker type" = factor(c(rep("cell type", n_identity), rep("state", n_func)), levels = c("cell type", "state")), 
+  "marker type" = factor(c(rep("cell type", n_celltype), rep("state", n_state)), levels = c("cell type", "state")), 
   check.names = FALSE
 )
 

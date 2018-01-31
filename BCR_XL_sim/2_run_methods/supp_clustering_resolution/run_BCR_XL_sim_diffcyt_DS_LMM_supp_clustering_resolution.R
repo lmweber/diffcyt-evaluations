@@ -1,10 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DS-limma
+# - method: diffcyt-DS-LMM
 # - data set: BCR-XL-sim
 # 
-# - null simulations
+# - supplementary results: varying clustering resolution
 # 
 # Lukas Weber, January 2018
 ##########################################################################################
@@ -15,10 +15,9 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/null_simulations"
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/null_simulations/diagnostic/diffcyt_DS_limma"
-DIR_RDATA <- "../../../../RData/BCR_XL_sim/null_simulations"
-DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/null_simulations"
+DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
+DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_clustering_resolution"
+DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_clustering_resolution"
 
 
 
@@ -27,38 +26,37 @@ DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/null_simulations"
 # Preliminary
 #############
 
-# names of random seeds used
-seed_names <- c("seed1", "seed2", "seed3")
+# varying clustering resolution: grid size for FlowSOM (e.g. 30x30 grid)
+resolution <- c(3, 5, 7, 10, 14, 20, 30)
+resolution_sq <- resolution^2
 
 # lists to store objects
-out_diffcyt_DS_limma_null  <- 
-  out_clusters_diffcyt_DS_limma_null <- 
-  out_objects_diffcyt_DS_limma_null <- 
-  runtime_diffcyt_DS_limma_null <- vector("list", length(seed_names))
-names(out_diffcyt_DS_limma_null) <- 
-  names(out_clusters_diffcyt_DS_limma_null) <- 
-  names(out_objects_diffcyt_DS_limma_null) <- 
-  names(runtime_diffcyt_DS_limma_null) <- seed_names
+out_diffcyt_DS_LMM_supp_clustering_resolution <- 
+  out_clusters_diffcyt_DS_LMM_supp_clustering_resolution <- 
+  out_objects_diffcyt_DS_LMM_supp_clustering_resolution <- 
+  runtime_diffcyt_DS_LMM_supp_clustering_resolution <- vector("list", length(resolution))
+names(out_diffcyt_DS_LMM_supp_clustering_resolution) <- 
+  names(out_clusters_diffcyt_DS_LMM_supp_clustering_resolution) <- 
+  names(out_objects_diffcyt_DS_LMM_supp_clustering_resolution) <- 
+  names(runtime_diffcyt_DS_LMM_supp_clustering_resolution) <- paste("k", resolution_sq, sep = "_")
 
 
 
 
-for (s in 1:length(seed_names)) {
+for (k in 1:length(resolution)) {
   
   
   ###########################
   # Load data, pre-processing
   ###########################
   
-  # note: load data from each random seed
-  
-  
   # filenames
   
-  files_null1 <- list.files(file.path(DIR_BENCHMARK, seed_names[s], "null1"), pattern = "\\.fcs$", full.names = TRUE)
-  files_null2 <- list.files(file.path(DIR_BENCHMARK, seed_names[s], "null2"), pattern = "\\.fcs$", full.names = TRUE)
+  files <- list.files(DIR_BENCHMARK, pattern = "\\.fcs$", full.names = TRUE)
+  files_base <- files[grep("base\\.fcs$", files)]
+  files_spike <- files[grep("spike\\.fcs$", files)]
   
-  files_load <- c(files_null1, files_null2)
+  files_load <- c(files_base, files_spike)
   files_load
   
   # load data
@@ -71,7 +69,7 @@ for (s in 1:length(seed_names)) {
                      gsub("\\.fcs$", "", basename(files_load)))
   sample_IDs
   
-  group_IDs <- factor(gsub("^.*_", "", sample_IDs), levels = c("null1", "null2"))
+  group_IDs <- factor(gsub("^.*_", "", sample_IDs), levels = c("base", "spike"))
   group_IDs
   
   patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
@@ -124,8 +122,9 @@ for (s in 1:length(seed_names)) {
     
     # clustering
     # (runtime: ~5 sec with xdim = 10, ydim = 10)
+    # note: varying clustering resolution
     seed <- 123
-    d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed = seed)
+    d_se <- generateClusters(d_se, xdim = resolution[k], ydim = resolution[k], seed = seed)
     
     length(table(rowData(d_se)$cluster))  # number of clusters
     nrow(rowData(d_se))                   # number of cells
@@ -161,7 +160,7 @@ for (s in 1:length(seed_names)) {
   # store data objects (for plotting)
   # ---------------------------------
   
-  out_objects_diffcyt_DS_limma_null[[s]] <- list(
+  out_objects_diffcyt_DS_LMM_supp_clustering_resolution[[k]] <- list(
     d_se = d_se, 
     d_counts = d_counts, 
     d_medians = d_medians, 
@@ -173,26 +172,26 @@ for (s in 1:length(seed_names)) {
   # test for differential states within clusters
   # --------------------------------------------
   
-  # contrast (to compare 'null2' vs. 'null1')
-  # note: include zeros for 'patient_IDs'
-  contrast_vec <- c(0, 1, 0, 0, 0, 0, 0, 0, 0)
+  # contrast (to compare 'spike' vs. 'base')
+  # note: include random effects for 'patient_IDs'
+  contrast_vec <- c(0, 1)
   
   runtime_tests <- system.time({
     
-    # set up design matrix
-    # note: include 'patient_IDs' as fixed effects
+    # set up model formula
     # note: order of samples has changed
     sample_info_ordered <- as.data.frame(colData(d_medians))
     sample_info_ordered
-    design <- createDesignMatrix(sample_info_ordered, cols_include = 1:2)
-    design
+    # note: include random effects for 'patient_IDs'
+    formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2)
+    formula
     
     # set up contrast matrix
     contrast <- createContrast(contrast_vec)
     contrast
     
     # run tests
-    res <- testDS_limma(d_counts, d_medians, design, contrast, path = DIR_PLOTS)
+    res <- testDS_LMM(d_counts, d_medians, formula, contrast)
     
   })
   
@@ -200,18 +199,18 @@ for (s in 1:length(seed_names)) {
   rowData(res)
   
   # sort to show top (most highly significant) cluster-marker combinations first
-  res_sorted <- rowData(res)[order(rowData(res)$adj.P.Val), ]
+  res_sorted <- rowData(res)[order(rowData(res)$p_adj), ]
   print(head(res_sorted, 10))
   #View(as.data.frame(res_sorted))
   
   # number of significant tests (note: one test per cluster-marker combination)
-  print(table(res_sorted$adj.P.Val <= 0.1))
+  print(table(res_sorted$p_adj <= 0.1))
   
   # runtime (~30 sec on laptop)
   runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_tests[["elapsed"]]
   print(runtime_total)
   
-  runtime_diffcyt_DS_limma_null[[s]] <- runtime_total
+  runtime_diffcyt_DS_LMM_main <- runtime_total
   
   
   # ---------------------------------------------
@@ -220,7 +219,7 @@ for (s in 1:length(seed_names)) {
   
   res_clusters <- as.data.frame(rowData(res))
   
-  out_clusters_diffcyt_DS_limma_null[[s]] <- res_clusters
+  out_clusters_diffcyt_DS_LMM_supp_clustering_resolution[[k]] <- res_clusters
   
   
   
@@ -258,8 +257,8 @@ for (s in 1:length(seed_names)) {
   # match cells to clusters
   ix_match <- match(rowData(d_se)$cluster, rowData(res_pS6)$cluster)
   
-  p_vals_clusters <- rowData(res_pS6)$P.Value
-  p_adj_clusters <- rowData(res_pS6)$adj.P.Val
+  p_vals_clusters <- rowData(res_pS6)$p_vals
+  p_adj_clusters <- rowData(res_pS6)$p_adj
   
   p_vals_cells <- p_vals_clusters[ix_match]
   p_adj_cells <- p_adj_clusters[ix_match]
@@ -282,8 +281,8 @@ for (s in 1:length(seed_names)) {
                     B_cell = is_B_cell)
   
   # store results
-  out_diffcyt_DS_limma_null[[s]] <- res
-  
+  out_diffcyt_DS_LMM_supp_clustering_resolution[[k]] <- res
+
 }
 
 
@@ -293,14 +292,14 @@ for (s in 1:length(seed_names)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DS_limma_null, runtime_diffcyt_DS_limma_null, 
-     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_limma_null.RData"))
+save(out_diffcyt_DS_LMM_supp_clustering_resolution, runtime_diffcyt_DS_LMM_supp_clustering_resolution, 
+     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_LMM_supp_clustering_resolution.RData"))
 
-save(out_clusters_diffcyt_DS_limma_null, 
-     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_limma_null.RData"))
+save(out_clusters_diffcyt_DS_LMM_supp_clustering_resolution, 
+     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_LMM_supp_clustering_resolution.RData"))
 
-save(out_objects_diffcyt_DS_limma_null, 
-     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_limma_null.RData"))
+save(out_objects_diffcyt_DS_LMM_supp_clustering_resolution, 
+     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_LMM_supp_clustering_resolution.RData"))
 
 
 
@@ -309,7 +308,7 @@ save(out_objects_diffcyt_DS_limma_null,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_limma_null.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_LMM_supp_clustering_resolution.txt"))
 sessionInfo()
 sink()
 

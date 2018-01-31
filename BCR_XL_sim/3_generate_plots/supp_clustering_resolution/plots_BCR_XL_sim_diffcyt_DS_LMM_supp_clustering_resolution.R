@@ -3,11 +3,11 @@
 # 
 # - data set: BCR-XL-sim
 # - plot type: performance metrics
-# - method: diffcyt-DS-med
+# - method: diffcyt-DS-LMM
 # 
 # - supplementary results: varying clustering resolution
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
@@ -20,7 +20,7 @@ library(viridis)
 # load saved results
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_clustering_resolution"
 
-load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_supp_clustering_resolution.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_LMM_supp_clustering_resolution.RData"))
 
 
 # path to save plots
@@ -38,13 +38,13 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_clustering_resolution"
 # -------------------------------------
 
 # create 'COBRAData' object
-data <- list(k_9   = out_diffcyt_DS_med_supp_clustering_resolution[["k_9"]], 
-             k_25  = out_diffcyt_DS_med_supp_clustering_resolution[["k_25"]], 
-             k_49  = out_diffcyt_DS_med_supp_clustering_resolution[["k_49"]], 
-             k_100 = out_diffcyt_DS_med_supp_clustering_resolution[["k_100"]], 
-             k_196 = out_diffcyt_DS_med_supp_clustering_resolution[["k_196"]], 
-             k_400 = out_diffcyt_DS_med_supp_clustering_resolution[["k_400"]], 
-             k_900 = out_diffcyt_DS_med_supp_clustering_resolution[["k_900"]])
+data <- list(k_9   = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_9"]], 
+             k_25  = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_25"]], 
+             k_49  = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_49"]], 
+             k_100 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_100"]], 
+             k_196 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_196"]], 
+             k_400 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_400"]], 
+             k_900 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_900"]])
 
 # check
 stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
@@ -100,13 +100,13 @@ p_ROC <-
   coord_fixed() + 
   xlab("False positive rate") + 
   ylab("True positive rate") + 
-  ggtitle("BCR-XL-sim: clustering resolution", subtitle = "ROC curves") + 
+  ggtitle("BCR-XL-sim: clustering resolution", subtitle = "ROC curves, diffcyt-DS-LMM") + 
   theme_bw() + 
   theme(strip.text.x = element_blank()) + 
   guides(color = guide_legend("no. clusters"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_supp_clustering_resolution_ROC.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_LMM_supp_clustering_resolution_ROC.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 
@@ -163,12 +163,12 @@ p_pAUC <-
   ylim(c(0, 1)) + 
   xlab("Number of clusters") + 
   ylab(paste0("pAUC (FPR < ", thresh, ")")) + 
-  ggtitle("BCR-XL-sim: clustering resolution", subtitle = "pAUC") + 
+  ggtitle("BCR-XL-sim: clustering resolution", subtitle = "pAUC, diffcyt-DS-LMM") + 
   theme_bw() + 
   guides(color = guide_legend("no. clusters"))
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_med_supp_clustering_resolution_pAUC.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_LMM_supp_clustering_resolution_pAUC.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
 
 

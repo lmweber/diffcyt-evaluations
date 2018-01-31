@@ -66,13 +66,13 @@ cols_func <- setdiff(cols_markers, cols_lineage)
 marker_names <- colnames(d_input[[1]])
 marker_names <- gsub("\\(.*$", "", marker_names)
 
-is_marker <- is_type_marker <- is_state_marker <- rep(FALSE, length(marker_names))
+is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
 
 is_marker[cols_markers] <- TRUE
-is_type_marker[cols_lineage] <- TRUE
+is_celltype_marker[cols_lineage] <- TRUE
 is_state_marker[cols_func] <- TRUE
 
-marker_info <- data.frame(marker_names, is_marker, is_type_marker, is_state_marker)
+marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
 marker_info
 
 
@@ -91,7 +91,7 @@ runtime_preprocessing <- system.time({
   # prepare data into required format
   d_se <- prepareData(d_input, sample_info, marker_info)
   
-  colnames(d_se)[is_type_marker]
+  colnames(d_se)[is_celltype_marker]
   colnames(d_se)[is_state_marker]
   
   # transform data
@@ -144,21 +144,21 @@ out_objects_diffcyt_DS_limma_main <- list(
 )
 
 
-# -------------------------------------------------------
-# test for differential functional states within clusters
-# -------------------------------------------------------
+# --------------------------------------------
+# test for differential states within clusters
+# --------------------------------------------
 
 # contrast (to compare 'spike' vs. 'base')
-# note: include zeros for 'patient_IDs'
+# note: include fixed effects for 'patient_IDs'
 contrast_vec <- c(0, 1, 0, 0, 0, 0, 0, 0, 0)
 
 runtime_tests <- system.time({
   
   # set up design matrix
-  # note: include 'patient_IDs' as fixed effects
   # note: order of samples has changed
   sample_info_ordered <- as.data.frame(colData(d_medians))
   sample_info_ordered
+  # note: include fixed effects for 'patient_IDs'
   design <- createDesignMatrix(sample_info_ordered, cols_include = 1:2)
   design
   

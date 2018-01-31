@@ -44,8 +44,8 @@ d_medians_all <- out_objects_diffcyt_DS_limma_main$d_medians_all
 
 # run t-SNE
 
-# note: using identity markers only
-d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_type_marker]
+# note: using cell type markers only
+d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_celltype_marker]
 d_tsne <- as.matrix(d_tsne)
 
 # remove any duplicate rows (required by Rtsne)

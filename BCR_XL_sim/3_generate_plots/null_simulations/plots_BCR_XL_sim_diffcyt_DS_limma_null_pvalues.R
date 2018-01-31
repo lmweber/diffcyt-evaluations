@@ -54,9 +54,12 @@ for (s in 1:length(seed_names)) {
   # replace any NAs with 1s
   d_plot[is.na(d_plot$P.Value), "P.Value"] <- 1
   
+  d_plot$method <- as.factor("diffcyt-DS-limma")
+  
   p <- 
-    ggplot(d_plot, aes(x = P.Value)) + 
-    geom_histogram(bins = 20, color = "black", fill = "darkturquoise") + 
+    ggplot(d_plot, aes(x = P.Value, fill = method)) + 
+    geom_histogram(bins = 20, color = "black") + 
+    scale_fill_manual(values = "firebrick1") + 
     ggtitle("BCR-XL-sim, null simulations: diffcyt-DS-limma", subtitle = paste("p-value distribution, random seed", s)) + 
     scale_y_continuous(breaks = seq(0, 16, by = 2)) + 
     xlim(c(0, 1)) + 
@@ -66,7 +69,7 @@ for (s in 1:length(seed_names)) {
   plots_limma[[s]] <- p
   
   fn <- file.path(DIR_PLOTS, "panels", paste0("results_BCR_XL_sim_diffcyt_DS_limma_null_pvalues", "_seed", s, ".pdf"))
-  ggsave(fn, width = 4.5, height = 3.75)
+  ggsave(fn, width = 5.5, height = 3.75)
   
 }
 
@@ -85,9 +88,12 @@ for (s in 1:length(seed_names)) {
   # replace any NAs with 1s
   d_plot[is.na(d_plot$p_vals), "p_vals"] <- 1
   
+  d_plot$method <- as.factor("diffcyt-DS-LMM")
+  
   p <- 
-    ggplot(d_plot, aes(x = p_vals)) + 
-    geom_histogram(bins = 20, color = "black", fill = "darkslategray4") + 
+    ggplot(d_plot, aes(x = p_vals, fill = method)) + 
+    geom_histogram(bins = 20, color = "black") + 
+    scale_fill_manual(values = "darkviolet") + 
     ggtitle("BCR-XL-sim, null simulations: diffcyt-DS-LMM", subtitle = paste("p-value distribution, random seed", s)) + 
     scale_y_continuous(breaks = seq(0, 16, by = 2)) + 
     xlim(c(0, 1)) + 
@@ -97,7 +103,7 @@ for (s in 1:length(seed_names)) {
   plots_LMM[[s]] <- p
   
   fn <- file.path(DIR_PLOTS, "panels", paste0("results_BCR_XL_sim_diffcyt_DS_LMM_null_pvalues", "_seed", s, ".pdf"))
-  ggsave(fn, width = 4.5, height = 3.75)
+  ggsave(fn, width = 5.5, height = 3.75)
   
 }
 
@@ -113,7 +119,8 @@ plots_list <- c(plots_limma, plots_LMM)
 # modify plot elements
 plots_list <- lapply(plots_list, function(p) {
   p +
-    labs(title = gsub("^.* ", "", p$labels$title), subtitle = gsub("^.*, ", "", p$labels$subtitle))
+    labs(title = gsub("^.* ", "", p$labels$title), subtitle = gsub("^.*, ", "", p$labels$subtitle)) + 
+    theme(legend.position = "none")
 })
 
 plots_multi <- plot_grid(plotlist = plots_list,

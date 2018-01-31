@@ -22,7 +22,7 @@ DIR_BENCHMARK_MAIN <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
 DIR_BENCHMARK_LESS_DISTINCT <- "../../../../../benchmark_data/BCR_XL_sim/data/less_distinct"
 
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
-load(file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+load(file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_limma_main.RData"))
 
 DIR_PLOTS <- "../../../../plots/BCR_XL_sim/data_distributions"
 
@@ -44,8 +44,8 @@ cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
 cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
 cols_func <- setdiff(cols_markers, cols_lineage)
 
-# load objects (to identify identity and functional markers)
-d_medians_all <- out_objects_diffcyt_DS_med_main$d_medians_all
+# load objects (to identify cell type and state markers)
+d_medians_all <- out_objects_diffcyt_DS_limma_main$d_medians_all
 
 
 # -----------------------
@@ -65,15 +65,15 @@ d_base <-
   lapply(function(d) asinh(d / cofactor)) %>%
   do.call(rbind, .)
 
-# arrange identity and functional markers in two groups
-d_base <- cbind(d_base[, metadata(d_medians_all)$id_identity_markers], 
-                d_base[, metadata(d_medians_all)$id_func_markers])
+# arrange cell type and state markers in two groups
+d_base <- cbind(d_base[, metadata(d_medians_all)$id_celltype_markers], 
+                d_base[, metadata(d_medians_all)$id_state_markers])
 
-# arrange each group (identity and functional markers) alphabetically
-n_identity <- sum(metadata(d_medians_all)$id_identity_markers)
-n_func <- sum(metadata(d_medians_all)$id_func_markers)
-d_base <- cbind(d_base[, seq_len(n_identity)][, order(colnames(d_base)[seq_len(n_identity)])], 
-                d_base[, (seq_len(n_func)) + n_identity][, order(colnames(d_base)[(seq_len(n_func)) + n_identity])])
+# arrange each group (cell type and state markers) alphabetically
+n_celltype <- sum(metadata(d_medians_all)$id_celltype_markers)
+n_state <- sum(metadata(d_medians_all)$id_state_markers)
+d_base <- cbind(d_base[, seq_len(n_celltype)][, order(colnames(d_base)[seq_len(n_celltype)])], 
+                d_base[, (seq_len(n_state)) + n_celltype][, order(colnames(d_base)[(seq_len(n_state)) + n_celltype])])
 
 colnames(d_base) <- gsub("\\(.*$", "", colnames(d_base))
 
@@ -109,15 +109,15 @@ d_spike <-
   lapply(function(d) asinh(d / cofactor)) %>%
   do.call(rbind, .)
 
-# arrange identity and functional markers in two groups
-d_spike <- cbind(d_spike[, metadata(d_medians_all)$id_identity_markers], 
-                 d_spike[, metadata(d_medians_all)$id_func_markers])
+# arrange cell type and state markers in two groups
+d_spike <- cbind(d_spike[, metadata(d_medians_all)$id_celltype_markers], 
+                 d_spike[, metadata(d_medians_all)$id_state_markers])
 
-# arrange each group (identity and functional markers) alphabetically
-n_identity <- sum(metadata(d_medians_all)$id_identity_markers)
-n_func <- sum(metadata(d_medians_all)$id_func_markers)
-d_spike <- cbind(d_spike[, seq_len(n_identity)][, order(colnames(d_spike)[seq_len(n_identity)])], 
-                 d_spike[, (seq_len(n_func)) + n_identity][, order(colnames(d_spike)[(seq_len(n_func)) + n_identity])])
+# arrange each group (cell type and state markers) alphabetically
+n_celltype <- sum(metadata(d_medians_all)$id_celltype_markers)
+n_state <- sum(metadata(d_medians_all)$id_state_markers)
+d_spike <- cbind(d_spike[, seq_len(n_celltype)][, order(colnames(d_spike)[seq_len(n_celltype)])], 
+                 d_spike[, (seq_len(n_state)) + n_celltype][, order(colnames(d_spike)[(seq_len(n_state)) + n_celltype])])
 
 colnames(d_spike) <- gsub("\\(.*$", "", colnames(d_spike))
 
@@ -139,8 +139,8 @@ d_spike <- cbind(d_spike, d_spike_labels)
 # check column names
 stopifnot(all(colnames(d_base) == colnames(d_spike)))
 
-names_identity <- colnames(d_base)[1:n_identity]
-names_func <- colnames(d_base)[(n_identity + 1):(n_identity + n_func)]
+names_celltype <- colnames(d_base)[1:n_celltype]
+names_state <- colnames(d_base)[(n_celltype + 1):(n_celltype + n_state)]
 
 
 
@@ -170,15 +170,15 @@ d_spike_50pc <-
   lapply(function(d) asinh(d / cofactor)) %>%
   do.call(rbind, .)
 
-# arrange identity and functional markers in two groups
-d_spike_50pc <- cbind(d_spike_50pc[, metadata(d_medians_all)$id_identity_markers], 
-                      d_spike_50pc[, metadata(d_medians_all)$id_func_markers])
+# arrange cell type and state markers in two groups
+d_spike_50pc <- cbind(d_spike_50pc[, metadata(d_medians_all)$id_celltype_markers], 
+                      d_spike_50pc[, metadata(d_medians_all)$id_state_markers])
 
-# arrange each group (identity and functional markers) alphabetically
-n_identity <- sum(metadata(d_medians_all)$id_identity_markers)
-n_func <- sum(metadata(d_medians_all)$id_func_markers)
-d_spike_50pc <- cbind(d_spike_50pc[, seq_len(n_identity)][, order(colnames(d_spike_50pc)[seq_len(n_identity)])], 
-                      d_spike_50pc[, (seq_len(n_func)) + n_identity][, order(colnames(d_spike_50pc)[(seq_len(n_func)) + n_identity])])
+# arrange each group (cell type and state markers) alphabetically
+n_celltype <- sum(metadata(d_medians_all)$id_celltype_markers)
+n_state <- sum(metadata(d_medians_all)$id_state_markers)
+d_spike_50pc <- cbind(d_spike_50pc[, seq_len(n_celltype)][, order(colnames(d_spike_50pc)[seq_len(n_celltype)])], 
+                      d_spike_50pc[, (seq_len(n_state)) + n_celltype][, order(colnames(d_spike_50pc)[(seq_len(n_state)) + n_celltype])])
 
 colnames(d_spike_50pc) <- gsub("\\(.*$", "", colnames(d_spike_50pc))
 
@@ -218,15 +218,15 @@ d_spike_75pc <-
   lapply(function(d) asinh(d / cofactor)) %>%
   do.call(rbind, .)
 
-# arrange identity and functional markers in two groups
-d_spike_75pc <- cbind(d_spike_75pc[, metadata(d_medians_all)$id_identity_markers], 
-                      d_spike_75pc[, metadata(d_medians_all)$id_func_markers])
+# arrange cell type and state markers in two groups
+d_spike_75pc <- cbind(d_spike_75pc[, metadata(d_medians_all)$id_celltype_markers], 
+                      d_spike_75pc[, metadata(d_medians_all)$id_state_markers])
 
-# arrange each group (identity and functional markers) alphabetically
-n_identity <- sum(metadata(d_medians_all)$id_identity_markers)
-n_func <- sum(metadata(d_medians_all)$id_func_markers)
-d_spike_75pc <- cbind(d_spike_75pc[, seq_len(n_identity)][, order(colnames(d_spike_75pc)[seq_len(n_identity)])], 
-                      d_spike_75pc[, (seq_len(n_func)) + n_identity][, order(colnames(d_spike_75pc)[(seq_len(n_func)) + n_identity])])
+# arrange each group (cell type and state markers) alphabetically
+n_celltype <- sum(metadata(d_medians_all)$id_celltype_markers)
+n_state <- sum(metadata(d_medians_all)$id_state_markers)
+d_spike_75pc <- cbind(d_spike_75pc[, seq_len(n_celltype)][, order(colnames(d_spike_75pc)[seq_len(n_celltype)])], 
+                      d_spike_75pc[, (seq_len(n_state)) + n_celltype][, order(colnames(d_spike_75pc)[(seq_len(n_state)) + n_celltype])])
 
 colnames(d_spike_75pc) <- gsub("\\(.*$", "", colnames(d_spike_75pc))
 
@@ -267,7 +267,7 @@ d_plot <- d_plot[d_plot$B_cell == 1, -which(colnames(d_plot) == "B_cell")]
 d_plot <- melt(d_plot, id.vars = "group", variable.name = "marker", value.name = "expression")
 
 # marker types
-d_plot$marker_type <- factor(as.numeric(d_plot$marker %in% names_func), labels = c("cell type", "functional"))
+d_plot$marker_type <- factor(as.numeric(d_plot$marker %in% names_state), labels = c("cell type", "state"))
 
 d_plot$marker <- factor(d_plot$marker, levels = rev(levels(d_plot$marker)))
 
@@ -335,7 +335,7 @@ table(d_plot$group, d_plot$less_distinct)
 d_plot <- melt(d_plot, id.vars = c("group", "less_distinct"), variable.name = "marker", value.name = "expression")
 
 # marker types
-d_plot$marker_type <- factor(as.numeric(d_plot$marker %in% names_func), labels = c("cell type", "functional"))
+d_plot$marker_type <- factor(as.numeric(d_plot$marker %in% names_state), labels = c("cell type", "state"))
 
 d_plot$marker <- factor(d_plot$marker, levels = rev(levels(d_plot$marker)))
 

@@ -1,12 +1,12 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DS-med
+# - method: diffcyt-DS-limma
 # - data set: BCR-XL-sim
 # 
-# - supplementary results: smaller sample sizes
+# - supplementary results: 'less distinct' data sets
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
@@ -15,10 +15,10 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_sample_sizes/diagnostic/diffcyt_DS_med"
-DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_sample_sizes"
-DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_sample_sizes"
+DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/less_distinct"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_less_distinct/diagnostic/diffcyt_DS_limma"
+DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_less_distinct"
+DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_less_distinct"
 
 
 
@@ -27,73 +27,82 @@ DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_sample_sizes"
 # Preliminary
 #############
 
-# contrast (to compare 'spike' vs. 'base')
-# note: include zeros for patient_IDs fixed effects
-# note: different contrast matrix for each sample size
-contrasts_list <- list(size_2vs2 = list(spike = c(0, 1, 0)), 
-                       size_4vs4 = list(spike = c(0, 1, 0, 0, 0)))
-
-# define sample sizes: 2 vs. 2; 4 vs. 4
-samples_keep <- list(size_2vs2 = rep(c(rep(TRUE, 2), rep(FALSE, 6)), 2), 
-                     size_4vs4 = rep(c(rep(TRUE, 4), rep(FALSE, 4)), 2))
+# names of 'less distinct' data sets
+distinctness <- c(0.5, 0.75)
+names(distinctness) <- c("less_50pc", "less_75pc")
 
 # lists to store objects
-out_diffcyt_DS_med_supp_sample_sizes <- 
-  out_clusters_diffcyt_DS_med_supp_sample_sizes <- 
-  out_objects_diffcyt_DS_med_supp_sample_sizes <- 
-  runtime_diffcyt_DS_med_supp_sample_sizes <- vector("list", length(samples_keep))
-names(out_diffcyt_DS_med_supp_sample_sizes) <- 
-  names(out_clusters_diffcyt_DS_med_supp_sample_sizes) <- 
-  names(out_objects_diffcyt_DS_med_supp_sample_sizes) <- 
-  names(runtime_diffcyt_DS_med_supp_sample_sizes) <- names(samples_keep)
+out_diffcyt_DS_limma_supp_less_distinct <- 
+  out_clusters_diffcyt_DS_limma_supp_less_distinct <- 
+  out_objects_diffcyt_DS_limma_supp_less_distinct <- 
+  runtime_diffcyt_DS_limma_supp_less_distinct <- vector("list", length(distinctness))
+names(out_diffcyt_DS_limma_supp_less_distinct) <- 
+  names(out_clusters_diffcyt_DS_limma_supp_less_distinct) <- 
+  names(out_objects_diffcyt_DS_limma_supp_less_distinct) <- 
+  names(runtime_diffcyt_DS_limma_supp_less_distinct) <- names(distinctness)
 
 
 
 
-for (s in 1:length(samples_keep)) {
-  
-  
+for (di in 1:length(distinctness)) {
+
+
   ###########################
   # Load data, pre-processing
   ###########################
   
-  # note: load subsets of files for smaller sample sizes
+  # note: load data from each level of 'distinctness'
   
   
   # filenames
-  files <- list.files(DIR_BENCHMARK, pattern = "\\.fcs$", full.names = TRUE)
-  files_base <- files[grep("base\\.fcs$", files)]
-  files_spike <- files[grep("spike\\.fcs$", files)]
+  
+  files <- list.files(file.path(DIR_BENCHMARK, names(distinctness)[di]), pattern = "\\.fcs$", full.names = TRUE)
+  files_base <- files[grep("base", files)]
+  files_spike <- files[grep("spike", files)]
+  
+  files_load <- c(files_base, files_spike)
+  files_load
   
   # load data
-  files_load <- c(files_base, files_spike)
-  
-  
-  # smaller sample sizes
-  files_load <- files_load[samples_keep[[s]]]
-  
   
   d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
   
-  # sample IDs, group IDs, patient IDs
+  # sample information
+  
   sample_IDs <- gsub("^BCR_XL_sim_", "", 
                      gsub("\\.fcs$", "", basename(files_load)))
   sample_IDs
   
-  group_IDs <- factor(gsub("^.*_", "", sample_IDs), levels = c("base", "spike"))
+  group_IDs <- factor(gsub("_[a-z0-9]+", "", 
+                           gsub("^[a-z0-9]+_", "", sample_IDs)), 
+                      levels = c("base", "spike"))
   group_IDs
   
   patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
   patient_IDs
   
-  # check
-  data.frame(sample_IDs, group_IDs, patient_IDs)
+  sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+  sample_info
+  
+  # marker information
   
   # indices of all marker columns, lineage markers, and functional markers
   # (10 surface markers / 14 functional markers; see Bruggner et al. 2014, Table 1)
   cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
   cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
   cols_func <- setdiff(cols_markers, cols_lineage)
+  
+  marker_names <- colnames(d_input[[1]])
+  marker_names <- gsub("\\(.*$", "", marker_names)
+  
+  is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
+  
+  is_marker[cols_markers] <- TRUE
+  is_celltype_marker[cols_lineage] <- TRUE
+  is_state_marker[cols_func] <- TRUE
+  
+  marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+  marker_info
   
   
   
@@ -109,11 +118,10 @@ for (s in 1:length(samples_keep)) {
   runtime_preprocessing <- system.time({
     
     # prepare data into required format
-    d_se <- prepareData(d_input, sample_IDs, group_IDs, 
-                        cols_markers, cols_lineage, cols_func)
+    d_se <- prepareData(d_input, sample_info, marker_info)
     
-    colnames(d_se)[cols_lineage]
-    colnames(d_se)[cols_func]
+    colnames(d_se)[is_celltype_marker]
+    colnames(d_se)[is_state_marker]
     
     # transform data
     d_se <- transformData(d_se, cofactor = 5)
@@ -157,32 +165,38 @@ for (s in 1:length(samples_keep)) {
   # store data objects (for plotting)
   # ---------------------------------
   
-  out_objects_diffcyt_DS_med_supp_sample_sizes[[s]] <- 
-    list(d_se = d_se, 
-         d_counts = d_counts, 
-         d_medians = d_medians, 
-         d_medians_all = d_medians_all)
+  out_objects_diffcyt_DS_limma_supp_less_distinct[[di]] <- list(
+    d_se = d_se, 
+    d_counts = d_counts, 
+    d_medians = d_medians, 
+    d_medians_all = d_medians_all
+  )
   
   
-  # -------------------------------------------------------
-  # test for differential functional states within clusters
-  # -------------------------------------------------------
+  # --------------------------------------------
+  # test for differential states within clusters
+  # --------------------------------------------
+  
+  # contrast (to compare 'spike' vs. 'base')
+  # note: include fixed effects for 'patient_IDs'
+  contrast_vec <- c(0, 1, 0, 0, 0, 0, 0, 0, 0)
   
   runtime_tests <- system.time({
     
     # set up design matrix
-    # note: include 'patient_IDs' as fixed effects ('block_IDs' argument)
-    design <- createDesignMatrix(group_IDs, block_IDs = patient_IDs)
+    # note: order of samples has changed
+    sample_info_ordered <- as.data.frame(colData(d_medians))
+    sample_info_ordered
+    # note: include fixed effects for 'patient_IDs'
+    design <- createDesignMatrix(sample_info_ordered, cols_include = 1:2)
     design
     
     # set up contrast matrix
-    # note: different contrast matrix for each sample size
-    contrast <- createContrast(group_IDs, contrast = contrasts_list[[s]]$spike)
+    contrast <- createContrast(contrast_vec)
     contrast
     
     # run tests
-    # note: including 'patient_IDs' as fixed effects in design matrix
-    res <- testDS_med(d_counts, d_medians, design, contrast, path = DIR_PLOTS)
+    res <- testDS_limma(d_counts, d_medians, design, contrast, path = DIR_PLOTS)
     
   })
   
@@ -201,7 +215,7 @@ for (s in 1:length(samples_keep)) {
   runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_tests[["elapsed"]]
   print(runtime_total)
   
-  runtime_diffcyt_DS_med_supp_sample_sizes <- runtime_total
+  runtime_diffcyt_DS_limma_supp_less_distinct[[di]] <- runtime_total
   
   
   # ---------------------------------------------
@@ -210,8 +224,7 @@ for (s in 1:length(samples_keep)) {
   
   res_clusters <- as.data.frame(rowData(res))
   
-  out_clusters_diffcyt_DS_med_supp_sample_sizes[[s]] <- res_clusters
-  
+  out_clusters_diffcyt_DS_limma_supp_less_distinct[[di]] <- res_clusters
   
   
   
@@ -244,7 +257,7 @@ for (s in 1:length(samples_keep)) {
             all(levels(rowData(res)$cluster) %in% rowData(res)$cluster))
   
   # select results for pS6
-  res_pS6 <- res[rowData(res)$marker == "pS6(Yb172)Dd", ]
+  res_pS6 <- res[rowData(res)$marker == "pS6", ]
   
   # match cells to clusters
   ix_match <- match(rowData(d_se)$cluster, rowData(res_pS6)$cluster)
@@ -273,9 +286,10 @@ for (s in 1:length(samples_keep)) {
                     B_cell = is_B_cell)
   
   # store results
-  out_diffcyt_DS_med_supp_sample_sizes[[s]] <- res
+  out_diffcyt_DS_limma_supp_less_distinct[[di]] <- res
 
 }
+
 
 
 
@@ -283,14 +297,14 @@ for (s in 1:length(samples_keep)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DS_med_supp_sample_sizes, runtime_diffcyt_DS_med_supp_sample_sizes, 
-     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes.RData"))
+save(out_diffcyt_DS_limma_supp_less_distinct, runtime_diffcyt_DS_limma_supp_less_distinct, 
+     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_limma_supp_less_distinct.RData"))
 
-save(out_clusters_diffcyt_DS_med_supp_sample_sizes, 
-     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes.RData"))
+save(out_clusters_diffcyt_DS_limma_supp_less_distinct, 
+     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_limma_supp_less_distinct.RData"))
 
-save(out_objects_diffcyt_DS_med_supp_sample_sizes, 
-     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes.RData"))
+save(out_objects_diffcyt_DS_limma_supp_less_distinct, 
+     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_limma_supp_less_distinct.RData"))
 
 
 
@@ -299,7 +313,7 @@ save(out_objects_diffcyt_DS_med_supp_sample_sizes,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_limma_supp_less_distinct.txt"))
 sessionInfo()
 sink()
 

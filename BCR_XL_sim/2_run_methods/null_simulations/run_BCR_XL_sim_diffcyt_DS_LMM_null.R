@@ -90,13 +90,13 @@ for (s in 1:length(seed_names)) {
   marker_names <- colnames(d_input[[1]])
   marker_names <- gsub("\\(.*$", "", marker_names)
   
-  is_marker <- is_type_marker <- is_state_marker <- rep(FALSE, length(marker_names))
+  is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
   
   is_marker[cols_markers] <- TRUE
-  is_type_marker[cols_lineage] <- TRUE
+  is_celltype_marker[cols_lineage] <- TRUE
   is_state_marker[cols_func] <- TRUE
   
-  marker_info <- data.frame(marker_names, is_marker, is_type_marker, is_state_marker)
+  marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
   marker_info
   
   
@@ -115,7 +115,7 @@ for (s in 1:length(seed_names)) {
     # prepare data into required format
     d_se <- prepareData(d_input, sample_info, marker_info)
     
-    colnames(d_se)[is_type_marker]
+    colnames(d_se)[is_celltype_marker]
     colnames(d_se)[is_state_marker]
     
     # transform data
@@ -168,9 +168,9 @@ for (s in 1:length(seed_names)) {
   )
   
   
-  # -------------------------------------------------------
-  # test for differential functional states within clusters
-  # -------------------------------------------------------
+  # --------------------------------------------
+  # test for differential states within clusters
+  # --------------------------------------------
   
   # contrast (to compare 'null2' vs. 'null1')
   contrast_vec <- c(0, 1)

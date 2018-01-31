@@ -4,7 +4,7 @@
 # - method: diffcyt-DS-LMM
 # - data set: BCR-XL-sim
 # 
-# - main results
+# - supplementary results: using FlowSOM meta-clustering
 # 
 # Lukas Weber, January 2018
 ##########################################################################################
@@ -16,8 +16,8 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
-DIR_RDATA <- "../../../../RData/BCR_XL_sim/main"
-DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/main"
+DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_metaclustering"
+DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_metaclustering"
 
 
 
@@ -99,7 +99,9 @@ runtime_preprocessing <- system.time({
   # clustering
   # (runtime: ~5 sec with xdim = 10, ydim = 10)
   seed <- 123
-  d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed = seed)
+  d_se <- generateClusters(d_se, xdim = 10, ydim = 10, 
+                           meta_clustering = TRUE, meta_k = 40, 
+                           seed = seed)
   
   length(table(rowData(d_se)$cluster))  # number of clusters
   nrow(rowData(d_se))                   # number of cells
@@ -135,7 +137,7 @@ runtime_preprocessing <- system.time({
 # store data objects (for plotting)
 # ---------------------------------
 
-out_objects_diffcyt_DS_LMM_main <- list(
+out_objects_diffcyt_DS_LMM_supp_metaclustering <- list(
   d_se = d_se, 
   d_counts = d_counts, 
   d_medians = d_medians, 
@@ -185,7 +187,7 @@ print(table(res_sorted$p_adj <= 0.1))
 runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_tests[["elapsed"]]
 print(runtime_total)
 
-runtime_diffcyt_DS_LMM_main <- runtime_total
+runtime_diffcyt_DS_LMM_supp_metaclustering <- runtime_total
 
 
 # ---------------------------------------------
@@ -194,7 +196,7 @@ runtime_diffcyt_DS_LMM_main <- runtime_total
 
 res_clusters <- as.data.frame(rowData(res))
 
-out_clusters_diffcyt_DS_LMM_main <- res_clusters
+out_clusters_diffcyt_DS_LMM_supp_metaclustering <- res_clusters
 
 
 
@@ -256,7 +258,7 @@ res <- data.frame(p_vals = res_p_vals,
                   B_cell = is_B_cell)
 
 # store results
-out_diffcyt_DS_LMM_main <- res
+out_diffcyt_DS_LMM_supp_metaclustering <- res
 
 
 
@@ -265,14 +267,14 @@ out_diffcyt_DS_LMM_main <- res
 # Save output objects
 #####################
 
-save(out_diffcyt_DS_LMM_main, runtime_diffcyt_DS_LMM_main, 
-     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
+save(out_diffcyt_DS_LMM_supp_metaclustering, runtime_diffcyt_DS_LMM_supp_metaclustering, 
+     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_LMM_supp_metaclustering.RData"))
 
-save(out_clusters_diffcyt_DS_LMM_main, 
-     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
+save(out_clusters_diffcyt_DS_LMM_supp_metaclustering, 
+     file = file.path(DIR_RDATA, "out_clusters_BCR_XL_sim_diffcyt_DS_LMM_supp_metaclustering.RData"))
 
-save(out_objects_diffcyt_DS_LMM_main, 
-     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
+save(out_objects_diffcyt_DS_LMM_supp_metaclustering, 
+     file = file.path(DIR_RDATA, "out_objects_BCR_XL_sim_diffcyt_DS_LMM_supp_metaclustering.RData"))
 
 
 
@@ -281,7 +283,7 @@ save(out_objects_diffcyt_DS_LMM_main,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_LMM_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_diffcyt_DS_LMM_supp_metaclustering.txt"))
 sessionInfo()
 sink()
 

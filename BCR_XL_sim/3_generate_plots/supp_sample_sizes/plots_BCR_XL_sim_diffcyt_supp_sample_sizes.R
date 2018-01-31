@@ -3,11 +3,11 @@
 # 
 # - data set: BCR-XL-sim
 # - plot type: performance metrics
-# - method: diffcyt-DS-med
+# - method: diffcyt methods
 # 
 # - supplementary results: smaller sample sizes
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, January 2018
 ##########################################################################################
 
 
@@ -19,7 +19,8 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 # load saved results
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/supp_sample_sizes"
 
-load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_limma_supp_sample_sizes.RData"))
+load(file.path(DIR_RDATA, "outputs_BCR_XL_sim_diffcyt_DS_LMM_supp_sample_sizes.RData"))
 
 
 # path to save plots
@@ -40,18 +41,27 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/supp_sample_sizes"
 
 
 # create 'COBRAData' objects
-data_2vs2 <- list(diffcyt_DS_med = out_diffcyt_DS_med_supp_sample_sizes[[1]])
-data_4vs4 <- list(diffcyt_DS_med = out_diffcyt_DS_med_supp_sample_sizes[[2]])
 
-cobradata_2vs2 <- COBRAData(pval = data.frame(diffcyt_DS_med = data_2vs2[["diffcyt_DS_med"]][, "p_vals"]), 
-                            padj = data.frame(diffcyt_DS_med = data_2vs2[["diffcyt_DS_med"]][, "p_adj"]), 
-                            truth = data.frame(B_cell = data_2vs2[["diffcyt_DS_med"]][, "B_cell"]))
+data_2vs2 <- list(diffcyt_DS_limma = out_diffcyt_DS_limma_supp_sample_sizes[[1]], 
+                  diffcyt_DS_LMM = out_diffcyt_DS_LMM_supp_sample_sizes[[1]])
 
-cobradata_4vs4 <- COBRAData(pval = data.frame(diffcyt_DS_med = data_4vs4[["diffcyt_DS_med"]][, "p_vals"]), 
-                            padj = data.frame(diffcyt_DS_med = data_4vs4[["diffcyt_DS_med"]][, "p_adj"]), 
-                            truth = data.frame(B_cell = data_4vs4[["diffcyt_DS_med"]][, "B_cell"]))
+data_4vs4 <- list(diffcyt_DS_limma = out_diffcyt_DS_limma_supp_sample_sizes[[2]], 
+                  diffcyt_DS_LMM = out_diffcyt_DS_LMM_supp_sample_sizes[[2]])
+
+cobradata_2vs2 <- COBRAData(pval = data.frame(diffcyt_DS_limma = data_2vs2[["diffcyt_DS_limma"]][, "p_vals"], 
+                                              diffcyt_DS_LMM = data_2vs2[["diffcyt_DS_LMM"]][, "p_vals"]), 
+                            padj = data.frame(diffcyt_DS_limma = data_2vs2[["diffcyt_DS_limma"]][, "p_adj"], 
+                                              diffcyt_DS_LMM = data_2vs2[["diffcyt_DS_LMM"]][, "p_adj"]), 
+                            truth = data.frame(B_cell = data_2vs2[["diffcyt_DS_limma"]][, "B_cell"]))
+
+cobradata_4vs4 <- COBRAData(pval = data.frame(diffcyt_DS_limma = data_4vs4[["diffcyt_DS_limma"]][, "p_vals"], 
+                                              diffcyt_DS_LMM = data_4vs4[["diffcyt_DS_LMM"]][, "p_vals"]), 
+                            padj = data.frame(diffcyt_DS_limma = data_4vs4[["diffcyt_DS_limma"]][, "p_adj"], 
+                                              diffcyt_DS_LMM = data_4vs4[["diffcyt_DS_LMM"]][, "p_adj"]), 
+                            truth = data.frame(B_cell = data_4vs4[["diffcyt_DS_limma"]][, "B_cell"]))
 
 # calculate performance scores
+
 cobraperf_2vs2 <- calculate_performance(cobradata_2vs2, 
                                         binary_truth = "B_cell", 
                                         aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
@@ -61,9 +71,11 @@ cobraperf_4vs4 <- calculate_performance(cobradata_4vs4,
                                         aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-colors <- c("darkblue")
+
+colors <- c("firebrick1", "darkviolet")
 
 # prepare plotting objects
+
 cobraplot_2vs2 <- prepare_data_for_plot(cobraperf_2vs2, 
                                         colorscheme = colors, 
                                         conditionalfill = FALSE)
@@ -108,7 +120,7 @@ for (i in 1:length(cobraplot_list)) {
   
   # save plot
   fn <- file.path(DIR_PLOTS, "panels", 
-                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes_ROC_", names(cobraplot_list)[i], ".pdf"))
+                  paste0("results_BCR_XL_sim_diffcyt_supp_sample_sizes_ROC_", names(cobraplot_list)[i], ".pdf"))
   ggsave(fn, width = 4.75, height = 3.5)
   
   
@@ -120,7 +132,6 @@ for (i in 1:length(cobraplot_list)) {
   # create plot
   p_TPRFDR <- 
     plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4) + 
-    #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
     scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
     coord_fixed() + 
     xlab("False discovery rate") + 
@@ -136,7 +147,7 @@ for (i in 1:length(cobraplot_list)) {
   
   # save plot
   fn <- file.path(DIR_PLOTS, "panels", 
-                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes_TPRFDR_", names(cobraplot_list)[i], ".pdf"))
+                  paste0("results_BCR_XL_sim_diffcyt_supp_sample_sizes_TPRFDR_", names(cobraplot_list)[i], ".pdf"))
   ggsave(fn, width = 4.75, height = 3.5)
   
   
@@ -148,9 +159,8 @@ for (i in 1:length(cobraplot_list)) {
   # create plot
   p_TPR <- 
     plot_tpr(cobraplot, pointsize = 4) + 
-    #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
     scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
-    coord_fixed() + 
+    #coord_fixed() + 
     xlab("True positive rate") + 
     ggtitle(paste0("BCR-XL-sim: smaller sample sizes: ", 
                    gsub("vs", " vs. ", gsub("^size_", "", names(cobraplot_list)[i]))), 
@@ -163,7 +173,7 @@ for (i in 1:length(cobraplot_list)) {
   
   # save plot
   fn <- file.path(DIR_PLOTS, "panels", 
-                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes_TPR_", names(cobraplot_list)[i], ".pdf"))
+                  paste0("results_BCR_XL_sim_diffcyt_supp_sample_sizes_TPR_", names(cobraplot_list)[i], ".pdf"))
   ggsave(fn, width = 4.5, height = 3.5)
   
   
@@ -175,9 +185,8 @@ for (i in 1:length(cobraplot_list)) {
   # create plot
   p_FPR <- 
     plot_fpr(cobraplot, pointsize = 4) + 
-    #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
     scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
-    coord_fixed() + 
+    #coord_fixed() + 
     xlab("False positive rate") + 
     ggtitle(paste0("BCR-XL-sim: smaller sample sizes: ", 
                    gsub("vs", " vs. ", gsub("^size_", "", names(cobraplot_list)[i]))), 
@@ -190,7 +199,7 @@ for (i in 1:length(cobraplot_list)) {
   
   # save plot
   fn <- file.path(DIR_PLOTS, "panels", 
-                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes_FPR_", names(cobraplot_list)[i], ".pdf"))
+                  paste0("results_BCR_XL_sim_diffcyt_supp_sample_sizes_FPR_", names(cobraplot_list)[i], ".pdf"))
   ggsave(fn, width = 4.5, height = 3.5)
   
   
@@ -223,9 +232,9 @@ for (i in 1:length(cobraplot_list)) {
   
   # save multi-panel plot
   fn <- file.path(DIR_PLOTS, 
-                  paste0("results_BCR_XL_sim_diffcyt_DS_med_supp_sample_sizes_", 
+                  paste0("results_BCR_XL_sim_diffcyt_supp_sample_sizes_", 
                          gsub("^size_", "", names(cobraplot_list)[i]), ".pdf"))
-  ggsave(fn, width = 10, height = 2.75)
+  ggsave(fn, width = 10, height = 2.625)
   
 }
 
