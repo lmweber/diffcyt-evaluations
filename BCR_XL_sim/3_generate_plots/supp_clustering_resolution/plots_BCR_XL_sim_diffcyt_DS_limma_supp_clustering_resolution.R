@@ -97,6 +97,7 @@ cobraplot <- reorder_levels(cobraplot, levels = names(data))
 # create plot
 p_ROC <- 
   plot_roc(cobraplot, linewidth = 0.75) + 
+  scale_color_manual(labels = gsub("k_", "", names(colors)), values = colors) + 
   coord_fixed() + 
   xlab("False positive rate") + 
   ylab("True positive rate") + 
@@ -149,9 +150,12 @@ for (i in 1:length(pAUC)) {
 pAUC <- pAUC / thresh
 
 # create data frame for plotting
+names(pAUC) <- gsub("k_", "", names(pAUC))
 p_data <- as.data.frame(pAUC)
 p_data$n_clusters <- factor(names(pAUC), levels = names(pAUC))
 p_data$group <- "pAUC"
+
+names(colors) <- gsub("k_", "", names(colors))
 
 
 # create plot
