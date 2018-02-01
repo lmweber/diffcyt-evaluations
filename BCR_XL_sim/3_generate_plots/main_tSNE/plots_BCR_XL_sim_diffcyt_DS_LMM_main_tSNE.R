@@ -155,7 +155,7 @@ p <-
 
 # save plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_LMM_main_tSNE.pdf")
-ggsave(fn, width = 5.5, height = 4.5)
+ggsave(fn, width = 5, height = 4)
 
 
 
