@@ -6,10 +6,10 @@
 DIR_BENCHMARK      = ../../../benchmark_data/AML_sim/data
 
 DIR_PREPARE_DATA   = 1_prepare_data
-#DIR_RUN_METHODS    = 2_run_methods
+DIR_RUN_METHODS    = 2_run_methods
 DIR_GENERATE_PLOTS = 3_generate_plots
 
-#DIR_RDATA          = ../../RData/AML_sim
+DIR_RDATA          = ../../RData/AML_sim
 DIR_PLOTS          = ../../plots/AML_sim
 
 
@@ -18,8 +18,9 @@ TIMESTAMP_BENCHMARK_RANDOM_SEEDS     = $(DIR_BENCHMARK)/random_seeds/timestamp.t
 TIMESTAMP_BENCHMARK_LESS_DISTINCT    = $(DIR_BENCHMARK)/less_distinct/timestamp.txt
 TIMESTAMP_BENCHMARK_NULL_SIMULATIONS = $(DIR_BENCHMARK)/null_simulations/timestamp.txt
 
-TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS         = $(DIR_PLOTS)/data_distributions/timestamp.txt
-#TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR            = $(DIR_PLOTS)/main_ROC_TPRFDR/timestamp.txt
+TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS           = $(DIR_PLOTS)/data_distributions/timestamp.txt
+TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
+TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_RUNTIME               = $(DIR_PLOTS)/main_runtime/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_CLUSTERING_QUALITY    = $(DIR_PLOTS)/main_clustering_quality/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_MST                   = $(DIR_PLOTS)/main_MST/timestamp.txt
@@ -34,8 +35,9 @@ TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS         = $(DIR_PLOTS)/data_distributions/tim
 #TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS      = $(DIR_PLOTS)/supp_benchmark_random/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT         = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
 
-SCRIPTS_PLOTS_DATA_DISTRIBUTIONS         = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
-#SCRIPTS_PLOTS_MAIN_ROC_TPRFDR            = $(wildcard $(DIR_GENERATE_PLOTS)/main_ROC_TPRFDR/*.R)
+SCRIPTS_PLOTS_DATA_DISTRIBUTIONS           = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
+SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
+SCRIPTS_PLOTS_NULL_SIMULATIONS             = $(wildcard $(DIR_GENERATE_PLOTS)/null_simulations/*.R)
 #SCRIPTS_PLOTS_MAIN_RUNTIME               = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
 #SCRIPTS_PLOTS_MAIN_CLUSTERING_QUALITY    = $(wildcard $(DIR_GENERATE_PLOTS)/main_clustering_quality/*.R)
 #SCRIPTS_PLOTS_MAIN_MST                   = $(wildcard $(DIR_GENERATE_PLOTS)/main_MST/*.R)
@@ -50,7 +52,8 @@ SCRIPTS_PLOTS_DATA_DISTRIBUTIONS         = $(wildcard $(DIR_GENERATE_PLOTS)/data
 #SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS      = $(wildcard $(DIR_GENERATE_PLOTS)/supp_benchmark_random/*.R)
 #SCRIPTS_PLOTS_SUPP_LESS_DISTINCT         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
 
-#FILES_RDATA_MAIN                       = $(wildcard $(DIR_RDATA)/main/*.RData)
+FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
+FILES_RDATA_NULL_SIMULATIONS             = $(wildcard $(DIR_RDATA)/null_simulations/*.RData)
 #FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
 #FILES_RDATA_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_RDATA)/supp_fixed_effects/*.RData)
 #FILES_RDATA_SUPP_ALL_MARKERS           = $(wildcard $(DIR_RDATA)/supp_all_markers/*.RData)
@@ -73,22 +76,23 @@ SCRIPTS_PLOTS_DATA_DISTRIBUTIONS         = $(wildcard $(DIR_GENERATE_PLOTS)/data
 all: timestamps_plots
 
 .PHONY: timestamps_plots
-timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS)
+timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
+                  $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
+                  $(TIMESTAMP_PLOTS_NULL_SIMULATIONS)
 
-#timestamps_plots: $(TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR) \
-                  $(TIMESTAMP_PLOTS_MAIN_RUNTIME) \
-                  $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_QUALITY) \
-                  $(TIMESTAMP_PLOTS_MAIN_MST) \
-                  $(TIMESTAMP_PLOTS_MAIN_TSNE) \
-                  $(TIMESTAMP_PLOTS_MAIN_HEATMAPS) \
-                  $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
-                  $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) \
-                  $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
-                  $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING) \
-                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS) \
-                  $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS) \
-                  $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
-                  $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS)
+#                  $(TIMESTAMP_PLOTS_MAIN_RUNTIME) \
+#                  $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_QUALITY) \
+#                  $(TIMESTAMP_PLOTS_MAIN_MST) \
+#                  $(TIMESTAMP_PLOTS_MAIN_TSNE) \
+#                  $(TIMESTAMP_PLOTS_MAIN_HEATMAPS) \
+#                  $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
+#                  $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) \
+#                  $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
+#                  $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING) \
+#                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS) \
+#                  $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS) \
+#                  $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
+#                  $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS)
 
 
 
@@ -103,9 +107,13 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS)
 $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIMESTAMP_BENCHMARK_MAIN) $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
 	cd $(DIR_GENERATE_PLOTS)/data_distributions && bash run_all.sh
 
-# main results: ROC and TPR-FDR curves
-#$(TIMESTAMP_PLOTS_MAIN_ROC_TPRFDR): $(SCRIPTS_PLOTS_MAIN_ROC_TPRFDR) $(FILES_RDATA_MAIN)
-#	cd $(DIR_GENERATE_PLOTS)/main_ROC_TPRFDR && bash run_all.sh
+# main results: performance metrics
+$(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main_performance && bash run_all.sh
+
+# null simulations
+$(TIMESTAMP_PLOTS_NULL_SIMULATIONS): $(SCRIPTS_PLOTS_NULL_SIMULATIONS) $(FILES_RDATA_NULL_SIMULATIONS)
+	cd $(DIR_GENERATE_PLOTS)/null_simulations && bash run_all.sh
 
 # main results: runtime
 #$(TIMESTAMP_PLOTS_MAIN_RUNTIME): $(SCRIPTS_PLOTS_MAIN_RUNTIME) $(FILES_RDATA_MAIN)
@@ -165,9 +173,14 @@ $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIM
 
 # note: can't use as default rule if target contains '%'
 
-# main results
-#$(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/main && Rscript $(notdir $<)
+# main results: performance metrics
+$(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/main && Rscript $(notdir $<)
+
+# null simulations
+$(DIR_RDATA)/null_simulations/outputs_%.RData: $(DIR_RUN_METHODS)/null_simulations/run_%.R $(TIMESTAMP_BENCHMARK_NULL_SIMULATIONS)
+	cd $(DIR_RUN_METHODS)/null_simulations && Rscript $(notdir $<)
+
 
 # supplementary: clustering resolution
 #$(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp_clustering_resolution/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)

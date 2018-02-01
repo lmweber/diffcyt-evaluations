@@ -40,7 +40,10 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/null_simulations"
 seed_names <- c("seed 1", "seed 2", "seed 3")
 
 
+
+# ----------------
 # diffcyt-DS-limma
+# ----------------
 
 plots_limma <- vector("list", length(seed_names))
 names(plots_limma) <- seed_names
@@ -61,8 +64,8 @@ for (s in 1:length(seed_names)) {
     geom_histogram(bins = 20, color = "black") + 
     scale_fill_manual(values = "firebrick1") + 
     ggtitle("BCR-XL-sim, null simulations: diffcyt-DS-limma", subtitle = paste("p-value distribution, random seed", s)) + 
-    scale_y_continuous(breaks = seq(0, 16, by = 2)) + 
     xlim(c(0, 1)) + 
+    ylim(c(0, 13)) + 
     xlab("p-value") + 
     theme_bw()
   
@@ -74,7 +77,10 @@ for (s in 1:length(seed_names)) {
 }
 
 
+
+# --------------
 # diffcyt-DS-LMM
+# --------------
 
 plots_LMM <- vector("list", length(seed_names))
 names(plots_LMM) <- seed_names
@@ -95,8 +101,8 @@ for (s in 1:length(seed_names)) {
     geom_histogram(bins = 20, color = "black") + 
     scale_fill_manual(values = "darkviolet") + 
     ggtitle("BCR-XL-sim, null simulations: diffcyt-DS-LMM", subtitle = paste("p-value distribution, random seed", s)) + 
-    scale_y_continuous(breaks = seq(0, 16, by = 2)) + 
     xlim(c(0, 1)) + 
+    ylim(c(0, 13)) + 
     xlab("p-value") + 
     theme_bw()
   
@@ -110,11 +116,15 @@ for (s in 1:length(seed_names)) {
 
 
 
-##################
-# Multi-panel plot
-##################
+###################
+# Multi-panel plots
+###################
 
-plots_list <- c(plots_limma, plots_LMM)
+# ----------------
+# diffcyt-DS-limma
+# ----------------
+
+plots_list <- plots_limma
 
 # modify plot elements
 plots_list <- lapply(plots_list, function(p) {
@@ -124,16 +134,51 @@ plots_list <- lapply(plots_list, function(p) {
 })
 
 plots_multi <- plot_grid(plotlist = plots_list,
-                         nrow = 2, ncol = 3, align = "hv", axis = "bl")
+                         nrow = 1, ncol = 3, align = "hv", axis = "bl")
 
 # add combined title
 title_single <- gsub(":.*$", ": p-value distributions", plots_limma[[1]]$labels$title)
 plots_title <- ggdraw() + draw_label(title_single)
-plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 12))
+plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 5.5))
+
+# add combined legend
+legend_single <- get_legend(plots_limma[[1]] + theme(legend.position = "right"))
+plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_null_pvalues.pdf")
-ggsave(fn, width = 8, height = 5)
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_limma_null_pvalues.pdf")
+ggsave(fn, width = 9, height = 2.5)
+
+
+
+# --------------
+# diffcyt-DS-LMM
+# --------------
+
+plots_list <- plots_LMM
+
+# modify plot elements
+plots_list <- lapply(plots_list, function(p) {
+  p +
+    labs(title = gsub("^.* ", "", p$labels$title), subtitle = gsub("^.*, ", "", p$labels$subtitle)) + 
+    theme(legend.position = "none")
+})
+
+plots_multi <- plot_grid(plotlist = plots_list,
+                         nrow = 1, ncol = 3, align = "hv", axis = "bl")
+
+# add combined title
+title_single <- gsub(":.*$", ": p-value distributions", plots_LMM[[1]]$labels$title)
+plots_title <- ggdraw() + draw_label(title_single)
+plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 5.5))
+
+# add combined legend
+legend_single <- get_legend(plots_LMM[[1]] + theme(legend.position = "right"))
+plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
+
+# save multi-panel plot
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_LMM_null_pvalues.pdf")
+ggsave(fn, width = 9, height = 2.5)
 
 
 

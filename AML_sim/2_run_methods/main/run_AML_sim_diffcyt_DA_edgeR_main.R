@@ -6,7 +6,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, September 2017
+# Lukas Weber, February 2018
 ##########################################################################################
 
 
@@ -27,13 +27,13 @@ DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 ################################
 
 # spike-in thresholds
-thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
+thresholds <- c("5pc", "1pc", "0.1pc")
 
 # condition names
 cond_names <- c("CN", "CBF")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include zeros for patient_IDs fixed effects
+# note: include fixed effects for 'patient_IDs'
 contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
 
 # lists to store objects and runtime
@@ -54,6 +54,7 @@ for (th in 1:length(thresholds)) {
   ###########################
   
   # filenames
+  
   files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
                               pattern = "\\.fcs$", full.names = TRUE)
   files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
@@ -61,9 +62,10 @@ for (th in 1:length(thresholds)) {
   files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
   
-  # load data
   files_load <- c(files_healthy, files_CN, files_CBF)
   files_load
+  
+  # load data
   
   d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
   
@@ -79,8 +81,10 @@ for (th in 1:length(thresholds)) {
   patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
   patient_IDs
   
-  # check
-  data.frame(sample_IDs, group_IDs, patient_IDs)
+  sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+  sample_info
+  
+  # marker information
   
   # indices of all marker columns, lineage markers, and functional markers
   # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental 
@@ -89,12 +93,19 @@ for (th in 1:length(thresholds)) {
   cols_lineage <- c(35, 29, 14, 30, 12, 26, 17, 33, 41, 32, 22, 40, 27, 37, 23, 39)
   cols_func <- setdiff(cols_markers, cols_lineage)
   
+  stopifnot(all(sapply(seq_along(d_input), function(i) all(colnames(d_input[[i]]) == colnames(d_input[[1]])))))
   
-  # ------------------------------------
-  # choose markers to use for clustering
-  # ------------------------------------
+  marker_names <- colnames(d_input[[1]])
+  marker_names <- gsub("\\(.*$", "", marker_names)
   
-  cols_clustering <- cols_lineage
+  is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
+  
+  is_marker[cols_markers] <- TRUE
+  is_celltype_marker[cols_lineage] <- TRUE
+  is_state_marker[cols_func] <- TRUE
+  
+  marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+  marker_info
   
   
   
@@ -110,20 +121,18 @@ for (th in 1:length(thresholds)) {
   runtime_preprocessing <- system.time({
     
     # prepare data into required format
-    d_se <- prepareData(d_input, sample_IDs, group_IDs, 
-                        cols_markers, cols_clustering, cols_func)
+    d_se <- prepareData(d_input, sample_info, marker_info)
     
-    colnames(d_se)[cols_clustering]
-    colnames(d_se)[cols_func]
+    colnames(d_se)[is_celltype_marker]
+    colnames(d_se)[is_state_marker]
     
     # transform data
     d_se <- transformData(d_se, cofactor = 5)
     
     # clustering
-    # (runtime: ~60 sec for 30x30 clusters)
-    # (note: clustering all samples together)
+    # (runtime: ~30 sec with xdim = 20, ydim = 20)
     seed <- 123
-    d_se <- generateClusters(d_se, xdim = 30, ydim = 30, seed = seed)
+    d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
     
     length(table(rowData(d_se)$cluster))  # number of clusters
     nrow(rowData(d_se))                   # number of cells
@@ -138,37 +147,38 @@ for (th in 1:length(thresholds)) {
     rowData(d_counts)
     length(assays(d_counts))
     
+    # calculate cluster medians by sample
+    d_medians <- calcMedians(d_se)
+    
+    dim(d_medians)
+    rowData(d_medians)
+    length(assays(d_medians))
+    names(assays(d_medians))
+    
+    # calculate cluster medians across all samples
+    d_medians_all <- calcMediansAll(d_se)
+    
+    dim(d_medians_all)
+    length(assays(d_medians_all))
+    
   })
-  
-  # following steps not included in runtime since not required for differential testing
-  
-  # calculate cluster medians by sample
-  d_medians <- calcMedians(d_se)
-  
-  dim(d_medians)
-  rowData(d_medians)
-  length(assays(d_medians))
-  names(assays(d_medians))
-  
-  # calculate cluster medians across all samples
-  d_medians_all <- calcMediansAll(d_se)
-  
-  dim(d_medians_all)
   
   
   # ---------------------------------
   # store data objects (for plotting)
   # ---------------------------------
   
-  out_objects_diffcyt_DA_edgeR_main[[th]] <- list(d_se = d_se, 
-                                                  d_counts = d_counts, 
-                                                  d_medians = d_medians, 
-                                                  d_medians_all = d_medians_all)
+  out_objects_diffcyt_DA_edgeR_main[[th]] <- list(
+    d_se = d_se, 
+    d_counts = d_counts, 
+    d_medians = d_medians, 
+    d_medians_all = d_medians_all
+  )
   
   
-  # ----------------------------------------------
-  # test for differentially abundant (DA) clusters
-  # ----------------------------------------------
+  # -----------------------------------------
+  # test for differentially abundant clusters
+  # -----------------------------------------
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
@@ -183,16 +193,21 @@ for (th in 1:length(thresholds)) {
     runtime_j <- system.time({
       
       # set up design matrix
-      # - note: include 'patient_IDs' as fixed effects in design matrix
-      design <- createDesignMatrix(group_IDs, block_IDs = patient_IDs)
+      # note: order of samples has changed
+      sample_info_ordered <- as.data.frame(colData(d_counts))
+      sample_info_ordered
+      # note: include fixed effects for 'patient_IDs'
+      design <- createDesignMatrix(sample_info_ordered, cols_include = 1:2)
       design
       
       # set up contrast matrix
-      contrast <- createContrast(group_IDs, contrast = contrasts_list[[j]])
+      contrast <- createContrast(contrasts_list[[j]])
       contrast
       
       # run tests
-      res <- testDA_edgeR(d_counts, design, contrast)
+      # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
+      res <- testDA_edgeR(d_counts, design, contrast, 
+                          min_cells = 3, min_samples = nrow(sample_info_ordered) / 3)
       
     })
     
@@ -204,10 +219,10 @@ for (th in 1:length(thresholds)) {
     print(head(res_sorted, 10))
     #View(as.data.frame(res_sorted))
     
-    # number of significant DA clusters
-    print(table(res_sorted$FDR <= 0.05))
+    # number of significant tests (note: one test per cluster)
+    print(table(res_sorted$FDR <= 0.1))
     
-    # runtime (~2 min on laptop)
+    # runtime
     runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
     print(runtime_total)
     
@@ -229,9 +244,9 @@ for (th in 1:length(thresholds)) {
     # Return results at cell level
     ##############################
     
-    # Note: diffcyt methods return results at cluster level (e.g. 900 small clusters). To
-    # enable performance comparisons between methods at the cell level, we assign the
-    # cluster-level p-values to all cells within each cluster.
+    # Note: diffcyt methods return results for each cluster. To enable performance
+    # comparisons between methods at the cell level, we assign the cluster-level p-values
+    # to all cells within each cluster.
     
     
     # number of cells per sample (including spike-in cells)
@@ -241,8 +256,8 @@ for (th in 1:length(thresholds)) {
     is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
     stopifnot(length(is_spikein) == sum(n_cells))
     
-    # select samples for this condition
-    ix_keep_cnd <- group_IDs == cond_names[j]
+    # select samples for this condition and healthy
+    ix_keep_cnd <- group_IDs %in% c("healthy", cond_names[j])
     
     
     # match cluster-level p-values to individual cells
@@ -252,6 +267,7 @@ for (th in 1:length(thresholds)) {
     
     rowData(res)$cluster <- factor(rowData(res)$cluster, levels = levels(rowData(d_se)$cluster))
     
+    # match cells to clusters
     ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
     
     p_vals_clusters <- rowData(res)$PValue
@@ -276,7 +292,7 @@ for (th in 1:length(thresholds)) {
     res_p_vals[is.na(res_p_vals)] <- 1
     res_p_adj[is.na(res_p_adj)] <- 1
     
-    # return values for this condition only
+    # return values for this condition and healthy
     res <- data.frame(p_vals = res_p_vals, 
                       p_adj = res_p_adj, 
                       spikein = is_spikein_cnd)
