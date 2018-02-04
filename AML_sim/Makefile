@@ -21,10 +21,10 @@ TIMESTAMP_BENCHMARK_NULL_SIMULATIONS = $(DIR_BENCHMARK)/null_simulations/timesta
 TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS           = $(DIR_PLOTS)/data_distributions/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
 TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/timestamp.txt
+TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_RUNTIME               = $(DIR_PLOTS)/main_runtime/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_CLUSTERING_QUALITY    = $(DIR_PLOTS)/main_clustering_quality/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_MST                   = $(DIR_PLOTS)/main_MST/timestamp.txt
-#TIMESTAMP_PLOTS_MAIN_TSNE                  = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 #TIMESTAMP_PLOTS_MAIN_HEATMAPS              = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_fixed_effects/timestamp.txt
@@ -38,10 +38,10 @@ TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/tim
 SCRIPTS_PLOTS_DATA_DISTRIBUTIONS           = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
 SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
 SCRIPTS_PLOTS_NULL_SIMULATIONS             = $(wildcard $(DIR_GENERATE_PLOTS)/null_simulations/*.R)
+SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 #SCRIPTS_PLOTS_MAIN_RUNTIME               = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
 #SCRIPTS_PLOTS_MAIN_CLUSTERING_QUALITY    = $(wildcard $(DIR_GENERATE_PLOTS)/main_clustering_quality/*.R)
 #SCRIPTS_PLOTS_MAIN_MST                   = $(wildcard $(DIR_GENERATE_PLOTS)/main_MST/*.R)
-#SCRIPTS_PLOTS_MAIN_TSNE                  = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 #SCRIPTS_PLOTS_MAIN_HEATMAPS              = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
 #SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 #SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects/*.R)
@@ -78,7 +78,8 @@ all: timestamps_plots
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
                   $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
-                  $(TIMESTAMP_PLOTS_NULL_SIMULATIONS)
+                  $(TIMESTAMP_PLOTS_NULL_SIMULATIONS) \
+                  $(TIMESTAMP_PLOTS_MAIN_TSNE)
 
 #                  $(TIMESTAMP_PLOTS_MAIN_RUNTIME) \
 #                  $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_QUALITY) \
@@ -115,6 +116,10 @@ $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_R
 $(TIMESTAMP_PLOTS_NULL_SIMULATIONS): $(SCRIPTS_PLOTS_NULL_SIMULATIONS) $(FILES_RDATA_NULL_SIMULATIONS)
 	cd $(DIR_GENERATE_PLOTS)/null_simulations && bash run_all.sh
 
+# main results: t-SNE plots
+$(TIMESTAMP_PLOTS_MAIN_TSNE): $(SCRIPTS_PLOTS_MAIN_TSNE) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main_tSNE && bash run_all.sh
+
 # main results: runtime
 #$(TIMESTAMP_PLOTS_MAIN_RUNTIME): $(SCRIPTS_PLOTS_MAIN_RUNTIME) $(FILES_RDATA_MAIN)
 #	cd $(DIR_GENERATE_PLOTS)/main_runtime && bash run_all.sh
@@ -126,10 +131,6 @@ $(TIMESTAMP_PLOTS_NULL_SIMULATIONS): $(SCRIPTS_PLOTS_NULL_SIMULATIONS) $(FILES_R
 # main results: MST
 #$(TIMESTAMP_PLOTS_MAIN_MST): $(SCRIPTS_PLOTS_MAIN_MST) $(FILES_RDATA_MAIN)
 #	cd $(DIR_GENERATE_PLOTS)/main_MST && bash run_all.sh
-
-# main results: tSNE
-#$(TIMESTAMP_PLOTS_MAIN_TSNE): $(SCRIPTS_PLOTS_MAIN_TSNE) $(FILES_RDATA_MAIN)
-#	cd $(DIR_GENERATE_PLOTS)/main_tSNE && bash run_all.sh
 
 # main results: heatmaps
 #$(TIMESTAMP_PLOTS_MAIN_HEATMAPS): $(SCRIPTS_PLOTS_MAIN_HEATMAPS) $(FILES_RDATA_MAIN)

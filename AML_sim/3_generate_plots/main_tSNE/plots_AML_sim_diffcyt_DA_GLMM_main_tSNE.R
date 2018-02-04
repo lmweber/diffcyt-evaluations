@@ -2,12 +2,12 @@
 # Generate plots
 # 
 # - data set: AML-sim
-# - plot type: tSNE
+# - plot type: t-SNE
 # - method: diffcyt-DA-GLMM
 # 
 # - main results
 # 
-# Lukas Weber, October 2017
+# Lukas Weber, February 2018
 ##########################################################################################
 
 
@@ -40,7 +40,7 @@ DIR_PLOTS <- "../../../../plots/AML_sim/main_tSNE"
 # loop over thresholds (th) and conditions (j)
 
 # spike-in thresholds
-thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
+thresholds <- c("5pc", "1pc", "0.1pc")
 
 # condition names
 cond_names <- c("CN", "CBF")
@@ -58,10 +58,10 @@ for (th in 1:length(thresholds)) {
   d_counts <- out_objects_diffcyt_DA_GLMM_main[[th]]$d_counts
   d_medians_all <- out_objects_diffcyt_DA_GLMM_main[[th]]$d_medians_all
   
-  # run tSNE
+  # run t-SNE
   
-  # note: using clustering markers only
-  d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_clustering_col]
+  # note: using cell type markers only
+  d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_celltype_marker]
   d_tsne <- as.matrix(d_tsne)
   
   # remove any duplicate rows (required by Rtsne)
@@ -86,21 +86,24 @@ for (th in 1:length(thresholds)) {
   for (j in 1:length(cond_names)) {
     
     # index to store plots sequentially in list
-    ix <- (th * length(cond_names)) - (length(cond_names) - j)
+    ix <- (j * length(thresholds)) - (length(thresholds) - th)
     
     
     # (i) from cluster-level results
     
     # load cluster-level results (for condition j)
     d_clus <- out_clusters_diffcyt_DA_GLMM_main[[th]][[j]]
-    stopifnot(nrow(d_clus) == nrow(rowData(d_counts)))
-    stopifnot(all(d_clus$cluster == rowData(d_counts)$cluster))
+    
+    stopifnot(nrow(d_clus) == nrow(rowData(d_counts)), 
+              all(d_clus$cluster == rowData(d_counts)$cluster))
     
     # significant differential clusters
     cutoff_sig <- 0.1
     sig <- d_clus$p_adj <= cutoff_sig
     # set filtered clusters to FALSE
     sig[is.na(sig)] <- FALSE
+    
+    table(sig)
     
     # set up data frame for plotting
     d_plot <- data.frame(cluster = rowData(d_counts)$cluster, 
@@ -113,25 +116,17 @@ for (th in 1:length(thresholds)) {
     # load spike-in status at cell level (for condition j)
     spikein <- out_diffcyt_DA_GLMM_main[[th]][[j]]$spikein
     
-    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group) %>% tally
+    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group_IDs) %>% tally
     n_cells_cond <- unname(unlist(n_cells_cond[, "n"]))
     
-    # identify spike-in cells (for condition j) within full data set (all conditions)
-    spikein_list <- vector("list", length(cond_names_all))
-    for (s in 1:length(spikein_list)) {
-      if (cond_names_all[s] == cond_names[j]) {
-        spikein_list[[s]] <- spikein
-      } else {
-        spikein_list[[s]] <- rep(0, n_cells_cond[s])
-      }
-    }
-    spikein_all <- unlist(spikein_list)
-    
     # calculate proportion true spike-in cells (from condition j) for each cluster
-    df_j <- as.data.frame(rowData(d_se))
-    stopifnot(nrow(df_j) == length(spikein_all))
     
-    df_j$spikein <- spikein_all
+    # note: select cells from this condition and healthy
+    cond_keep <- rowData(d_se)$group_IDs %in% c(cond_names[j], "healthy")
+    df_j <- as.data.frame(rowData(d_se)[cond_keep, ])
+    stopifnot(nrow(df_j) == length(spikein))
+    
+    df_j$spikein <- spikein
     
     d_true <- df_j %>% group_by(cluster) %>% summarize(prop_spikein = mean(spikein)) %>% as.data.frame
     
@@ -147,14 +142,13 @@ for (th in 1:length(thresholds)) {
       rownames(d_true) <- d_true$cluster
     }
     
-    stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster))
-    stopifnot(nrow(d_true) == nrow(d_plot))
-    stopifnot(all(d_true$cluster == d_plot$cluster))
-    stopifnot(nrow(d_plot) == nrow(tsne_coords))
+    stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster), 
+              nrow(d_true) == nrow(d_plot), 
+              all(d_true$cluster == d_plot$cluster), 
+              nrow(d_plot) == nrow(tsne_coords))
     
     # identify clusters containing significant proportion of spike-in cells
-    cutoff_prop <- 0.1
-    d_true$spikein <- as.numeric(d_true$prop_spikein > cutoff_prop)
+    d_true$spikein <- as.numeric(d_true$prop_spikein > 0.1)
     
     # data frame for plotting
     d_plot$prop_spikein <- d_true$prop_spikein
@@ -163,29 +157,35 @@ for (th in 1:length(thresholds)) {
     d_plot <- cbind(d_plot, tsne_coords)
     
     
-    # (iii) create plot
+    # (iii) create plots
     
-    # with short title for multi-panel plot
-    p <- ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = sig)) + 
+    # note: 'true' clusters are defined as containing at least x% true spike-in cells
+    
+    p <- 
+      ggplot(d_plot, aes(x = tSNE_1, y = tSNE_2, size = n_cells, color = sig)) + 
       # first layer
       geom_point(alpha = 0.5) + 
       scale_size_area(max_size = 3) + 
       scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
       # additional layer: outline clusters containing significant proportion spike-in cells
-      geom_point(data = subset(d_plot, spikein == 1), shape = 1, color = "black", stroke = 0.75) + 
+      geom_point(data = subset(d_plot, spikein == 1), aes(shape = spikein), color = "black", stroke = 1.25) + 
+      scale_shape_manual(values = 1, labels = ">10%") + 
       # additional layer: emphasize significant differential clusters
-      geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.5) + 
+      geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+      xlab("t-SNE 1") + 
+      ylab("t-SNE 2") + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(aspect.ratio = 1) + 
-      guides(color = guide_legend("significant"), 
-             size = guide_legend(override.aes = list(color = "gray70", stroke = 0.25)))
+      guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
+             shape = guide_legend("true spike-in cells", override.aes = list(size = 2.25, stroke = 1), order = 2), 
+             size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
     
     plots_tSNE[[ix]] <- p
     
     # save individual panel plot
     p <- p + 
-      ggtitle(paste0("AML-sim, main results: diffcyt-DA-GLMM: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": tSNE"))
+      ggtitle(paste0("AML-sim, main results: diffcyt-DA-GLMM: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": t-SNE"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
                     paste0("results_AML_sim_diffcyt_DA_GLMM_main_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
@@ -209,30 +209,30 @@ plots_tSNE <- lapply(plots_tSNE, function(p) {
 })
 
 # format into grid
-grid_tSNE <- do.call(plot_grid, append(plots_tSNE, list(nrow = 4, ncol = 2, 
-                                                        align = "hv", axis = "bl", 
-                                                        scale = 0.975)))
+grid_tSNE <- do.call(plot_grid, append(plots_tSNE, list(
+  nrow = 2, ncol = 3, align = "hv", axis = "bl", scale = 0.975))
+)
 
 # add combined axis titles
-xaxis_tSNE <- ggdraw() + draw_label("tSNE dimension 1", size = 14)
-yaxis_tSNE <- ggdraw() + draw_label("tSNE dimension 2", size = 14, angle = 90)
+xaxis_tSNE <- ggdraw() + draw_label("t-SNE dimension 1")
+yaxis_tSNE <- ggdraw() + draw_label("t-SNE dimension 2", angle = 90)
 
-grid_tSNE <- plot_grid(grid_tSNE, xaxis_tSNE, ncol = 1, rel_heights = c(50, 1))
-grid_tSNE <- plot_grid(yaxis_tSNE, grid_tSNE, nrow = 1, rel_widths = c(1, 30))
+grid_tSNE <- plot_grid(grid_tSNE, xaxis_tSNE, ncol = 1, rel_heights = c(15, 1))
+grid_tSNE <- plot_grid(yaxis_tSNE, grid_tSNE, nrow = 1, rel_widths = c(1, 20))
 
 # add combined title
-title_tSNE <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-GLMM: tSNE", fontface = "bold")
-grid_tSNE <- plot_grid(title_tSNE, grid_tSNE, ncol = 1, rel_heights = c(1, 32))
+title_tSNE <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-GLMM: t-SNE", fontface = "bold")
+grid_tSNE <- plot_grid(title_tSNE, grid_tSNE, ncol = 1, rel_heights = c(1, 18))
 
 # add combined legend
-legend_tSNE <- get_legend(plots_tSNE[[1]] + theme(legend.position = "right", 
-                                                  legend.title = element_text(size = 12, face = "bold"), 
-                                                  legend.text = element_text(size = 12)))
-grid_tSNE <- plot_grid(grid_tSNE, legend_tSNE, nrow = 1, rel_widths = c(5, 1))
+legend_tSNE <- get_legend(plots_tSNE[[1]] + theme(
+  legend.position = "right", legend.title = element_text(size = 12, face = "bold"), legend.text = element_text(size = 12))
+)
+grid_tSNE <- plot_grid(grid_tSNE, legend_tSNE, nrow = 1, rel_widths = c(4, 1))
 
 # save plots
 fn_tSNE <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_GLMM_main_tSNE.pdf")
-ggsave(fn_tSNE, grid_tSNE, width = 10, height = 13)
+ggsave(fn_tSNE, grid_tSNE, width = 8, height = 5)
 
 
 
