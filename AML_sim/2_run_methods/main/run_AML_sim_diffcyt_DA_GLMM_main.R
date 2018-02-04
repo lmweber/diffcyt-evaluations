@@ -204,15 +204,10 @@ for (th in 1:length(thresholds)) {
       contrast <- createContrast(contrasts_list[[j]])
       contrast
       
-      # normalization factors (note sample order)
-      thresholds_vals <- c(0.05, 0.1, 0.01)
-      norm_factors <- c(rep(1 + thresholds_vals[th], 10), rep(1, 5))
-      
       # run tests
       # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
       res <- testDA_GLMM(d_counts, formula, contrast, 
-                         min_cells = 3, min_samples = nrow(sample_info_ordered) / 3, 
-                         normalize = TRUE, norm_factors = norm_factors)
+                         min_cells = 3, min_samples = nrow(sample_info_ordered) / 3)
       
     })
     
