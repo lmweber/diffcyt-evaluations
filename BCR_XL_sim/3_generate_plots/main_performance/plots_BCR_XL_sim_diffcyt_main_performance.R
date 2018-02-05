@@ -199,6 +199,41 @@ ggsave(fn, width = 10, height = 2.625)
 
 
 
+##############################
+# Multi-panel plot: 2x2 layout
+##############################
+
+# 2x2 layout for figure in main paper
+
+
+plots_list <- list(p_ROC, p_TPRFDR, p_TPR, p_FPR)
+
+# modify plot elements
+plots_list <- lapply(plots_list, function(p) {
+  p + 
+    labs(title = p$labels$subtitle, subtitle = element_blank()) + 
+    theme(legend.position = "none")
+})
+
+plots_multi <- plot_grid(plotlist = plots_list, 
+                         nrow = 2, ncol = 2, align = "hv", axis = "bl")
+
+# add combined title
+title_single <- p_ROC$labels$title
+plots_title <- ggdraw() + draw_label(title_single)
+plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 16))
+
+# add combined legend
+legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
+plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(3.2, 1))
+
+# save multi-panel plot
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_main_performance_2x2_layout.pdf")
+ggsave(fn, width = 6, height = 5.4)
+
+
+
+
 ###################################
 # Save timestamp file for Makefiles
 ###################################

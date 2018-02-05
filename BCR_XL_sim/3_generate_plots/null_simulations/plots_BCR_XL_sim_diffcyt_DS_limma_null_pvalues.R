@@ -183,6 +183,72 @@ ggsave(fn, width = 9, height = 2.5)
 
 
 
+############################################
+# Additional multi-panel plot for main paper
+############################################
+
+# showing one panel for each method
+
+
+# create plot with combined legend (use to get legend object only)
+
+d_plot_limma <- out_clusters_diffcyt_DS_limma_null[[1]][out_clusters_diffcyt_DS_limma_null[[1]]$marker == "pS6", ]
+d_plot_LMM <- out_clusters_diffcyt_DS_LMM_null[[1]][out_clusters_diffcyt_DS_LMM_null[[1]]$marker == "pS6", ]
+
+d_plot_limma <- d_plot_limma[, c(1, 2, 7, 8)]
+colnames(d_plot_limma) <- colnames(d_plot_LMM)
+
+d_plot_limma$method <- "diffcyt-DS-limma"
+d_plot_LMM$method <- "diffcyt-DS-LMM"
+
+d_plot <- rbind(d_plot_limma, d_plot_LMM)
+
+d_plot$method <- factor(d_plot$method)
+
+# replace any NAs with 1s
+d_plot[is.na(d_plot$p_vals), "p_vals"] <- 1
+
+p_legend <- 
+  ggplot(d_plot, aes(x = p_vals, fill = method)) + 
+  geom_histogram(position = "dodge", bins = 20, color = "black") + 
+  scale_fill_manual(values = c("firebrick1", "darkviolet")) + 
+  ggtitle("BCR-XL-sim, null simulations", subtitle = paste("p-value distribution, random seed 1")) + 
+  xlim(c(0, 1)) + 
+  ylim(c(0, 13)) + 
+  xlab("p-value") + 
+  theme_bw()
+
+
+# create multi-panel plot
+
+plots_list <- list(plots_limma[[1]], plots_LMM[[1]])
+
+# modify plot elements
+plots_list <- lapply(plots_list, function(p) {
+  p +
+    labs(title = gsub("^.* ", "", p$labels$title), subtitle = gsub("^.*, ", "", p$labels$subtitle)) + 
+    theme(legend.position = "none")
+})
+
+plots_multi <- plot_grid(plotlist = plots_list,
+                         nrow = 1, ncol = 2, align = "hv", axis = "bl")
+
+# add combined title
+title_single <- gsub(":.*$", ": p-values", plots_limma[[1]]$labels$title)
+plots_title <- ggdraw() + draw_label(title_single)
+plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 5.5))
+
+# add combined legend
+legend_single <- get_legend(p_legend + theme(legend.position = "right"))
+plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(3.25, 1))
+
+# save multi-panel plot
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_null_pvalues_2_panels.pdf")
+ggsave(fn, width = 6, height = 2.5)
+
+
+
+
 ###################################
 # Save timestamp file for Makefiles
 ###################################
