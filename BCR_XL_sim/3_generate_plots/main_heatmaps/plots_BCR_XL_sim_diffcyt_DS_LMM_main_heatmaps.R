@@ -159,7 +159,7 @@ row_annot <- data.frame(
 )
 
 ha_row <- rowAnnotation(df = row_annot, 
-                        col = list("significant" = c("no" = "gray90", "yes" = "red"), 
+                        col = list("significant" = c("no" = "gray90", "yes" = "darkorange1"), 
                                    "true B cells" = c("no" = "gray90", "yes" = "black")), 
                         annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
                         width = unit(1, "cm"))

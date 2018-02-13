@@ -138,12 +138,12 @@ p <-
   # first layer
   geom_point(alpha = 0.5) + 
   scale_size_area(max_size = 3) + 
-  scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
+  scale_color_manual(values = c("gray70", "darkorange1"), labels = c("no", "yes")) + 
   # additional layer: outline clusters containing significant proportion true B cells
   geom_point(data = subset(d_plot, B_cells == 1), aes(shape = B_cells), color = "black", stroke = 1.5) + 
   scale_shape_manual(values = 1, labels = ">50%") + 
   # additional layer: emphasize significant differential clusters
-  geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+  geom_point(data = subset(d_plot, sig == 1), color = "darkorange1", alpha = 1) + 
   xlab("t-SNE 1") + 
   ylab("t-SNE 2") + 
   ggtitle("BCR-XL-sim, main results: diffcyt-DS-LMM: t-SNE") + 
