@@ -32,9 +32,9 @@ TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(DIR_PLOTS)/supp_random_seeds_cl
 TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT           = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES            = $(DIR_PLOTS)/supp_sample_sizes/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
+TIMESTAMP_PLOTS_COMPARISONS_CITRUS           = $(DIR_PLOTS)/comparisons_Citrus/timestamp.txt
 #TIMESTAMP_PLOTS_COMPARISONS_CYDAR            = $(DIR_PLOTS)/comparisons_cydar/timestamp.txt
 #TIMESTAMP_PLOTS_COMPARISONS_CELLCNN          = $(DIR_PLOTS)/comparisons_CellCnn/timestamp.txt
-#TIMESTAMP_PLOTS_COMPARISONS_CITRUS           = $(DIR_PLOTS)/comparisons_Citrus/timestamp.txt
 #TIMESTAMP_PLOTS_RUNTIMES                     = $(DIR_PLOTS)/runtimes/timestamp.txt
 
 SCRIPTS_PLOTS_DATA_DISTRIBUTIONS           = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
@@ -51,9 +51,9 @@ SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_GENERATE_PLOTS)/su
 SCRIPTS_PLOTS_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
 SCRIPTS_PLOTS_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_GENERATE_PLOTS)/supp_sample_sizes/*.R)
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
+SCRIPTS_PLOTS_COMPARISONS_CITRUS           = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_Citrus/*.R)
 #SCRIPTS_PLOTS_COMPARISONS_CYDAR            = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_cydar/*.R)
 #SCRIPTS_PLOTS_COMPARISONS_CELLCNN          = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_CellCnn/*.R)
-#SCRIPTS_PLOTS_COMPARISONS_CITRUS           = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_Citrus/*.R)
 #SCRIPTS_PLOTS_RUNTIMES                     = $(wildcard $(DIR_GENERATE_PLOTS)/runtimes/*.R)
 
 FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
@@ -66,9 +66,9 @@ FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_RDATA)/supp_random_s
 FILES_RDATA_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_RDATA)/supp_less_distinct/*.RData)
 FILES_RDATA_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_RDATA)/supp_sample_sizes/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
+FILES_RDATA_COMPARISONS_CITRUS           = $(wildcard $(DIR_RDATA)/comparisons_Citrus/*.RData)
 #FILES_RDATA_COMPARISONS_CYDAR            = $(wildcard $(DIR_RDATA)/comparisons_cydar/*.RData)
 #FILES_RDATA_COMPARISONS_CELLCNN          = $(wildcard $(DIR_RDATA)/comparisons_CellCnn/*.RData)
-#FILES_RDATA_COMPARISONS_CITRUS           = $(wildcard $(DIR_RDATA)/comparisons_Citrus/*.RData)
 
 
 
@@ -94,11 +94,11 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) \
                   $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
                   $(TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES) \
-                  $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION)
+                  $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
+                  $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS)
 
 #                  $(TIMESTAMP_PLOTS_COMPARISONS_CYDAR) \
 #                  $(TIMESTAMP_PLOTS_COMPARISONS_CELLCNN) \
-#                  $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS) \
 #                  $(TIMESTAMP_PLOTS_RUNTIMES)
 
 
@@ -168,6 +168,10 @@ $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_R
 	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && bash run_all.sh
 
 
+# comparisons: Citrus
+$(TIMESTAMP_PLOTS_COMPARISONS_CITRUS): $(SCRIPTS_PLOTS_COMPARISONS_CITRUS) $(FILES_RDATA_COMPARISONS_CITRUS) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/comparisons_Citrus && bash run_all.sh
+
 # comparisons: cydar
 #$(TIMESTAMP_PLOTS_COMPARISONS_CYDAR): $(SCRIPTS_PLOTS_COMPARISONS_CYDAR) $(FILES_RDATA_COMPARISONS_CYDAR) $(FILES_RDATA_MAIN)
 #	cd $(DIR_GENERATE_PLOTS)/comparisons_cydar && bash run_all.sh
@@ -175,10 +179,6 @@ $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_R
 # comparisons: CellCnn
 #$(TIMESTAMP_PLOTS_COMPARISONS_CELLCNN): $(SCRIPTS_PLOTS_COMPARISONS_CELLCNN) $(FILES_RDATA_COMPARISONS_CELLCNN) $(FILES_RDATA_MAIN)
 #	cd $(DIR_GENERATE_PLOTS)/comparisons_CellCnn && bash run_all.sh
-
-# comparisons: Citrus
-#$(TIMESTAMP_PLOTS_COMPARISONS_CITRUS): $(SCRIPTS_PLOTS_COMPARISONS_CITRUS) $(FILES_RDATA_COMPARISONS_CITRUS) $(FILES_RDATA_MAIN)
-#	cd $(DIR_GENERATE_PLOTS)/comparisons_Citrus && bash run_all.sh
 
 
 # runtimes
@@ -237,6 +237,10 @@ $(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp
 	cd $(DIR_RUN_METHODS)/supp_clustering_resolution && Rscript $(notdir $<)
 
 
+# comparisons: Citrus
+$(DIR_RDATA)/comparisons_Citrus/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_Citrus/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/comparisons_Citrus && Rscript $(notdir $<)
+
 # comparisons: cydar
 #$(DIR_RDATA)/comparisons_cydar/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_cydar/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 #	cd $(DIR_RUN_METHODS)/comparisons_cydar && Rscript $(notdir $<)
@@ -244,10 +248,6 @@ $(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp
 # comparisons: CellCnn
 #$(DIR_RDATA)/comparisons_CellCnn/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_CellCnn/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 #	cd $(DIR_RUN_METHODS)/comparisons_CellCnn && Rscript $(notdir $<)
-
-# comparisons: Citrus
-#$(DIR_RDATA)/comparisons_Citrus/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_Citrus/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/comparisons_Citrus && Rscript $(notdir $<)
 
 
 

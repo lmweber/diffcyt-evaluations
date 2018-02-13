@@ -6,7 +6,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, February 2018
 ##########################################################################################
 
 
@@ -40,17 +40,20 @@ system(cmd_clean)
 ###########################
 
 # filenames
+
 files <- list.files(DIR_BENCHMARK, pattern = "\\.fcs$", full.names = TRUE)
 files_base <- files[grep("base\\.fcs$", files)]
 files_spike <- files[grep("spike\\.fcs$", files)]
 
-# load data
 files_load <- c(files_base, files_spike)
 files_load
 
+# load data
+
 d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
 
-# sample IDs, group IDs, patient IDs
+# sample information
+
 sample_IDs <- gsub("^BCR_XL_sim_", "", 
                    gsub("\\.fcs$", "", basename(files_load)))
 sample_IDs
@@ -61,8 +64,10 @@ group_IDs
 patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
 patient_IDs
 
-# check
-data.frame(sample_IDs, group_IDs, patient_IDs)
+sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+sample_info
+
+# marker information
 
 # indices of all marker columns, lineage markers, and functional markers
 # (10 surface markers / 14 functional markers; see Bruggner et al. 2014, Table 1)
@@ -70,12 +75,26 @@ cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
 cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
 cols_func <- setdiff(cols_markers, cols_lineage)
 
+marker_names <- colnames(d_input[[1]])
+marker_names <- gsub("\\(.*$", "", marker_names)
 
-# --------------
-# transform data
-# --------------
+is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
 
-# 'asinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2)
+is_marker[cols_markers] <- TRUE
+is_celltype_marker[cols_lineage] <- TRUE
+is_state_marker[cols_func] <- TRUE
+
+marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+marker_info
+
+
+
+
+################
+# Transform data
+################
+
+# 'arcsinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2)
 
 cofactor <- 5
 
@@ -120,19 +139,19 @@ featureType <- "medians"
 
 # define clustering and functional markers
 clusteringColumns <- colnames(d_input[[1]])[cols_lineage]
-functionalColumns <- colnames(d_input[[1]])[cols_func]
+medianColumns <- colnames(d_input[[1]])[cols_func]
 
 # number of cells and minimum cluster size
 fileSampleSize <- 5000
 minimumClusterSizePercent <- 0.01  # 1%
 
-# experimental design
-labels <- group_IDs
-
 # transformation: not required since already done above
 transformColumns <- NULL
 transformCofactor <- NULL
 scaleColumns <- NULL
+
+# experimental design
+labels <- group_IDs
 
 # directories
 dataDirectory <- file.path(DIR_CITRUS_FILES, "data_transformed")
@@ -151,13 +170,13 @@ runtime_Citrus <- system.time({
   
   Rclusterpp.setThreads(n_cores)
   
-  set.seed(123)
+  set.seed(12345)
   
   results <- citrus.full(
     fileList = fileList, 
     labels = labels, 
     clusteringColumns = clusteringColumns, 
-    medianColumns = functionalColumns, 
+    medianColumns = medianColumns, 
     dataDirectory = dataDirectory, 
     outputDirectory = outputDirectory, 
     family = family, 
@@ -204,7 +223,7 @@ is_B_cell <- unlist(sapply(d_input, function(d) exprs(d)[, "B_cell"]))
 stopifnot(length(is_B_cell) == sum(n_cells))
 
 
-# differentially abundant clusters
+# differential clusters
 
 clusters <- as.numeric(results$conditionRegressionResults$defaultCondition$glmnet$differentialFeatures[["cv.min"]][["clusters"]])
 
