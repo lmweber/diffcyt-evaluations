@@ -23,6 +23,7 @@ TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/tim
 TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_HEATMAPS                = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
+TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(DIR_PLOTS)/main_clustering_performance/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA    = $(DIR_PLOTS)/supp_random_effects_limma/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS_LMM       = $(DIR_PLOTS)/supp_fixed_effects_LMM/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_METACLUSTERING          = $(DIR_PLOTS)/supp_metaclustering/timestamp.txt
@@ -41,6 +42,7 @@ SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/ma
 SCRIPTS_PLOTS_NULL_SIMULATIONS             = $(wildcard $(DIR_GENERATE_PLOTS)/null_simulations/*.R)
 SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 SCRIPTS_PLOTS_MAIN_HEATMAPS                = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
+SCRIPTS_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(wildcard $(DIR_GENERATE_PLOTS)/main_clustering_performance/*.R)
 SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA    = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_effects_limma/*.R)
 SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS_LMM       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects_LMM/*.R)
 SCRIPTS_PLOTS_SUPP_METACLUSTERING          = $(wildcard $(DIR_GENERATE_PLOTS)/supp_metaclustering/*.R)
@@ -84,6 +86,7 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
                   $(TIMESTAMP_PLOTS_NULL_SIMULATIONS) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
                   $(TIMESTAMP_PLOTS_MAIN_HEATMAPS) \
+                  $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA) \
                   $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS_LMM) \
                   $(TIMESTAMP_PLOTS_SUPP_METACLUSTERING) \
@@ -126,6 +129,10 @@ $(TIMESTAMP_PLOTS_MAIN_TSNE): $(SCRIPTS_PLOTS_MAIN_TSNE) $(FILES_RDATA_MAIN)
 # main results: heatmaps
 $(TIMESTAMP_PLOTS_MAIN_HEATMAPS): $(SCRIPTS_PLOTS_MAIN_HEATMAPS) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main_heatmaps && bash run_all.sh
+
+# main results: heatmaps
+$(TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_CLUSTERING_PERFORMANCE) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main_clustering_performance && bash run_all.sh
 
 
 # supplementary: random effects for diffcyt-DS-limma
