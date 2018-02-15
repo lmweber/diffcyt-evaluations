@@ -17,19 +17,19 @@ library(cowplot)
 
 # load saved results
 DIR_RDATA_MAIN <- "../../../../RData/BCR_XL_sim/main"
-DIR_RDATA_CYDAR <- "../../../../RData/BCR_XL_sim/comparisons_cydar"
-DIR_RDATA_CELLCNN <- "../../../../RData/BCR_XL_sim/comparisons_CellCnn"
 DIR_RDATA_CITRUS <- "../../../../RData/BCR_XL_sim/comparisons_Citrus"
+DIR_RDATA_CELLCNN <- "../../../../RData/BCR_XL_sim/comparisons_CellCnn"
+DIR_RDATA_CYDAR <- "../../../../RData/BCR_XL_sim/comparisons_cydar"
 
 load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_limma_main.RData"))
 load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
-load(file.path(DIR_RDATA_CYDAR, "outputs_BCR_XL_sim_cydar_main.RData"))
-load(file.path(DIR_RDATA_CELLCNN, "outputs_BCR_XL_sim_CellCnn_main.RData"))
 load(file.path(DIR_RDATA_CITRUS, "outputs_BCR_XL_sim_Citrus_main.RData"))
+load(file.path(DIR_RDATA_CELLCNN, "outputs_BCR_XL_sim_CellCnn_main.RData"))
+load(file.path(DIR_RDATA_CYDAR, "outputs_BCR_XL_sim_cydar_main.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/runtimes"
+DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_runtimes"
 
 
 
@@ -40,8 +40,8 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/runtimes"
 
 # create data frame for plotting
 d_runtimes <- as.data.frame(c(
-  CellCnn = runtime_CellCnn_main, 
   Citrus = runtime_Citrus_main, 
+  CellCnn = runtime_CellCnn_main, 
   cydar = runtime_cydar_main, 
   diffcyt_DS_limma = runtime_diffcyt_DS_limma_main, 
   diffcyt_DS_LMM = runtime_diffcyt_DS_LMM_main
@@ -49,10 +49,10 @@ d_runtimes <- as.data.frame(c(
 
 colnames(d_runtimes) <- "runtime"
 
-d_runtimes$method <- factor(rownames(d_runtimes))
+d_runtimes$method <- factor(rownames(d_runtimes), levels = rownames(d_runtimes))
 
 # color scheme
-colors <- c("forestgreen", "goldenrod1", "gray50", "firebrick1", "darkviolet")
+colors <- c("goldenrod1", "forestgreen", "gray50", "firebrick1", "darkviolet")
 
 y_range <- c(10, 2500)
 
