@@ -25,11 +25,13 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 DIR_RDATA_MAIN <- "../../../../RData/BCR_XL_sim/main"
 DIR_RDATA_CITRUS <- "../../../../RData/BCR_XL_sim/comparisons_Citrus"
 DIR_RDATA_CELLCNN <- "../../../../RData/BCR_XL_sim/comparisons_CellCnn"
+DIR_RDATA_CYDAR <- "../../../../RData/BCR_XL_sim/comparisons_cydar"
 
 load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_limma_main.RData"))
 load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
 load(file.path(DIR_RDATA_CITRUS, "outputs_BCR_XL_sim_Citrus_main.RData"))
 load(file.path(DIR_RDATA_CELLCNN, "outputs_BCR_XL_sim_CellCnn_main.RData"))
+load(file.path(DIR_RDATA_CYDAR, "outputs_BCR_XL_sim_cydar_main.RData"))
 
 
 # path to save plots
@@ -50,7 +52,8 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_all"
 data <- list(diffcyt_DS_limma = out_diffcyt_DS_limma_main, 
              diffcyt_DS_LMM = out_diffcyt_DS_LMM_main, 
              Citrus = out_Citrus_main, 
-             CellCnn = out_CellCnn_main)
+             CellCnn = out_CellCnn_main, 
+             cydar = out_cydar_main)
 
 # check
 stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
@@ -59,9 +62,11 @@ stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
 cobradata <- COBRAData(pval = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_vals"], 
-                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_vals"]), 
+                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_vals"], 
+                                         cydar = data[["cydar"]][, "p_vals"]), 
                        padj = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_adj"], 
-                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_adj"]), 
+                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_adj"], 
+                                         cydar = data[["cydar"]][, "q_vals"]), 
                        score = data.frame(Citrus = data[["Citrus"]][, "scores"], 
                                           CellCnn = data[["CellCnn"]][, "scores"]), 
                        truth = data.frame(B_cell = data[["diffcyt_DS_limma"]][, "B_cell"]))
@@ -73,7 +78,7 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-colors <- c("firebrick1", "darkviolet", "goldenrod1", "forestgreen")
+colors <- c("firebrick1", "darkviolet", "goldenrod1", "forestgreen", "gray50")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
@@ -207,7 +212,7 @@ plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6,
 
 # save multi-panel plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_all_main_performance.pdf")
-ggsave(fn, width = 10, height = 2.625)
+ggsave(fn, width = 10.67, height = 2.8)
 
 
 
