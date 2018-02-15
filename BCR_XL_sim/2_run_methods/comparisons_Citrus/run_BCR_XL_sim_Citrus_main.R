@@ -90,9 +90,13 @@ marker_info
 
 
 
-################
-# Transform data
-################
+######################################
+# Additional pre-processing for Citrus
+######################################
+
+# --------------
+# transform data
+# --------------
 
 # 'arcsinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2)
 

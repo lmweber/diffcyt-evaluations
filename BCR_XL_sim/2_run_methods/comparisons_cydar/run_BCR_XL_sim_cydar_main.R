@@ -4,9 +4,9 @@
 # - method: cydar
 # - data set: BCR-XL-sim
 # 
-# - main results
+# - main results (using subset of markers for cydar: lineage markers and pS6 only)
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, February 2018
 ##########################################################################################
 
 
@@ -31,18 +31,20 @@ DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/comparisons_cydar"
 ###########################
 
 # filenames
+
 files <- list.files(DIR_BENCHMARK, pattern = "\\.fcs$", full.names = TRUE)
 files_base <- files[grep("base\\.fcs$", files)]
 files_spike <- files[grep("spike\\.fcs$", files)]
 
-# load data
 files_load <- c(files_base, files_spike)
 files_load
 
-# load as ncdfFlowSet object
+# load data as 'ncdfFlowSet' object (for cydar)
+
 d_input <- read.ncdfFlowSet(files_load, transformation = FALSE, truncate_max_range = FALSE)
 
-# sample IDs, group IDs, patient IDs
+# sample information
+
 sample_IDs <- gsub("^BCR_XL_sim_", "", 
                    gsub("\\.fcs$", "", basename(files_load)))
 sample_IDs
@@ -53,8 +55,10 @@ group_IDs
 patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
 patient_IDs
 
-# check
-data.frame(sample_IDs, group_IDs, patient_IDs)
+sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+sample_info
+
+# marker information
 
 # indices of all marker columns, lineage markers, and functional markers
 # (10 surface markers / 14 functional markers; see Bruggner et al. 2014, Table 1)
@@ -62,12 +66,33 @@ cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
 cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
 cols_func <- setdiff(cols_markers, cols_lineage)
 
+marker_names <- colnames(d_input[[1]])
+marker_names <- gsub("\\(.*$", "", marker_names)
+
+is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
+
+is_marker[cols_markers] <- TRUE
+is_celltype_marker[cols_lineage] <- TRUE
+is_state_marker[cols_func] <- TRUE
+
+marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+marker_info
+
+
+
+
+######################################
+# Additional pre-processing for Citrus
+######################################
 
 # --------------
 # markers to use
 # --------------
 
-cols_to_use <- cols_markers
+# note: running cydar on all markers does not work correctly; use a subset of markers instead
+
+# all lineage markers plus pS6
+cols_to_use <- c(cols_lineage, 30)
 
 
 
@@ -194,7 +219,7 @@ runtime_test <- system.time({
   q_vals <- spatialFDR(intensities(cd), res_cydar$table$PValue)
   
   # significant hyperspheres
-  is.sig <- q_vals <= 0.99
+  is.sig <- q_vals <= 0.1
   print(table(is.sig))
   
 })
@@ -229,9 +254,9 @@ dev.off()
 
 
 # Median marker intensities of each hypersphere
-pdf(file.path(DIR_PLOTS, "cydar_medians_main.pdf"), width = 8, height = 7)
+pdf(file.path(DIR_PLOTS, "cydar_medians_main.pdf"), width = 8, height = 3.5)
 
-par(mfrow = c(4, 6), mar = c(2.1, 1.1, 3.1, 1.1))
+par(mfrow = c(2, 6), mar = c(2.1, 1.1, 3.1, 1.1))
 limits <- intensityRanges(cd, p = 0.05)
 all.markers <- rownames(markerData(cd))
 for (i in order(all.markers)) { 
@@ -259,10 +284,10 @@ runtime_cydar_main <- runtime_total
 # Return results at cell level
 ##############################
 
-# Note: cydar evaluates q-values at the hypersphere level. Since hyperspheres overlap,
-# the q-values are not unique for each cell. To evaluate performance at the cell
-# level, we assign a unique q-value to each cell, by selecting the smallest q-value
-# for any hypersphere containing that cell.
+# Note: cydar returns q-values at the hypersphere level. Since hyperspheres overlap, the
+# q-values are not unique for each cell. To evaluate performance at the cell level, we
+# assign a unique q-value to each cell, by selecting the smallest q-value for any
+# hypersphere containing that cell.
 
 
 # number of cells per sample (including spike-in cells)
@@ -290,7 +315,8 @@ stopifnot(length(cells) == length(p_vals))
 cells_rep <- unlist(cells)
 p_vals_rep <- rep(p_vals, sapply(cells, length))
 q_vals_rep <- rep(q_vals, sapply(cells, length))
-stopifnot(length(p_vals_rep) == length(cells_rep), length(q_vals_rep) == length(cells_rep))
+stopifnot(length(p_vals_rep) == length(cells_rep), 
+          length(q_vals_rep) == length(cells_rep))
 # split by cell indices
 p_vals_rep_split <- split(p_vals_rep, cells_rep)
 q_vals_rep_split <- split(q_vals_rep, cells_rep)
@@ -312,7 +338,7 @@ stopifnot(length(p_vals_all) == length(q_vals_all))
 res_p_vals <- p_vals_all
 res_p_adj <- q_vals_all
 
-# replace NAs (due to filtering) to ensure same cells are returned for all methods
+# replace NAs to ensure same cells are returned for all methods
 res_p_vals[is.na(res_p_vals)] <- 1
 res_p_adj[is.na(res_p_adj)] <- 1
 

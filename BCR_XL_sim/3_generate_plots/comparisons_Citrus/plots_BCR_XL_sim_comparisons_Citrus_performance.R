@@ -87,7 +87,7 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-colors <- c("firebrick1", "darkviolet", "gold")
+colors <- c("firebrick1", "darkviolet", "goldenrod1")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)

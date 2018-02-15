@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, February 2018
 ##########################################################################################
 
 
@@ -21,7 +21,8 @@ DIR_RDATA_CYDAR <- "../../../../RData/BCR_XL_sim/comparisons_cydar"
 DIR_RDATA_CELLCNN <- "../../../../RData/BCR_XL_sim/comparisons_CellCnn"
 DIR_RDATA_CITRUS <- "../../../../RData/BCR_XL_sim/comparisons_Citrus"
 
-load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_limma_main.RData"))
+load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
 load(file.path(DIR_RDATA_CYDAR, "outputs_BCR_XL_sim_cydar_main.RData"))
 load(file.path(DIR_RDATA_CELLCNN, "outputs_BCR_XL_sim_CellCnn_main.RData"))
 load(file.path(DIR_RDATA_CITRUS, "outputs_BCR_XL_sim_Citrus_main.RData"))
@@ -42,7 +43,8 @@ d_runtimes <- as.data.frame(c(
   CellCnn = runtime_CellCnn_main, 
   Citrus = runtime_Citrus_main, 
   cydar = runtime_cydar_main, 
-  diffcyt_DS_med = runtime_diffcyt_DS_med_main
+  diffcyt_DS_limma = runtime_diffcyt_DS_limma_main, 
+  diffcyt_DS_LMM = runtime_diffcyt_DS_LMM_main
 ))
 
 colnames(d_runtimes) <- "runtime"
@@ -50,25 +52,28 @@ colnames(d_runtimes) <- "runtime"
 d_runtimes$method <- factor(rownames(d_runtimes))
 
 # color scheme
-colors <- c("mediumorchid3", "gold", "salmon", "darkblue")
+colors <- c("forestgreen", "goldenrod1", "gray50", "firebrick1", "darkviolet")
 
-y_range <- c(0, 520)
+y_range <- c(10, 2500)
 
 # create plot
 p_runtimes <- 
-  ggplot(d_runtimes, aes(x = method, y = runtime, color = method)) + 
+  ggplot(d_runtimes, aes(x = method, y = runtime, color = method, label = round(runtime, 1))) + 
   geom_point(shape = 4, size = 1.75, stroke = 1.5) + 
+  geom_text(color = "black", vjust = -1.5, size = 3.4) + 
   scale_color_manual(values = colors) + 
-  ylim(y_range) + 
-  ylab("runtime (s)") + 
+  scale_y_log10(limits = y_range) + 
+  ylab("runtime (seconds, log10 scale)") + 
   ggtitle("Runtimes: BCR-XL-sim") + 
   theme_bw() + 
   theme(axis.title.x = element_blank(), 
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 10))
 
+p_runtimes
+
 # save plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_all_methods_main_runtimes.pdf")
-ggsave(fn, width = 5, height = 4)
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_runtimes.pdf")
+ggsave(fn, width = 5.5, height = 4.5)
 
 
 

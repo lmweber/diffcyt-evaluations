@@ -6,7 +6,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, February 2018
 ##########################################################################################
 
 
@@ -16,6 +16,7 @@ library(SummarizedExperiment)
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
 DIR_CELLCNN <- "../../../../../CellCnn/CellCnn"
+DIR_MINICONDA2 <- "~/miniconda2/bin"
 DIR_CELLCNN_FILES <- "../../../../CellCnn_files/BCR_XL_sim/main"
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/comparisons_CellCnn"
 DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/comparisons_CellCnn"
@@ -41,17 +42,20 @@ system(cmd_clean)
 ###########################
 
 # filenames
+
 files <- list.files(DIR_BENCHMARK, pattern = "\\.fcs$", full.names = TRUE)
 files_base <- files[grep("base\\.fcs$", files)]
 files_spike <- files[grep("spike\\.fcs$", files)]
 
-# load data
 files_load <- c(files_base, files_spike)
 files_load
 
+# load data
+
 d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
 
-# sample IDs, group IDs, patient IDs
+# sample information
+
 sample_IDs <- gsub("^BCR_XL_sim_", "", 
                    gsub("\\.fcs$", "", basename(files_load)))
 sample_IDs
@@ -62,8 +66,10 @@ group_IDs
 patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
 patient_IDs
 
-# check
-data.frame(sample_IDs, group_IDs, patient_IDs)
+sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+sample_info
+
+# marker information
 
 # indices of all marker columns, lineage markers, and functional markers
 # (10 surface markers / 14 functional markers; see Bruggner et al. 2014, Table 1)
@@ -71,6 +77,24 @@ cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
 cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
 cols_func <- setdiff(cols_markers, cols_lineage)
 
+marker_names <- colnames(d_input[[1]])
+marker_names <- gsub("\\(.*$", "", marker_names)
+
+is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
+
+is_marker[cols_markers] <- TRUE
+is_celltype_marker[cols_lineage] <- TRUE
+is_state_marker[cols_func] <- TRUE
+
+marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+marker_info
+
+
+
+
+#######################################
+# Additional pre-processing for CellCnn
+#######################################
 
 # --------------
 # markers to use
@@ -89,14 +113,14 @@ for (i in 1:length(d_input)) {
 }
 all(check)
 
-marker_names <- colnames(d_input[[1]])[cols_to_use]
+markers_to_use <- colnames(d_input[[1]])[cols_to_use]
 
 
 # --------------
 # transform data
 # --------------
 
-# not required, since CellCnn automatically transforms data
+# not required, since CellCnn automatically transforms data (cannot be disabled)
 
 
 
@@ -141,7 +165,7 @@ df_samples
 
 # create data frame of column names (markers) (for CellCnn input .csv file)
 
-df_markers <- t(data.frame(marker_names))
+df_markers <- t(data.frame(markers_to_use))
 df_markers
 
 
@@ -167,45 +191,48 @@ write.table(df_markers, fn_markers, sep = ",", quote = FALSE, row.names = FALSE,
 # matplotlib.use('agg')
 
 # note: additional advice from authors:
-# (1) '--no_arcsinh' argument to disable arcsinh transform
-# (2) '--ncell 300' argument to increase size of each training set [this should be at least 
-# 'n_cells_min = (avg. no. cells per sample) * (no. samples per condition) / 1000'; 
+# (1) '--no_arcsinh' argument to disable arcsinh transform (but does not seem to work)
+# (2) '--ncell 300' argument to increase size of each training set [this should be at
+# least 'n_cells_min = (avg. no. cells per sample) * (no. samples per condition) / 1000';
 # if no memory constraints then increase to 5 to 10 times 'n_cells_min']
 # (3) '--subset_selection outlier' for extremely rare populations
 
+# command to activate virtual environment
+# note: see CellCnn installation instructions for how to set up virtual environment
+# note: 'source activate cellcnn_env' works from command line, but also need to provide
+# path to 'activate' when using 'system' command from R
+cmd_env <- paste("source", file.path(DIR_MINICONDA2, "activate"), "cellcnn_env")
+
 # command to run CellCnn analysis
-cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
-             paste0("-f ", DIR_CELLCNN_FILES, "/inputs/input_samples.csv"), 
-             paste0("-m ", DIR_CELLCNN_FILES, "/inputs/input_markers.csv"), 
-             paste0("-i ", DIR_CELLCNN_FILES, "/data/"), 
-             paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/"), 
-             paste0("--ncell 300 --export_csv"), 
-             #"--no_arcsinh",  ## currently not working correctly
-             paste("--group_a", "base", "--group_b", "spike"))
-
-# run from command line
-runtime_analysis <- system.time(
-  system(cmd)
-)
-
+cmd_run <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
+                 paste0("-f ", DIR_CELLCNN_FILES, "/inputs/input_samples.csv"), 
+                 paste0("-m ", DIR_CELLCNN_FILES, "/inputs/input_markers.csv"), 
+                 paste0("-i ", DIR_CELLCNN_FILES, "/data/"), 
+                 paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/"), 
+                 paste0("--ncell 300 --export_csv"), 
+                 #"--no_arcsinh",  ## currently not working correctly
+                 paste("--group_a", "base", "--group_b", "spike"))
 
 # command to export selected cells
-cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
-             paste0("-f ", DIR_CELLCNN_FILES, "/inputs/input_samples.csv"), 
-             paste0("-m ", DIR_CELLCNN_FILES, "/inputs/input_markers.csv"), 
-             paste0("-i ", DIR_CELLCNN_FILES, "/data/"), 
-             paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/"), 
-             paste("--group_a", "base", "--group_b", "spike"), 
-             "--filter_response_thres 0.3 --load_results --export_selected_cells")
+cmd_export <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
+                    paste0("-f ", DIR_CELLCNN_FILES, "/inputs/input_samples.csv"), 
+                    paste0("-m ", DIR_CELLCNN_FILES, "/inputs/input_markers.csv"), 
+                    paste0("-i ", DIR_CELLCNN_FILES, "/data/"), 
+                    paste0("-o ", DIR_CELLCNN_FILES, "/out_CellCnn/"), 
+                    paste("--group_a", "base", "--group_b", "spike"), 
+                    "--filter_response_thres 0.3 --load_results --export_selected_cells")
+
+# combine commands (in a single environment)
+cmd_combined <- paste(c(cmd_env, cmd_run, cmd_export), collapse = "; ")
 
 # run from command line
-runtime_select <- system.time(
-  system(cmd)
+runtime_combined <- system.time(
+  system(cmd_combined)
 )
 
 
 # runtime
-runtime_total <- runtime_analysis[["elapsed"]] + runtime_select[["elapsed"]]
+runtime_total <- runtime_combined[["elapsed"]]
 print(runtime_total)
 
 runtime_CellCnn_main <- runtime_total
@@ -217,10 +244,9 @@ runtime_CellCnn_main <- runtime_total
 # Return results at cell level
 ##############################
 
-# Note: CellCnn returns continuous 'scores' at the cell level, indicating the
-# likelihood of each cell belonging to each detected 'filter' (population). If there
-# are multiple detected filters, we sum the scores to give a single total score per
-# cell.
+# Note: CellCnn returns continuous 'scores' at the cell level, representing the likelihood
+# of each cell belonging to each detected 'filter' (population). If there are multiple
+# detected filters, we sum the scores to give a single total score per cell.
 
 
 # number of cells per sample (including spike-in cells)

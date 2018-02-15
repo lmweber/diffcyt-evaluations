@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, November 2017
+# Lukas Weber, February 2018
 ##########################################################################################
 
 
@@ -20,7 +20,8 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 DIR_RDATA_MAIN <- "../../../../RData/BCR_XL_sim/main"
 DIR_RDATA_CELLCNN <- "../../../../RData/BCR_XL_sim/comparisons_CellCnn"
 
-load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_med_main.RData"))
+load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_limma_main.RData"))
+load(file.path(DIR_RDATA_MAIN, "outputs_BCR_XL_sim_diffcyt_DS_LMM_main.RData"))
 load(file.path(DIR_RDATA_CELLCNN, "outputs_BCR_XL_sim_CellCnn_main.RData"))
 
 
@@ -29,6 +30,24 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_CellCnn"
 
 # path where automatically generated CellCnn plots are saved
 DIR_CELLCNN_FILES <- "../../../../CellCnn_files/BCR_XL_sim/main"
+
+
+
+
+###########################
+# Copy CellCnn output plots
+###########################
+
+# copy automatically generated CellCnn plots
+
+plots_CellCnn <- list.files(file.path(DIR_CELLCNN_FILES, "out_CellCnn", "plots", "training_plots"), 
+                            "selected_population_distribution|selected_population_frequencies|tsne_cell_response|tsne_selected_cells", full.names = TRUE)
+
+cmds <- paste("cp", plots_CellCnn, DIR_PLOTS)
+
+for (i in 1:length(cmds)) {
+  system(cmds[i])
+}
 
 
 
@@ -42,8 +61,9 @@ DIR_CELLCNN_FILES <- "../../../../CellCnn_files/BCR_XL_sim/main"
 # -------------------------------------
 
 # create 'COBRAData' object
-data <- list(CellCnn = out_CellCnn_main, 
-             diffcyt_DS_med = out_diffcyt_DS_med_main)
+data <- list(diffcyt_DS_limma = out_diffcyt_DS_limma_main, 
+             diffcyt_DS_LMM = out_diffcyt_DS_LMM_main, 
+             CellCnn = out_CellCnn_main)
 
 # check
 stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
@@ -51,10 +71,12 @@ stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 # note: provide all available values
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-cobradata <- COBRAData(pval = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_vals"]), 
-                       padj = data.frame(diffcyt_DS_med = data[["diffcyt_DS_med"]][, "p_adj"]), 
+cobradata <- COBRAData(pval = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_vals"], 
+                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_vals"]), 
+                       padj = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_adj"], 
+                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_adj"]), 
                        score = data.frame(CellCnn = data[["CellCnn"]][, "scores"]), 
-                       truth = data.frame(B_cell = data[["diffcyt_DS_med"]][, "B_cell"]))
+                       truth = data.frame(B_cell = data[["diffcyt_DS_limma"]][, "B_cell"]))
 
 # calculate performance scores
 # (note: can ignore warning messages when 'padj' not available)
@@ -63,7 +85,7 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-colors <- c("mediumorchid3", "darkblue")
+colors <- c("firebrick1", "darkviolet", "forestgreen")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
@@ -106,7 +128,6 @@ ggsave(fn, width = 4.75, height = 3.5)
 # create plot
 p_TPRFDR <- 
   plot_fdrtprcurve(cobraplot, linewidth = 0.75, pointsize = 4) + 
-  #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
   scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
   coord_fixed() + 
   xlab("False discovery rate") + 
@@ -121,54 +142,6 @@ p_TPRFDR <-
 # save plot
 fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_TPRFDR.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
-
-
-
-# ---------
-# TPR plots
-# ---------
-
-# create plot
-p_TPR <- 
-  plot_tpr(cobraplot, pointsize = 4) + 
-  #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
-  scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
-  #coord_fixed() + 
-  xlab("True positive rate") + 
-  ggtitle("BCR-XL-sim: performance comparisons", subtitle = "TPR") + 
-  theme_bw() + 
-  theme(strip.text.x = element_blank(), 
-        axis.text.y = element_blank()) + 
-  guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
-         color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
-
-# save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_TPR.pdf")
-ggsave(fn, width = 4.5, height = 3.5)
-
-
-
-# ---------
-# FPR plots
-# ---------
-
-# create plot
-p_FPR <- 
-  plot_fpr(cobraplot, pointsize = 4) + 
-  #scale_shape_manual(values = c(22, 21, 24), labels = c(0.01, 0.05, 0.1)) + 
-  scale_shape_manual(values = c(15, 19, 17), labels = c(0.01, 0.05, 0.1)) + 
-  #coord_fixed() + 
-  xlab("False positive rate") + 
-  ggtitle("BCR-XL-sim: performance comparisons", subtitle = "FPR") + 
-  theme_bw() + 
-  theme(strip.text.x = element_blank(), 
-        axis.text.y = element_blank()) + 
-  guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
-         color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
-
-# save plot
-fn <- file.path(DIR_PLOTS, "panels", "results_BCR_XL_sim_comparisons_CellCnn_main_FPR.pdf")
-ggsave(fn, width = 4.5, height = 3.5)
 
 
 
@@ -204,24 +177,6 @@ plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(3,
 # save multi-panel plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_CellCnn_main_performance.pdf")
 ggsave(fn, width = 7, height = 2.625)
-
-
-
-
-####################
-# Copy CellCnn plots
-####################
-
-# copy automatically generated CellCnn plots
-
-plots_CellCnn <- list.files(file.path(DIR_CELLCNN_FILES, "out_CellCnn", "plots"), 
-                            "selected_population*", full.names = TRUE)
-
-cmds <- paste("cp", plots_CellCnn, DIR_PLOTS)
-
-for (i in 1:length(cmds)) {
-  system(cmds[i])
-}
 
 
 
