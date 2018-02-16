@@ -86,7 +86,7 @@ for (th in 1:length(thresholds)) {
                                        aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
     
     # color scheme
-    colors <- c("dodgerblue", "chartreuse4", "darkorange")
+    colors <- c("darkblue", "dodgerblue", "darkslategray3")
     
     colors <- colors[1:length(data)]
     names(colors) <- names(data)

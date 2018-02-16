@@ -132,7 +132,7 @@ $(TIMESTAMP_PLOTS_MAIN_TSNE): $(SCRIPTS_PLOTS_MAIN_TSNE) $(FILES_RDATA_MAIN)
 $(TIMESTAMP_PLOTS_MAIN_HEATMAPS): $(SCRIPTS_PLOTS_MAIN_HEATMAPS) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main_heatmaps && bash run_all.sh
 
-# main results: heatmaps
+# main results: clustering performance
 $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_CLUSTERING_PERFORMANCE) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main_clustering_performance && bash run_all.sh
 

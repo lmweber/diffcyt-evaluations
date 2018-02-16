@@ -148,7 +148,7 @@ for (th in 1:length(thresholds)) {
               nrow(d_plot) == nrow(tsne_coords))
     
     # identify clusters containing significant proportion of spike-in cells
-    d_true$spikein <- as.numeric(d_true$prop_spikein > 0.1)
+    d_true$spikein <- as.numeric(d_true$prop_spikein > 0.5)
     
     # data frame for plotting
     d_plot$prop_spikein <- d_true$prop_spikein
@@ -166,19 +166,19 @@ for (th in 1:length(thresholds)) {
       # first layer
       geom_point(alpha = 0.5) + 
       scale_size_area(max_size = 3) + 
-      scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
+      scale_color_manual(values = c("gray70", "darkorange1"), labels = c("no", "yes")) + 
       # additional layer: outline clusters containing significant proportion spike-in cells
-      geom_point(data = subset(d_plot, spikein == 1), aes(shape = spikein), color = "black", stroke = 1.25) + 
-      scale_shape_manual(values = 1, labels = ">10%") + 
+      geom_point(data = subset(d_plot, spikein == 1), aes(shape = spikein), color = "black", stroke = 1.5) + 
+      scale_shape_manual(values = 1, labels = ">50%") + 
       # additional layer: emphasize significant differential clusters
-      geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 0.75) + 
+      geom_point(data = subset(d_plot, sig == 1), color = "darkorange1", alpha = 1) + 
       xlab("t-SNE 1") + 
       ylab("t-SNE 2") + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(aspect.ratio = 1) + 
       guides(color = guide_legend("significant", override.aes = list(alpha = 1, size = 3), order = 1), 
-             shape = guide_legend("true spike-in cells", override.aes = list(size = 2.25, stroke = 1), order = 2), 
+             shape = guide_legend("true spike-in cells", override.aes = list(size = 2, stroke = 1.25), order = 2), 
              size = guide_legend("no. cells", override.aes = list(color = "gray70", stroke = 0.25), order = 3))
     
     plots_tSNE[[ix]] <- p

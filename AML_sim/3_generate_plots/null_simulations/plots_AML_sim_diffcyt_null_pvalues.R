@@ -46,7 +46,7 @@ thresholds <- c("5pc", "1pc", "0.1pc")
 seed_names <- c("seed 1", "seed 2", "seed 3")
 
 # color scheme
-colors <- c("dodgerblue", "chartreuse4", "darkorange")
+colors <- c("darkblue", "dodgerblue", "darkslategray3")
 
 
 
