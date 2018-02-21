@@ -120,7 +120,7 @@ plots_multi <- lapply(plots_all, function(p) {
 plots_multi <- plot_grid(plotlist = plots_multi, nrow = 2, ncol = 3, align = "hv", axis = "bl")
 
 # add combined title
-title_multi <- ggdraw() + draw_label(plots_all[[1]]$labels$title, fontface = "bold")
+title_multi <- ggdraw() + draw_label(gsub(",.*$", "", plots_all[[1]]$labels$title), fontface = "bold")
 grid_multi <- plot_grid(title_multi, plots_multi, ncol = 1, rel_heights = c(1, 25))
 
 # add combined legend
