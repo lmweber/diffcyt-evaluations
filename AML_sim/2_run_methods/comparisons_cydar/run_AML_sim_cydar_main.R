@@ -6,19 +6,35 @@
 # 
 # - main results
 # 
-# Lukas Weber, September 2017
+# Lukas Weber, February 2018
 ##########################################################################################
 
 
+library(cydar)
 library(flowCore)
 library(ncdfFlow)
-library(cydar)
 library(edgeR)
+library(SummarizedExperiment)
+library(Rtsne)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
-DIR_RDATA <- "../../../../RData/AML_sim/main"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
+DIR_CYDAR_FILES <- "../../../../cydar_files/AML_sim/main"
+DIR_RDATA <- "../../../../RData/AML_sim/comparisons_cydar"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/comparisons_cydar"
+
+
+
+
+##############################
+# Delete previous output files
+##############################
+
+# delete output files from previous cydar runs (but leave directory structure intact)
+
+cmd_clean <- paste("find", DIR_CYDAR_FILES, "-type f -delete")
+
+system(cmd_clean)
 
 
 
@@ -28,12 +44,12 @@ DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 ################################
 
 # spike-in thresholds
-thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
+thresholds <- c("5pc", "1pc", "0.1pc")
 
 # condition names
 cond_names <- c("CN", "CBF")
 
-# lists to store objects
+# lists to store objects and runtime
 out_cydar_main <- runtime_cydar_main <- vector("list", length(thresholds))
 names(out_cydar_main) <- names(runtime_cydar_main) <- thresholds
 
@@ -47,6 +63,7 @@ for (th in 1:length(thresholds)) {
   ###########################
   
   # filenames
+  
   files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
                               pattern = "\\.fcs$", full.names = TRUE)
   files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
@@ -54,11 +71,12 @@ for (th in 1:length(thresholds)) {
   files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
   
-  # load data
   files_load <- c(files_healthy, files_CN, files_CBF)
   files_load
   
-  d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
+  # load data as 'ncdfFlowSet' object (for cydar)
+  
+  d_input <- read.ncdfFlowSet(files_load, transformation = FALSE, truncate_max_range = FALSE)
   
   # sample IDs, group IDs, patient IDs
   sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
@@ -72,8 +90,10 @@ for (th in 1:length(thresholds)) {
   patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
   patient_IDs
   
-  # check
-  data.frame(sample_IDs, group_IDs, patient_IDs)
+  sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+  sample_info
+  
+  # marker information
   
   # indices of all marker columns, lineage markers, and functional markers
   # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental 
@@ -82,30 +102,32 @@ for (th in 1:length(thresholds)) {
   cols_lineage <- c(35, 29, 14, 30, 12, 26, 17, 33, 41, 32, 22, 40, 27, 37, 23, 39)
   cols_func <- setdiff(cols_markers, cols_lineage)
   
+  stopifnot(all(sapply(seq_along(d_input), function(i) all(colnames(d_input[[i]]) == colnames(d_input[[1]])))))
   
-  # ------------------------------------
-  # choose markers to use for clustering
-  # ------------------------------------
+  marker_names <- colnames(d_input[[1]])
+  marker_names <- gsub("\\(.*$", "", marker_names)
   
-  cols_clustering <- cols_lineage
+  is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
   
+  is_marker[cols_markers] <- TRUE
+  is_celltype_marker[cols_lineage] <- TRUE
+  is_state_marker[cols_func] <- TRUE
+  
+  marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+  marker_info
+  
+  
+  
+  
+  #####################################
+  # Additional pre-processing for cydar
+  #####################################
   
   # --------------
-  # transform data
+  # markers to use
   # --------------
   
-  # 'asinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2)
-  
-  # note: 'cydar' vignette uses biexponential transform instead (using 'estimateLogicle'
-  # function from 'flowCore' package)
-  
-  cofactor <- 5
-  
-  d_input <- lapply(d_input, function(d) {
-    e <- exprs(d)
-    e[, cols_markers] <- asinh(e[, cols_markers] / cofactor)
-    flowFrame(e)
-  })
+  cols_to_use <- cols_lineage
   
   
   
@@ -123,31 +145,33 @@ for (th in 1:length(thresholds)) {
   
   runtime_pre <- system.time({
     
-    # Subset markers and convert input data to required format ('ncdfFlowSet' object)
-    
-    d_input_cydar <- lapply(d_input, function(d) {
-      e <- exprs(d)
-      e <- e[, cols_clustering]
-      flowFrame(e)
-    })
-    
-    names(d_input_cydar) <- sample_IDs
-    
-    d_input_cydar <- flowSet(d_input_cydar)
-    d_input_cydar <- ncdfFlowSet(d_input_cydar)
-    
-    
     # Pooling cells together
-    # note: skip this since then 'prepareCellData' in next section doesn't work
+    # note: keep all cells
+    
+    pool.ff <- poolCells(d_input, equalize = FALSE)
+    
     
     # Estimating transformation parameters
-    # note: not required here, since we already applied 'asinh' transform above
+    # note: we use 'asinh' transform with 'cofactor' = 5 (see Bendall et al. 2011, Supp. Fig. S2), 
+    # instead of 'logicle' as shown in Bioconductor vignette
+    
+    cofactor <- 5
+    
+    transf_exprs <- asinh(exprs(pool.ff)[, cols_markers] / cofactor)
+    
+    proc.ff <- pool.ff
+    exprs(proc.ff)[, cols_markers] <- transf_exprs
+    
     
     # Gating out uninteresting cells
     # note: not required for this data set
     
+    # keep only markers of interest
+    processed.exprs <- proc.ff[, cols_to_use]
+    
+    
     # Normalizing intensities across batches
-    # note: not required (see vignette)
+    # note: not required for this data set
     
   })
   
@@ -158,13 +182,28 @@ for (th in 1:length(thresholds)) {
   
   runtime_count <- system.time({
     
+    # note: data object must be list (or ncdfFlowSet object), with one list item per sample
+    
+    # convert processed data to named list (this step is not shown in Bioconductor vignette)
+    
+    # check sample order
+    sampleNames(d_input)
+    sample_IDs
+    
+    n_cells <- as.vector(fsApply(d_input, nrow))
+    sample_IDs_rep <- rep(sample_IDs, n_cells)
+    sample_IDs_rep <- factor(sample_IDs_rep, levels = unique(sample_IDs_rep))
+    
+    d_list <- split.data.frame(exprs(processed.exprs), sample_IDs_rep)
+    
+    
     set.seed(1234)
     
     # prepare 'CyData' object
-    cd <- prepareCellData(d_input_cydar)
+    cd <- prepareCellData(d_list)
     
     # assign cells to hyperspheres
-    cd <- countCells(cd)
+    cd <- countCells(cd, tol = 0.5)
     
     # check hypersphere counts
     head(assay(cd))
@@ -181,22 +220,21 @@ for (th in 1:length(thresholds)) {
   # --------------------------------------------------------------------------
   
   # using 'edgeR' for testing
-  # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
-  
   
   runtime_test <- system.time({
     
-    # create object
+    # create object for edgeR
     y <- DGEList(assay(cd), lib.size = cd$totals)
     
     # filtering
-    keep <- aveLogCPM(y) >= aveLogCPM(5, mean(cd$totals))
+    keep <- aveLogCPM(y) >= aveLogCPM(1, mean(cd$totals))
     cd <- cd[keep, ]
     y <- y[keep, ]
     
     # design matrix
     # note: including 'patient_IDs' for paired design
-    design <- model.matrix(~ 0 + group_IDs + patient_IDs)
+    # note: design matrix specification with intercept term
+    design <- model.matrix(~ group_IDs + patient_IDs)
     
     # estimate dispersions and fit models
     y <- estimateDisp(y, design)
@@ -215,10 +253,10 @@ for (th in 1:length(thresholds)) {
     runtime_j <- system.time({
       
       # set up contrast
-      contr_string <- paste0("group_IDs", cond_names[j], " - group_IDshealthy")
+      contr_string <- paste0("group_IDs", cond_names[j])
       contrast <- makeContrasts(contr_string, levels = design)
       
-      # differential testing
+      # calculate differential tests
       res_cydar <- glmQLFTest(fit, contrast = contrast)
       
       # raw p-values
@@ -230,25 +268,67 @@ for (th in 1:length(thresholds)) {
     })
     
     # significant hyperspheres
-    is.sig <- q_vals <= 0.9
-    print(summary(is.sig))
+    is.sig <- q_vals <= 0.1
+    print(table(is.sig))
     
-    # # plots
-    # sig.coords <- intensities(cd)[is.sig, ]
-    # sig.res <- res_cydar$table[is.sig, ]
-    # coords <- prcomp(sig.coords)
-    # plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
+    
+    # ---------------------------------------------------------------------
+    # Visualizing and interpreting the results (from Bioconductor vignette)
+    # ---------------------------------------------------------------------
+    
+    # 2D PCA plots
+    if (sum(is.sig) > 0) {
+      pdf(file.path(DIR_CYDAR_FILES, thresholds[th], cond_names[j], "cydar_populations_PCA_main.pdf"))
+      
+      sig.coords <- intensities(cd)[is.sig, ]
+      sig.res <- res_cydar$table[is.sig, ]
+      coords <- prcomp(sig.coords)
+      
+      plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
+      
+      dev.off()
+    }
+    
+    
+    # 2D tSNE plots (does not work for all thresholds/conditions)
+    # if (sum(is.sig) > 0) {
+    #   pdf(file.path(DIR_CYDAR_FILES, thresholds[th], cond_names[j], "cydar_populations_tSNE_main.pdf"))
     # 
-    # par(mfrow = c(4, 4), mar = c(2.1, 1.1, 3.1, 1.1))
-    # limits <- intensityRanges(cd, p = 0.05)
-    # all.markers <- rownames(markerData(cd))
-    # for (i in order(all.markers)) { 
-    #   plotCellIntensity(coords$x[, 1], coords$x[, 2], sig.coords[, i], 
-    #                     irange=limits[, i], main=all.markers[i])
+    #   sig.coords <- intensities(cd)[is.sig, ]
+    #   sig.res <- res_cydar$table[is.sig, ]
+    # 
+    #   set.seed(123)
+    #   out_tsne <- Rtsne(sig.coords, pca = FALSE, verbose = TRUE)
+    #   tsne_coords <- as.data.frame(out_tsne$Y)
+    #   colnames(tsne_coords) <- c("tSNE_1", "tSNE_2")
+    # 
+    #   plotCellLogFC(tsne_coords[, 1], tsne_coords[, 2], sig.res$logFC)
+    # 
+    #   dev.off()
     # }
-    # par(mfrow = c(1, 1))
     
-    # runtime
+    
+    # Median marker intensities of each hypersphere
+    if (sum(is.sig) > 0) {
+      pdf(file.path(DIR_CYDAR_FILES, thresholds[th], cond_names[j], "cydar_medians_main.pdf"), width = 9, height = 5.5)
+      
+      par(mfrow = c(3, 6), mar = c(2.1, 1.1, 3.1, 1.1))
+      limits <- intensityRanges(cd, p = 0.05)
+      all.markers <- rownames(markerData(cd))
+      for (i in order(all.markers)) { 
+        plotCellIntensity(coords$x[, 1], coords$x[, 2], sig.coords[, i], 
+                          irange = limits[, i], main = all.markers[i])
+      }
+      par(mfrow = c(1, 1))
+      
+      dev.off()
+    }
+    
+    
+    # -------
+    # Runtime
+    # -------
+    
     runtime_total <- runtime_pre[["elapsed"]] + runtime_count[["elapsed"]] + runtime_test[["elapsed"]] + runtime_j[["elapsed"]]
     print(runtime_total)
     
@@ -261,21 +341,21 @@ for (th in 1:length(thresholds)) {
     # Return results at cell level
     ##############################
     
-    # Note: cydar evaluates q-values at the hypersphere level. Since hyperspheres overlap,
+    # Note: cydar returns q-values at the hypersphere level. Since hyperspheres overlap,
     # the q-values are not unique for each cell. To evaluate performance at the cell
     # level, we assign a unique q-value to each cell, by selecting the smallest q-value
     # for any hypersphere containing that cell.
     
     
     # number of cells per sample (including spike-in cells)
-    n_cells <- sapply(d_input, nrow)
+    n_cells <- as.vector(fsApply(d_input, nrow))
     
-    # spike-in status for each cell
-    is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
+    # identify true spike-in cells (from 'spike' condition)
+    is_spikein <- unlist(fsApply(d_input, function(d) exprs(d)[, "spikein"], simplify = FALSE))
     stopifnot(length(is_spikein) == sum(n_cells))
     
-    # select samples for this condition
-    ix_keep_cnd <- group_IDs == cond_names[j]
+    # select samples for this condition and healthy
+    ix_keep_cnd <- group_IDs %in% c("healthy", cond_names[j])
     
     
     # get smallest q-value for each cell, across all hyperspheres
@@ -294,7 +374,8 @@ for (th in 1:length(thresholds)) {
     cells_rep <- unlist(cells)
     p_vals_rep <- rep(p_vals, sapply(cells, length))
     q_vals_rep <- rep(q_vals, sapply(cells, length))
-    stopifnot(length(p_vals_rep) == length(cells_rep), length(q_vals_rep) == length(cells_rep))
+    stopifnot(length(p_vals_rep) == length(cells_rep), 
+              length(q_vals_rep) == length(cells_rep))
     # split by cell indices
     p_vals_rep_split <- split(p_vals_rep, cells_rep)
     q_vals_rep_split <- split(q_vals_rep, cells_rep)
@@ -315,18 +396,22 @@ for (th in 1:length(thresholds)) {
     
     which_cnd <- rep(ix_keep_cnd, n_cells)
     is_spikein_cnd <- is_spikein[which_cnd]
-    stopifnot(length(p_vals_all[which_cnd]) == length(is_spikein_cnd))
+    stopifnot(length(p_vals_all) == length(which_cnd), 
+              length(p_vals_all[which_cnd]) == length(is_spikein_cnd))
     
     res_p_vals <- p_vals_all[which_cnd]
-    res_q_vals <- q_vals_all[which_cnd]
+    res_p_adj <- q_vals_all[which_cnd]
     
     # replace any NAs to ensure same set of cells is returned for all methods
     res_p_vals[is.na(res_p_vals)] <- 1
-    res_q_vals[is.na(res_q_vals)] <- 1
+    res_p_adj[is.na(res_p_adj)] <- 1
     
-    # return values for this condition only
+    stopifnot(length(res_p_vals) == length(is_spikein_cnd), 
+              length(res_p_adj) == length(is_spikein_cnd))
+    
+    # return values for this condition and healthy
     res <- data.frame(p_vals = res_p_vals, 
-                      q_vals = res_q_vals, 
+                      q_vals = res_p_adj, 
                       spikein = is_spikein_cnd)
     
     # store results

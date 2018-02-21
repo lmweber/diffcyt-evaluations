@@ -23,6 +23,12 @@ clean_Citrus:
 clean_CellCnn:
 	find ../CellCnn_files -type f -delete
 
+# remove auto-generated files for cydar
+.PHONY: clean_cydar
+clean_cydar:
+	find ../cydar_files -type f -delete
+
+
 # remove auto-generated 'Rplots.pdf' files
 # (from plotting scripts and voom diagnostic plots)
 .PHONY: clean_Rplots

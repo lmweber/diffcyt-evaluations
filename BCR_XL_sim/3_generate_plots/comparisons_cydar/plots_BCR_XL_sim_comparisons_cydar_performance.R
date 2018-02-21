@@ -28,6 +28,26 @@ load(file.path(DIR_RDATA_CYDAR, "outputs_BCR_XL_sim_cydar_main.RData"))
 # path to save plots
 DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_cydar"
 
+# path where automatically generated cydar plots are saved
+DIR_CYDAR_FILES <- "../../../../cydar_files/BCR_XL_sim/main"
+
+
+
+
+#########################
+# Copy cydar output plots
+#########################
+
+# copy automatically generated cydar plots
+
+plots_cydar <- c(file.path(DIR_CYDAR_FILES, c("cydar_medians_main.pdf", "cydar_populations_PCA_main.pdf")))
+
+cmds <- paste("cp", plots_cydar, DIR_PLOTS)
+
+for (i in 1:length(cmds)) {
+  system(cmds[i])
+}
+
 
 
 
@@ -65,7 +85,7 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-colors <- c("firebrick1", "darkviolet", "gray50")
+colors <- c("firebrick1", "darkviolet", "brown4")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)

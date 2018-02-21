@@ -85,7 +85,7 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-colors <- c("firebrick1", "darkviolet", "forestgreen")
+colors <- c("firebrick1", "darkviolet", "darkorange1")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
@@ -176,7 +176,7 @@ plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(3,
 
 # save multi-panel plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_CellCnn_main_performance.pdf")
-ggsave(fn, width = 7, height = 2.625)
+ggsave(fn, width = 6.5, height = 2.625)
 
 
 

@@ -19,7 +19,7 @@ library(Rtsne)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/BCR_XL_sim/data/main"
-DIR_PLOTS <- "../../../../plots/BCR_XL_sim/comparisons_cydar"
+DIR_CYDAR_FILES <- "../../../../cydar_files/BCR_XL_sim/supp_all_markers"
 DIR_RDATA <- "../../../../RData/BCR_XL_sim/comparisons_cydar"
 DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/comparisons_cydar"
 
@@ -227,42 +227,52 @@ runtime_test <- system.time({
 # ---------------------------------------------------------------------
 
 # 2D PCA plots
-pdf(file.path(DIR_PLOTS, "cydar_populations_main.pdf"))
-
-sig.coords <- intensities(cd)[is.sig, ]
-sig.res <- res_cydar$table[is.sig, ]
-coords <- prcomp(sig.coords)
-
-plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
-
-dev.off()
+if (sum(is.sig) > 0) {
+  pdf(file.path(DIR_CYDAR_FILES, "cydar_populations_PCA_supp_all_markers.pdf"))
+  
+  sig.coords <- intensities(cd)[is.sig, ]
+  sig.res <- res_cydar$table[is.sig, ]
+  coords <- prcomp(sig.coords)
+  
+  plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
+  
+  dev.off()
+}
 
 
 # 2D tSNE plots (does not work)
-# sig.coords <- intensities(cd)[is.sig, ]
-# sig.res <- res_cydar$table[is.sig, ]
-# 
-# set.seed(123)
-# out_tsne <- Rtsne(sig.coords, pca = FALSE, verbose = TRUE)
-# tsne_coords <- as.data.frame(out_tsne$Y)
-# colnames(tsne_coords) <- c("tSNE_1", "tSNE_2")
-# 
-# plotCellLogFC(coords$x[, 1], coords$x[, 2], sig.res$logFC)
+# if (sum(is.sig) > 0) {
+#   pdf(file.path(DIR_CYDAR_FILES, "cydar_populations_tSNE_supp_all_markers.pdf"))
+#   
+#   sig.coords <- intensities(cd)[is.sig, ]
+#   sig.res <- res_cydar$table[is.sig, ]
+#   
+#   set.seed(123)
+#   out_tsne <- Rtsne(sig.coords, pca = FALSE, verbose = TRUE)
+#   tsne_coords <- as.data.frame(out_tsne$Y)
+#   colnames(tsne_coords) <- c("tSNE_1", "tSNE_2")
+#   
+#   plotCellLogFC(tsne_coords[, 1], tsne_coords[, 2], sig.res$logFC)
+#   
+#   dev.off()
+# }
 
 
 # Median marker intensities of each hypersphere
-pdf(file.path(DIR_PLOTS, "cydar_medians_main.pdf"), width = 8, height = 7)
-
-par(mfrow = c(4, 6), mar = c(2.1, 1.1, 3.1, 1.1))
-limits <- intensityRanges(cd, p = 0.05)
-all.markers <- rownames(markerData(cd))
-for (i in order(all.markers)) { 
-  plotCellIntensity(coords$x[, 1], coords$x[, 2], sig.coords[, i], 
-                    irange = limits[, i], main = all.markers[i])
+if (sum(is.sig) > 0) {
+  pdf(file.path(DIR_CYDAR_FILES, "cydar_medians_supp_all_markers.pdf"), width = 8, height = 3.5)
+  
+  par(mfrow = c(2, 6), mar = c(2.1, 1.1, 3.1, 1.1))
+  limits <- intensityRanges(cd, p = 0.05)
+  all.markers <- rownames(markerData(cd))
+  for (i in order(all.markers)) { 
+    plotCellIntensity(coords$x[, 1], coords$x[, 2], sig.coords[, i], 
+                      irange = limits[, i], main = all.markers[i])
+  }
+  par(mfrow = c(1, 1))
+  
+  dev.off()
 }
-par(mfrow = c(1, 1))
-
-dev.off()
 
 
 # -------
@@ -272,7 +282,7 @@ dev.off()
 runtime_total <- runtime_pre[["elapsed"]] + runtime_count[["elapsed"]] + runtime_test[["elapsed"]]
 print(runtime_total)
 
-runtime_cydar_main <- runtime_total
+runtime_cydar_supp_all_markers <- runtime_total
 
 
 
@@ -347,7 +357,7 @@ res <- data.frame(p_vals = res_p_vals,
                   B_cell = is_B_cell)
 
 # store results
-out_cydar_main <- res
+out_cydar_supp_all_markers <- res
 
 
 
@@ -356,8 +366,8 @@ out_cydar_main <- res
 # Save output objects
 #####################
 
-save(out_cydar_main, runtime_cydar_main, 
-     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_cydar_main.RData"))
+save(out_cydar_supp_all_markers, runtime_cydar_supp_all_markers, 
+     file = file.path(DIR_RDATA, "outputs_BCR_XL_sim_cydar_supp_all_markers.RData"))
 
 
 
@@ -366,7 +376,7 @@ save(out_cydar_main, runtime_cydar_main,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_cydar_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_BCR_XL_sim_cydar_supp_all_markers.txt"))
 sessionInfo()
 sink()
 

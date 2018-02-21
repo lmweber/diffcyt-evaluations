@@ -179,7 +179,7 @@ for (th in 1:length(thresholds)) {
     # save individual panel plot
     fn <- file.path(DIR_PLOTS, "panels", 
                     paste0("results_AML_sim_diffcyt_main_clustering_performance_", thresholds[th], "_", cond_names[j], ".pdf"))
-    ggsave(fn, width = plot_widths[ix], height = 3.5)
+    ggsave(fn, width = plot_widths[ix], height = 3)
     
   }
 }
@@ -208,14 +208,14 @@ grid_clustering <- plot_grid(title_clustering, grid_clustering, ncol = 1, rel_he
 
 # add combined legend (one legend per row)
 legend_clustering <- get_legend(plots_clustering[[1]] + theme(legend.position = "right", 
-                                                              legend.title = element_text(size = 12, face = "bold"), 
-                                                              legend.text = element_text(size = 12)))
+                                                              legend.title = element_text(size = 11, face = "bold"), 
+                                                              legend.text = element_text(size = 11)))
 legend_clustering <- plot_grid(legend_clustering, legend_clustering, ncol = 1)
 grid_clustering <- plot_grid(grid_clustering, legend_clustering, nrow = 1, rel_widths = c(9, 1))
 
 # save plots
 fn_clustering <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_main_clustering_performance.pdf"))
-ggsave(fn_clustering, grid_clustering, width = 10, height = 6)
+ggsave(fn_clustering, grid_clustering, width = 10, height = 5.5)
 
 
 

@@ -23,8 +23,11 @@ TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/tim
 TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_HEATMAPS                = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
-#TIMESTAMP_PLOTS_MAIN_RUNTIME               = $(DIR_PLOTS)/main_runtime/timestamp.txt
-#TIMESTAMP_PLOTS_MAIN_CLUSTERING_QUALITY    = $(DIR_PLOTS)/main_clustering_quality/timestamp.txt
+TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(DIR_PLOTS)/main_clustering_performance/timestamp.txt
+TIMESTAMP_PLOTS_COMPARISONS_CITRUS           = $(DIR_PLOTS)/comparisons_Citrus/timestamp.txt
+TIMESTAMP_PLOTS_COMPARISONS_CELLCNN          = $(DIR_PLOTS)/comparisons_CellCnn/timestamp.txt
+TIMESTAMP_PLOTS_COMPARISONS_CYDAR            = $(DIR_PLOTS)/comparisons_cydar/timestamp.txt
+TIMESTAMP_PLOTS_COMPARISONS_RUNTIMES         = $(DIR_PLOTS)/comparisons_runtimes/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_fixed_effects/timestamp.txt
 #TIMESTAMP_PLOTS_SUPP_ALL_MARKERS           = $(DIR_PLOTS)/supp_all_markers/timestamp.txt
@@ -39,8 +42,11 @@ SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/ma
 SCRIPTS_PLOTS_NULL_SIMULATIONS             = $(wildcard $(DIR_GENERATE_PLOTS)/null_simulations/*.R)
 SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 SCRIPTS_PLOTS_MAIN_HEATMAPS                = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
-#SCRIPTS_PLOTS_MAIN_RUNTIME               = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtime/*.R)
-#SCRIPTS_PLOTS_MAIN_CLUSTERING_QUALITY    = $(wildcard $(DIR_GENERATE_PLOTS)/main_clustering_quality/*.R)
+SCRIPTS_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(wildcard $(DIR_GENERATE_PLOTS)/main_clustering_performance/*.R)
+SCRIPTS_PLOTS_COMPARISONS_CITRUS           = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_Citrus/*.R)
+SCRIPTS_PLOTS_COMPARISONS_CELLCNN          = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_CellCnn/*.R)
+SCRIPTS_PLOTS_COMPARISONS_CYDAR            = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_cydar/*.R)
+SCRIPTS_PLOTS_COMPARISONS_RUNTIMES         = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_runtimes/*.R)
 #SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 #SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects/*.R)
 #SCRIPTS_PLOTS_SUPP_ALL_MARKERS           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_all_markers/*.R)
@@ -52,6 +58,9 @@ SCRIPTS_PLOTS_MAIN_HEATMAPS                = $(wildcard $(DIR_GENERATE_PLOTS)/ma
 
 FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_NULL_SIMULATIONS             = $(wildcard $(DIR_RDATA)/null_simulations/*.RData)
+FILES_RDATA_COMPARISONS_CITRUS           = $(wildcard $(DIR_RDATA)/comparisons_Citrus/*.RData)
+FILES_RDATA_COMPARISONS_CELLCNN          = $(wildcard $(DIR_RDATA)/comparisons_CellCnn/*.RData)
+FILES_RDATA_COMPARISONS_CYDAR            = $(wildcard $(DIR_RDATA)/comparisons_cydar/*.RData)
 #FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
 #FILES_RDATA_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_RDATA)/supp_fixed_effects/*.RData)
 #FILES_RDATA_SUPP_ALL_MARKERS           = $(wildcard $(DIR_RDATA)/supp_all_markers/*.RData)
@@ -78,10 +87,14 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
                   $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
                   $(TIMESTAMP_PLOTS_NULL_SIMULATIONS) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
-                  $(TIMESTAMP_PLOTS_MAIN_HEATMAPS)
+                  $(TIMESTAMP_PLOTS_MAIN_HEATMAPS) \
+                  $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE) \
+                  $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS) \
+                  $(TIMESTAMP_PLOTS_COMPARISONS_CELLCNN) \
+                  $(TIMESTAMP_PLOTS_COMPARISONS_CYDAR) \
+                  $(TIMESTAMP_PLOTS_COMPARISONS_RUNTIMES)
 
 #                  $(TIMESTAMP_PLOTS_MAIN_RUNTIME) \
-#                  $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_QUALITY) \
 #                  $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
 #                  $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) \
 #                  $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
@@ -118,13 +131,28 @@ $(TIMESTAMP_PLOTS_MAIN_TSNE): $(SCRIPTS_PLOTS_MAIN_TSNE) $(FILES_RDATA_MAIN)
 $(TIMESTAMP_PLOTS_MAIN_HEATMAPS): $(SCRIPTS_PLOTS_MAIN_HEATMAPS) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main_heatmaps && bash run_all.sh
 
-# main results: runtime
-#$(TIMESTAMP_PLOTS_MAIN_RUNTIME): $(SCRIPTS_PLOTS_MAIN_RUNTIME) $(FILES_RDATA_MAIN)
-#	cd $(DIR_GENERATE_PLOTS)/main_runtime && bash run_all.sh
+# main results: clustering performance
+$(TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_CLUSTERING_PERFORMANCE) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/main_clustering_performance && bash run_all.sh
 
-# main results: clustering quality
-#$(TIMESTAMP_PLOTS_MAIN_CLUSTERING_QUALITY): $(SCRIPTS_PLOTS_MAIN_CLUSTERING_QUALITY) $(FILES_RDATA_MAIN)
-#	cd $(DIR_GENERATE_PLOTS)/main_clustering_quality && bash run_all.sh
+
+# comparisons: Citrus
+$(TIMESTAMP_PLOTS_COMPARISONS_CITRUS): $(SCRIPTS_PLOTS_COMPARISONS_CITRUS) $(FILES_RDATA_COMPARISONS_CITRUS) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/comparisons_Citrus && bash run_all.sh
+
+# comparisons: CellCnn
+$(TIMESTAMP_PLOTS_COMPARISONS_CELLCNN): $(SCRIPTS_PLOTS_COMPARISONS_CELLCNN) $(FILES_RDATA_COMPARISONS_CELLCNN) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/comparisons_CellCnn && bash run_all.sh
+
+# comparisons: cydar
+$(TIMESTAMP_PLOTS_COMPARISONS_CYDAR): $(SCRIPTS_PLOTS_COMPARISONS_CYDAR) $(FILES_RDATA_COMPARISONS_CYDAR) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/comparisons_cydar && bash run_all.sh
+
+
+# comparisons: runtimes
+$(TIMESTAMP_PLOTS_COMPARISONS_RUNTIMES): $(SCRIPTS_PLOTS_COMPARISONS_RUNTIMES) $(FILES_RDATA_MAIN) $(FILES_RDATA_COMPARISONS_CITRUS) $(FILES_RDATA_COMPARISONS_CELLCNN) $(FILES_RDATA_COMPARISONS_CYDAR)
+	cd $(DIR_GENERATE_PLOTS)/comparisons_runtimes && bash run_all.sh
+
 
 # supplementary: clustering resolution
 #$(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
@@ -171,6 +199,19 @@ $(DIR_RDATA)/main/outputs_%.RData: $(DIR_RUN_METHODS)/main/run_%.R $(TIMESTAMP_B
 # null simulations
 $(DIR_RDATA)/null_simulations/outputs_%.RData: $(DIR_RUN_METHODS)/null_simulations/run_%.R $(TIMESTAMP_BENCHMARK_NULL_SIMULATIONS)
 	cd $(DIR_RUN_METHODS)/null_simulations && Rscript $(notdir $<)
+
+
+# comparisons: Citrus
+$(DIR_RDATA)/comparisons_Citrus/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_Citrus/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/comparisons_Citrus && Rscript $(notdir $<)
+
+# comparisons: CellCnn
+$(DIR_RDATA)/comparisons_CellCnn/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_CellCnn/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/comparisons_CellCnn && Rscript $(notdir $<)
+
+# comparisons: cydar
+$(DIR_RDATA)/comparisons_cydar/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_cydar/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/comparisons_cydar && Rscript $(notdir $<)
 
 
 # supplementary: clustering resolution

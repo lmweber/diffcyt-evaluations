@@ -6,13 +6,14 @@
 # 
 # - main results
 # 
-# Lukas Weber, September 2017
+# Lukas Weber, February 2018
 ##########################################################################################
 
 
 # note: run from command line with 'Rscript <filename.R>'
 
-# note: CellCnn does not run correctly when using lineage markers only; use all markers for main results
+# note: CellCnn returns errors and does not complete when using 'cell type' markers only;
+# use all markers instead
 
 
 library(flowCore)
@@ -21,9 +22,10 @@ library(SummarizedExperiment)
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
 DIR_CELLCNN <- "../../../../../CellCnn/CellCnn"
+DIR_MINICONDA2 <- "~/miniconda2/bin"
 DIR_CELLCNN_FILES <- "../../../../CellCnn_files/AML_sim/main"
-DIR_RDATA <- "../../../../RData/AML_sim/main"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
+DIR_RDATA <- "../../../../RData/AML_sim/comparisons_CellCnn"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/comparisons_CellCnn"
 
 
 
@@ -46,12 +48,12 @@ system(cmd_clean)
 ################################
 
 # spike-in thresholds
-thresholds <- c("5pc", "1pc", "0.1pc", "0.01pc")
+thresholds <- c("5pc", "1pc", "0.1pc")
 
 # condition names
 cond_names <- c("CN", "CBF")
 
-# lists to store objects
+# lists to store objects and runtime
 out_CellCnn_main <- runtime_CellCnn_main <- vector("list", length(thresholds))
 names(out_CellCnn_main) <- names(runtime_CellCnn_main) <- thresholds
 
@@ -65,6 +67,7 @@ for (th in 1:length(thresholds)) {
   ###########################
   
   # filenames
+  
   files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
                               pattern = "\\.fcs$", full.names = TRUE)
   files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
@@ -72,9 +75,10 @@ for (th in 1:length(thresholds)) {
   files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
   
-  # load data
   files_load <- c(files_healthy, files_CN, files_CBF)
   files_load
+  
+  # load data
   
   d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
   
@@ -90,8 +94,10 @@ for (th in 1:length(thresholds)) {
   patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
   patient_IDs
   
-  # check
-  data.frame(sample_IDs, group_IDs, patient_IDs)
+  sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+  sample_info
+  
+  # marker information
   
   # indices of all marker columns, lineage markers, and functional markers
   # (16 surface markers / 15 functional markers; see Levine et al. 2015, Supplemental 
@@ -100,12 +106,32 @@ for (th in 1:length(thresholds)) {
   cols_lineage <- c(35, 29, 14, 30, 12, 26, 17, 33, 41, 32, 22, 40, 27, 37, 23, 39)
   cols_func <- setdiff(cols_markers, cols_lineage)
   
+  stopifnot(all(sapply(seq_along(d_input), function(i) all(colnames(d_input[[i]]) == colnames(d_input[[1]])))))
   
-  # ------------------------------------
-  # choose markers to use for clustering
-  # ------------------------------------
+  marker_names <- colnames(d_input[[1]])
+  marker_names <- gsub("\\(.*$", "", marker_names)
   
-  cols_clustering <- cols_markers
+  is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
+  
+  is_marker[cols_markers] <- TRUE
+  is_celltype_marker[cols_lineage] <- TRUE
+  is_state_marker[cols_func] <- TRUE
+  
+  marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+  marker_info
+  
+  
+  
+  
+  #######################################
+  # Additional pre-processing for CellCnn
+  #######################################
+  
+  # --------------
+  # markers to use
+  # --------------
+  
+  cols_to_use <- cols_markers
   
   
   # -------------------------------
@@ -118,14 +144,14 @@ for (th in 1:length(thresholds)) {
   }
   all(check)
   
-  marker_names <- colnames(d_input[[1]])[cols_clustering]
+  markers_to_use <- colnames(d_input[[1]])[cols_to_use]
   
   
   # --------------
   # transform data
   # --------------
   
-  # not required, since CellCnn automatically transforms data
+  # not required, since CellCnn automatically transforms data (cannot be disabled)
   
   
   
@@ -143,19 +169,20 @@ for (th in 1:length(thresholds)) {
   
   for (j in 1:length(cond_names)) {
     
-    # -----------------------------------------
-    # Export transformed .fcs files for CellCnn
-    # -----------------------------------------
+    # -----------------------------
+    # Export .fcs files for CellCnn
+    # -----------------------------
     
     ix_keep <- group_IDs %in% c("healthy", cond_names[j])
     
     sample_IDs_keep <- sample_IDs[ix_keep]
+    group_IDs_keep <- droplevels(group_IDs[ix_keep])
     files_load_keep <- files_load[ix_keep]
+    
     d_input_keep <- d_input[ix_keep]
     
     for (i in 1:length(sample_IDs_keep)) {
-      path <- paste0(DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/data_transformed")
-      filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
+      filename <- file.path(DIR_CELLCNN_FILES, thresholds[th], cond_names[j], "data", basename(files_load_keep[i]))
       write.FCS(d_input_keep[[i]], filename)
     }
     
@@ -166,18 +193,17 @@ for (th in 1:length(thresholds)) {
     
     # generate .csv files with input arguments for CellCnn (in required format)
     
-    files_transf <- gsub("\\.fcs$", "_transf.fcs", basename(files_load))
-    files_transf <- files_transf[ix_keep]
-    files_transf
+    files_in <- basename(files_load_keep)
+    files_in
     
     
     # create data frame of sample names and conditions (for CellCnn input .csv file)
     
-    label <- group_IDs[ix_keep]
-    label <- as.numeric(droplevels(label)) - 1
+    label <- group_IDs_keep
+    label <- as.numeric(label) - 1
     label
     
-    df_samples <- data.frame(fcs_filename = files_transf, label = label)
+    df_samples <- data.frame(fcs_filename = files_in, label = label)
     df_samples
     
     # re-arrange alphabetically (otherwise CellCnn reads input files in incorrect order)
@@ -187,17 +213,17 @@ for (th in 1:length(thresholds)) {
     
     # create data frame of column names (markers) (for CellCnn input .csv file)
     
-    df_markers <- t(data.frame(marker_names))
+    df_markers <- t(data.frame(markers_to_use))
     df_markers
     
     
     # save as .csv files
     
-    fn_samples <- paste0(DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_samples.csv")
+    fn_samples <- file.path(DIR_CELLCNN_FILES, thresholds[th], cond_names[j], "inputs", "input_samples.csv")
     write.csv(df_samples, fn_samples, quote = FALSE, row.names = FALSE)
     
     # need to use 'write.table' to allow removing column names
-    fn_markers <- paste0(DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_markers.csv")
+    fn_markers <- file.path(DIR_CELLCNN_FILES, thresholds[th], cond_names[j], "inputs", "input_markers.csv")
     write.table(df_markers, fn_markers, sep = ",", quote = FALSE, row.names = FALSE, col.names = FALSE)
     
     
@@ -213,47 +239,52 @@ for (th in 1:length(thresholds)) {
     # matplotlib.use('agg')
     
     # note: additional advice from authors:
-    # (1) '--no_arcsinh' argument to disable arcsinh transform
-    # (2) '--ncell 300' argument to increase size of each training set [this should be at least 
-    # 'n_cells_min = (avg. no. cells per sample) * (no. samples per condition) / 1000'; 
+    # (1) '--no_arcsinh' argument to disable arcsinh transform (but does not seem to work)
+    # (2) '--ncell 300' argument to increase size of each training set [this should be at
+    # least 'n_cells_min = (avg. no. cells per sample) * (no. samples per condition) / 1000';
     # if no memory constraints then increase to 5 to 10 times 'n_cells_min']
+    # (3) '--subset_selection outlier' for extremely rare populations
     
-    # note: use option '--subset_selection outlier' for extremely rare populations (thresholds 0.1% and 0.01%)
-    cmd_outlier <- ifelse(th %in% c(3, 4), "--subset_selection outlier ", "")
+    # note: use option '--subset_selection outlier' for extremely rare populations (threshold 0.1%)
+    cmd_outlier <- ifelse(th == 3, "--subset_selection outlier ", "")
+    
+    # command to activate virtual environment
+    # note: see CellCnn installation instructions for how to set up virtual environment
+    # note: 'source activate cellcnn_env' works from command line, but also need to provide
+    # path to 'activate' when using 'system' command from R
+    cmd_env <- paste("source", file.path(DIR_MINICONDA2, "activate"), "cellcnn_env")
     
     # command to run CellCnn analysis
-    cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
-                 paste0("-f ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_samples.csv"), 
-                 paste0("-m ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_markers.csv"), 
-                 paste0("-i ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/data_transformed/"), 
-                 paste0("-o ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/out_CellCnn/"), 
-                 paste0(cmd_outlier, "--ncell 300 --export_csv"), 
-                 #"--no_arcsinh",  ## currently not working correctly
-                 paste("--group_a", "Healthy", "--group_b", cond_names[j]))
-    
-    # run from command line
-    runtime_analysis <- system.time(
-      system(cmd)
-    )
+    cmd_run <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
+                     paste0("-f ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_samples.csv"), 
+                     paste0("-m ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_markers.csv"), 
+                     paste0("-i ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/data/"), 
+                     paste0("-o ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/out_CellCnn/"), 
+                     paste0(cmd_outlier, "--ncell 300 --export_csv"), 
+                     #"--no_arcsinh",  ## currently not working correctly
+                     paste("--group_a", "Healthy", "--group_b", cond_names[j]))
     
     
     # command to export selected cells
-    cmd <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
-                 paste0("-f ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_samples.csv"), 
-                 paste0("-m ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_markers.csv"), 
-                 paste0("-i ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/data_transformed/"), 
-                 paste0("-o ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/out_CellCnn/"), 
-                 paste("--group_a", "Healthy", "--group_b", cond_names[j]), 
-                 "--filter_response_thres 0.3 --load_results --export_selected_cells")
+    cmd_export <- paste("python", paste0(DIR_CELLCNN, "/cellCnn/run_analysis.py"), 
+                        paste0("-f ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_samples.csv"), 
+                        paste0("-m ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/inputs/input_markers.csv"), 
+                        paste0("-i ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/data/"), 
+                        paste0("-o ", DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/out_CellCnn/"), 
+                        paste("--group_a", "Healthy", "--group_b", cond_names[j]), 
+                        "--filter_response_thres 0.3 --load_results --export_selected_cells")
+    
+    # combine commands (in a single environment)
+    cmd_combined <- paste(c(cmd_env, cmd_run, cmd_export), collapse = "; ")
     
     # run from command line
-    runtime_select <- system.time(
-      system(cmd)
+    runtime_combined <- system.time(
+      system(cmd_combined)
     )
     
     
     # runtime
-    runtime_total <- runtime_analysis[["elapsed"]] + runtime_select[["elapsed"]]
+    runtime_total <- runtime_combined[["elapsed"]]
     print(runtime_total)
     
     runtime_CellCnn_main[[th]][[j]] <- runtime_total
@@ -265,68 +296,70 @@ for (th in 1:length(thresholds)) {
     # Return results at cell level
     ##############################
     
-    # Note: CellCnn returns continuous 'scores' at the cell level, indicating the
-    # likelihood of each cell belonging to each detected 'filter' (population). If there
-    # are multiple detected filters, we sum the scores to give a single total score per
-    # cell.
+    # Note: CellCnn returns continuous 'scores' at the cell level, representing the likelihood
+    # of each cell belonging to each detected 'filter' (population). If there are multiple
+    # detected filters, we sum the scores to give a single total score per cell.
     
     
     # number of cells per sample (including spike-in cells)
     n_cells <- sapply(d_input, nrow)
     
-    # spike-in status for each cell
+    # identify true spike-in cells (from 'spike' condition)
     is_spikein <- unlist(sapply(d_input, function(d) exprs(d)[, "spikein"]))
     stopifnot(length(is_spikein) == sum(n_cells))
     
-    # select samples for this condition
-    ix_keep_cnd <- group_IDs == cond_names[j]
+    # select samples for this condition and healthy
+    ix_keep_cnd <- group_IDs %in% c("healthy", cond_names[j])
     
     
     # CellCnn output files
     
-    path_out <- paste0(DIR_CELLCNN_FILES, "/", thresholds[th], "/", cond_names[j], "/out_CellCnn/selected_cells")
+    path_out <- file.path(DIR_CELLCNN_FILES, thresholds[th], cond_names[j], "out_CellCnn", "selected_cells")
     
     # if no files exist, CellCnn did not run correctly; return all zeros in this case
     if (length(list.files(path_out)) == 0) {
-      filter_continuous_cnd <- list(rep(0, sum(n_cells[ix_keep_cnd])))
+      filter_continuous <- list(rep(0, sum(n_cells[ix_keep_cnd])))
     }
     
-    files_cnd <- paste0(path_out, "/", gsub("\\.fcs$", "", basename(files_load[ix_keep_cnd])), "_transf_selected_cells.csv")
+    files_cells <- paste0(path_out, "/", gsub("\\.fcs$", "", basename(files_load_keep)), "_selected_cells.csv")
     
     # get cells in selected filters for this condition
-    filter_continuous_cnd <- vector("list", length(files_cnd))
+    filter_continuous <- vector("list", length(files_cells))
     
-    for (f in 1:length(files_cnd)) {
-      d <- try(read.csv(files_cnd[f]), silent = TRUE)
+    for (f in 1:length(files_cells)) {
+      d <- try(read.csv(files_cells[f]), silent = TRUE)
       
       if (!(class(d) == "try-error")) {
         # note: if there are multiple filters for one sample, combine them using 'rowSums'
         # (filters are stored in odd-numbered columns of the .csv file)
         ix <- seq(1, ncol(d), by = 2)
         filt_sum <- rowSums(d[, ix, drop = FALSE])
-        filter_continuous_cnd[[f]] <- filt_sum
+        filter_continuous[[f]] <- filt_sum
         
       } else {
         # if .csv file is empty, fill with zeros instead
-        filter_continuous_cnd[[f]] <- rep(0, n_cells[ix_keep_cnd][[f]])
+        filter_continuous[[f]] <- rep(0, n_cells[ix_keep_cnd][[f]])
       }
     }
     
-    filter_continuous_cnd <- unlist(filter_continuous_cnd)
+    filter_continuous <- unlist(filter_continuous)
     
     
     # set up data frame with results and true spike-in status at cell level
     
     which_cnd <- rep(ix_keep_cnd, n_cells)
     is_spikein_cnd <- is_spikein[which_cnd]
-    stopifnot(length(filter_continuous_cnd) == length(is_spikein_cnd))
+    stopifnot(length(filter_continuous) == sum(which_cnd), 
+              length(filter_continuous) == length(is_spikein_cnd))
     
-    scores <- filter_continuous_cnd
+    scores <- filter_continuous
     
     # replace any NAs to ensure same set of cells is returned for all methods
     scores[is.na(scores)] <- 0
     
-    # return values for this condition only
+    stopifnot(length(scores) == length(is_spikein_cnd))
+    
+    # return values for this condition and healthy
     res <- data.frame(scores = scores, 
                       spikein = is_spikein_cnd)
     

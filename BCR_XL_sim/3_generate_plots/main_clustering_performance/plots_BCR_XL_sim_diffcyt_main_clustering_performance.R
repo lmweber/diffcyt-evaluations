@@ -125,7 +125,7 @@ p <-
 
 # save plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_main_clustering_performance.pdf")
-ggsave(fn, width = 6, height = 3)
+ggsave(fn, width = 6, height = 2.75)
 
 
 

@@ -52,9 +52,9 @@ colnames(d_runtimes) <- "runtime"
 d_runtimes$method <- factor(rownames(d_runtimes), levels = rownames(d_runtimes))
 
 # color scheme
-colors <- c("goldenrod1", "forestgreen", "gray50", "firebrick1", "darkviolet")
+colors <- c("gold2", "darkorange1", "brown4", "firebrick1", "darkviolet")
 
-y_range <- c(10, 2500)
+y_range <- c(10, 3000)
 
 # create plot
 p_runtimes <- 
@@ -63,8 +63,8 @@ p_runtimes <-
   geom_text(color = "black", vjust = -1.5, size = 3.4) + 
   scale_color_manual(values = colors) + 
   scale_y_log10(limits = y_range) + 
-  ylab("runtime (seconds, log10 scale)") + 
-  ggtitle("Runtimes: BCR-XL-sim") + 
+  ylab("runtime (sec, log10 scale)") + 
+  ggtitle("BCR-XL-sim: runtimes") + 
   theme_bw() + 
   theme(axis.title.x = element_blank(), 
         axis.text.x = element_text(angle = 90, hjust = 1, vjust = 0.5, size = 10))

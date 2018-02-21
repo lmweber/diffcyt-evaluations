@@ -40,9 +40,9 @@ DIR_CITRUS_FILES <- "../../../../Citrus_files/BCR_XL_sim/main"
 
 # copy automatically generated Citrus plots
 
-plots_Citrus <- c(file.path(DIR_CITRUS_FILES, "citrusOutput/defaultCondition", 
+plots_Citrus <- c(file.path(DIR_CITRUS_FILES, "citrusOutput", "defaultCondition", 
                             "markerPlotsAll.pdf"), 
-                  file.path(DIR_CITRUS_FILES, "citrusOutput/defaultCondition/glmnet_results", 
+                  file.path(DIR_CITRUS_FILES, "citrusOutput", "defaultCondition", "glmnet_results", 
                             c("clusters-cv_min.pdf", "featurePlots_cv.min.pdf", "features-cv_min.pdf")))
 
 cmds <- paste("cp", plots_Citrus, DIR_PLOTS)
@@ -87,7 +87,7 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = c("roc", "fdrtpr", "fdrtprcurve", "tpr", "fpr"))
 
 # color scheme
-colors <- c("firebrick1", "darkviolet", "goldenrod1")
+colors <- c("firebrick1", "darkviolet", "gold2")
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
@@ -178,7 +178,7 @@ plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(3,
 
 # save multi-panel plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_Citrus_main_performance.pdf")
-ggsave(fn, width = 7, height = 2.625)
+ggsave(fn, width = 6.5, height = 2.625)
 
 
 
