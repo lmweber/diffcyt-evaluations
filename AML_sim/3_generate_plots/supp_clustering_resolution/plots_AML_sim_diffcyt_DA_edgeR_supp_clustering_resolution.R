@@ -60,14 +60,14 @@ for (th in 1:length(thresholds)) {
     # -------------------------------------
     
     # create 'COBRAData' object
-    data <- list(k_9   = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_9"]], 
-                 k_25  = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_25"]], 
-                 k_49  = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_49"]], 
-                 k_100 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_100"]], 
-                 k_196 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_196"]], 
-                 k_400 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_400"]], 
-                 k_900 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_900"]], 
-                 k_1600 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_1600"]])
+    data <- list(k_9   = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_9"]][[th]][[j]], 
+                 k_25  = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_25"]][[th]][[j]], 
+                 k_49  = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_49"]][[th]][[j]], 
+                 k_100 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_100"]][[th]][[j]], 
+                 k_196 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_196"]][[th]][[j]], 
+                 k_400 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_400"]][[th]][[j]], 
+                 k_900 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_900"]][[th]][[j]], 
+                 k_1600 = out_diffcyt_DA_edgeR_supp_clustering_resolution[["k_1600"]][[th]][[j]])
     
     # check
     stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
@@ -237,11 +237,11 @@ grid_multi <- plot_grid(title_multi, plots_multi, ncol = 1, rel_heights = c(1, 2
 legend_multi <- get_legend(plots_ROC[[1]] + theme(legend.position = "right", 
                                                    legend.title = element_text(size = 12, face = "bold"), 
                                                    legend.text = element_text(size = 12)))
-grid_multi <- plot_grid(grid_multi, legend_multi, nrow = 1, rel_widths = c(3.5, 1))
+grid_multi <- plot_grid(grid_multi, legend_multi, nrow = 1, rel_widths = c(5.5, 1))
 
 # save plots
 fn_multi <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution_ROC.pdf"))
-ggsave(fn_multi, grid_multi, width = 8, height = 4.9)
+ggsave(fn_multi, grid_multi, width = 9.5, height = 6)
 
 
 
@@ -267,11 +267,11 @@ grid_multi <- plot_grid(title_multi, plots_multi, ncol = 1, rel_heights = c(1, 2
 legend_multi <- get_legend(plots_pAUC[[1]] + theme(legend.position = "right", 
                                                   legend.title = element_text(size = 12, face = "bold"), 
                                                   legend.text = element_text(size = 12)))
-grid_multi <- plot_grid(grid_multi, legend_multi, nrow = 1, rel_widths = c(3.5, 1))
+grid_multi <- plot_grid(grid_multi, legend_multi, nrow = 1, rel_widths = c(5.5, 1))
 
 # save plots
 fn_multi <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution_pAUC.pdf"))
-ggsave(fn_multi, grid_multi, width = 8, height = 4.9)
+ggsave(fn_multi, grid_multi, width = 9.5, height = 6)
 
 
 
