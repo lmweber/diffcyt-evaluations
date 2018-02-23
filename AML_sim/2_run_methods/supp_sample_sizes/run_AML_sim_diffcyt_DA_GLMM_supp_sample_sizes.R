@@ -1,10 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-GLMM
 # - data set: AML-sim
 # 
-# - main results
+# - supplementary results: smaller sample sizes
 # 
 # Lukas Weber, February 2018
 ##########################################################################################
@@ -16,9 +16,8 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
-DIR_PLOTS <- "../../../../plots/AML_sim/main_diagnostic/diffcyt_DA_limma"
-DIR_RDATA <- "../../../../RData/AML_sim/main"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
+DIR_RDATA <- "../../../../RData/AML_sim/supp_sample_sizes"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_sample_sizes"
 
 
 
@@ -34,15 +33,18 @@ thresholds <- c("5pc", "1pc", "0.1pc")
 cond_names <- c("CN", "CBF")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include fixed effects for 'patient_IDs'
-contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
+# note: include random effects for 'patient_IDs' and 'sample_IDs'
+contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
+
+# define sample sizes: 2 vs. 2
+samples_keep <- rep(c(rep(TRUE, 2), rep(FALSE, 3)), 3)
 
 # lists to store objects and runtime
-out_diffcyt_DA_limma_main <- runtime_diffcyt_DA_limma_main <- 
-  out_clusters_diffcyt_DA_limma_main <- out_objects_diffcyt_DA_limma_main <- 
+out_diffcyt_DA_GLMM_supp_sample_sizes <- runtime_diffcyt_DA_GLMM_supp_sample_sizes <- 
+  out_clusters_diffcyt_DA_GLMM_supp_sample_sizes <- out_objects_diffcyt_DA_GLMM_supp_sample_sizes <- 
   vector("list", length(thresholds))
-names(out_diffcyt_DA_limma_main) <- names(runtime_diffcyt_DA_limma_main) <- 
-  names(out_clusters_diffcyt_DA_limma_main) <- names(out_objects_diffcyt_DA_limma_main) <- 
+names(out_diffcyt_DA_GLMM_supp_sample_sizes) <- names(runtime_diffcyt_DA_GLMM_supp_sample_sizes) <- 
+  names(out_clusters_diffcyt_DA_GLMM_supp_sample_sizes) <- names(out_objects_diffcyt_DA_GLMM_supp_sample_sizes) <- 
   thresholds
 
 
@@ -65,6 +67,10 @@ for (th in 1:length(thresholds)) {
   
   files_load <- c(files_healthy, files_CN, files_CBF)
   files_load
+  
+  # smaller sample sizes
+  
+  files_load <- files_load[samples_keep]
   
   # load data
   
@@ -169,7 +175,7 @@ for (th in 1:length(thresholds)) {
   # store data objects (for plotting)
   # ---------------------------------
   
-  out_objects_diffcyt_DA_limma_main[[th]] <- list(
+  out_objects_diffcyt_DA_GLMM_supp_sample_sizes[[th]] <- list(
     d_se = d_se, 
     d_counts = d_counts, 
     d_medians = d_medians, 
@@ -183,23 +189,23 @@ for (th in 1:length(thresholds)) {
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_diffcyt_DA_limma_main[[th]] <- runtime_diffcyt_DA_limma_main[[th]] <- 
-    out_clusters_diffcyt_DA_limma_main[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_limma_main[[th]]) <- names(runtime_diffcyt_DA_limma_main[[th]]) <- 
-    names(out_clusters_diffcyt_DA_limma_main[[th]]) <- cond_names
+  out_diffcyt_DA_GLMM_supp_sample_sizes[[th]] <- runtime_diffcyt_DA_GLMM_supp_sample_sizes[[th]] <- 
+    out_clusters_diffcyt_DA_GLMM_supp_sample_sizes[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_GLMM_supp_sample_sizes[[th]]) <- names(runtime_diffcyt_DA_GLMM_supp_sample_sizes[[th]]) <- 
+    names(out_clusters_diffcyt_DA_GLMM_supp_sample_sizes[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
     
     runtime_j <- system.time({
       
-      # set up design matrix
+      # set up model formula
       # note: order of samples has changed
       sample_info_ordered <- as.data.frame(colData(d_counts))
       sample_info_ordered
-      # note: include fixed effects for 'patient_IDs'
-      design <- createDesignMatrix(sample_info_ordered, cols_include = 1:2)
-      design
+      # note: include random effects for 'patient_IDs' and 'sample_IDs'
+      formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2:3)
+      formula
       
       # set up contrast matrix
       contrast <- createContrast(contrasts_list[[j]])
@@ -207,10 +213,8 @@ for (th in 1:length(thresholds)) {
       
       # run tests
       # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
-      path <- file.path(DIR_PLOTS, thresholds[th], cond_names[j])
-      res <- testDA_limma(d_counts, design, contrast, 
-                          min_cells = 3, min_samples = nrow(sample_info_ordered) / 3, 
-                          path = path)
+      res <- testDA_GLMM(d_counts, formula, contrast, 
+                         min_cells = 3, min_samples = nrow(sample_info_ordered) / 3)
       
     })
     
@@ -218,18 +222,18 @@ for (th in 1:length(thresholds)) {
     rowData(res)
     
     # sort to show top (most highly significant) clusters first
-    res_sorted <- rowData(res)[order(rowData(res)$adj.P.Val), ]
+    res_sorted <- rowData(res)[order(rowData(res)$p_adj), ]
     print(head(res_sorted, 10))
     #View(as.data.frame(res_sorted))
     
     # number of significant tests (note: one test per cluster)
-    print(table(res_sorted$adj.P.Val <= 0.1))
+    print(table(res_sorted$p_adj <= 0.1))
     
     # runtime
     runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
     print(runtime_total)
     
-    runtime_diffcyt_DA_limma_main[[th]][[j]] <- runtime_total
+    runtime_diffcyt_DA_GLMM_supp_sample_sizes[[th]][[j]] <- runtime_total
     
     
     # ---------------------------------------------
@@ -238,7 +242,7 @@ for (th in 1:length(thresholds)) {
     
     res_clusters <- as.data.frame(rowData(res))
     
-    out_clusters_diffcyt_DA_limma_main[[th]][[j]] <- res_clusters
+    out_clusters_diffcyt_DA_GLMM_supp_sample_sizes[[th]][[j]] <- res_clusters
     
     
     
@@ -273,8 +277,8 @@ for (th in 1:length(thresholds)) {
     # match cells to clusters
     ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
     
-    p_vals_clusters <- rowData(res)$P.Value
-    p_adj_clusters <- rowData(res)$adj.P.Val
+    p_vals_clusters <- rowData(res)$p_vals
+    p_adj_clusters <- rowData(res)$p_adj
     
     p_vals_cells <- p_vals_clusters[ix_match]
     p_adj_cells <- p_adj_clusters[ix_match]
@@ -301,7 +305,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_diffcyt_DA_limma_main[[th]][[j]] <- res
+    out_diffcyt_DA_GLMM_supp_sample_sizes[[th]][[j]] <- res
     
   }
 }
@@ -313,14 +317,14 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_main, runtime_diffcyt_DA_limma_main, 
-     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
+save(out_diffcyt_DA_GLMM_supp_sample_sizes, runtime_diffcyt_DA_GLMM_supp_sample_sizes, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_GLMM_supp_sample_sizes.RData"))
 
-save(out_clusters_diffcyt_DA_limma_main, 
-     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_main.RData"))
+save(out_clusters_diffcyt_DA_GLMM_supp_sample_sizes, 
+     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_GLMM_supp_sample_sizes.RData"))
 
-save(out_objects_diffcyt_DA_limma_main, 
-     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_main.RData"))
+save(out_objects_diffcyt_DA_GLMM_supp_sample_sizes, 
+     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_GLMM_supp_sample_sizes.RData"))
 
 
 
@@ -329,7 +333,7 @@ save(out_objects_diffcyt_DA_limma_main,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_limma_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_GLMM_supp_sample_sizes.txt"))
 sessionInfo()
 sink()
 

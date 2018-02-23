@@ -10,6 +10,10 @@
 ##########################################################################################
 
 
+# note: using random effects for patient IDs and sample IDs (using fixed effects for
+# patient IDs returns errors)
+
+
 library(diffcyt)
 library(flowCore)
 library(SummarizedExperiment)
@@ -33,7 +37,7 @@ thresholds <- c("5pc", "1pc", "0.1pc")
 cond_names <- c("CN", "CBF")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include random effects for 'patient_IDs'
+# note: include random effects for 'patient_IDs' and 'sample_IDs'
 contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects and runtime
@@ -196,8 +200,8 @@ for (th in 1:length(thresholds)) {
       # note: order of samples has changed
       sample_info_ordered <- as.data.frame(colData(d_counts))
       sample_info_ordered
-      # note: include random effects for 'patient_IDs'
-      formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2)
+      # note: include random effects for 'patient_IDs' and 'sample_IDs'
+      formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2:3)
       formula
       
       # set up contrast matrix

@@ -192,7 +192,7 @@ for (th in 1:length(thresholds)) {
     # --------------------------------------------
     
     # contrast (to compare 'null2' vs. 'null1')
-    # note: include random effects for 'patient_IDs'
+    # note: include random effects for 'patient_IDs' and 'sample_IDs'
     contrast_vec <- c(0, 1)
     
     runtime_tests <- system.time({
@@ -201,8 +201,8 @@ for (th in 1:length(thresholds)) {
       # note: order of samples has changed
       sample_info_ordered <- as.data.frame(colData(d_counts))
       sample_info_ordered
-      # note: include random effects for 'patient_IDs'
-      formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2)
+      # note: include random effects for 'patient_IDs' and 'sample_IDs'
+      formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2:3)
       formula
       
       # set up contrast matrix

@@ -1,10 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-edgeR
+# - method: diffcyt-DA-limma
 # - data set: AML-sim
 # 
-# - supplementary results: varying clustering resolution
+# - supplementary results: varying random seeds for clustering
 # 
 # Lukas Weber, February 2018
 ##########################################################################################
@@ -16,8 +16,9 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
-DIR_RDATA <- "../../../../RData/AML_sim/supp_clustering_resolution"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_clustering_resolution"
+DIR_PLOTS <- "../../../../plots/AML_sim/supp_random_seeds_clustering/diagnostic/diffcyt_DA_limma"
+DIR_RDATA <- "../../../../RData/AML_sim/supp_random_seeds_clustering"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_random_seeds_clustering"
 
 
 
@@ -32,32 +33,31 @@ thresholds <- c("5pc", "1pc", "0.1pc")
 # condition names
 cond_names <- c("CN", "CBF")
 
-# varying clustering resolution: grid size for FlowSOM (e.g. 10x10 grid)
-resolution <- c(3, 5, 7, 10, 14, 20, 30, 40)
-resolution_sq <- resolution^2
+# varying random seeds for clustering
+seeds <- c(101, 102, 103)
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
 # note: include fixed effects for 'patient_IDs'
 contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
 
 # lists to store objects and runtime
-out_diffcyt_DA_edgeR_supp_clustering_resolution <- runtime_diffcyt_DA_edgeR_supp_clustering_resolution <- 
-  out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution <- out_objects_diffcyt_DA_edgeR_supp_clustering_resolution <- 
-  vector("list", length(resolution))
-names(out_diffcyt_DA_edgeR_supp_clustering_resolution) <- names(runtime_diffcyt_DA_edgeR_supp_clustering_resolution) <- 
-  names(out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution) <- names(out_objects_diffcyt_DA_edgeR_supp_clustering_resolution) <- 
-  paste("k", resolution_sq, sep = "_")
+out_diffcyt_DA_limma_supp_random_seeds_clustering <- runtime_diffcyt_DA_limma_supp_random_seeds_clustering <- 
+  out_clusters_diffcyt_DA_limma_supp_random_seeds_clustering <- out_objects_diffcyt_DA_limma_supp_random_seeds_clustering <- 
+  vector("list", length(seeds))
+names(out_diffcyt_DA_limma_supp_random_seeds_clustering) <- names(runtime_diffcyt_DA_limma_supp_random_seeds_clustering) <- 
+  names(out_clusters_diffcyt_DA_limma_supp_random_seeds_clustering) <- names(out_objects_diffcyt_DA_limma_supp_random_seeds_clustering) <- 
+  seeds
 
 
 
 
-for (k in 1:length(resolution)) {
+for (s in 1:length(seeds)) {
   
-  out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]] <- runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]] <- 
-    out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]] <- out_objects_diffcyt_DA_edgeR_supp_clustering_resolution[[k]] <- 
+  out_diffcyt_DA_limma_supp_random_seeds_clustering[[s]] <- runtime_diffcyt_DA_limma_supp_random_seeds_clustering[[s]] <- 
+    out_clusters_diffcyt_DA_limma_supp_random_seeds_clustering[[s]] <- out_objects_diffcyt_DA_limma_supp_random_seeds_clustering[[s]] <- 
     vector("list", length(thresholds))
-  names(out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]]) <- names(runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]]) <- 
-    names(out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]]) <- names(out_objects_diffcyt_DA_edgeR_supp_clustering_resolution[[k]]) <- 
+  names(out_diffcyt_DA_limma_supp_random_seeds_clustering[[s]]) <- names(runtime_diffcyt_DA_limma_supp_random_seeds_clustering[[s]]) <- 
+    names(out_clusters_diffcyt_DA_limma_supp_random_seeds_clustering[[s]]) <- names(out_objects_diffcyt_DA_limma_supp_random_seeds_clustering[[s]]) <- 
     thresholds
   
   
@@ -145,9 +145,9 @@ for (k in 1:length(resolution)) {
       
       # clustering
       # (runtime: ~30 sec with xdim = 20, ydim = 20)
-      # note: varying clustering resolution
-      seed <- 123
-      d_se <- generateClusters(d_se, xdim = resolution[k], ydim = resolution[k], seed = seed)
+      # note: different random seed for each replicate
+      seed <- seeds[s]
+      d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
       
       length(table(rowData(d_se)$cluster))  # number of clusters
       nrow(rowData(d_se))                   # number of cells
@@ -183,7 +183,7 @@ for (k in 1:length(resolution)) {
     # store data objects (for plotting)
     # ---------------------------------
     
-    out_objects_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]] <- list(
+    out_objects_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]] <- list(
       d_se = d_se, 
       d_counts = d_counts, 
       d_medians = d_medians, 
@@ -197,10 +197,10 @@ for (k in 1:length(resolution)) {
     
     # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
     
-    out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]] <- runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]] <- 
-      out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]] <- vector("list", length(cond_names))
-    names(out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]]) <- names(runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]]) <- 
-      names(out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]]) <- cond_names
+    out_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]] <- runtime_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]] <- 
+      out_clusters_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]] <- vector("list", length(cond_names))
+    names(out_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]]) <- names(runtime_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]]) <- 
+      names(out_clusters_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]]) <- cond_names
     
     
     for (j in 1:length(cond_names)) {
@@ -221,8 +221,10 @@ for (k in 1:length(resolution)) {
         
         # run tests
         # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
-        res <- testDA_edgeR(d_counts, design, contrast, 
-                            min_cells = 3, min_samples = nrow(sample_info_ordered) / 3)
+        path <- file.path(DIR_PLOTS, thresholds[th], cond_names[j])
+        res <- testDA_limma(d_counts, design, contrast, 
+                            min_cells = 3, min_samples = nrow(sample_info_ordered) / 3, 
+                            path = path)
         
       })
       
@@ -230,18 +232,18 @@ for (k in 1:length(resolution)) {
       rowData(res)
       
       # sort to show top (most highly significant) clusters first
-      res_sorted <- rowData(res)[order(rowData(res)$FDR), ]
+      res_sorted <- rowData(res)[order(rowData(res)$adj.P.Val), ]
       print(head(res_sorted, 10))
       #View(as.data.frame(res_sorted))
       
       # number of significant tests (note: one test per cluster)
-      print(table(res_sorted$FDR <= 0.1))
+      print(table(res_sorted$adj.P.Val <= 0.1))
       
       # runtime
       runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
       print(runtime_total)
       
-      runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]][[j]] <- runtime_total
+      runtime_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]][[j]] <- runtime_total
       
       
       # ---------------------------------------------
@@ -250,7 +252,7 @@ for (k in 1:length(resolution)) {
       
       res_clusters <- as.data.frame(rowData(res))
       
-      out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]][[j]] <- res_clusters
+      out_clusters_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]][[j]] <- res_clusters
       
       
       
@@ -285,8 +287,8 @@ for (k in 1:length(resolution)) {
       # match cells to clusters
       ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
       
-      p_vals_clusters <- rowData(res)$PValue
-      p_adj_clusters <- rowData(res)$FDR
+      p_vals_clusters <- rowData(res)$P.Value
+      p_adj_clusters <- rowData(res)$adj.P.Val
       
       p_vals_cells <- p_vals_clusters[ix_match]
       p_adj_cells <- p_adj_clusters[ix_match]
@@ -313,7 +315,7 @@ for (k in 1:length(resolution)) {
                         spikein = is_spikein_cnd)
       
       # store results
-      out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]][[j]] <- res
+      out_diffcyt_DA_limma_supp_random_seeds_clustering[[s]][[th]][[j]] <- res
       
     }
   }
@@ -326,14 +328,14 @@ for (k in 1:length(resolution)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_edgeR_supp_clustering_resolution, runtime_diffcyt_DA_edgeR_supp_clustering_resolution, 
-     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
+save(out_diffcyt_DA_limma_supp_random_seeds_clustering, runtime_diffcyt_DA_limma_supp_random_seeds_clustering, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_random_seeds_clustering.RData"))
 
-save(out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution, 
-     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
+save(out_clusters_diffcyt_DA_limma_supp_random_seeds_clustering, 
+     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_supp_random_seeds_clustering.RData"))
 
-save(out_objects_diffcyt_DA_edgeR_supp_clustering_resolution, 
-     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
+save(out_objects_diffcyt_DA_limma_supp_random_seeds_clustering, 
+     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_supp_random_seeds_clustering.RData"))
 
 
 
@@ -342,7 +344,7 @@ save(out_objects_diffcyt_DA_edgeR_supp_clustering_resolution,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_limma_supp_random_seeds_clustering.txt"))
 sessionInfo()
 sink()
 

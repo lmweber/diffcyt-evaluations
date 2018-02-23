@@ -24,18 +24,18 @@ TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/tim
 TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_HEATMAPS                = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(DIR_PLOTS)/main_clustering_performance/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA    = $(DIR_PLOTS)/supp_random_effects_limma/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_METACLUSTERING          = $(DIR_PLOTS)/supp_metaclustering/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING     = $(DIR_PLOTS)/supp_separate_clustering/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(DIR_PLOTS)/supp_random_seeds_clustering/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA       = $(DIR_PLOTS)/supp_random_seeds_data/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT           = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES            = $(DIR_PLOTS)/supp_sample_sizes/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
 TIMESTAMP_PLOTS_COMPARISONS_CITRUS           = $(DIR_PLOTS)/comparisons_Citrus/timestamp.txt
 TIMESTAMP_PLOTS_COMPARISONS_CELLCNN          = $(DIR_PLOTS)/comparisons_CellCnn/timestamp.txt
 TIMESTAMP_PLOTS_COMPARISONS_CYDAR            = $(DIR_PLOTS)/comparisons_cydar/timestamp.txt
 TIMESTAMP_PLOTS_COMPARISONS_RUNTIMES         = $(DIR_PLOTS)/comparisons_runtimes/timestamp.txt
-#TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
-#TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS         = $(DIR_PLOTS)/supp_fixed_effects/timestamp.txt
-#TIMESTAMP_PLOTS_SUPP_ALL_MARKERS           = $(DIR_PLOTS)/supp_all_markers/timestamp.txt
-# note no separate plots for 'supp_lineage_markers' (included in 'supp_all_markers')
-#TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(DIR_PLOTS)/supp_separate_clustering/timestamp.txt
-#TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS         = $(DIR_PLOTS)/supp_random_starts/timestamp.txt
-#TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS      = $(DIR_PLOTS)/supp_benchmark_random/timestamp.txt
-#TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT         = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
 
 SCRIPTS_PLOTS_DATA_DISTRIBUTIONS           = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
 SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
@@ -43,34 +43,32 @@ SCRIPTS_PLOTS_NULL_SIMULATIONS             = $(wildcard $(DIR_GENERATE_PLOTS)/nu
 SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 SCRIPTS_PLOTS_MAIN_HEATMAPS                = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
 SCRIPTS_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(wildcard $(DIR_GENERATE_PLOTS)/main_clustering_performance/*.R)
+SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA    = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_effects_limma/*.R)
+SCRIPTS_PLOTS_SUPP_METACLUSTERING          = $(wildcard $(DIR_GENERATE_PLOTS)/supp_metaclustering/*.R)
+SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING     = $(wildcard $(DIR_GENERATE_PLOTS)/supp_separate_clustering/*.R)
+SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_seeds_clustering/*.R)
+SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_DATA       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_seeds_data/*.R)
+SCRIPTS_PLOTS_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
+SCRIPTS_PLOTS_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_GENERATE_PLOTS)/supp_sample_sizes/*.R)
+SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
 SCRIPTS_PLOTS_COMPARISONS_CITRUS           = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_Citrus/*.R)
 SCRIPTS_PLOTS_COMPARISONS_CELLCNN          = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_CellCnn/*.R)
 SCRIPTS_PLOTS_COMPARISONS_CYDAR            = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_cydar/*.R)
 SCRIPTS_PLOTS_COMPARISONS_RUNTIMES         = $(wildcard $(DIR_GENERATE_PLOTS)/comparisons_runtimes/*.R)
-#SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
-#SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects/*.R)
-#SCRIPTS_PLOTS_SUPP_ALL_MARKERS           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_all_markers/*.R)
-#SCRIPTS_PLOTS_SUPP_LINEAGE_MARKERS       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_lineage_markers/*.R)
-#SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_separate_clustering/*.R)
-#SCRIPTS_PLOTS_SUPP_RANDOM_STARTS         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_starts/*.R)
-#SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS      = $(wildcard $(DIR_GENERATE_PLOTS)/supp_benchmark_random/*.R)
-#SCRIPTS_PLOTS_SUPP_LESS_DISTINCT         = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
 
 FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_NULL_SIMULATIONS             = $(wildcard $(DIR_RDATA)/null_simulations/*.RData)
+FILES_RDATA_SUPP_RANDOM_EFFECTS_LIMMA    = $(wildcard $(DIR_RDATA)/supp_random_effects_limma/*.RData)
+FILES_RDATA_SUPP_METACLUSTERING          = $(wildcard $(DIR_RDATA)/supp_metaclustering/*.RData)
+FILES_RDATA_SUPP_SEPARATE_CLUSTERING     = $(wildcard $(DIR_RDATA)/supp_separate_clustering/*.RData)
+FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_RDATA)/supp_random_seeds_clustering/*.RData)
+FILES_RDATA_SUPP_RANDOM_SEEDS_DATA       = $(wildcard $(DIR_RDATA)/supp_random_seeds_data/*.RData)
+FILES_RDATA_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_RDATA)/supp_less_distinct/*.RData)
+FILES_RDATA_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_RDATA)/supp_sample_sizes/*.RData)
+FILES_RDATA_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
 FILES_RDATA_COMPARISONS_CITRUS           = $(wildcard $(DIR_RDATA)/comparisons_Citrus/*.RData)
 FILES_RDATA_COMPARISONS_CELLCNN          = $(wildcard $(DIR_RDATA)/comparisons_CellCnn/*.RData)
 FILES_RDATA_COMPARISONS_CYDAR            = $(wildcard $(DIR_RDATA)/comparisons_cydar/*.RData)
-#FILES_RDATA_SUPP_CLUSTERING_RESOLUTION = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
-#FILES_RDATA_SUPP_FIXED_EFFECTS         = $(wildcard $(DIR_RDATA)/supp_fixed_effects/*.RData)
-#FILES_RDATA_SUPP_ALL_MARKERS           = $(wildcard $(DIR_RDATA)/supp_all_markers/*.RData)
-#FILES_RDATA_SUPP_LINEAGE_MARKERS       = $(wildcard $(DIR_RDATA)/supp_lineage_markers/*.RData)
-#FILES_RDATA_SUPP_SEPARATE_CLUSTERING   = $(wildcard $(DIR_RDATA)/supp_separate_clustering/*.RData)
-#FILES_RDATA_SUPP_RANDOM_STARTS         = $(wildcard $(DIR_RDATA)/supp_random_starts/*.RData)
-# note subdirectories (e.g. 'supp_benchmark_random/seed1')
-#FILES_RDATA_SUPP_BENCHMARK_RANDOM_SEEDS      = $(wildcard $(DIR_RDATA)/supp_benchmark_random/*/*.RData)
-# note subdirectories (e.g. 'supp_less_distinct/50pc')
-#FILES_RDATA_SUPP_LESS_DISTINCT         = $(wildcard $(DIR_RDATA)/supp_less_distinct/*/*.RData)
 
 
 
@@ -89,19 +87,18 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
                   $(TIMESTAMP_PLOTS_MAIN_HEATMAPS) \
                   $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE) \
+                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA) \
+                  $(TIMESTAMP_PLOTS_SUPP_METACLUSTERING) \
+                  $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING) \
+                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) \
+                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA) \
+                  $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
+                  $(TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES) \
+                  $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
                   $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS) \
                   $(TIMESTAMP_PLOTS_COMPARISONS_CELLCNN) \
                   $(TIMESTAMP_PLOTS_COMPARISONS_CYDAR) \
                   $(TIMESTAMP_PLOTS_COMPARISONS_RUNTIMES)
-
-#                  $(TIMESTAMP_PLOTS_MAIN_RUNTIME) \
-#                  $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
-#                  $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS) \
-#                  $(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS) \
-#                  $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING) \
-#                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS) \
-#                  $(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS) \
-#                  $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
 
 
 
@@ -136,6 +133,39 @@ $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_CLUSTERING_
 	cd $(DIR_GENERATE_PLOTS)/main_clustering_performance && bash run_all.sh
 
 
+# supplementary: random effects for diffcyt-DA-limma
+$(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA): $(SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA) $(FILES_RDATA_SUPP_RANDOM_EFFECTS_LIMMA)
+	cd $(DIR_GENERATE_PLOTS)/supp_random_effects_limma && bash run_all.sh
+
+# supplementary: meta-clustering
+$(TIMESTAMP_PLOTS_SUPP_METACLUSTERING): $(SCRIPTS_PLOTS_SUPP_METACLUSTERING) $(FILES_RDATA_SUPP_METACLUSTERING)
+	cd $(DIR_GENERATE_PLOTS)/supp_metaclustering && bash run_all.sh
+
+# supplementary: separate clustering
+$(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING): $(SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING) $(FILES_RDATA_SUPP_SEPARATE_CLUSTERING)
+	cd $(DIR_GENERATE_PLOTS)/supp_separate_clustering && bash run_all.sh
+
+# supplementary: varying random seeds for clustering
+$(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) $(FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/supp_random_seeds_clustering && bash run_all.sh
+
+# supplementary: varying random seeds for data generation
+$(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_DATA) $(FILES_RDATA_SUPP_RANDOM_SEEDS_DATA) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/supp_random_seeds_data && bash run_all.sh
+
+# supplementary: 'less distinct' benchmark data
+$(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT): $(SCRIPTS_PLOTS_SUPP_LESS_DISTINCT) $(FILES_RDATA_SUPP_LESS_DISTINCT) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/supp_less_distinct && bash run_all.sh
+
+# supplementary: sample sizes
+$(TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES): $(SCRIPTS_PLOTS_SUPP_SAMPLE_SIZES) $(FILES_RDATA_SUPP_SAMPLE_SIZES)
+	cd $(DIR_GENERATE_PLOTS)/supp_sample_sizes && bash run_all.sh
+
+# supplementary: clustering resolution
+$(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
+	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && bash run_all.sh
+
+
 # comparisons: Citrus
 $(TIMESTAMP_PLOTS_COMPARISONS_CITRUS): $(SCRIPTS_PLOTS_COMPARISONS_CITRUS) $(FILES_RDATA_COMPARISONS_CITRUS) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/comparisons_Citrus && bash run_all.sh
@@ -152,36 +182,6 @@ $(TIMESTAMP_PLOTS_COMPARISONS_CYDAR): $(SCRIPTS_PLOTS_COMPARISONS_CYDAR) $(FILES
 # comparisons: runtimes
 $(TIMESTAMP_PLOTS_COMPARISONS_RUNTIMES): $(SCRIPTS_PLOTS_COMPARISONS_RUNTIMES) $(FILES_RDATA_MAIN) $(FILES_RDATA_COMPARISONS_CITRUS) $(FILES_RDATA_COMPARISONS_CELLCNN) $(FILES_RDATA_COMPARISONS_CYDAR)
 	cd $(DIR_GENERATE_PLOTS)/comparisons_runtimes && bash run_all.sh
-
-
-# supplementary: clustering resolution
-#$(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION): $(SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION) $(FILES_RDATA_SUPP_CLUSTERING_RESOLUTION)
-#	cd $(DIR_GENERATE_PLOTS)/supp_clustering_resolution && bash run_all.sh
-
-# supplementary: diffcyt-DA-limma fixed effects
-#$(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS): $(SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS) $(FILES_RDATA_SUPP_FIXED_EFFECTS)
-#	cd $(DIR_GENERATE_PLOTS)/supp_fixed_effects && bash run_all.sh
-
-# supplementary: all markers
-# (note: also depends on 'lineage markers' since CellCnn uses 'all markers' for main results)
-#$(TIMESTAMP_PLOTS_SUPP_ALL_MARKERS): $(SCRIPTS_PLOTS_SUPP_ALL_MARKERS) $(FILES_RDATA_SUPP_ALL_MARKERS) $(SCRIPTS_PLOTS_SUPP_LINEAGE_MARKERS) $(FILES_RDATA_SUPP_LINEAGE_MARKERS)
-#	cd $(DIR_GENERATE_PLOTS)/supp_all_markers && bash run_all.sh
-
-# supplementary: separate_clustering
-#$(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING): $(SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING) $(FILES_RDATA_SUPP_SEPARATE_CLUSTERING)
-#	cd $(DIR_GENERATE_PLOTS)/supp_separate_clustering && bash run_all.sh
-
-# supplementary: random starts for clustering
-#$(TIMESTAMP_PLOTS_SUPP_RANDOM_STARTS): $(SCRIPTS_PLOTS_SUPP_RANDOM_STARTS) $(FILES_RDATA_SUPP_RANDOM_STARTS)
-#	cd $(DIR_GENERATE_PLOTS)/supp_random_starts && bash run_all.sh
-
-# supplementary: randomized benchmark data sets
-#$(TIMESTAMP_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS): $(SCRIPTS_PLOTS_SUPP_BENCHMARK_RANDOM_SEEDS) $(FILES_RDATA_SUPP_BENCHMARK_RANDOM_SEEDS)
-#	cd $(DIR_GENERATE_PLOTS)/supp_benchmark_random && bash run_all.sh
-
-# supplementary: less distinct populations
-#$(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT): $(SCRIPTS_PLOTS_SUPP_LESS_DISTINCT) $(FILES_RDATA_SUPP_LESS_DISTINCT)
-#	cd $(DIR_GENERATE_PLOTS)/supp_less_distinct && bash run_all.sh
 
 
 
@@ -201,6 +201,39 @@ $(DIR_RDATA)/null_simulations/outputs_%.RData: $(DIR_RUN_METHODS)/null_simulatio
 	cd $(DIR_RUN_METHODS)/null_simulations && Rscript $(notdir $<)
 
 
+# supplementary: random effects for diffcyt-DS-limma
+$(DIR_RDATA)/supp_random_effects_limma/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_effects_limma/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_random_effects_limma && Rscript $(notdir $<)
+
+# supplementary: meta-clustering
+$(DIR_RDATA)/supp_metaclustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_metaclustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_metaclustering && Rscript $(notdir $<)
+
+# supplementary: separate clustering
+$(DIR_RDATA)/supp_separate_clustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_separate_clustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_separate_clustering && Rscript $(notdir $<)
+
+# supplementary: varying random seeds for clustering
+$(DIR_RDATA)/supp_random_seeds_clustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_seeds_clustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_random_seeds_clustering && Rscript $(notdir $<)
+
+# supplementary: varying random seeds for data generation
+$(DIR_RDATA)/supp_random_seeds_data/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_seeds_data/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS)
+	cd $(DIR_RUN_METHODS)/supp_random_seeds_data && Rscript $(notdir $<)
+
+# supplementary: 'less distinct' benchmark data
+$(DIR_RDATA)/supp_less_distinct/outputs_%.RData: $(DIR_RUN_METHODS)/supp_less_distinct/run_%.R $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
+	cd $(DIR_RUN_METHODS)/supp_less_distinct && Rscript $(notdir $<)
+
+# supplementary: sample sizes
+$(DIR_RDATA)/supp_sample_sizes/outputs_%.RData: $(DIR_RUN_METHODS)/supp_sample_sizes/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_sample_sizes && Rscript $(notdir $<)
+
+# supplementary: clustering resolution
+$(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp_clustering_resolution/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_clustering_resolution && Rscript $(notdir $<)
+
+
 # comparisons: Citrus
 $(DIR_RDATA)/comparisons_Citrus/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_Citrus/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/comparisons_Citrus && Rscript $(notdir $<)
@@ -212,48 +245,6 @@ $(DIR_RDATA)/comparisons_CellCnn/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons
 # comparisons: cydar
 $(DIR_RDATA)/comparisons_cydar/outputs_%.RData: $(DIR_RUN_METHODS)/comparisons_cydar/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/comparisons_cydar && Rscript $(notdir $<)
-
-
-# supplementary: clustering resolution
-#$(DIR_RDATA)/supp_clustering_resolution/outputs_%.RData: $(DIR_RUN_METHODS)/supp_clustering_resolution/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/supp_clustering_resolution && Rscript $(notdir $<)
-
-# supplementary: diffcyt-DA-limma fixed effects
-#$(DIR_RDATA)/supp_fixed_effects/outputs_%.RData: $(DIR_RUN_METHODS)/supp_fixed_effects/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/supp_fixed_effects && Rscript $(notdir $<)
-
-# supplementary: all markers
-#$(DIR_RDATA)/supp_all_markers/outputs_%.RData: $(DIR_RUN_METHODS)/supp_all_markers/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/supp_all_markers && Rscript $(notdir $<)
-
-# supplementary: lineage markers
-#$(DIR_RDATA)/supp_lineage_markers/outputs_%.RData: $(DIR_RUN_METHODS)/supp_lineage_markers/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/supp_lineage_markers && Rscript $(notdir $<)
-
-# supplementary: separate clustering
-#$(DIR_RDATA)/supp_separate_clustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_separate_clustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/supp_separate_clustering && Rscript $(notdir $<)
-
-# supplementary: random starts for clustering
-#$(DIR_RDATA)/supp_random_starts/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_starts/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-#	cd $(DIR_RUN_METHODS)/supp_random_starts && Rscript $(notdir $<)
-
-# supplementary: randomized benchmark data sets
-#$(DIR_RDATA)/supp_benchmark_random/seed1/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed1/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS)
-#	cd $(DIR_RUN_METHODS)/supp_benchmark_random/seed1 && Rscript $(notdir $<)
-
-#$(DIR_RDATA)/supp_benchmark_random/seed2/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed2/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS)
-#	cd $(DIR_RUN_METHODS)/supp_benchmark_random/seed2 && Rscript $(notdir $<)
-
-#$(DIR_RDATA)/supp_benchmark_random/seed3/outputs_%.RData: $(DIR_RUN_METHODS)/supp_benchmark_random/seed3/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS)
-#	cd $(DIR_RUN_METHODS)/supp_benchmark_random/seed3 && Rscript $(notdir $<)
-
-# supplementary: less distinct populations
-#$(DIR_RDATA)/supp_less_distinct/50pc/outputs_%.RData: $(DIR_RUN_METHODS)/supp_less_distinct/50pc/run_%.R $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
-#	cd $(DIR_RUN_METHODS)/supp_less_distinct/50pc && Rscript $(notdir $<)
-
-#$(DIR_RDATA)/supp_less_distinct/75pc/outputs_%.RData: $(DIR_RUN_METHODS)/supp_less_distinct/75pc/run_%.R $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
-#	cd $(DIR_RUN_METHODS)/supp_less_distinct/75pc && Rscript $(notdir $<)
 
 
 

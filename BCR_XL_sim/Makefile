@@ -27,8 +27,8 @@ TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(DIR_PLOTS)/main_clustering_perf
 TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA    = $(DIR_PLOTS)/supp_random_effects_limma/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS_LMM       = $(DIR_PLOTS)/supp_fixed_effects_LMM/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_METACLUSTERING          = $(DIR_PLOTS)/supp_metaclustering/timestamp.txt
-TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA       = $(DIR_PLOTS)/supp_random_seeds_data/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(DIR_PLOTS)/supp_random_seeds_clustering/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA       = $(DIR_PLOTS)/supp_random_seeds_data/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT           = $(DIR_PLOTS)/supp_less_distinct/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES            = $(DIR_PLOTS)/supp_sample_sizes/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(DIR_PLOTS)/supp_clustering_resolution/timestamp.txt
@@ -47,8 +47,8 @@ SCRIPTS_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(wildcard $(DIR_GENERATE_PLOTS)/ma
 SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA    = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_effects_limma/*.R)
 SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS_LMM       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_fixed_effects_LMM/*.R)
 SCRIPTS_PLOTS_SUPP_METACLUSTERING          = $(wildcard $(DIR_GENERATE_PLOTS)/supp_metaclustering/*.R)
-SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_DATA       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_seeds_data/*.R)
 SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_seeds_clustering/*.R)
+SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_DATA       = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_seeds_data/*.R)
 SCRIPTS_PLOTS_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_GENERATE_PLOTS)/supp_less_distinct/*.R)
 SCRIPTS_PLOTS_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_GENERATE_PLOTS)/supp_sample_sizes/*.R)
 SCRIPTS_PLOTS_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_GENERATE_PLOTS)/supp_clustering_resolution/*.R)
@@ -63,8 +63,8 @@ FILES_RDATA_NULL_SIMULATIONS             = $(wildcard $(DIR_RDATA)/null_simulati
 FILES_RDATA_SUPP_RANDOM_EFFECTS_LIMMA    = $(wildcard $(DIR_RDATA)/supp_random_effects_limma/*.RData)
 FILES_RDATA_SUPP_FIXED_EFFECTS_LMM       = $(wildcard $(DIR_RDATA)/supp_fixed_effects_LMM/*.RData)
 FILES_RDATA_SUPP_METACLUSTERING          = $(wildcard $(DIR_RDATA)/supp_metaclustering/*.RData)
-FILES_RDATA_SUPP_RANDOM_SEEDS_DATA       = $(wildcard $(DIR_RDATA)/supp_random_seeds_data/*.RData)
 FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_RDATA)/supp_random_seeds_clustering/*.RData)
+FILES_RDATA_SUPP_RANDOM_SEEDS_DATA       = $(wildcard $(DIR_RDATA)/supp_random_seeds_data/*.RData)
 FILES_RDATA_SUPP_LESS_DISTINCT           = $(wildcard $(DIR_RDATA)/supp_less_distinct/*.RData)
 FILES_RDATA_SUPP_SAMPLE_SIZES            = $(wildcard $(DIR_RDATA)/supp_sample_sizes/*.RData)
 FILES_RDATA_SUPP_CLUSTERING_RESOLUTION   = $(wildcard $(DIR_RDATA)/supp_clustering_resolution/*.RData)
@@ -92,8 +92,8 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA) \
                   $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS_LMM) \
                   $(TIMESTAMP_PLOTS_SUPP_METACLUSTERING) \
-                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) \
+                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA) \
                   $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT) \
                   $(TIMESTAMP_PLOTS_SUPP_SAMPLE_SIZES) \
                   $(TIMESTAMP_PLOTS_SUPP_CLUSTERING_RESOLUTION) \
@@ -149,13 +149,13 @@ $(TIMESTAMP_PLOTS_SUPP_FIXED_EFFECTS_LMM): $(SCRIPTS_PLOTS_SUPP_FIXED_EFFECTS_LM
 $(TIMESTAMP_PLOTS_SUPP_METACLUSTERING): $(SCRIPTS_PLOTS_SUPP_METACLUSTERING) $(FILES_RDATA_SUPP_METACLUSTERING)
 	cd $(DIR_GENERATE_PLOTS)/supp_metaclustering && bash run_all.sh
 
-# supplementary: varying random seeds for data generation
-$(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_DATA) $(FILES_RDATA_SUPP_RANDOM_SEEDS_DATA) $(FILES_RDATA_MAIN)
-	cd $(DIR_GENERATE_PLOTS)/supp_random_seeds_data && bash run_all.sh
-
 # supplementary: varying random seeds for clustering
 $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) $(FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/supp_random_seeds_clustering && bash run_all.sh
+
+# supplementary: varying random seeds for data generation
+$(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_DATA): $(SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_DATA) $(FILES_RDATA_SUPP_RANDOM_SEEDS_DATA) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/supp_random_seeds_data && bash run_all.sh
 
 # supplementary: 'less distinct' benchmark data
 $(TIMESTAMP_PLOTS_SUPP_LESS_DISTINCT): $(SCRIPTS_PLOTS_SUPP_LESS_DISTINCT) $(FILES_RDATA_SUPP_LESS_DISTINCT) $(FILES_RDATA_MAIN)
@@ -222,13 +222,13 @@ $(DIR_RDATA)/supp_fixed_effects_LMM/outputs_%.RData: $(DIR_RUN_METHODS)/supp_fix
 $(DIR_RDATA)/supp_metaclustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_metaclustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_metaclustering && Rscript $(notdir $<)
 
-# supplementary: varying random seeds for data generation
-$(DIR_RDATA)/supp_random_seeds_data/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_seeds_data/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS)
-	cd $(DIR_RUN_METHODS)/supp_random_seeds_data && Rscript $(notdir $<)
-
 # supplementary: varying random seeds for clustering
 $(DIR_RDATA)/supp_random_seeds_clustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_seeds_clustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
 	cd $(DIR_RUN_METHODS)/supp_random_seeds_clustering && Rscript $(notdir $<)
+
+# supplementary: varying random seeds for data generation
+$(DIR_RDATA)/supp_random_seeds_data/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_seeds_data/run_%.R $(TIMESTAMP_BENCHMARK_RANDOM_SEEDS)
+	cd $(DIR_RUN_METHODS)/supp_random_seeds_data && Rscript $(notdir $<)
 
 # supplementary: 'less distinct' benchmark data
 $(DIR_RDATA)/supp_less_distinct/outputs_%.RData: $(DIR_RUN_METHODS)/supp_less_distinct/run_%.R $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)

@@ -44,7 +44,8 @@ data <- list(k_9   = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_9"]],
              k_100 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_100"]], 
              k_196 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_196"]], 
              k_400 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_400"]], 
-             k_900 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_900"]])
+             k_900 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_900"]], 
+             k_1600 = out_diffcyt_DS_LMM_supp_clustering_resolution[["k_1600"]])
 
 # check
 stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
@@ -58,14 +59,16 @@ cobradata <- COBRAData(pval = data.frame(k_9   = data[["k_9"]][, "p_vals"],
                                          k_100 = data[["k_100"]][, "p_vals"], 
                                          k_196 = data[["k_196"]][, "p_vals"], 
                                          k_400 = data[["k_400"]][, "p_vals"], 
-                                         k_900 = data[["k_900"]][, "p_vals"]), 
+                                         k_900 = data[["k_900"]][, "p_vals"], 
+                                         k_1600 = data[["k_1600"]][, "p_vals"]), 
                        padj = data.frame(k_9   = data[["k_9"]][, "p_adj"], 
                                          k_25  = data[["k_25"]][, "p_adj"], 
                                          k_49  = data[["k_49"]][, "p_adj"], 
                                          k_100 = data[["k_100"]][, "p_adj"], 
                                          k_196 = data[["k_196"]][, "p_adj"], 
                                          k_400 = data[["k_400"]][, "p_adj"], 
-                                         k_900 = data[["k_900"]][, "p_adj"]), 
+                                         k_900 = data[["k_900"]][, "p_adj"], 
+                                         k_1600 = data[["k_900"]][, "p_adj"]), 
                        truth = data.frame(B_cell = data[["k_9"]][, "B_cell"]))
 
 # calculate performance scores
@@ -75,7 +78,7 @@ cobraperf <- calculate_performance(cobradata,
                                    aspects = "roc")
 
 # color scheme
-colors <- rev(viridis(7))
+colors <- rev(viridis(8))
 
 colors <- colors[1:length(data)]
 names(colors) <- names(data)
@@ -109,7 +112,6 @@ p_ROC <-
 # save plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_LMM_supp_clustering_resolution_ROC.pdf")
 ggsave(fn, width = 4.75, height = 3.5)
-
 
 
 

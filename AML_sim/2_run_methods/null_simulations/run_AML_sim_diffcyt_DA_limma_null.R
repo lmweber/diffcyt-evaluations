@@ -212,7 +212,7 @@ for (th in 1:length(thresholds)) {
       
       # run tests
       # note: use default filtering parameter 'min_samples' (since there are 2 conditions null comparison)
-      path <- paste0(DIR_PLOTS, "/", thresholds[th])
+      path <- file.path(DIR_PLOTS, thresholds[th])
       res <- testDA_limma(d_counts, design, contrast, path = path)
       
     })

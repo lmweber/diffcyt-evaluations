@@ -1,10 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-edgeR
+# - method: diffcyt-DA-GLMM
 # - data set: AML-sim
 # 
-# - supplementary results: varying clustering resolution
+# - supplementary results: 'less distinct' data sets
 # 
 # Lukas Weber, February 2018
 ##########################################################################################
@@ -15,9 +15,9 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
-DIR_RDATA <- "../../../../RData/AML_sim/supp_clustering_resolution"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_clustering_resolution"
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/less_distinct"
+DIR_RDATA <- "../../../../RData/AML_sim/supp_less_distinct"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_less_distinct"
 
 
 
@@ -32,32 +32,32 @@ thresholds <- c("5pc", "1pc", "0.1pc")
 # condition names
 cond_names <- c("CN", "CBF")
 
-# varying clustering resolution: grid size for FlowSOM (e.g. 10x10 grid)
-resolution <- c(3, 5, 7, 10, 14, 20, 30, 40)
-resolution_sq <- resolution^2
+# names of 'less distinct' data sets
+distinctness <- c(0.5, 0.75)
+names(distinctness) <- c("less_50pc", "less_75pc")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include fixed effects for 'patient_IDs'
-contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
+# note: include random effects for 'patient_IDs' and 'sample_IDs'
+contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects and runtime
-out_diffcyt_DA_edgeR_supp_clustering_resolution <- runtime_diffcyt_DA_edgeR_supp_clustering_resolution <- 
-  out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution <- out_objects_diffcyt_DA_edgeR_supp_clustering_resolution <- 
-  vector("list", length(resolution))
-names(out_diffcyt_DA_edgeR_supp_clustering_resolution) <- names(runtime_diffcyt_DA_edgeR_supp_clustering_resolution) <- 
-  names(out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution) <- names(out_objects_diffcyt_DA_edgeR_supp_clustering_resolution) <- 
-  paste("k", resolution_sq, sep = "_")
+out_diffcyt_DA_GLMM_supp_less_distinct <- runtime_diffcyt_DA_GLMM_supp_less_distinct <- 
+  out_clusters_diffcyt_DA_GLMM_supp_less_distinct <- out_objects_diffcyt_DA_GLMM_supp_less_distinct <- 
+  vector("list", length(distinctness))
+names(out_diffcyt_DA_GLMM_supp_less_distinct) <- names(runtime_diffcyt_DA_GLMM_supp_less_distinct) <- 
+  names(out_clusters_diffcyt_DA_GLMM_supp_less_distinct) <- names(out_objects_diffcyt_DA_GLMM_supp_less_distinct) <- 
+  names(distinctness)
 
 
 
 
-for (k in 1:length(resolution)) {
+for (di in 1:length(distinctness)) {
   
-  out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]] <- runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]] <- 
-    out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]] <- out_objects_diffcyt_DA_edgeR_supp_clustering_resolution[[k]] <- 
+  out_diffcyt_DA_GLMM_supp_less_distinct[[di]] <- runtime_diffcyt_DA_GLMM_supp_less_distinct[[di]] <- 
+    out_clusters_diffcyt_DA_GLMM_supp_less_distinct[[di]] <- out_objects_diffcyt_DA_GLMM_supp_less_distinct[[di]] <- 
     vector("list", length(thresholds))
-  names(out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]]) <- names(runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]]) <- 
-    names(out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]]) <- names(out_objects_diffcyt_DA_edgeR_supp_clustering_resolution[[k]]) <- 
+  names(out_diffcyt_DA_GLMM_supp_less_distinct[[di]]) <- names(runtime_diffcyt_DA_GLMM_supp_less_distinct[[di]]) <- 
+    names(out_clusters_diffcyt_DA_GLMM_supp_less_distinct[[di]]) <- names(out_objects_diffcyt_DA_GLMM_supp_less_distinct[[di]]) <- 
     thresholds
   
   
@@ -69,12 +69,12 @@ for (k in 1:length(resolution)) {
     
     # filenames
     
-    files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
+    files_healthy <- list.files(file.path(DIR_BENCHMARK, names(distinctness)[di], "healthy"), 
                                 pattern = "\\.fcs$", full.names = TRUE)
-    files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
-                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
-    files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
-                            pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
+    files_CN <- list.files(file.path(DIR_BENCHMARK, names(distinctness)[di], "CN"), 
+                           pattern = paste0("_", thresholds[th], "_less_[0-9]+pc\\.fcs$"), full.names = TRUE)
+    files_CBF <- list.files(file.path(DIR_BENCHMARK, names(distinctness)[di], "CBF"), 
+                            pattern = paste0("_", thresholds[th], "_less_[0-9]+pc\\.fcs$"), full.names = TRUE)
     
     files_load <- c(files_healthy, files_CN, files_CBF)
     files_load
@@ -86,7 +86,8 @@ for (k in 1:length(resolution)) {
     # sample IDs, group IDs, patient IDs
     sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
                        gsub("^AML_sim_", "", 
-                            gsub("\\.fcs$", "", basename(files_load))))
+                            gsub("_less_[0-9]+pc$", "", 
+                                 gsub("\\.fcs$", "", basename(files_load)))))
     sample_IDs
     
     group_IDs <- factor(gsub("_.*$", "", sample_IDs), levels = c("healthy", "CN", "CBF"))
@@ -145,9 +146,8 @@ for (k in 1:length(resolution)) {
       
       # clustering
       # (runtime: ~30 sec with xdim = 20, ydim = 20)
-      # note: varying clustering resolution
       seed <- 123
-      d_se <- generateClusters(d_se, xdim = resolution[k], ydim = resolution[k], seed = seed)
+      d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
       
       length(table(rowData(d_se)$cluster))  # number of clusters
       nrow(rowData(d_se))                   # number of cells
@@ -183,7 +183,7 @@ for (k in 1:length(resolution)) {
     # store data objects (for plotting)
     # ---------------------------------
     
-    out_objects_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]] <- list(
+    out_objects_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]] <- list(
       d_se = d_se, 
       d_counts = d_counts, 
       d_medians = d_medians, 
@@ -197,23 +197,23 @@ for (k in 1:length(resolution)) {
     
     # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
     
-    out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]] <- runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]] <- 
-      out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]] <- vector("list", length(cond_names))
-    names(out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]]) <- names(runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]]) <- 
-      names(out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]]) <- cond_names
+    out_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]] <- runtime_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]] <- 
+      out_clusters_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]] <- vector("list", length(cond_names))
+    names(out_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]]) <- names(runtime_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]]) <- 
+      names(out_clusters_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]]) <- cond_names
     
     
     for (j in 1:length(cond_names)) {
       
       runtime_j <- system.time({
         
-        # set up design matrix
+        # set up model formula
         # note: order of samples has changed
         sample_info_ordered <- as.data.frame(colData(d_counts))
         sample_info_ordered
-        # note: include fixed effects for 'patient_IDs'
-        design <- createDesignMatrix(sample_info_ordered, cols_include = 1:2)
-        design
+        # note: include random effects for 'patient_IDs' and 'sample_IDs'
+        formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2:3)
+        formula
         
         # set up contrast matrix
         contrast <- createContrast(contrasts_list[[j]])
@@ -221,8 +221,8 @@ for (k in 1:length(resolution)) {
         
         # run tests
         # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
-        res <- testDA_edgeR(d_counts, design, contrast, 
-                            min_cells = 3, min_samples = nrow(sample_info_ordered) / 3)
+        res <- testDA_GLMM(d_counts, formula, contrast, 
+                           min_cells = 3, min_samples = nrow(sample_info_ordered) / 3)
         
       })
       
@@ -230,18 +230,18 @@ for (k in 1:length(resolution)) {
       rowData(res)
       
       # sort to show top (most highly significant) clusters first
-      res_sorted <- rowData(res)[order(rowData(res)$FDR), ]
+      res_sorted <- rowData(res)[order(rowData(res)$p_adj), ]
       print(head(res_sorted, 10))
       #View(as.data.frame(res_sorted))
       
       # number of significant tests (note: one test per cluster)
-      print(table(res_sorted$FDR <= 0.1))
+      print(table(res_sorted$p_adj <= 0.1))
       
       # runtime
       runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
       print(runtime_total)
       
-      runtime_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]][[j]] <- runtime_total
+      runtime_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]][[j]] <- runtime_total
       
       
       # ---------------------------------------------
@@ -250,7 +250,7 @@ for (k in 1:length(resolution)) {
       
       res_clusters <- as.data.frame(rowData(res))
       
-      out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]][[j]] <- res_clusters
+      out_clusters_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]][[j]] <- res_clusters
       
       
       
@@ -285,8 +285,8 @@ for (k in 1:length(resolution)) {
       # match cells to clusters
       ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
       
-      p_vals_clusters <- rowData(res)$PValue
-      p_adj_clusters <- rowData(res)$FDR
+      p_vals_clusters <- rowData(res)$p_vals
+      p_adj_clusters <- rowData(res)$p_adj
       
       p_vals_cells <- p_vals_clusters[ix_match]
       p_adj_cells <- p_adj_clusters[ix_match]
@@ -313,7 +313,7 @@ for (k in 1:length(resolution)) {
                         spikein = is_spikein_cnd)
       
       # store results
-      out_diffcyt_DA_edgeR_supp_clustering_resolution[[k]][[th]][[j]] <- res
+      out_diffcyt_DA_GLMM_supp_less_distinct[[di]][[th]][[j]] <- res
       
     }
   }
@@ -326,14 +326,14 @@ for (k in 1:length(resolution)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_edgeR_supp_clustering_resolution, runtime_diffcyt_DA_edgeR_supp_clustering_resolution, 
-     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
+save(out_diffcyt_DA_GLMM_supp_less_distinct, runtime_diffcyt_DA_GLMM_supp_less_distinct, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_GLMM_supp_less_distinct.RData"))
 
-save(out_clusters_diffcyt_DA_edgeR_supp_clustering_resolution, 
-     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
+save(out_clusters_diffcyt_DA_GLMM_supp_less_distinct, 
+     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_GLMM_supp_less_distinct.RData"))
 
-save(out_objects_diffcyt_DA_edgeR_supp_clustering_resolution, 
-     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.RData"))
+save(out_objects_diffcyt_DA_GLMM_supp_less_distinct, 
+     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_GLMM_supp_less_distinct.RData"))
 
 
 
@@ -342,7 +342,7 @@ save(out_objects_diffcyt_DA_edgeR_supp_clustering_resolution,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_edgeR_supp_clustering_resolution.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_GLMM_supp_less_distinct.txt"))
 sessionInfo()
 sink()
 

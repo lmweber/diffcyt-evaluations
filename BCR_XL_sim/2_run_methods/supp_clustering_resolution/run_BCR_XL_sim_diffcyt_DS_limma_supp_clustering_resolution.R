@@ -27,8 +27,8 @@ DIR_SESSION_INFO <- "../../../../session_info/BCR_XL_sim/supp_clustering_resolut
 # Preliminary
 #############
 
-# varying clustering resolution: grid size for FlowSOM (e.g. 30x30 grid)
-resolution <- c(3, 5, 7, 10, 14, 20, 30)
+# varying clustering resolution: grid size for FlowSOM (e.g. 10x10 grid)
+resolution <- c(3, 5, 7, 10, 14, 20, 30, 40)
 resolution_sq <- resolution^2
 
 # lists to store objects
