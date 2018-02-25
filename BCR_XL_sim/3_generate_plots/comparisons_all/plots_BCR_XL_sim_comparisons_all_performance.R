@@ -212,7 +212,7 @@ plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6,
 
 # save multi-panel plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_comparisons_all_main_performance.pdf")
-ggsave(fn, width = 10.67, height = 2.8)
+ggsave(fn, width = 11, height = 2.9)
 
 
 
