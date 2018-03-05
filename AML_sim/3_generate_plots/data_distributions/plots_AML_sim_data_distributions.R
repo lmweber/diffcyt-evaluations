@@ -344,7 +344,7 @@ p <- ggplot(d_plot, aes(x = expression, y = marker, fill = condition)) +
   xlab("arcsinh transformed expression") + 
   ylab("density") + 
   theme_bw() + 
-  ggtitle("AML-sim: 'less distinct' blast cell populations")
+  ggtitle("AML-sim: main simulation and 'less distinct' populations")
 
 
 # save plot

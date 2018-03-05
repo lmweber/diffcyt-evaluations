@@ -353,7 +353,7 @@ p <-
   xlab("arcsinh transformed expression") + 
   ylab("density") + 
   theme_bw() + 
-  ggtitle("BCR-XL-sim: 'less distinct' B cell populations") + 
+  ggtitle("BCR-XL-sim: main simulation and 'less distinct' populations") + 
   guides(fill = guide_legend(order = 1, 
                              override.aes = list(shape = NA)), 
          color = guide_legend(order = 2, title = "marker type", 

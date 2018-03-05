@@ -130,7 +130,7 @@ for (th in 1:length(thresholds)) {
       guides(color = guide_legend("method"))
     
     # save individual panel plot
-    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_comparisons_all_ROC_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_comparisons_all_main_ROC_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
     
@@ -154,7 +154,7 @@ for (th in 1:length(thresholds)) {
              color = guide_legend("method", order = 2))
     
     # save individual panel plot
-    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_comparisons_all_TPRFDR_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_comparisons_all_main_TPRFDR_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
     
@@ -177,7 +177,7 @@ for (th in 1:length(thresholds)) {
              color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
     
     # save individual panel plot
-    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_comparisons_all_TPR_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_comparisons_all_main_TPR_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
     
@@ -200,7 +200,7 @@ for (th in 1:length(thresholds)) {
              color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
     
     # save individual panel plot
-    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_comparisons_all_FPR_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_comparisons_all_main_FPR_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
     
@@ -240,7 +240,7 @@ for (th in 1:length(thresholds)) {
     legend_objs[[ix]] <- legend_single
     
     # save multi-panel plot
-    fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_comparisons_all_performance_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_comparisons_all_main_performance_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 11, height = 2.9)
     
   }
@@ -272,7 +272,7 @@ for (j in 1:length(cond_names)) {
   plots_j <- plot_grid(plots_j, legend_single, nrow = 1, rel_widths = c(6, 1))
   
   # save combined plot
-  fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_comparisons_all_performance_", cond_names[j], ".pdf"))
+  fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_comparisons_all_main_performance_", cond_names[j], ".pdf"))
   ggsave(fn, width = 11, height = 8)
 
 }
