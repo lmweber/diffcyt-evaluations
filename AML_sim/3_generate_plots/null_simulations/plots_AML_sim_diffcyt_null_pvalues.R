@@ -373,9 +373,9 @@ ggsave(fn, width = 9, height = 6)
 
 # create plot with combined legend (use to get legend object only)
 
-d_plot_edgeR <- out_clusters_diffcyt_DA_edgeR_null[[1]][[1]][, c(1, 5, 6)]
-d_plot_limma <- out_clusters_diffcyt_DA_limma_null[[1]][[1]][, c(1, 5, 6)]
-d_plot_GLMM <- out_clusters_diffcyt_DA_GLMM_null[[1]][[1]]
+d_plot_edgeR <- out_clusters_diffcyt_DA_edgeR_null[[2]][[1]][, c(1, 5, 6)]
+d_plot_limma <- out_clusters_diffcyt_DA_limma_null[[2]][[1]][, c(1, 5, 6)]
+d_plot_GLMM <- out_clusters_diffcyt_DA_GLMM_null[[2]][[1]]
 
 colnames(d_plot_edgeR) <- colnames(d_plot_limma) <- colnames(d_plot_GLMM)
 

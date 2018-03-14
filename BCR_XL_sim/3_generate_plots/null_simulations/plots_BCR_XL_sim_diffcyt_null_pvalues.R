@@ -7,7 +7,7 @@
 # 
 # - null simulations
 # 
-# Lukas Weber, January 2018
+# Lukas Weber, March 2018
 ##########################################################################################
 
 
@@ -187,7 +187,7 @@ ggsave(fn, width = 9, height = 2.5)
 # Additional multi-panel plot for main paper
 ############################################
 
-# showing one panel for each method
+# showing one panel for each method; one random seed only
 
 
 # create plot with combined legend (use to get legend object only)
