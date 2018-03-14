@@ -368,7 +368,7 @@ ggsave(fn, width = 9, height = 6)
 # Additional multi-panel plot for main paper
 ############################################
 
-# showing one panel for each method
+# showing one panel for each method; one threshold and random seed only
 
 
 # create plot with combined legend (use to get legend object only)
