@@ -214,7 +214,7 @@ for (th in 1:length(thresholds)) {
                             col = list("significant" = c("no" = "gray90", "yes" = "darkorange1"), 
                                        "spike-in" = c("no" = "gray90", "yes" = "black")), 
                             annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
-                            width = unit(1, "cm"))
+                            width = unit(1.2, "cm"))
     
     ht_title <- paste0("AML-sim, ", cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]), ": diffcyt-DA-edgeR")
     
