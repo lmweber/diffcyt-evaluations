@@ -240,7 +240,7 @@ for (th in 1:length(thresholds)) {
 ########################
 
 fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_limma_main_heatmaps.pdf"))
-pdf(fn, width = 18, height = 7)
+pdf(fn, width = 25, height = 10)
 
 grid.newpage()
 pushViewport(viewport(layout = grid.layout(nr = 2, nc = 3)))
