@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, March 2018
 ##########################################################################################
 
 
@@ -90,15 +90,43 @@ for (th in 1:length(thresholds)) {
     
     # use 1% and 99% percentiles for color scale
     colors <- colorRamp2(quantile(d_heatmap, c(0.01, 0.5, 0.99)), 
-                         c("royalblue", "white", "tomato"))
+                         c("royalblue3", "white", "tomato2"))
     
-    ht <- Heatmap(d_heatmap, col = colors, name = "expression", 
-                  row_title = "clusters", row_title_gp = gpar(fontsize = 14), 
-                  column_title = "markers", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
-                  column_names_gp = gpar(fontsize = 12), 
-                  heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
-                  cluster_columns = FALSE, show_row_names = FALSE, 
-                  clustering_distance_rows = "euclidean", clustering_method_rows = "median")
+    ht_main <- Heatmap(
+      d_heatmap, col = colors, name = "expression", 
+      row_title = "clusters", row_title_gp = gpar(fontsize = 14), 
+      column_title = "markers", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+      column_names_gp = gpar(fontsize = 12), 
+      heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
+      cluster_columns = FALSE, row_names_side = "left", row_names_gp = gpar(fontsize = 11), 
+      clustering_distance_rows = "euclidean", clustering_method_rows = "median"
+    )
+    
+    
+    # ----------------------------------
+    # second heatmap: cluster abundances
+    # ----------------------------------
+    
+    cnd_which <- c(which(colData(d_counts)$group_IDs == "healthy"), 
+                   which(colData(d_counts)$group_IDs == cond_names[j]))
+    
+    d_abundance <- assay(d_counts)[top_n, cnd_which, drop = FALSE]
+    
+    stopifnot(all(rownames(d_heatmap) == rownames(d_abundance)), 
+              nrow(d_heatmap) == nrow(d_abundance))
+    
+    # use full range for color scale
+    colors_counts <- colorRamp2(range(d_abundance), 
+                                c("purple4", "yellow"))
+    
+    # note: row ordering is automatically matched when multiple heatmaps are combined
+    ht_abundance <- Heatmap(
+      d_abundance, col = colors_counts, name = "n_cells", 
+      column_title = "samples", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+      column_names_gp = gpar(fontsize = 12), 
+      heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
+      cluster_columns = FALSE, show_row_names = FALSE
+    )
     
     
     # -------------------------------------------------------------
@@ -194,8 +222,8 @@ for (th in 1:length(thresholds)) {
     # (iv) save individual plot
     
     fn <- file.path(DIR_PLOTS, paste0("panels/results_AML_sim_diffcyt_DA_GLMM_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
-    pdf(fn, width = 6.5, height = 7)
-    plots_heatmaps[[ix]] <- draw(ht + ha_row, newpage = FALSE, 
+    pdf(fn, width = 9, height = 7)
+    plots_heatmaps[[ix]] <- draw(ht_main + ht_abundance + ha_row, newpage = FALSE, 
                                  column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
     dev.off()
     
