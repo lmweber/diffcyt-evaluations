@@ -121,8 +121,8 @@ col_annot_state <- data.frame(
 ha_col_state <- columnAnnotation(
   df = col_annot_state, show_legend = FALSE, 
   col = list("marker type" = c("cell type" = "gold", "state" = "darkgreen")), 
-  colname = anno_text(colnames(d_heatmap_celltype), rot = 90, just = "right", offset = unit(1, "npc") - unit(2, "mm")), 
-  annotation_height = unit.c(unit(5, "mm"), max_text_width(colnames(d_heatmap_celltype)) + unit(2, "mm")), 
+  colname = anno_text(colnames(d_heatmap_state), rot = 90, just = "right", offset = unit(1, "npc") - unit(2, "mm")), 
+  annotation_height = unit.c(unit(5, "mm"), max_text_width(colnames(d_heatmap_state)) + unit(2, "mm")), 
   annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
 )
 
