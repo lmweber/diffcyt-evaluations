@@ -41,12 +41,13 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_heatmaps"
 # load plot data objects
 d_se <- out_objects_diffcyt_DS_limma_main$d_se
 d_counts <- out_objects_diffcyt_DS_limma_main$d_counts
+d_medians <- out_objects_diffcyt_DS_limma_main$d_medians
 d_medians_all <- out_objects_diffcyt_DS_limma_main$d_medians_all
 
 
-# ---------------------------------------------------------
-# create heatmap: main panel (expression of type 1 markers)
-# ---------------------------------------------------------
+# --------------------------------------------------
+# heatmap: main panel - expression of type 1 markers
+# --------------------------------------------------
 
 # note: show top 'n' clusters only (otherwise heatmaps are too small on multi-panel plot)
 # note: no additional scaling (using asinh-transformed values directly)
@@ -100,9 +101,9 @@ ht_main <- Heatmap(
 )
 
 
-# -----------------------------------------------------------
-# create heatmap: second panel (expression of type 2 markers)
-# -----------------------------------------------------------
+# ----------------------------------------------------
+# heatmap: second panel - expression of type 2 markers
+# ----------------------------------------------------
 
 d_heatmap_state <- assay(d_medians_all)[, colData(d_medians_all)$is_state_marker]
 
@@ -137,6 +138,49 @@ ht_state <- Heatmap(
 )
 
 
+# --------------------------------------------------
+# heatmap: third panel - expression of pS6 by sample
+# --------------------------------------------------
+
+cnd_which <- c(which(colData(d_counts)$group_IDs == "base"), 
+               which(colData(d_counts)$group_IDs == "spike"))
+
+d_pS6 <- assays(d_medians)[["pS6"]][top_n, cnd_which, drop = FALSE]
+
+stopifnot(all(rownames(d_heatmap_celltype) == rownames(d_pS6)), 
+          nrow(d_heatmap_celltype) == nrow(d_pS6))
+
+# column annotation (empty; need for formatting purposes)
+col_annot_pS6 <- data.frame(
+  "state marker" = factor(rep("pS6", ncol(d_pS6)), levels = "pS6"), 
+  check.names = FALSE
+)
+
+ha_col_pS6 <- columnAnnotation(
+  df = col_annot_pS6, show_legend = FALSE, 
+  col = list("state marker" = c("pS6" = "gray")), 
+  colname = anno_text(colnames(d_pS6), rot = 90, just = "right", offset = unit(1, "npc") - unit(2, "mm")), 
+  # use zero height
+  annotation_height = unit.c(unit(0, "mm"), max_text_width(colnames(d_pS6)) + unit(2, "mm")), 
+  annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
+)
+
+# use full range for color scale
+colors_pS6 <- colorRamp2(range(d_pS6), 
+                         c("navy", "yellow"))
+
+# note: row ordering is automatically matched when multiple heatmaps are combined
+ht_pS6 <- Heatmap(
+  d_pS6, col = colors_pS6, name = "expression: pS6",
+  column_title = "samples", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+  show_column_names = FALSE, 
+  column_names_gp = gpar(fontsize = 12), 
+  heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
+  cluster_columns = FALSE, show_row_names = FALSE, 
+  bottom_annotation = ha_col_pS6
+)
+
+
 # -------------------------------------------------------------
 # row annotation for significant and true differential clusters
 # -------------------------------------------------------------
@@ -161,6 +205,13 @@ table(sig)
 d_sig <- data.frame(cluster = rowData(d_counts)$cluster, 
                     sig = as.numeric(sig), 
                     n_cells = rowData(d_counts)$n_cells)
+
+
+# select top n
+d_sig <- d_sig[top_n, ]
+
+stopifnot(all(rownames(d_sig) == rownames(d_heatmap_celltype)), 
+          nrow(d_sig) == nrow(d_heatmap_celltype))
 
 
 # (ii) from cell-level results
@@ -189,12 +240,17 @@ if (nrow(d_true) < nlevels(rowData(d_se)$cluster)) {
 }
 
 stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster), 
-          nrow(d_true) == nrow(d_sig), 
-          all(d_true$cluster == d_sig$cluster), 
-          nrow(d_sig) == nrow(d_heatmap))
+          all(d_true$cluster == rowData(d_counts)$cluster))
 
 # identify clusters containing significant proportion of spike-in cells
 d_true$B_cells <- as.numeric(d_true$prop_B_cells > 0.5)
+
+
+# select top n
+d_true <- d_true[top_n, ]
+
+stopifnot(all(rownames(d_true) == rownames(d_heatmap_celltype)), 
+          nrow(d_true) == nrow(d_heatmap_celltype))
 
 
 # (iii) add row annotation and title
@@ -219,8 +275,8 @@ ht_title <- "BCR-XL-sim: diffcyt-DS-limma"
 # (iv) save individual plot
 
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_limma_main_heatmap.pdf")
-pdf(fn, width = 9, height = 7.5)
-draw(ht_main + ht_state + ha_row, newpage = FALSE, 
+pdf(fn, width = 12.5, height = 6.5)
+draw(ht_main + ht_state + ht_pS6 + ha_row, newpage = FALSE, 
      column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
 dev.off()
 

@@ -95,7 +95,7 @@ for (th in 1:length(thresholds)) {
     ht_main <- Heatmap(
       d_heatmap, col = colors, name = "expression", 
       row_title = "clusters", row_title_gp = gpar(fontsize = 14), 
-      column_title = "markers", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+      column_title = "markers (type 1)", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
       column_names_gp = gpar(fontsize = 12), 
       heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
       cluster_columns = FALSE, row_names_side = "left", row_names_gp = gpar(fontsize = 11), 
@@ -103,9 +103,9 @@ for (th in 1:length(thresholds)) {
     )
     
     
-    # ----------------------------------
-    # second heatmap: cluster abundances
-    # ----------------------------------
+    # --------------------------------------------
+    # second heatmap: cluster abundances by sample
+    # --------------------------------------------
     
     cnd_which <- c(which(colData(d_counts)$group_IDs == "healthy"), 
                    which(colData(d_counts)$group_IDs == cond_names[j]))
@@ -224,7 +224,7 @@ for (th in 1:length(thresholds)) {
     # (iv) save individual plot
     
     fn <- file.path(DIR_PLOTS, paste0("panels/results_AML_sim_diffcyt_DA_limma_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
-    pdf(fn, width = 9, height = 7)
+    pdf(fn, width = 9, height = 6.5)
     plots_heatmaps[[ix]] <- draw(ht_main + ht_abundance + ha_row, newpage = FALSE, 
                                  column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
     dev.off()
