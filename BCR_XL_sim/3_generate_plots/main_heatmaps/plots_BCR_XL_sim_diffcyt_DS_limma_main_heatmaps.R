@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, January 2018
+# Lukas Weber, March 2018
 ##########################################################################################
 
 
@@ -44,50 +44,97 @@ d_counts <- out_objects_diffcyt_DS_limma_main$d_counts
 d_medians_all <- out_objects_diffcyt_DS_limma_main$d_medians_all
 
 
-# -----------------------------------------------------------
-# create heatmap: main panel showing marker expression values
-# -----------------------------------------------------------
+# ---------------------------------------------------------
+# create heatmap: main panel (expression of type 1 markers)
+# ---------------------------------------------------------
 
-# note: using all markers
+# note: show top 'n' clusters only (otherwise heatmaps are too small on multi-panel plot)
 # note: no additional scaling (using asinh-transformed values directly)
 
 d_heatmap <- assay(d_medians_all)[, colData(d_medians_all)$is_marker]
 
-# arrange columns (cell type and state markers)
-d_heatmap <- cbind(d_heatmap[, metadata(d_medians_all)$id_celltype_markers], 
-                   d_heatmap[, metadata(d_medians_all)$id_state_markers])
+d_heatmap_celltype <- assay(d_medians_all)[, colData(d_medians_all)$is_celltype_marker]
 
-# arrange each group (cell type and state) alphabetically
+# arrange alphabetically
+d_heatmap_celltype <- d_heatmap_celltype[, order(colnames(d_heatmap_celltype))]
+
+# load cluster-level results
+d_clus <- out_clusters_diffcyt_DS_limma_main[out_clusters_diffcyt_DS_limma_main$marker == "pS6", ]
+stopifnot(nrow(d_clus) == nrow(d_heatmap_celltype))
+# select top 'n' clusters
+n <- 20
+top_n <- order(d_clus$adj.P.Val)[1:n]
+d_heatmap_celltype <- d_heatmap_celltype[top_n, ]
+
+# column annotation for cell type and cell state markers
 n_celltype <- sum(metadata(d_medians_all)$id_celltype_markers)
 n_state <- sum(metadata(d_medians_all)$id_state_markers)
-d_heatmap <- cbind(d_heatmap[, seq_len(n_celltype)][, order(colnames(d_heatmap)[seq_len(n_celltype)])], 
-                   d_heatmap[, (seq_len(n_state)) + n_celltype][, order(colnames(d_heatmap)[(seq_len(n_state)) + n_celltype])])
 
-# column annotation
-col_annot <- data.frame(
-  "marker type" = factor(c(rep("cell type", n_celltype), rep("state", n_state)), levels = c("cell type", "state")), 
+col_annot_celltype <- data.frame(
+  "marker type" = factor(c(rep("cell type", n_celltype), rep("state", 0)), levels = c("cell type", "state")), 
   check.names = FALSE
 )
 
-ha_col <- columnAnnotation(df = col_annot, 
-                           col = list("marker type" = c("cell type" = "gold", "state" = "darkgreen")), 
-                           colname = anno_text(colnames(d_heatmap), rot = 90, just = "right", offset = unit(1, "npc") - unit(2, "mm")), 
-                           annotation_height = unit.c(unit(4, "mm"), max_text_width(colnames(d_heatmap)) + unit(2, "mm")), 
-                           annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)))
+ha_col_celltype <- columnAnnotation(
+  df = col_annot_celltype, show_legend = FALSE, 
+  col = list("marker type" = c("cell type" = "gold", "state" = "darkgreen")), 
+  colname = anno_text(colnames(d_heatmap_celltype), rot = 90, just = "right", offset = unit(1, "npc") - unit(2, "mm")), 
+  annotation_height = unit.c(unit(5, "mm"), max_text_width(colnames(d_heatmap_celltype)) + unit(2, "mm")), 
+  annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
+)
 
 # use 1% and 99% percentiles for color scale
 colors <- colorRamp2(quantile(d_heatmap, c(0.01, 0.5, 0.99)), 
-                   c("royalblue", "white", "tomato"))
+                   c("royalblue3", "white", "tomato2"))
 
-ht <- Heatmap(d_heatmap, col = colors, name = "expression", 
-              row_title = "clusters", row_title_gp = gpar(fontsize = 14), 
-              column_title = "markers", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
-              show_column_names = FALSE, 
-              column_names_gp = gpar(fontsize = 12), 
-              heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
-              cluster_columns = FALSE, show_row_names = FALSE, 
-              clustering_distance_rows = "euclidean", clustering_method_rows = "median", 
-              bottom_annotation = ha_col)
+ht_main <- Heatmap(
+  d_heatmap_celltype, col = colors, name = "expression", 
+  row_title = "clusters", row_title_gp = gpar(fontsize = 14), 
+  column_title = "markers (type 1)", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+  show_column_names = FALSE, 
+  column_names_gp = gpar(fontsize = 12), 
+  heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
+  cluster_columns = FALSE, row_names_side = "left", row_names_gp = gpar(fontsize = 11), 
+  clustering_distance_rows = "euclidean", clustering_method_rows = "median", 
+  bottom_annotation = ha_col_celltype
+)
+
+
+# -----------------------------------------------------------
+# create heatmap: second panel (expression of type 2 markers)
+# -----------------------------------------------------------
+
+d_heatmap_state <- assay(d_medians_all)[, colData(d_medians_all)$is_state_marker]
+
+# arrange alphabetically
+d_heatmap_state <- d_heatmap_state[, order(colnames(d_heatmap_state))]
+
+# select top 'n' clusters
+d_heatmap_state <- d_heatmap_state[top_n, ]
+
+# column annotation for cell type and cell state markers
+col_annot_state <- data.frame(
+  "marker type" = factor(c(rep("cell type", 0), rep("state", n_state)), levels = c("cell type", "state")), 
+  check.names = FALSE
+)
+
+ha_col_state <- columnAnnotation(
+  df = col_annot_state, show_legend = FALSE, 
+  col = list("marker type" = c("cell type" = "gold", "state" = "darkgreen")), 
+  colname = anno_text(colnames(d_heatmap_celltype), rot = 90, just = "right", offset = unit(1, "npc") - unit(2, "mm")), 
+  annotation_height = unit.c(unit(5, "mm"), max_text_width(colnames(d_heatmap_celltype)) + unit(2, "mm")), 
+  annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
+)
+
+ht_state <- Heatmap(
+  d_heatmap_state, col = colors, 
+  show_heatmap_legend = FALSE, 
+  column_title = "markers (type 2)", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+  show_column_names = FALSE, 
+  column_names_gp = gpar(fontsize = 12), 
+  cluster_columns = FALSE, show_row_names = FALSE, 
+  bottom_annotation = ha_col_state
+)
 
 
 # -------------------------------------------------------------
@@ -158,11 +205,13 @@ row_annot <- data.frame(
   check.names = FALSE
 )
 
-ha_row <- rowAnnotation(df = row_annot, 
-                        col = list("significant" = c("no" = "gray90", "yes" = "darkorange1"), 
-                                   "true B cells" = c("no" = "gray90", "yes" = "black")), 
-                        annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
-                        width = unit(1, "cm"))
+ha_row <- rowAnnotation(
+  df = row_annot, 
+  col = list("significant" = c("no" = "gray90", "yes" = "darkorange1"), 
+             "true B cells" = c("no" = "gray90", "yes" = "black")), 
+  annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
+  width = unit(1.2, "cm")
+)
 
 ht_title <- "BCR-XL-sim: diffcyt-DS-limma"
 
@@ -170,8 +219,8 @@ ht_title <- "BCR-XL-sim: diffcyt-DS-limma"
 # (iv) save individual plot
 
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_limma_main_heatmap.pdf")
-pdf(fn, width = 8.25, height = 8)
-draw(ht + ha_row, newpage = FALSE, 
+pdf(fn, width = 9, height = 7.5)
+draw(ht_main + ht_state + ha_row, newpage = FALSE, 
      column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
 dev.off()
 
