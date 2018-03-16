@@ -117,7 +117,7 @@ for (th in 1:length(thresholds)) {
     
     # use full range for color scale
     colors_counts <- colorRamp2(range(d_abundance), 
-                                c("purple4", "yellow"))
+                                c("#132a13", "yellow"))
     
     # note: row ordering is automatically matched when multiple heatmaps are combined
     ht_abundance <- Heatmap(
