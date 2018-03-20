@@ -19,6 +19,7 @@ TIMESTAMP_BENCHMARK_LESS_DISTINCT    = $(DIR_BENCHMARK)/less_distinct/timestamp.
 TIMESTAMP_BENCHMARK_NULL_SIMULATIONS = $(DIR_BENCHMARK)/null_simulations/timestamp.txt
 
 TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS           = $(DIR_PLOTS)/data_distributions/timestamp.txt
+TIMESTAMP_PLOTS_DATA_BCV                     = $(DIR_PLOTS)/data_BCV/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_PERFORMANCE             = $(DIR_PLOTS)/main_performance/timestamp.txt
 TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
@@ -39,6 +40,7 @@ TIMESTAMP_PLOTS_COMPARISONS_ALL              = $(DIR_PLOTS)/comparisons_all/time
 TIMESTAMP_PLOTS_COMPARISONS_RUNTIMES         = $(DIR_PLOTS)/comparisons_runtimes/timestamp.txt
 
 SCRIPTS_PLOTS_DATA_DISTRIBUTIONS           = $(wildcard $(DIR_GENERATE_PLOTS)/data_distributions/*.R)
+SCRIPTS_PLOTS_DATA_BCV                     = $(wildcard $(DIR_GENERATE_PLOTS)/data_BCV/*.R)
 SCRIPTS_PLOTS_MAIN_PERFORMANCE             = $(wildcard $(DIR_GENERATE_PLOTS)/main_performance/*.R)
 SCRIPTS_PLOTS_NULL_SIMULATIONS             = $(wildcard $(DIR_GENERATE_PLOTS)/null_simulations/*.R)
 SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
@@ -84,6 +86,7 @@ all: timestamps_plots
 
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
+                  $(TIMESTAMP_PLOTS_DATA_BCV) \
                   $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE) \
                   $(TIMESTAMP_PLOTS_NULL_SIMULATIONS) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
@@ -114,6 +117,10 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
 # data distributions
 $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIMESTAMP_BENCHMARK_MAIN) $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
 	cd $(DIR_GENERATE_PLOTS)/data_distributions && bash run_all.sh
+
+# BCV plots
+$(TIMESTAMP_PLOTS_DATA_BCV): $(SCRIPTS_PLOTS_DATA_BCV) $(TIMESTAMP_BENCHMARK_MAIN) $(FILES_RDATA_MAIN)
+	cd $(DIR_GENERATE_PLOTS)/data_BCV && bash run_all.sh
 
 # main results: performance metrics
 $(TIMESTAMP_PLOTS_MAIN_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_PERFORMANCE) $(FILES_RDATA_MAIN)
