@@ -45,9 +45,9 @@ d_medians <- out_objects_diffcyt_DS_LMM_main$d_medians
 d_medians_all <- out_objects_diffcyt_DS_LMM_main$d_medians_all
 
 
-# --------------------------------------------------
-# heatmap: main panel - expression of type 1 markers
-# --------------------------------------------------
+# -------------------------------------------------------
+# heatmap: main panel - expression of 'cell type' markers
+# -------------------------------------------------------
 
 # note: show top 'n' clusters only (otherwise heatmaps are too small on multi-panel plot)
 # note: no additional scaling (using asinh-transformed values directly)
@@ -91,7 +91,7 @@ colors <- colorRamp2(quantile(d_heatmap, c(0.01, 0.5, 0.99)),
 ht_main <- Heatmap(
   d_heatmap_celltype, col = colors, name = "expression", 
   row_title = "clusters", row_title_gp = gpar(fontsize = 14), 
-  column_title = "markers (type 1)", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+  column_title = "markers (cell type)", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
   show_column_names = FALSE, 
   column_names_gp = gpar(fontsize = 12), 
   heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
@@ -101,9 +101,9 @@ ht_main <- Heatmap(
 )
 
 
-# ----------------------------------------------------
-# heatmap: second panel - expression of type 2 markers
-# ----------------------------------------------------
+# -----------------------------------------------------
+# heatmap: second panel - expression of 'state' markers
+# -----------------------------------------------------
 
 d_heatmap_state <- assay(d_medians_all)[, colData(d_medians_all)$is_state_marker]
 
@@ -130,7 +130,7 @@ ha_col_state <- columnAnnotation(
 ht_state <- Heatmap(
   d_heatmap_state, col = colors, 
   show_heatmap_legend = FALSE, 
-  column_title = "markers (type 2)", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+  column_title = "markers (state)", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
   show_column_names = FALSE, 
   column_names_gp = gpar(fontsize = 12), 
   cluster_columns = FALSE, show_row_names = FALSE, 
