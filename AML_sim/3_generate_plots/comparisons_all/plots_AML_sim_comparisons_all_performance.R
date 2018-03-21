@@ -262,9 +262,6 @@ for (th in 1:length(thresholds)) {
     plots_multi <- plot_grid(plotlist = plots_list, 
                              nrow = 1, ncol = 2, align = "hv", axis = "bl")
     
-    # store in list
-    plots_all[[ix]] <- plots_multi
-    
     # add combined title
     title_single <- gsub(",.*$", "", p_ROC$labels$title)
     plots_title <- ggdraw() + draw_label(title_single)
@@ -274,10 +271,6 @@ for (th in 1:length(thresholds)) {
     legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right", 
                                                         legend.text = element_text(size = 10)))
     plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(3.2, 1))
-    
-    # store title and legend objects
-    title_objs[[ix]] <- title_single
-    legend_objs[[ix]] <- legend_single
     
     # save multi-panel plot
     fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_comparisons_all_main_performance_", thresholds[th], "_", cond_names[j], "_2_panels.pdf"))
