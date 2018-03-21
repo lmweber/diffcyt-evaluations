@@ -68,11 +68,14 @@ meds <- meds[, order(colnames(meds))]
 
 
 # create heatmap
-colors <- colorRamp2(quantile(meds, (c(0, 0.5, 1))), 
+colors <- colorRamp2(quantile(assay(d_medians_all), (c(0, 0.5, 1))), 
                      c("royalblue3", "white", "tomato2"))
+
+split <- factor(c(rep("clusters", length(clus_detected)), "all cells"), levels = c("clusters", "all cells"))
 
 ht_main <- Heatmap(
   meds, col = colors, name = "expression", 
+  split = split, combined_name_fun = NULL, 
   column_title = "markers", column_title_side = "bottom", column_title_gp = gpar(fontsize = 12), 
   column_names_gp = gpar(fontsize = 12), 
   cluster_rows = FALSE, cluster_columns = FALSE, 
