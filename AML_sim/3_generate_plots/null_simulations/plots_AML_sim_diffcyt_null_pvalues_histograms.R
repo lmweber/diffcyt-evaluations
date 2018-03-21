@@ -198,7 +198,7 @@ legend_single <- get_legend(plots_edgeR[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_edgeR_null_pvalues_one_seed.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_edgeR_null_pvalues_one_seed_hist.pdf")
 ggsave(fn, width = 9, height = 2.5)
 
 
@@ -229,7 +229,7 @@ legend_single <- get_legend(plots_limma[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_null_pvalues_one_seed.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_null_pvalues_one_seed_hist.pdf")
 ggsave(fn, width = 9, height = 2.5)
 
 
@@ -260,7 +260,7 @@ legend_single <- get_legend(plots_GLMM[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_GLMM_null_pvalues_one_seed.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_GLMM_null_pvalues_one_seed_hist.pdf")
 ggsave(fn, width = 9, height = 2.5)
 
 
@@ -296,7 +296,7 @@ legend_single <- get_legend(plots_edgeR[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_edgeR_null_pvalues_all_seeds.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_edgeR_null_pvalues_all_seeds_hist.pdf")
 ggsave(fn, width = 9, height = 6)
 
 
@@ -327,7 +327,7 @@ legend_single <- get_legend(plots_limma[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_null_pvalues_all_seeds.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_null_pvalues_all_seeds_hist.pdf")
 ggsave(fn, width = 9, height = 6)
 
 
@@ -358,7 +358,7 @@ legend_single <- get_legend(plots_GLMM[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_GLMM_null_pvalues_all_seeds.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_GLMM_null_pvalues_all_seeds_hist.pdf")
 ggsave(fn, width = 9, height = 6)
 
 
@@ -427,7 +427,7 @@ legend_single <- get_legend(p_legend + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(4.75, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_null_pvalues_3_panels.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_null_pvalues_3_panels_hist.pdf")
 ggsave(fn, width = 8.5, height = 2.5)
 
 

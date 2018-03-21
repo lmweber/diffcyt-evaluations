@@ -71,7 +71,7 @@ for (s in 1:length(seed_names)) {
   
   plots_limma[[s]] <- p
   
-  fn <- file.path(DIR_PLOTS, "panels", paste0("results_BCR_XL_sim_diffcyt_DS_limma_null_pvalues", "_seed", s, ".pdf"))
+  fn <- file.path(DIR_PLOTS, "panels", paste0("results_BCR_XL_sim_diffcyt_DS_limma_null_pvalues", "_seed", s, "_hist.pdf"))
   ggsave(fn, width = 5.5, height = 3.75)
   
 }
@@ -108,7 +108,7 @@ for (s in 1:length(seed_names)) {
   
   plots_LMM[[s]] <- p
   
-  fn <- file.path(DIR_PLOTS, "panels", paste0("results_BCR_XL_sim_diffcyt_DS_LMM_null_pvalues", "_seed", s, ".pdf"))
+  fn <- file.path(DIR_PLOTS, "panels", paste0("results_BCR_XL_sim_diffcyt_DS_LMM_null_pvalues", "_seed", s, "_hist.pdf"))
   ggsave(fn, width = 5.5, height = 3.75)
   
 }
@@ -146,7 +146,7 @@ legend_single <- get_legend(plots_limma[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_limma_null_pvalues.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_limma_null_pvalues_hist.pdf")
 ggsave(fn, width = 9, height = 2.5)
 
 
@@ -177,7 +177,7 @@ legend_single <- get_legend(plots_LMM[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_LMM_null_pvalues.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DS_LMM_null_pvalues_hist.pdf")
 ggsave(fn, width = 9, height = 2.5)
 
 
@@ -243,7 +243,7 @@ legend_single <- get_legend(p_legend + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(3.25, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_null_pvalues_2_panels.pdf")
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_null_pvalues_2_panels_hist.pdf")
 ggsave(fn, width = 6, height = 2.5)
 
 
