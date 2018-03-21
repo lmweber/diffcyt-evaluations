@@ -2,7 +2,7 @@
 # Generate plots
 # 
 # - data set: Anti-PD-1
-# - plot type: phenotype and number of cells
+# - plot type: phenotype and abundance of detected clusters
 # - method: diffcyt-DA-edgeR
 # 
 # - main results
