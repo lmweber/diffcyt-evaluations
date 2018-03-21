@@ -142,7 +142,7 @@ for (th in 1:length(thresholds)) {
             length(n_cells) == nlevels(rowData(d_se)$cluster))
   
   prop_spikein <- n_spikein / n_cells
-  spikein <- prop_spikein > 0.5
+  spikein <- prop_spikein > 0.1
   
   
   
@@ -186,7 +186,7 @@ for (th in 1:length(thresholds)) {
   
   plotBCV(y)
   points(y$AveLogCPM[spikein], sqrt(y$tagwise.dispersion)[spikein], pch = 20, col = 5)
-  legend("top", ">50% spike-in", pch = 20, col = 5)
+  legend("top", ">10% spike-in", pch = 20, col = 5)
   
   dev.off()
   
