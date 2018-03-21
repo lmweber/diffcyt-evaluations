@@ -19,8 +19,8 @@ library(reshape2)
 DIR_RDATA <- "../../../../RData/Anti_PD_1/main"
 
 load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_edgeR_main.RData"))
-load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_GLMM_main.RData"))
 load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_limma_main.RData"))
+load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_GLMM_main.RData"))
 
 
 # path to save plots
@@ -35,8 +35,8 @@ DIR_PLOTS <- "../../../../plots/Anti_PD_1/main_runtimes"
 
 runtime <- c(
   diffcyt_DA_edgeR = runtime_diffcyt_DA_edgeR_main, 
-  diffcyt_DA_GLMM = runtime_diffcyt_DA_GLMM_main, 
-  diffcyt_DA_limma = runtime_diffcyt_DA_limma_main
+  diffcyt_DA_limma = runtime_diffcyt_DA_limma_main, 
+  diffcyt_DA_GLMM = runtime_diffcyt_DA_GLMM_main
 )
 
 
@@ -45,7 +45,7 @@ d_plot <- as.data.frame(runtime)
 d_plot$method <- factor(rownames(d_plot), levels = rownames(d_plot))
 
 # color scheme
-colors <- c("darkblue", "deepskyblue2", "darkslategray2")
+colors <- c("darkblue", "dodgerblue", "darkslategray3")
 
 # create plot
 p <- 

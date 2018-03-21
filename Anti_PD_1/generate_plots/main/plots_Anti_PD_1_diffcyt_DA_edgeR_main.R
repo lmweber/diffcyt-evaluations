@@ -83,7 +83,7 @@ ht_main <- Heatmap(
   heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
 )
 
-ht_main_title <- "Anti-PD-1, main results: phenotype of detected clusters"
+ht_main_title <- "Anti-PD-1, diffcyt-DA-edgeR: phenotype of detected clusters"
 
 
 # save plot
@@ -117,7 +117,7 @@ ht_abundance <- Heatmap(
   heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
 )
 
-ht_abundance_title <- "Anti-PD-1, main results: abundance of detected clusters"
+ht_abundance_title <- "Anti-PD-1, diffcyt-DA-edgeR: abundance of detected clusters"
 
 
 # save plot
@@ -159,7 +159,7 @@ d_boxplots <- data.frame(
 ggplot(d_boxplots, aes(x = group, y = percent, color = group)) + 
   geom_boxplot(alpha = 0, width = 0.25) + 
   geom_point() + 
-  labs(title = "Anti-PD-1, main results: combined abundance") + 
+  labs(title = "Anti-PD-1, diffcyt-DA-edgeR: combined abundance") + 
   theme_bw()
 
 fn <- file.path(DIR_PLOTS, "results_Anti_PD_1_diffcyt_DA_edgeR_main_boxplots.pdf")
