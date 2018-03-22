@@ -122,7 +122,7 @@ ht_abundance_title <- "Anti-PD-1, diffcyt-DA-GLMM: abundance of detected cluster
 
 # save plot
 fn <- file.path(DIR_PLOTS, "results_Anti_PD_1_diffcyt_DA_GLMM_main_heatmap_abundance.pdf")
-pdf(fn, width = 8, height = 10)
+pdf(fn, width = 9, height = 10)
 draw(ht_abundance, newpage = FALSE, 
      column_title = ht_abundance_title, column_title_gp = gpar(fontface = "bold", fontsize = 12))
 dev.off()

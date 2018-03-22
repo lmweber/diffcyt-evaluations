@@ -122,7 +122,7 @@ ht_abundance_title <- "Anti-PD-1, diffcyt-DA-edgeR: abundance of detected cluste
 
 # save plot
 fn <- file.path(DIR_PLOTS, "results_Anti_PD_1_diffcyt_DA_edgeR_main_heatmap_abundance.pdf")
-pdf(fn, width = 8, height = 1.85)
+pdf(fn, width = 9, height = 2)
 draw(ht_abundance, newpage = FALSE, 
      column_title = ht_abundance_title, column_title_gp = gpar(fontface = "bold", fontsize = 12))
 dev.off()
