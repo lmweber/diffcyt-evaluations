@@ -291,8 +291,8 @@ p <-
                               override.aes = list(shape = 15, size = 6, color = c("gold", "forestgreen"))))
 
 p + 
-  annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 13.67, ymax = 24.33, fill = "gold") + 
-  annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 0.67, ymax = 13.33, fill = "forestgreen")
+  annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 14.67, ymax = 24.33, fill = "gold") + 
+  annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 0.67, ymax = 14.33, fill = "forestgreen")
 
 # save plot
 filename <- file.path(DIR_PLOTS, "BCR_XL_sim_data_distributions_conditions_main.pdf")
@@ -360,8 +360,8 @@ p <-
                               override.aes = list(shape = 15, size = 6, color = c("gold", "forestgreen"))))
 
 p + 
-  annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 13.67, ymax = 24.33, fill = "gold") + 
-  annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 0.67, ymax = 13.33, fill = "forestgreen")
+  annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 14.67, ymax = 24.33, fill = "gold") + 
+  annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 0.67, ymax = 14.33, fill = "forestgreen")
 
 # save plot
 filename <- file.path(DIR_PLOTS, "BCR_XL_sim_data_distributions_conditions_less_distinct.pdf")
