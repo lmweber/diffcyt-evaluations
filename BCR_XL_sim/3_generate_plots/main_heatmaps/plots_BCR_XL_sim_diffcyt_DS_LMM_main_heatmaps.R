@@ -84,9 +84,9 @@ ha_col_celltype <- columnAnnotation(
   annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
 )
 
-# use 1% and 99% percentiles for color scale
-colors <- colorRamp2(quantile(d_heatmap, c(0.01, 0.5, 0.99)), 
-                   c("royalblue3", "white", "tomato2"))
+# color scale: 1%, 50%, 99% percentiles across all medians and all markers
+colors <- colorRamp2(quantile(assay(d_medians_all)[, colData(d_medians_all)$is_marker], c(0.01, 0.5, 0.99)), 
+                     c("royalblue3", "white", "tomato2"))
 
 ht_main <- Heatmap(
   d_heatmap_celltype, col = colors, name = "expression", 

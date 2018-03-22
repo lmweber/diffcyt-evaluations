@@ -88,8 +88,8 @@ for (th in 1:length(thresholds)) {
     
     d_heatmap <- d_heatmap[top_n, ]
     
-    # use 1% and 99% percentiles for color scale
-    colors <- colorRamp2(quantile(d_heatmap, c(0.01, 0.5, 0.99)), 
+    # color scale: 1%, 50%, 99% percentiles across all medians and cell type markers
+    colors <- colorRamp2(quantile(assay(d_medians_all)[, colData(d_medians_all)$is_celltype_marker], c(0.01, 0.5, 0.99)), 
                          c("royalblue3", "white", "tomato2"))
     
     ht_main <- Heatmap(
