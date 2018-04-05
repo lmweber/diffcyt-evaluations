@@ -11,7 +11,7 @@
 ##########################################################################################
 
 
-# note: clustering step is the same for all 'diffcyt' methods (diffcyt-DA-edgeR, diffcyt-DA-limma, diffcyt-DA-GLMM)
+# note: clustering step is the same for all 'diffcyt' methods (diffcyt-DA-edgeR, diffcyt-DA-voom, diffcyt-DA-GLMM)
 
 
 library(SummarizedExperiment)

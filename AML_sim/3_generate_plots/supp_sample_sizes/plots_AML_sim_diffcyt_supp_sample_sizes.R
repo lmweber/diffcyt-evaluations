@@ -7,7 +7,7 @@
 # 
 # - supplementary results: smaller sample sizes
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -20,7 +20,7 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 DIR_RDATA <- "../../../../RData/AML_sim/supp_sample_sizes"
 
 load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_supp_sample_sizes.RData"))
-load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_sample_sizes.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_supp_sample_sizes.RData"))
 load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_GLMM_supp_sample_sizes.RData"))
 
 
@@ -62,7 +62,7 @@ for (th in 1:length(thresholds)) {
     
     # create 'COBRAData' object
     data <- list(diffcyt_DA_edgeR = out_diffcyt_DA_edgeR_supp_sample_sizes[[th]][[j]], 
-                 diffcyt_DA_limma = out_diffcyt_DA_limma_supp_sample_sizes[[th]][[j]], 
+                 diffcyt_DA_voom = out_diffcyt_DA_voom_supp_sample_sizes[[th]][[j]], 
                  diffcyt_DA_GLMM = out_diffcyt_DA_GLMM_supp_sample_sizes[[th]][[j]])
     
     # check
@@ -72,10 +72,10 @@ for (th in 1:length(thresholds)) {
     # 'padj' is required for threshold points on TPR-FDR curves
     # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
     cobradata <- COBRAData(pval = data.frame(diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_vals"], 
-                                             diffcyt_DA_limma = data[["diffcyt_DA_limma"]][, "p_vals"], 
+                                             diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_vals"], 
                                              diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_vals"]), 
                            padj = data.frame(diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_adj"], 
-                                             diffcyt_DA_limma = data[["diffcyt_DA_limma"]][, "p_adj"], 
+                                             diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_adj"], 
                                              diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_adj"]), 
                            truth = data.frame(spikein = data[["diffcyt_DA_edgeR"]][, "spikein"]))
     

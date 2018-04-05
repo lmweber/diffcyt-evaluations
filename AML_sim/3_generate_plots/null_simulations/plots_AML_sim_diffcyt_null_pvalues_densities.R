@@ -7,7 +7,7 @@
 # 
 # - null simulations
 # 
-# Lukas Weber, March 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -19,11 +19,11 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 DIR_RDATA <- "../../../../RData/AML_sim/null_simulations"
 
 load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_null.RData"))
-load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_null.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_null.RData"))
 load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_GLMM_null.RData"))
 
 load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_edgeR_null.RData"))
-load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_null.RData"))
+load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_voom_null.RData"))
 load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_GLMM_null.RData"))
 
 
@@ -90,30 +90,30 @@ for (th in 1:length(thresholds)) {
 
 
 
-# ----------------
-# diffcyt-DA-limma
-# ----------------
+# ---------------
+# diffcyt-DA-voom
+# ---------------
 
 # store plots in list
-plots_limma <- vector("list", length(thresholds))
+plots_voom <- vector("list", length(thresholds))
 
 for (th in 1:length(thresholds)) {
   
   d_plot <- rbind(
-    cbind(out_clusters_diffcyt_DA_limma_null[[th]][[1]], seed = "seed 1"), 
-    cbind(out_clusters_diffcyt_DA_limma_null[[th]][[2]], seed = "seed 2"), 
-    cbind(out_clusters_diffcyt_DA_limma_null[[th]][[3]], seed = "seed 3")
+    cbind(out_clusters_diffcyt_DA_voom_null[[th]][[1]], seed = "seed 1"), 
+    cbind(out_clusters_diffcyt_DA_voom_null[[th]][[2]], seed = "seed 2"), 
+    cbind(out_clusters_diffcyt_DA_voom_null[[th]][[3]], seed = "seed 3")
   )
   
   # replace any NAs with 1s
   d_plot[is.na(d_plot[, "P.Value"]), "P.Value"] <- 1
   
-  d_plot$method <- as.factor("diffcyt-DA-limma")
+  d_plot$method <- as.factor("diffcyt-DA-voom")
   
   p <- 
     ggplot(d_plot, aes(x = P.Value, linetype = seed, fill = method)) + 
     geom_density(adjust = 0.75, alpha = 0.5) + 
-    ggtitle("AML-sim, null simulations: diffcyt-DA-limma", 
+    ggtitle("AML-sim, null simulations: diffcyt-DA-voom", 
             subtitle = paste0("p-value distributions, threshold ", gsub("pc", "\\%", thresholds[th]))) + 
     scale_linetype_discrete(name = "random seed") + 
     scale_fill_manual(values = colors[2]) + 
@@ -124,9 +124,9 @@ for (th in 1:length(thresholds)) {
     guides(fill = guide_legend(order = 1), 
            linetype = guide_legend(order = 2))
   
-  plots_limma[[th]] <- p
+  plots_voom[[th]] <- p
   
-  fn <- file.path(DIR_PLOTS, "panels", paste0("results_BCR_XL_sim_diffcyt_DA_limma_null_pvalues_densities_", thresholds[th], ".pdf"))
+  fn <- file.path(DIR_PLOTS, "panels", paste0("results_BCR_XL_sim_diffcyt_DA_voom_null_pvalues_densities_", thresholds[th], ".pdf"))
   ggsave(fn, width = 5.5, height = 3.75)
   
 }
@@ -212,11 +212,11 @@ ggsave(fn, width = 9, height = 2.5)
 
 
 
-# ----------------
-# diffcyt-DA-limma
-# ----------------
+# ---------------
+# diffcyt-DA-voom
+# ---------------
 
-plots_list <- plots_limma
+plots_list <- plots_voom
 
 # modify plot elements
 plots_list <- lapply(plots_list, function(p) {
@@ -229,16 +229,16 @@ plots_multi <- plot_grid(plotlist = plots_list,
                          nrow = 1, ncol = 3, align = "hv", axis = "bl")
 
 # add combined title
-title_single <- gsub(":.*$", ": p-value distributions", plots_limma[[1]]$labels$title)
+title_single <- gsub(":.*$", ": p-value distributions", plots_voom[[1]]$labels$title)
 plots_title <- ggdraw() + draw_label(title_single)
 plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 5.5))
 
 # add combined legend
-legend_single <- get_legend(plots_limma[[1]] + theme(legend.position = "right"))
+legend_single <- get_legend(plots_voom[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_null_pvalues_densities.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_voom_null_pvalues_densities.pdf")
 ggsave(fn, width = 9, height = 2.5)
 
 

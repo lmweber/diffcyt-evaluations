@@ -1,10 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # - data set: AML-sim
 # 
-# - supplementary results: using FlowSOM meta-clustering
+# - supplementary results: using random effects instead of fixed effects for patient IDs
 # 
 # Lukas Weber, April 2018
 ##########################################################################################
@@ -16,9 +16,9 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
-DIR_PLOTS <- "../../../../plots/AML_sim/supp_metaclustering/diagnostic/diffcyt_DA_limma"
-DIR_RDATA <- "../../../../RData/AML_sim/supp_metaclustering"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_metaclustering"
+DIR_PLOTS <- "../../../../plots/AML_sim/supp_random_effects_voom/diagnostic/diffcyt_DA_voom"
+DIR_RDATA <- "../../../../RData/AML_sim/supp_random_effects_voom"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_random_effects_voom"
 
 
 
@@ -34,15 +34,15 @@ thresholds <- c("5pc", "1pc", "0.1pc")
 cond_names <- c("CN", "CBF")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include fixed effects for 'patient'
-contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
+# note: include random effects for 'patient' (using 'duplicateCorrelation' methodology)
+contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects and runtime
-out_diffcyt_DA_limma_supp_metaclustering <- runtime_diffcyt_DA_limma_supp_metaclustering <- 
-  out_clusters_diffcyt_DA_limma_supp_metaclustering <- out_objects_diffcyt_DA_limma_supp_metaclustering <- 
+out_diffcyt_DA_voom_supp_random_effects <- runtime_diffcyt_DA_voom_supp_random_effects <- 
+  out_clusters_diffcyt_DA_voom_supp_random_effects <- out_objects_diffcyt_DA_voom_supp_random_effects <- 
   vector("list", length(thresholds))
-names(out_diffcyt_DA_limma_supp_metaclustering) <- names(runtime_diffcyt_DA_limma_supp_metaclustering) <- 
-  names(out_clusters_diffcyt_DA_limma_supp_metaclustering) <- names(out_objects_diffcyt_DA_limma_supp_metaclustering) <- 
+names(out_diffcyt_DA_voom_supp_random_effects) <- names(runtime_diffcyt_DA_voom_supp_random_effects) <- 
+  names(out_clusters_diffcyt_DA_voom_supp_random_effects) <- names(out_objects_diffcyt_DA_voom_supp_random_effects) <- 
   thresholds
 
 
@@ -135,9 +135,7 @@ for (th in 1:length(thresholds)) {
     # clustering
     # (runtime: ~30 sec with xdim = 20, ydim = 20)
     seed <- 123
-    d_se <- generateClusters(d_se, xdim = 20, ydim = 20, 
-                             meta_clustering = TRUE, meta_k = 40, 
-                             seed = seed)
+    d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
     
     length(table(rowData(d_se)$cluster))  # number of clusters
     nrow(rowData(d_se))                   # number of cells
@@ -179,7 +177,7 @@ for (th in 1:length(thresholds)) {
   # store data objects (for plotting)
   # ---------------------------------
   
-  out_objects_diffcyt_DA_limma_supp_metaclustering[[th]] <- list(
+  out_objects_diffcyt_DA_voom_supp_random_effects[[th]] <- list(
     d_se = d_se, 
     d_counts = d_counts, 
     d_medians = d_medians, 
@@ -194,10 +192,10 @@ for (th in 1:length(thresholds)) {
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_diffcyt_DA_limma_supp_metaclustering[[th]] <- runtime_diffcyt_DA_limma_supp_metaclustering[[th]] <- 
-    out_clusters_diffcyt_DA_limma_supp_metaclustering[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_limma_supp_metaclustering[[th]]) <- names(runtime_diffcyt_DA_limma_supp_metaclustering[[th]]) <- 
-    names(out_clusters_diffcyt_DA_limma_supp_metaclustering[[th]]) <- cond_names
+  out_diffcyt_DA_voom_supp_random_effects[[th]] <- runtime_diffcyt_DA_voom_supp_random_effects[[th]] <- 
+    out_clusters_diffcyt_DA_voom_supp_random_effects[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_voom_supp_random_effects[[th]]) <- names(runtime_diffcyt_DA_voom_supp_random_effects[[th]]) <- 
+    names(out_clusters_diffcyt_DA_voom_supp_random_effects[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -205,8 +203,8 @@ for (th in 1:length(thresholds)) {
     runtime_j <- system.time({
       
       # set up design matrix
-      # note: include fixed effects for 'patient'
-      design <- createDesignMatrix(sample_info, cols_include = 1:2)
+      # note: include random effects for 'patient' (using 'duplicateCorrelation' methodology)
+      design <- createDesignMatrix(sample_info, cols_include = 1)
       design
       
       # set up contrast matrix
@@ -214,11 +212,12 @@ for (th in 1:length(thresholds)) {
       contrast
       
       # run tests
+      # note: include random effects for 'patient' (using 'duplicateCorrelation' methodology)
       # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
       path <- file.path(DIR_PLOTS, thresholds[th], cond_names[j])
-      res <- testDA_limma(d_counts, design, contrast, 
-                          min_cells = 3, min_samples = nrow(sample_info) / 3, 
-                          path = path)
+      res <- testDA_voom(d_counts, design, contrast, block = patient_IDs, 
+                         min_cells = 3, min_samples = nrow(sample_info) / 3, 
+                         path = path)
       
     })
     
@@ -237,7 +236,7 @@ for (th in 1:length(thresholds)) {
     runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
     print(runtime_total)
     
-    runtime_diffcyt_DA_limma_supp_metaclustering[[th]][[j]] <- runtime_total
+    runtime_diffcyt_DA_voom_supp_random_effects[[th]][[j]] <- runtime_total
     
     
     # ---------------------------------------------
@@ -246,7 +245,7 @@ for (th in 1:length(thresholds)) {
     
     res_clusters <- as.data.frame(rowData(res))
     
-    out_clusters_diffcyt_DA_limma_supp_metaclustering[[th]][[j]] <- res_clusters
+    out_clusters_diffcyt_DA_voom_supp_random_effects[[th]][[j]] <- res_clusters
     
     
     
@@ -309,7 +308,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_diffcyt_DA_limma_supp_metaclustering[[th]][[j]] <- res
+    out_diffcyt_DA_voom_supp_random_effects[[th]][[j]] <- res
     
   }
 }
@@ -321,14 +320,14 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_supp_metaclustering, runtime_diffcyt_DA_limma_supp_metaclustering, 
-     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_metaclustering.RData"))
+save(out_diffcyt_DA_voom_supp_random_effects, runtime_diffcyt_DA_voom_supp_random_effects, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_supp_random_effects.RData"))
 
-save(out_clusters_diffcyt_DA_limma_supp_metaclustering, 
-     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_supp_metaclustering.RData"))
+save(out_clusters_diffcyt_DA_voom_supp_random_effects, 
+     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_voom_supp_random_effects.RData"))
 
-save(out_objects_diffcyt_DA_limma_supp_metaclustering, 
-     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_supp_metaclustering.RData"))
+save(out_objects_diffcyt_DA_voom_supp_random_effects, 
+     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_voom_supp_random_effects.RData"))
 
 
 
@@ -337,7 +336,7 @@ save(out_objects_diffcyt_DA_limma_supp_metaclustering,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_limma_supp_metaclustering.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_voom_supp_random_effects.txt"))
 sessionInfo()
 sink()
 

@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -22,7 +22,7 @@ DIR_RDATA_CELLCNN <- "../../../../RData/AML_sim/comparisons_CellCnn"
 DIR_RDATA_CYDAR <- "../../../../RData/AML_sim/comparisons_cydar"
 
 load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_edgeR_main.RData"))
-load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
+load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_voom_main.RData"))
 load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_GLMM_main.RData"))
 load(file.path(DIR_RDATA_CITRUS, "outputs_AML_sim_Citrus_main.RData"))
 load(file.path(DIR_RDATA_CELLCNN, "outputs_AML_sim_CellCnn_main.RData"))
@@ -66,7 +66,7 @@ for (th in 1:length(thresholds)) {
       CellCnn = runtime_CellCnn_main[[th]][[j]], 
       cydar = runtime_cydar_main[[th]][[j]], 
       diffcyt_DA_edgeR = runtime_diffcyt_DA_edgeR_main[[th]][[j]], 
-      diffcyt_DA_limma = runtime_diffcyt_DA_limma_main[[th]][[j]], 
+      diffcyt_DA_voom = runtime_diffcyt_DA_voom_main[[th]][[j]], 
       diffcyt_DA_GLMM = runtime_diffcyt_DA_GLMM_main[[th]][[j]]
     ))
     

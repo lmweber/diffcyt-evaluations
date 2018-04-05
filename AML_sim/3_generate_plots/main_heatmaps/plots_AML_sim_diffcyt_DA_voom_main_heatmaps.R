@@ -3,7 +3,7 @@
 # 
 # - data set: AML-sim
 # - plot type: heatmaps
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # 
 # - main results
 # 
@@ -23,9 +23,9 @@ library(gridExtra)
 # load saved results
 DIR_RDATA <- "../../../../RData/AML_sim/main"
 
-load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
-load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_main.RData"))
-load(file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_main.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_main.RData"))
+load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_voom_main.RData"))
+load(file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_voom_main.RData"))
 
 
 # path to save plots
@@ -55,9 +55,9 @@ plots_heatmaps <- vector("list", length(thresholds) * length(cond_names))
 for (th in 1:length(thresholds)) {
   
   # load plot data objects (same for both conditions j)
-  d_se <- out_objects_diffcyt_DA_limma_main[[th]]$d_se
-  d_counts <- out_objects_diffcyt_DA_limma_main[[th]]$d_counts
-  d_medians_by_cluster_marker <- out_objects_diffcyt_DA_limma_main[[th]]$d_medians_by_cluster_marker
+  d_se <- out_objects_diffcyt_DA_voom_main[[th]]$d_se
+  d_counts <- out_objects_diffcyt_DA_voom_main[[th]]$d_counts
+  d_medians_by_cluster_marker <- out_objects_diffcyt_DA_voom_main[[th]]$d_medians_by_cluster_marker
   
   
   for (j in 1:length(cond_names)) {
@@ -77,7 +77,7 @@ for (th in 1:length(thresholds)) {
     d_heatmap <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_type"]
     
     # load cluster-level results (for condition j)
-    d_clus <- out_clusters_diffcyt_DA_limma_main[[th]][[j]]
+    d_clus <- out_clusters_diffcyt_DA_voom_main[[th]][[j]]
     
     stopifnot(nrow(d_clus) == nrow(rowData(d_counts)), 
               all(d_clus$cluster == rowData(d_counts)$cluster))
@@ -158,7 +158,7 @@ for (th in 1:length(thresholds)) {
     # (ii) from cell-level results
     
     # load spike-in status at cell level (for condition j)
-    spikein <- out_diffcyt_DA_limma_main[[th]][[j]]$spikein
+    spikein <- out_diffcyt_DA_voom_main[[th]][[j]]$spikein
     
     n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group) %>% tally
     n_cells_cond <- unname(unlist(n_cells_cond[, "n"]))
@@ -221,12 +221,12 @@ for (th in 1:length(thresholds)) {
       width = unit(1.2, "cm")
     )
     
-    ht_title <- paste0("AML-sim, ", cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]), ": diffcyt-DA-limma")
+    ht_title <- paste0("AML-sim, ", cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]), ": diffcyt-DA-voom")
     
     
     # (iv) save individual plot
     
-    fn <- file.path(DIR_PLOTS, paste0("panels/results_AML_sim_diffcyt_DA_limma_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, paste0("panels/results_AML_sim_diffcyt_DA_voom_main_heatmap_AML_sim_", thresholds[th], "_", cond_names[j], ".pdf"))
     pdf(fn, width = 9, height = 6.5)
     plots_heatmaps[[ix]] <- draw(ht_main + ht_abundance + ha_row, newpage = FALSE, 
                                  column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
@@ -242,7 +242,7 @@ for (th in 1:length(thresholds)) {
 # Save multi-panel plots
 ########################
 
-fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_limma_main_heatmaps.pdf"))
+fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_voom_main_heatmaps.pdf"))
 pdf(fn, width = 25, height = 10)
 
 grid.newpage()

@@ -3,11 +3,11 @@
 # 
 # - data set: AML-sim
 # - plot type: performance metrics
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # 
 # - supplementary results: using random effects instead of fixed effects for patient IDs
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -17,13 +17,13 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 
 
 # load saved results
-DIR_RDATA <- "../../../../RData/AML_sim/supp_random_effects_limma"
+DIR_RDATA <- "../../../../RData/AML_sim/supp_random_effects_voom"
 
-load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_random_effects.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_supp_random_effects.RData"))
 
 
 # path to save plots
-DIR_PLOTS <- "../../../../plots/AML_sim/supp_random_effects_limma"
+DIR_PLOTS <- "../../../../plots/AML_sim/supp_random_effects_voom"
 
 
 
@@ -59,7 +59,7 @@ for (th in 1:length(thresholds)) {
     # -------------------------------------
     
     # create 'COBRAData' object
-    data <- list(diffcyt_DA_limma = out_diffcyt_DA_limma_supp_random_effects[[th]][[j]])
+    data <- list(diffcyt_DA_voom = out_diffcyt_DA_voom_supp_random_effects[[th]][[j]])
     
     # check
     stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
@@ -67,9 +67,9 @@ for (th in 1:length(thresholds)) {
     # note: provide all available values
     # 'padj' is required for threshold points on TPR-FDR curves
     # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_limma = data[["diffcyt_DA_limma"]][, "p_vals"]), 
-                           padj = data.frame(diffcyt_DA_limma = data[["diffcyt_DA_limma"]][, "p_adj"]), 
-                           truth = data.frame(spikein = data[["diffcyt_DA_limma"]][, "spikein"]))
+    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_vals"]), 
+                           padj = data.frame(diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_adj"]), 
+                           truth = data.frame(spikein = data[["diffcyt_DA_voom"]][, "spikein"]))
     
     # calculate performance scores
     # (note: can ignore warning messages when 'padj' not available)
@@ -109,7 +109,7 @@ for (th in 1:length(thresholds)) {
       guides(color = guide_legend("method"))
     
     # save individual panel plot
-    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_DA_limma_supp_random_effects_ROC_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_DA_voom_supp_random_effects_ROC_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
     
@@ -133,7 +133,7 @@ for (th in 1:length(thresholds)) {
              color = guide_legend("method", order = 2))
     
     # save individual panel plot
-    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_DA_limma_supp_random_effects_TPRFDR_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_DA_voom_supp_random_effects_TPRFDR_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
     
@@ -156,7 +156,7 @@ for (th in 1:length(thresholds)) {
              color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
     
     # save individual panel plot
-    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_DA_limma_supp_random_effects_TPR_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_DA_voom_supp_random_effects_TPR_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
     
@@ -179,7 +179,7 @@ for (th in 1:length(thresholds)) {
              color = guide_legend("method", override.aes = list(shape = 19, size = 4), order = 2))
     
     # save individual panel plot
-    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_DA_limma_supp_random_effects_FPR_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_DA_voom_supp_random_effects_FPR_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
     
@@ -218,7 +218,7 @@ for (th in 1:length(thresholds)) {
     legend_objs[[ix]] <- legend_single
     
     # save multi-panel plot
-    fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_limma_supp_random_effects_performance_", thresholds[th], "_", cond_names[j], ".pdf"))
+    fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_voom_supp_random_effects_performance_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 10, height = 2.625)
     
   }
@@ -250,7 +250,7 @@ for (j in 1:length(cond_names)) {
   plots_j <- plot_grid(plots_j, legend_single, nrow = 1, rel_widths = c(6, 1))
   
   # save combined plot
-  fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_limma_supp_random_effects_performance_", cond_names[j], ".pdf"))
+  fn <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_voom_supp_random_effects_performance_", cond_names[j], ".pdf"))
   ggsave(fn, width = 10, height = 7.25)
   
 }

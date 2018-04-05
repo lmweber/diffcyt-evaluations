@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -21,7 +21,7 @@ DIR_RDATA_MAIN <- "../../../../RData/AML_sim/main"
 DIR_RDATA_CITRUS <- "../../../../RData/AML_sim/comparisons_Citrus"
 
 load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_edgeR_main.RData"))
-load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
+load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_voom_main.RData"))
 load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_GLMM_main.RData"))
 load(file.path(DIR_RDATA_CITRUS, "outputs_AML_sim_Citrus_main.RData"))
 
@@ -87,7 +87,7 @@ for (th in 1:length(thresholds)) {
     
     # create 'COBRAData' object
     data <- list(diffcyt_DA_edgeR = out_diffcyt_DA_edgeR_main[[th]][[j]], 
-                 diffcyt_DA_limma = out_diffcyt_DA_limma_main[[th]][[j]], 
+                 diffcyt_DA_voom = out_diffcyt_DA_voom_main[[th]][[j]], 
                  diffcyt_DA_GLMM = out_diffcyt_DA_GLMM_main[[th]][[j]], 
                  Citrus = out_Citrus_main[[th]][[j]])
     
@@ -98,10 +98,10 @@ for (th in 1:length(thresholds)) {
     # 'padj' is required for threshold points on TPR-FDR curves
     # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
     cobradata <- COBRAData(pval = data.frame(diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_vals"], 
-                                             diffcyt_DA_limma = data[["diffcyt_DA_limma"]][, "p_vals"], 
+                                             diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_vals"], 
                                              diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_vals"]), 
                            padj = data.frame(diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_adj"], 
-                                             diffcyt_DA_limma = data[["diffcyt_DA_limma"]][, "p_adj"], 
+                                             diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_adj"], 
                                              diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_adj"]), 
                            score = data.frame(Citrus = data[["Citrus"]][, "scores"]), 
                            truth = data.frame(spikein = data[["diffcyt_DA_edgeR"]][, "spikein"]))

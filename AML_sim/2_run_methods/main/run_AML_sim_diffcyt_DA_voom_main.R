@@ -1,10 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # - data set: AML-sim
 # 
-# - supplementary results: using random effects instead of fixed effects for patient IDs
+# - main results
 # 
 # Lukas Weber, April 2018
 ##########################################################################################
@@ -16,9 +16,9 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
-DIR_PLOTS <- "../../../../plots/AML_sim/supp_random_effects_limma/diagnostic/diffcyt_DA_limma"
-DIR_RDATA <- "../../../../RData/AML_sim/supp_random_effects_limma"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_random_effects_limma"
+DIR_PLOTS <- "../../../../plots/AML_sim/main_diagnostic/diffcyt_DA_voom"
+DIR_RDATA <- "../../../../RData/AML_sim/main"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/main"
 
 
 
@@ -34,15 +34,15 @@ thresholds <- c("5pc", "1pc", "0.1pc")
 cond_names <- c("CN", "CBF")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include random effects for 'patient' (using 'duplicateCorrelation' methodology)
-contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
+# note: include fixed effects for 'patient'
+contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
 
 # lists to store objects and runtime
-out_diffcyt_DA_limma_supp_random_effects <- runtime_diffcyt_DA_limma_supp_random_effects <- 
-  out_clusters_diffcyt_DA_limma_supp_random_effects <- out_objects_diffcyt_DA_limma_supp_random_effects <- 
+out_diffcyt_DA_voom_main <- runtime_diffcyt_DA_voom_main <- 
+  out_clusters_diffcyt_DA_voom_main <- out_objects_diffcyt_DA_voom_main <- 
   vector("list", length(thresholds))
-names(out_diffcyt_DA_limma_supp_random_effects) <- names(runtime_diffcyt_DA_limma_supp_random_effects) <- 
-  names(out_clusters_diffcyt_DA_limma_supp_random_effects) <- names(out_objects_diffcyt_DA_limma_supp_random_effects) <- 
+names(out_diffcyt_DA_voom_main) <- names(runtime_diffcyt_DA_voom_main) <- 
+  names(out_clusters_diffcyt_DA_voom_main) <- names(out_objects_diffcyt_DA_voom_main) <- 
   thresholds
 
 
@@ -177,7 +177,7 @@ for (th in 1:length(thresholds)) {
   # store data objects (for plotting)
   # ---------------------------------
   
-  out_objects_diffcyt_DA_limma_supp_random_effects[[th]] <- list(
+  out_objects_diffcyt_DA_voom_main[[th]] <- list(
     d_se = d_se, 
     d_counts = d_counts, 
     d_medians = d_medians, 
@@ -192,10 +192,10 @@ for (th in 1:length(thresholds)) {
   
   # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
   
-  out_diffcyt_DA_limma_supp_random_effects[[th]] <- runtime_diffcyt_DA_limma_supp_random_effects[[th]] <- 
-    out_clusters_diffcyt_DA_limma_supp_random_effects[[th]] <- vector("list", length(cond_names))
-  names(out_diffcyt_DA_limma_supp_random_effects[[th]]) <- names(runtime_diffcyt_DA_limma_supp_random_effects[[th]]) <- 
-    names(out_clusters_diffcyt_DA_limma_supp_random_effects[[th]]) <- cond_names
+  out_diffcyt_DA_voom_main[[th]] <- runtime_diffcyt_DA_voom_main[[th]] <- 
+    out_clusters_diffcyt_DA_voom_main[[th]] <- vector("list", length(cond_names))
+  names(out_diffcyt_DA_voom_main[[th]]) <- names(runtime_diffcyt_DA_voom_main[[th]]) <- 
+    names(out_clusters_diffcyt_DA_voom_main[[th]]) <- cond_names
   
   
   for (j in 1:length(cond_names)) {
@@ -203,8 +203,8 @@ for (th in 1:length(thresholds)) {
     runtime_j <- system.time({
       
       # set up design matrix
-      # note: include random effects for 'patient' (using 'duplicateCorrelation' methodology)
-      design <- createDesignMatrix(sample_info, cols_include = 1)
+      # note: include fixed effects for 'patient'
+      design <- createDesignMatrix(sample_info, cols_include = 1:2)
       design
       
       # set up contrast matrix
@@ -212,12 +212,11 @@ for (th in 1:length(thresholds)) {
       contrast
       
       # run tests
-      # note: include random effects for 'patient' (using 'duplicateCorrelation' methodology)
       # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
       path <- file.path(DIR_PLOTS, thresholds[th], cond_names[j])
-      res <- testDA_limma(d_counts, design, contrast, block = patient_IDs, 
-                          min_cells = 3, min_samples = nrow(sample_info) / 3, 
-                          path = path)
+      res <- testDA_voom(d_counts, design, contrast, 
+                         min_cells = 3, min_samples = nrow(sample_info) / 3, 
+                         path = path)
       
     })
     
@@ -236,7 +235,7 @@ for (th in 1:length(thresholds)) {
     runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
     print(runtime_total)
     
-    runtime_diffcyt_DA_limma_supp_random_effects[[th]][[j]] <- runtime_total
+    runtime_diffcyt_DA_voom_main[[th]][[j]] <- runtime_total
     
     
     # ---------------------------------------------
@@ -245,7 +244,7 @@ for (th in 1:length(thresholds)) {
     
     res_clusters <- as.data.frame(rowData(res))
     
-    out_clusters_diffcyt_DA_limma_supp_random_effects[[th]][[j]] <- res_clusters
+    out_clusters_diffcyt_DA_voom_main[[th]][[j]] <- res_clusters
     
     
     
@@ -308,7 +307,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein_cnd)
     
     # store results
-    out_diffcyt_DA_limma_supp_random_effects[[th]][[j]] <- res
+    out_diffcyt_DA_voom_main[[th]][[j]] <- res
     
   }
 }
@@ -320,14 +319,14 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_supp_random_effects, runtime_diffcyt_DA_limma_supp_random_effects, 
-     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_random_effects.RData"))
+save(out_diffcyt_DA_voom_main, runtime_diffcyt_DA_voom_main, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_main.RData"))
 
-save(out_clusters_diffcyt_DA_limma_supp_random_effects, 
-     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_supp_random_effects.RData"))
+save(out_clusters_diffcyt_DA_voom_main, 
+     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_voom_main.RData"))
 
-save(out_objects_diffcyt_DA_limma_supp_random_effects, 
-     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_supp_random_effects.RData"))
+save(out_objects_diffcyt_DA_voom_main, 
+     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_voom_main.RData"))
 
 
 
@@ -336,7 +335,7 @@ save(out_objects_diffcyt_DA_limma_supp_random_effects,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_limma_supp_random_effects.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_voom_main.txt"))
 sessionInfo()
 sink()
 

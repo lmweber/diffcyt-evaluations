@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # - data set: AML-sim
 # 
 # - null simulations
@@ -16,7 +16,7 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/null_simulations"
-DIR_PLOTS <- "../../../../plots/AML_sim/null_simulations/diagnostic/diffcyt_DA_limma"
+DIR_PLOTS <- "../../../../plots/AML_sim/null_simulations/diagnostic/diffcyt_DA_voom"
 DIR_RDATA <- "../../../../RData/AML_sim/null_simulations"
 DIR_SESSION_INFO <- "../../../../session_info/AML_sim/null_simulations"
 
@@ -34,14 +34,14 @@ thresholds <- c("5pc", "1pc", "0.1pc")
 seed_names <- c("seed1", "seed2", "seed3")
 
 # lists to store objects
-out_diffcyt_DA_limma_null  <- 
-  out_clusters_diffcyt_DA_limma_null <- 
-  out_objects_diffcyt_DA_limma_null <- 
-  runtime_diffcyt_DA_limma_null <- vector("list", length(thresholds))
-names(out_diffcyt_DA_limma_null) <- 
-  names(out_clusters_diffcyt_DA_limma_null) <- 
-  names(out_objects_diffcyt_DA_limma_null) <- 
-  names(runtime_diffcyt_DA_limma_null) <- thresholds
+out_diffcyt_DA_voom_null  <- 
+  out_clusters_diffcyt_DA_voom_null <- 
+  out_objects_diffcyt_DA_voom_null <- 
+  runtime_diffcyt_DA_voom_null <- vector("list", length(thresholds))
+names(out_diffcyt_DA_voom_null) <- 
+  names(out_clusters_diffcyt_DA_voom_null) <- 
+  names(out_objects_diffcyt_DA_voom_null) <- 
+  names(runtime_diffcyt_DA_voom_null) <- thresholds
 
 
 
@@ -49,14 +49,14 @@ names(out_diffcyt_DA_limma_null) <-
 for (th in 1:length(thresholds)) {
   
   # lists to store objects
-  out_diffcyt_DA_limma_null[[th]]  <- 
-    out_clusters_diffcyt_DA_limma_null[[th]] <- 
-    out_objects_diffcyt_DA_limma_null[[th]] <- 
-    runtime_diffcyt_DA_limma_null[[th]] <- vector("list", length(seed_names))
-  names(out_diffcyt_DA_limma_null[[th]]) <- 
-    names(out_clusters_diffcyt_DA_limma_null[[th]]) <- 
-    names(out_objects_diffcyt_DA_limma_null[[th]]) <- 
-    names(runtime_diffcyt_DA_limma_null[[th]]) <- seed_names
+  out_diffcyt_DA_voom_null[[th]]  <- 
+    out_clusters_diffcyt_DA_voom_null[[th]] <- 
+    out_objects_diffcyt_DA_voom_null[[th]] <- 
+    runtime_diffcyt_DA_voom_null[[th]] <- vector("list", length(seed_names))
+  names(out_diffcyt_DA_voom_null[[th]]) <- 
+    names(out_clusters_diffcyt_DA_voom_null[[th]]) <- 
+    names(out_objects_diffcyt_DA_voom_null[[th]]) <- 
+    names(runtime_diffcyt_DA_voom_null[[th]]) <- seed_names
   
   
   for (s in 1:length(seed_names)) {
@@ -188,7 +188,7 @@ for (th in 1:length(thresholds)) {
     # store data objects (for plotting)
     # ---------------------------------
     
-    out_objects_diffcyt_DA_limma_null[[th]][[s]] <- list(
+    out_objects_diffcyt_DA_voom_null[[th]][[s]] <- list(
       d_se = d_se, 
       d_counts = d_counts, 
       d_medians = d_medians, 
@@ -219,7 +219,7 @@ for (th in 1:length(thresholds)) {
       # run tests
       # note: use default filtering parameter 'min_samples' (since there are 2 conditions null comparison)
       path <- file.path(DIR_PLOTS, thresholds[th])
-      res <- testDA_limma(d_counts, design, contrast, path = path)
+      res <- testDA_voom(d_counts, design, contrast, path = path)
       
     })
     
@@ -238,7 +238,7 @@ for (th in 1:length(thresholds)) {
     runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_tests[["elapsed"]]
     print(runtime_total)
     
-    runtime_diffcyt_DA_limma_null[[th]][[s]] <- runtime_total
+    runtime_diffcyt_DA_voom_null[[th]][[s]] <- runtime_total
     
     
     # ---------------------------------------------
@@ -247,7 +247,7 @@ for (th in 1:length(thresholds)) {
     
     res_clusters <- as.data.frame(rowData(res))
     
-    out_clusters_diffcyt_DA_limma_null[[th]][[s]] <- res_clusters
+    out_clusters_diffcyt_DA_voom_null[[th]][[s]] <- res_clusters
     
     
     
@@ -304,7 +304,7 @@ for (th in 1:length(thresholds)) {
                       spikein = is_spikein)
     
     # store results
-    out_diffcyt_DA_limma_null[[th]][[s]] <- res
+    out_diffcyt_DA_voom_null[[th]][[s]] <- res
     
   }
 }
@@ -316,14 +316,14 @@ for (th in 1:length(thresholds)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_null, runtime_diffcyt_DA_limma_null, 
-     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_null.RData"))
+save(out_diffcyt_DA_voom_null, runtime_diffcyt_DA_voom_null, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_null.RData"))
 
-save(out_clusters_diffcyt_DA_limma_null, 
-     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_null.RData"))
+save(out_clusters_diffcyt_DA_voom_null, 
+     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_voom_null.RData"))
 
-save(out_objects_diffcyt_DA_limma_null, 
-     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_null.RData"))
+save(out_objects_diffcyt_DA_voom_null, 
+     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_voom_null.RData"))
 
 
 
@@ -332,7 +332,7 @@ save(out_objects_diffcyt_DA_limma_null,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_limma_null.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_voom_null.txt"))
 sessionInfo()
 sink()
 

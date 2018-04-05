@@ -7,7 +7,7 @@
 # 
 # - null simulations
 # 
-# Lukas Weber, March 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -19,11 +19,11 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 DIR_RDATA <- "../../../../RData/AML_sim/null_simulations"
 
 load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_edgeR_null.RData"))
-load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_null.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_null.RData"))
 load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_GLMM_null.RData"))
 
 load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_edgeR_null.RData"))
-load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_null.RData"))
+load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_voom_null.RData"))
 load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_GLMM_null.RData"))
 
 
@@ -89,12 +89,12 @@ for (th in 1:length(thresholds)) {
 
 
 
-# ----------------
-# diffcyt-DA-limma
-# ----------------
+# ---------------
+# diffcyt-DA-voom
+# ---------------
 
 # store plots in list
-plots_limma <- vector("list", length(thresholds) * length(seed_names))
+plots_voom <- vector("list", length(thresholds) * length(seed_names))
 
 for (th in 1:length(thresholds)) {
   
@@ -103,25 +103,25 @@ for (th in 1:length(thresholds)) {
     # index to store plots in list
     ix <- (th * length(seed_names)) - (length(seed_names) - s)
     
-    d_plot <- out_clusters_diffcyt_DA_limma_null[[th]][[s]]
+    d_plot <- out_clusters_diffcyt_DA_voom_null[[th]][[s]]
     
     # replace any NAs with 1s
     d_plot[is.na(d_plot[, "P.Value"]), "P.Value"] <- 1
     
-    d_plot$method <- as.factor("diffcyt-DA-limma")
+    d_plot$method <- as.factor("diffcyt-DA-voom")
     
     p <- 
       ggplot(d_plot, aes(x = P.Value, fill = method)) + 
       geom_histogram(bins = 20, color = "black") + 
       scale_fill_manual(values = colors[2]) + 
-      ggtitle("AML-sim, null simulations: diffcyt-DA-limma", 
+      ggtitle("AML-sim, null simulations: diffcyt-DA-voom", 
               subtitle = paste0("p-value distribution, threshold ", gsub("pc", "\\%", thresholds[th]), ", random seed ", s)) + 
       xlim(c(0, 1)) + 
       ylim(0, 35) + 
       xlab("p-value") + 
       theme_bw()
     
-    plots_limma[[ix]] <- p
+    plots_voom[[ix]] <- p
     
   }
 }
@@ -203,11 +203,11 @@ ggsave(fn, width = 9, height = 2.5)
 
 
 
-# ----------------
-# diffcyt-DA-limma
-# ----------------
+# ---------------
+# diffcyt-DA-voom
+# ---------------
 
-plots_list <- plots_limma[c(1, 4, 7)]
+plots_list <- plots_voom[c(1, 4, 7)]
 
 # modify plot elements
 plots_list <- lapply(plots_list, function(p) {
@@ -220,16 +220,16 @@ plots_multi <- plot_grid(plotlist = plots_list,
                          nrow = 1, ncol = 3, align = "hv", axis = "bl")
 
 # add combined title
-title_single <- gsub(":.*$", ": p-value distributions", plots_limma[[1]]$labels$title)
+title_single <- gsub(":.*$", ": p-value distributions", plots_voom[[1]]$labels$title)
 plots_title <- ggdraw() + draw_label(title_single)
 plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 5.5))
 
 # add combined legend
-legend_single <- get_legend(plots_limma[[1]] + theme(legend.position = "right"))
+legend_single <- get_legend(plots_voom[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_null_pvalues_one_seed_hist.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_voom_null_pvalues_one_seed_hist.pdf")
 ggsave(fn, width = 9, height = 2.5)
 
 
@@ -301,11 +301,11 @@ ggsave(fn, width = 9, height = 6)
 
 
 
-# ----------------
-# diffcyt-DA-limma
-# ----------------
+# ---------------
+# diffcyt-DA-voom
+# ---------------
 
-plots_list <- plots_limma
+plots_list <- plots_voom
 
 # modify plot elements
 plots_list <- lapply(plots_list, function(p) {
@@ -318,16 +318,16 @@ plots_multi <- plot_grid(plotlist = plots_list,
                          nrow = 3, ncol = 3, align = "hv", axis = "bl")
 
 # add combined title
-title_single <- gsub(":.*$", ": p-value distributions", plots_limma[[1]]$labels$title)
+title_single <- gsub(":.*$", ": p-value distributions", plots_voom[[1]]$labels$title)
 plots_title <- ggdraw() + draw_label(title_single)
 plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 15))
 
 # add combined legend
-legend_single <- get_legend(plots_limma[[1]] + theme(legend.position = "right"))
+legend_single <- get_legend(plots_voom[[1]] + theme(legend.position = "right"))
 plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(5, 1))
 
 # save multi-panel plot
-fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_null_pvalues_all_seeds_hist.pdf")
+fn <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_voom_null_pvalues_all_seeds_hist.pdf")
 ggsave(fn, width = 9, height = 6)
 
 
@@ -374,16 +374,16 @@ ggsave(fn, width = 9, height = 6)
 # create plot with combined legend (use to get legend object only)
 
 d_plot_edgeR <- out_clusters_diffcyt_DA_edgeR_null[[2]][[1]][, c(1, 5, 6)]
-d_plot_limma <- out_clusters_diffcyt_DA_limma_null[[2]][[1]][, c(1, 5, 6)]
+d_plot_voom <- out_clusters_diffcyt_DA_voom_null[[2]][[1]][, c(1, 5, 6)]
 d_plot_GLMM <- out_clusters_diffcyt_DA_GLMM_null[[2]][[1]]
 
-colnames(d_plot_edgeR) <- colnames(d_plot_limma) <- colnames(d_plot_GLMM)
+colnames(d_plot_edgeR) <- colnames(d_plot_voom) <- colnames(d_plot_GLMM)
 
 d_plot_edgeR$method <- "diffcyt-DA-edgeR"
-d_plot_limma$method <- "diffcyt-DA-limma"
+d_plot_voom$method <- "diffcyt-DA-voom"
 d_plot_GLMM$method <- "diffcyt-DA-GLMM"
 
-d_plot <- rbind(d_plot_edgeR, d_plot_limma, d_plot_GLMM)
+d_plot <- rbind(d_plot_edgeR, d_plot_voom, d_plot_GLMM)
 
 d_plot$method <- factor(d_plot$method)
 
@@ -405,7 +405,7 @@ p_legend <-
 
 # create multi-panel plot
 
-plots_list <- list(plots_edgeR[[1]], plots_limma[[1]], plots_GLMM[[1]])
+plots_list <- list(plots_edgeR[[1]], plots_voom[[1]], plots_GLMM[[1]])
 
 # modify plot elements
 plots_list <- lapply(plots_list, function(p) {

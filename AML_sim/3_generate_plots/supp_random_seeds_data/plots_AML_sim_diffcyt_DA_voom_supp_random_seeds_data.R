@@ -3,11 +3,11 @@
 # 
 # - data set: AML-sim
 # - plot type: performance metrics
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # 
 # - supplementary results: varying random seeds for generating benchmark data
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -20,8 +20,8 @@ library(cowplot)  # note: cowplot masks 'ggsave' from ggplot2
 DIR_RDATA_MAIN <- "../../../../RData/AML_sim/main"
 DIR_RDATA_SUPP_RANDOM_SEEDS_DATA <- "../../../../RData/AML_sim/supp_random_seeds_data"
 
-load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
-load(file.path(DIR_RDATA_SUPP_RANDOM_SEEDS_DATA, "outputs_AML_sim_diffcyt_DA_limma_supp_random_seeds_data.RData"))
+load(file.path(DIR_RDATA_MAIN, "outputs_AML_sim_diffcyt_DA_voom_main.RData"))
+load(file.path(DIR_RDATA_SUPP_RANDOM_SEEDS_DATA, "outputs_AML_sim_diffcyt_DA_voom_supp_random_seeds_data.RData"))
 
 
 # path to save plots
@@ -61,10 +61,10 @@ for (th in 1:length(thresholds)) {
     # -------------------------------------
     
     # create 'COBRAData' object
-    data <- list(main = out_diffcyt_DA_limma_main[[th]][[j]], 
-                 seed_1 = out_diffcyt_DA_limma_supp_random_seeds_data[[1]][[th]][[j]], 
-                 seed_2 = out_diffcyt_DA_limma_supp_random_seeds_data[[2]][[th]][[j]], 
-                 seed_3 = out_diffcyt_DA_limma_supp_random_seeds_data[[3]][[th]][[j]])
+    data <- list(main = out_diffcyt_DA_voom_main[[th]][[j]], 
+                 seed_1 = out_diffcyt_DA_voom_supp_random_seeds_data[[1]][[th]][[j]], 
+                 seed_2 = out_diffcyt_DA_voom_supp_random_seeds_data[[2]][[th]][[j]], 
+                 seed_3 = out_diffcyt_DA_voom_supp_random_seeds_data[[3]][[th]][[j]])
     
     # check
     stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
@@ -129,7 +129,7 @@ for (th in 1:length(thresholds)) {
     d_plot <- p_ROC$data
     seed_names <- c("main", "seed_1", "seed_2", "seed_3")
     d_plot$seed_names <- factor(d_plot$method, levels = seed_names)
-    d_plot$method_names <- as.factor("diffcyt-DA-limma")
+    d_plot$method_names <- as.factor("diffcyt-DA-voom")
     
     p <- 
       ggplot(d_plot, aes(x = FPR, y = TPR, linetype = seed_names, color = method_names)) + 
@@ -150,7 +150,7 @@ for (th in 1:length(thresholds)) {
     
     # save individual panel plot
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_AML_sim_diffcyt_DA_limma_supp_random_seeds_data_ROC_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_AML_sim_diffcyt_DA_voom_supp_random_seeds_data_ROC_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
   }
@@ -184,7 +184,7 @@ legend_multi <- get_legend(plots_all[[1]] + theme(legend.position = "right",
 grid_multi <- plot_grid(grid_multi, legend_multi, nrow = 1, rel_widths = c(3.5, 1))
 
 # save plots
-fn_multi <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_limma_supp_random_seeds_data_ROC.pdf"))
+fn_multi <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_voom_supp_random_seeds_data_ROC.pdf"))
 ggsave(fn_multi, grid_multi, width = 8, height = 4.9)
 
 

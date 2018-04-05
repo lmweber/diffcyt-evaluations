@@ -1,10 +1,10 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # - data set: AML-sim
 # 
-# - supplementary results: varying random seeds for generating benchmark data
+# - supplementary results: varying random seeds for clustering
 # 
 # Lukas Weber, April 2018
 ##########################################################################################
@@ -15,10 +15,10 @@ library(flowCore)
 library(SummarizedExperiment)
 
 
-DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/random_seeds"
-DIR_PLOTS <- "../../../../plots/AML_sim/supp_random_seeds_data/diagnostic/diffcyt_DA_limma"
-DIR_RDATA <- "../../../../RData/AML_sim/supp_random_seeds_data"
-DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_random_seeds_data"
+DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/main"
+DIR_PLOTS <- "../../../../plots/AML_sim/supp_random_seeds_clustering/diagnostic/diffcyt_DA_voom"
+DIR_RDATA <- "../../../../RData/AML_sim/supp_random_seeds_clustering"
+DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_random_seeds_clustering"
 
 
 
@@ -33,31 +33,31 @@ thresholds <- c("5pc", "1pc", "0.1pc")
 # condition names
 cond_names <- c("CN", "CBF")
 
-# names of random seeds used
-seed_names <- c("seed1", "seed2", "seed3")
+# varying random seeds for clustering
+seeds <- c(101, 102, 103)
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
 # note: include fixed effects for 'patient'
 contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
 
 # lists to store objects and runtime
-out_diffcyt_DA_limma_supp_random_seeds_data <- runtime_diffcyt_DA_limma_supp_random_seeds_data <- 
-  out_clusters_diffcyt_DA_limma_supp_random_seeds_data <- out_objects_diffcyt_DA_limma_supp_random_seeds_data <- 
-  vector("list", length(seed_names))
-names(out_diffcyt_DA_limma_supp_random_seeds_data) <- names(runtime_diffcyt_DA_limma_supp_random_seeds_data) <- 
-  names(out_clusters_diffcyt_DA_limma_supp_random_seeds_data) <- names(out_objects_diffcyt_DA_limma_supp_random_seeds_data) <- 
-  seed_names
+out_diffcyt_DA_voom_supp_random_seeds_clustering <- runtime_diffcyt_DA_voom_supp_random_seeds_clustering <- 
+  out_clusters_diffcyt_DA_voom_supp_random_seeds_clustering <- out_objects_diffcyt_DA_voom_supp_random_seeds_clustering <- 
+  vector("list", length(seeds))
+names(out_diffcyt_DA_voom_supp_random_seeds_clustering) <- names(runtime_diffcyt_DA_voom_supp_random_seeds_clustering) <- 
+  names(out_clusters_diffcyt_DA_voom_supp_random_seeds_clustering) <- names(out_objects_diffcyt_DA_voom_supp_random_seeds_clustering) <- 
+  seeds
 
 
 
 
-for (s in 1:length(seed_names)) {
+for (s in 1:length(seeds)) {
   
-  out_diffcyt_DA_limma_supp_random_seeds_data[[s]] <- runtime_diffcyt_DA_limma_supp_random_seeds_data[[s]] <- 
-    out_clusters_diffcyt_DA_limma_supp_random_seeds_data[[s]] <- out_objects_diffcyt_DA_limma_supp_random_seeds_data[[s]] <- 
+  out_diffcyt_DA_voom_supp_random_seeds_clustering[[s]] <- runtime_diffcyt_DA_voom_supp_random_seeds_clustering[[s]] <- 
+    out_clusters_diffcyt_DA_voom_supp_random_seeds_clustering[[s]] <- out_objects_diffcyt_DA_voom_supp_random_seeds_clustering[[s]] <- 
     vector("list", length(thresholds))
-  names(out_diffcyt_DA_limma_supp_random_seeds_data[[s]]) <- names(runtime_diffcyt_DA_limma_supp_random_seeds_data[[s]]) <- 
-    names(out_clusters_diffcyt_DA_limma_supp_random_seeds_data[[s]]) <- names(out_objects_diffcyt_DA_limma_supp_random_seeds_data[[s]]) <- 
+  names(out_diffcyt_DA_voom_supp_random_seeds_clustering[[s]]) <- names(runtime_diffcyt_DA_voom_supp_random_seeds_clustering[[s]]) <- 
+    names(out_clusters_diffcyt_DA_voom_supp_random_seeds_clustering[[s]]) <- names(out_objects_diffcyt_DA_voom_supp_random_seeds_clustering[[s]]) <- 
     thresholds
   
   
@@ -69,12 +69,12 @@ for (s in 1:length(seed_names)) {
     
     # filenames
     
-    files_healthy <- list.files(file.path(DIR_BENCHMARK, seed_names[s], "healthy"), 
+    files_healthy <- list.files(file.path(DIR_BENCHMARK, "healthy"), 
                                 pattern = "\\.fcs$", full.names = TRUE)
-    files_CN <- list.files(file.path(DIR_BENCHMARK, seed_names[s], "CN"), 
-                           pattern = paste0("_", thresholds[th], "_randomseed[0-9]+\\.fcs$"), full.names = TRUE)
-    files_CBF <- list.files(file.path(DIR_BENCHMARK, seed_names[s], "CBF"), 
-                            pattern = paste0("_", thresholds[th], "_randomseed[0-9]+\\.fcs$"), full.names = TRUE)
+    files_CN <- list.files(file.path(DIR_BENCHMARK, "CN"), 
+                           pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
+    files_CBF <- list.files(file.path(DIR_BENCHMARK, "CBF"), 
+                            pattern = paste0("_", thresholds[th], "\\.fcs$"), full.names = TRUE)
     
     files_load <- c(files_healthy, files_CN, files_CBF)
     files_load
@@ -86,8 +86,7 @@ for (s in 1:length(seed_names)) {
     # sample IDs, group IDs, patient IDs
     sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
                        gsub("^AML_sim_", "", 
-                            gsub("_randomseed[0-9]+$", "", 
-                                 gsub("\\.fcs$", "", basename(files_load)))))
+                            gsub("\\.fcs$", "", basename(files_load))))
     sample_IDs
     
     group_IDs <- factor(gsub("_.*$", "", sample_IDs), levels = c("healthy", "CN", "CBF"))
@@ -148,7 +147,8 @@ for (s in 1:length(seed_names)) {
       
       # clustering
       # (runtime: ~30 sec with xdim = 20, ydim = 20)
-      seed <- 123
+      # note: different random seed for each replicate
+      seed <- seeds[s]
       d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
       
       length(table(rowData(d_se)$cluster))  # number of clusters
@@ -191,7 +191,7 @@ for (s in 1:length(seed_names)) {
     # store data objects (for plotting)
     # ---------------------------------
     
-    out_objects_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]] <- list(
+    out_objects_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]] <- list(
       d_se = d_se, 
       d_counts = d_counts, 
       d_medians = d_medians, 
@@ -206,10 +206,10 @@ for (s in 1:length(seed_names)) {
     
     # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
     
-    out_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]] <- runtime_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]] <- 
-      out_clusters_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]] <- vector("list", length(cond_names))
-    names(out_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]]) <- names(runtime_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]]) <- 
-      names(out_clusters_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]]) <- cond_names
+    out_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]] <- runtime_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]] <- 
+      out_clusters_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]] <- vector("list", length(cond_names))
+    names(out_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]]) <- names(runtime_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]]) <- 
+      names(out_clusters_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]]) <- cond_names
     
     
     for (j in 1:length(cond_names)) {
@@ -228,9 +228,9 @@ for (s in 1:length(seed_names)) {
         # run tests
         # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
         path <- file.path(DIR_PLOTS, thresholds[th], cond_names[j])
-        res <- testDA_limma(d_counts, design, contrast, 
-                            min_cells = 3, min_samples = nrow(sample_info) / 3, 
-                            path = path)
+        res <- testDA_voom(d_counts, design, contrast, 
+                           min_cells = 3, min_samples = nrow(sample_info) / 3, 
+                           path = path)
         
       })
       
@@ -249,7 +249,7 @@ for (s in 1:length(seed_names)) {
       runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
       print(runtime_total)
       
-      runtime_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]][[j]] <- runtime_total
+      runtime_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]][[j]] <- runtime_total
       
       
       # ---------------------------------------------
@@ -258,7 +258,7 @@ for (s in 1:length(seed_names)) {
       
       res_clusters <- as.data.frame(rowData(res))
       
-      out_clusters_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]][[j]] <- res_clusters
+      out_clusters_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]][[j]] <- res_clusters
       
       
       
@@ -321,7 +321,7 @@ for (s in 1:length(seed_names)) {
                         spikein = is_spikein_cnd)
       
       # store results
-      out_diffcyt_DA_limma_supp_random_seeds_data[[s]][[th]][[j]] <- res
+      out_diffcyt_DA_voom_supp_random_seeds_clustering[[s]][[th]][[j]] <- res
       
     }
   }
@@ -334,14 +334,14 @@ for (s in 1:length(seed_names)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_supp_random_seeds_data, runtime_diffcyt_DA_limma_supp_random_seeds_data, 
-     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_random_seeds_data.RData"))
+save(out_diffcyt_DA_voom_supp_random_seeds_clustering, runtime_diffcyt_DA_voom_supp_random_seeds_clustering, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_supp_random_seeds_clustering.RData"))
 
-save(out_clusters_diffcyt_DA_limma_supp_random_seeds_data, 
-     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_supp_random_seeds_data.RData"))
+save(out_clusters_diffcyt_DA_voom_supp_random_seeds_clustering, 
+     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_voom_supp_random_seeds_clustering.RData"))
 
-save(out_objects_diffcyt_DA_limma_supp_random_seeds_data, 
-     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_supp_random_seeds_data.RData"))
+save(out_objects_diffcyt_DA_voom_supp_random_seeds_clustering, 
+     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_voom_supp_random_seeds_clustering.RData"))
 
 
 
@@ -350,7 +350,7 @@ save(out_objects_diffcyt_DA_limma_supp_random_seeds_data,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_limma_supp_random_seeds_data.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_voom_supp_random_seeds_clustering.txt"))
 sessionInfo()
 sink()
 

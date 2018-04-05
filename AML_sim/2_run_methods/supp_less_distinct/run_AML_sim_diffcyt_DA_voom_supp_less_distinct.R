@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # - data set: AML-sim
 # 
 # - supplementary results: 'less distinct' data sets
@@ -16,7 +16,7 @@ library(SummarizedExperiment)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/AML_sim/data/less_distinct"
-DIR_PLOTS <- "../../../../plots/AML_sim/supp_less_distinct/diagnostic/diffcyt_DA_limma"
+DIR_PLOTS <- "../../../../plots/AML_sim/supp_less_distinct/diagnostic/diffcyt_DA_voom"
 DIR_RDATA <- "../../../../RData/AML_sim/supp_less_distinct"
 DIR_SESSION_INFO <- "../../../../session_info/AML_sim/supp_less_distinct"
 
@@ -42,11 +42,11 @@ names(distinctness) <- c("less_50pc", "less_75pc")
 contrasts_list <- list(CN = c(0, 1, 0, 0, 0, 0, 0), CBF = c(0, 0, 1, 0, 0, 0, 0))
 
 # lists to store objects and runtime
-out_diffcyt_DA_limma_supp_less_distinct <- runtime_diffcyt_DA_limma_supp_less_distinct <- 
-  out_clusters_diffcyt_DA_limma_supp_less_distinct <- out_objects_diffcyt_DA_limma_supp_less_distinct <- 
+out_diffcyt_DA_voom_supp_less_distinct <- runtime_diffcyt_DA_voom_supp_less_distinct <- 
+  out_clusters_diffcyt_DA_voom_supp_less_distinct <- out_objects_diffcyt_DA_voom_supp_less_distinct <- 
   vector("list", length(distinctness))
-names(out_diffcyt_DA_limma_supp_less_distinct) <- names(runtime_diffcyt_DA_limma_supp_less_distinct) <- 
-  names(out_clusters_diffcyt_DA_limma_supp_less_distinct) <- names(out_objects_diffcyt_DA_limma_supp_less_distinct) <- 
+names(out_diffcyt_DA_voom_supp_less_distinct) <- names(runtime_diffcyt_DA_voom_supp_less_distinct) <- 
+  names(out_clusters_diffcyt_DA_voom_supp_less_distinct) <- names(out_objects_diffcyt_DA_voom_supp_less_distinct) <- 
   names(distinctness)
 
 
@@ -54,11 +54,11 @@ names(out_diffcyt_DA_limma_supp_less_distinct) <- names(runtime_diffcyt_DA_limma
 
 for (di in 1:length(distinctness)) {
   
-  out_diffcyt_DA_limma_supp_less_distinct[[di]] <- runtime_diffcyt_DA_limma_supp_less_distinct[[di]] <- 
-    out_clusters_diffcyt_DA_limma_supp_less_distinct[[di]] <- out_objects_diffcyt_DA_limma_supp_less_distinct[[di]] <- 
+  out_diffcyt_DA_voom_supp_less_distinct[[di]] <- runtime_diffcyt_DA_voom_supp_less_distinct[[di]] <- 
+    out_clusters_diffcyt_DA_voom_supp_less_distinct[[di]] <- out_objects_diffcyt_DA_voom_supp_less_distinct[[di]] <- 
     vector("list", length(thresholds))
-  names(out_diffcyt_DA_limma_supp_less_distinct[[di]]) <- names(runtime_diffcyt_DA_limma_supp_less_distinct[[di]]) <- 
-    names(out_clusters_diffcyt_DA_limma_supp_less_distinct[[di]]) <- names(out_objects_diffcyt_DA_limma_supp_less_distinct[[di]]) <- 
+  names(out_diffcyt_DA_voom_supp_less_distinct[[di]]) <- names(runtime_diffcyt_DA_voom_supp_less_distinct[[di]]) <- 
+    names(out_clusters_diffcyt_DA_voom_supp_less_distinct[[di]]) <- names(out_objects_diffcyt_DA_voom_supp_less_distinct[[di]]) <- 
     thresholds
   
   
@@ -192,7 +192,7 @@ for (di in 1:length(distinctness)) {
     # store data objects (for plotting)
     # ---------------------------------
     
-    out_objects_diffcyt_DA_limma_supp_less_distinct[[di]][[th]] <- list(
+    out_objects_diffcyt_DA_voom_supp_less_distinct[[di]][[th]] <- list(
       d_se = d_se, 
       d_counts = d_counts, 
       d_medians = d_medians, 
@@ -207,10 +207,10 @@ for (di in 1:length(distinctness)) {
     
     # note: test separately for each condition: CN vs. healthy, CBF vs. healthy
     
-    out_diffcyt_DA_limma_supp_less_distinct[[di]][[th]] <- runtime_diffcyt_DA_limma_supp_less_distinct[[di]][[th]] <- 
-      out_clusters_diffcyt_DA_limma_supp_less_distinct[[di]][[th]] <- vector("list", length(cond_names))
-    names(out_diffcyt_DA_limma_supp_less_distinct[[di]][[th]]) <- names(runtime_diffcyt_DA_limma_supp_less_distinct[[di]][[th]]) <- 
-      names(out_clusters_diffcyt_DA_limma_supp_less_distinct[[di]][[th]]) <- cond_names
+    out_diffcyt_DA_voom_supp_less_distinct[[di]][[th]] <- runtime_diffcyt_DA_voom_supp_less_distinct[[di]][[th]] <- 
+      out_clusters_diffcyt_DA_voom_supp_less_distinct[[di]][[th]] <- vector("list", length(cond_names))
+    names(out_diffcyt_DA_voom_supp_less_distinct[[di]][[th]]) <- names(runtime_diffcyt_DA_voom_supp_less_distinct[[di]][[th]]) <- 
+      names(out_clusters_diffcyt_DA_voom_supp_less_distinct[[di]][[th]]) <- cond_names
     
     
     for (j in 1:length(cond_names)) {
@@ -229,9 +229,9 @@ for (di in 1:length(distinctness)) {
         # run tests
         # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
         path <- file.path(DIR_PLOTS, thresholds[th], cond_names[j])
-        res <- testDA_limma(d_counts, design, contrast, 
-                            min_cells = 3, min_samples = nrow(sample_info) / 3, 
-                            path = path)
+        res <- testDA_voom(d_counts, design, contrast, 
+                           min_cells = 3, min_samples = nrow(sample_info) / 3, 
+                           path = path)
         
       })
       
@@ -250,7 +250,7 @@ for (di in 1:length(distinctness)) {
       runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_j[["elapsed"]]
       print(runtime_total)
       
-      runtime_diffcyt_DA_limma_supp_less_distinct[[di]][[th]][[j]] <- runtime_total
+      runtime_diffcyt_DA_voom_supp_less_distinct[[di]][[th]][[j]] <- runtime_total
       
       
       # ---------------------------------------------
@@ -259,7 +259,7 @@ for (di in 1:length(distinctness)) {
       
       res_clusters <- as.data.frame(rowData(res))
       
-      out_clusters_diffcyt_DA_limma_supp_less_distinct[[di]][[th]][[j]] <- res_clusters
+      out_clusters_diffcyt_DA_voom_supp_less_distinct[[di]][[th]][[j]] <- res_clusters
       
       
       
@@ -322,7 +322,7 @@ for (di in 1:length(distinctness)) {
                         spikein = is_spikein_cnd)
       
       # store results
-      out_diffcyt_DA_limma_supp_less_distinct[[di]][[th]][[j]] <- res
+      out_diffcyt_DA_voom_supp_less_distinct[[di]][[th]][[j]] <- res
       
     }
   }
@@ -335,14 +335,14 @@ for (di in 1:length(distinctness)) {
 # Save output objects
 #####################
 
-save(out_diffcyt_DA_limma_supp_less_distinct, runtime_diffcyt_DA_limma_supp_less_distinct, 
-     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_less_distinct.RData"))
+save(out_diffcyt_DA_voom_supp_less_distinct, runtime_diffcyt_DA_voom_supp_less_distinct, 
+     file = file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_supp_less_distinct.RData"))
 
-save(out_clusters_diffcyt_DA_limma_supp_less_distinct, 
-     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_supp_less_distinct.RData"))
+save(out_clusters_diffcyt_DA_voom_supp_less_distinct, 
+     file = file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_voom_supp_less_distinct.RData"))
 
-save(out_objects_diffcyt_DA_limma_supp_less_distinct, 
-     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_supp_less_distinct.RData"))
+save(out_objects_diffcyt_DA_voom_supp_less_distinct, 
+     file = file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_voom_supp_less_distinct.RData"))
 
 
 
@@ -351,7 +351,7 @@ save(out_objects_diffcyt_DA_limma_supp_less_distinct,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_limma_supp_less_distinct.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_AML_sim_diffcyt_DA_voom_supp_less_distinct.txt"))
 sessionInfo()
 sink()
 

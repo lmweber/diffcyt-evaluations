@@ -3,7 +3,7 @@
 # 
 # - data set: AML-sim
 # - plot type: t-SNE
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # 
 # - main results
 # 
@@ -22,9 +22,9 @@ library(cowplot)
 # load saved results
 DIR_RDATA <- "../../../../RData/AML_sim/main"
 
-load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_main.RData"))
-load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_limma_main.RData"))
-load(file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_limma_main.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_main.RData"))
+load(file.path(DIR_RDATA, "out_clusters_AML_sim_diffcyt_DA_voom_main.RData"))
+load(file.path(DIR_RDATA, "out_objects_AML_sim_diffcyt_DA_voom_main.RData"))
 
 
 # path to save plots
@@ -54,9 +54,9 @@ plots_tSNE <- vector("list", length(thresholds) * length(cond_names))
 for (th in 1:length(thresholds)) {
   
   # load plot data objects (same for both conditions j)
-  d_se <- out_objects_diffcyt_DA_limma_main[[th]]$d_se
-  d_counts <- out_objects_diffcyt_DA_limma_main[[th]]$d_counts
-  d_medians_by_cluster_marker <- out_objects_diffcyt_DA_limma_main[[th]]$d_medians_by_cluster_marker
+  d_se <- out_objects_diffcyt_DA_voom_main[[th]]$d_se
+  d_counts <- out_objects_diffcyt_DA_voom_main[[th]]$d_counts
+  d_medians_by_cluster_marker <- out_objects_diffcyt_DA_voom_main[[th]]$d_medians_by_cluster_marker
   
   # run t-SNE
   
@@ -92,7 +92,7 @@ for (th in 1:length(thresholds)) {
     # (i) from cluster-level results
     
     # load cluster-level results (for condition j)
-    d_clus <- out_clusters_diffcyt_DA_limma_main[[th]][[j]]
+    d_clus <- out_clusters_diffcyt_DA_voom_main[[th]][[j]]
     
     stopifnot(nrow(d_clus) == nrow(rowData(d_counts)), 
               all(d_clus$cluster == rowData(d_counts)$cluster))
@@ -114,7 +114,7 @@ for (th in 1:length(thresholds)) {
     # (ii) from cell-level results
     
     # load spike-in status at cell level (for condition j)
-    spikein <- out_diffcyt_DA_limma_main[[th]][[j]]$spikein
+    spikein <- out_diffcyt_DA_voom_main[[th]][[j]]$spikein
     
     n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group) %>% tally
     n_cells_cond <- unname(unlist(n_cells_cond[, "n"]))
@@ -185,10 +185,10 @@ for (th in 1:length(thresholds)) {
     
     # save individual panel plot
     p <- p + 
-      ggtitle(paste0("AML-sim, main results: diffcyt-DA-limma: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": t-SNE"))
+      ggtitle(paste0("AML-sim, main results: diffcyt-DA-voom: ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]), ": t-SNE"))
     
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_AML_sim_diffcyt_DA_limma_main_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_AML_sim_diffcyt_DA_voom_main_tSNE_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 6.25, height = 5.25)
     
   }
@@ -221,7 +221,7 @@ grid_tSNE <- plot_grid(grid_tSNE, xaxis_tSNE, ncol = 1, rel_heights = c(15, 1))
 grid_tSNE <- plot_grid(yaxis_tSNE, grid_tSNE, nrow = 1, rel_widths = c(1, 20))
 
 # add combined title
-title_tSNE <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-limma: t-SNE", fontface = "bold")
+title_tSNE <- ggdraw() + draw_label("AML-sim, main results: diffcyt-DA-voom: t-SNE", fontface = "bold")
 grid_tSNE <- plot_grid(title_tSNE, grid_tSNE, ncol = 1, rel_heights = c(1, 18))
 
 # add combined legend
@@ -231,7 +231,7 @@ legend_tSNE <- get_legend(plots_tSNE[[1]] + theme(
 grid_tSNE <- plot_grid(grid_tSNE, legend_tSNE, nrow = 1, rel_widths = c(4, 1))
 
 # save plots
-fn_tSNE <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_limma_main_tSNE.pdf")
+fn_tSNE <- file.path(DIR_PLOTS, "results_AML_sim_diffcyt_DA_voom_main_tSNE.pdf")
 ggsave(fn_tSNE, grid_tSNE, width = 8, height = 5)
 
 

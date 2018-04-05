@@ -3,11 +3,11 @@
 # 
 # - data set: AML-sim
 # - plot type: ROC curves and pAUC values
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # 
 # - supplementary results: varying clustering resolution
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -20,7 +20,7 @@ library(viridis)
 # load saved results
 DIR_RDATA <- "../../../../RData/AML_sim/supp_clustering_resolution"
 
-load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_limma_supp_clustering_resolution.RData"))
+load(file.path(DIR_RDATA, "outputs_AML_sim_diffcyt_DA_voom_supp_clustering_resolution.RData"))
 
 
 # path to save plots
@@ -60,14 +60,14 @@ for (th in 1:length(thresholds)) {
     # -------------------------------------
     
     # create 'COBRAData' object
-    data <- list(k_9   = out_diffcyt_DA_limma_supp_clustering_resolution[["k_9"]][[th]][[j]], 
-                 k_25  = out_diffcyt_DA_limma_supp_clustering_resolution[["k_25"]][[th]][[j]], 
-                 k_49  = out_diffcyt_DA_limma_supp_clustering_resolution[["k_49"]][[th]][[j]], 
-                 k_100 = out_diffcyt_DA_limma_supp_clustering_resolution[["k_100"]][[th]][[j]], 
-                 k_196 = out_diffcyt_DA_limma_supp_clustering_resolution[["k_196"]][[th]][[j]], 
-                 k_400 = out_diffcyt_DA_limma_supp_clustering_resolution[["k_400"]][[th]][[j]], 
-                 k_900 = out_diffcyt_DA_limma_supp_clustering_resolution[["k_900"]][[th]][[j]], 
-                 k_1600 = out_diffcyt_DA_limma_supp_clustering_resolution[["k_1600"]][[th]][[j]])
+    data <- list(k_9   = out_diffcyt_DA_voom_supp_clustering_resolution[["k_9"]][[th]][[j]], 
+                 k_25  = out_diffcyt_DA_voom_supp_clustering_resolution[["k_25"]][[th]][[j]], 
+                 k_49  = out_diffcyt_DA_voom_supp_clustering_resolution[["k_49"]][[th]][[j]], 
+                 k_100 = out_diffcyt_DA_voom_supp_clustering_resolution[["k_100"]][[th]][[j]], 
+                 k_196 = out_diffcyt_DA_voom_supp_clustering_resolution[["k_196"]][[th]][[j]], 
+                 k_400 = out_diffcyt_DA_voom_supp_clustering_resolution[["k_400"]][[th]][[j]], 
+                 k_900 = out_diffcyt_DA_voom_supp_clustering_resolution[["k_900"]][[th]][[j]], 
+                 k_1600 = out_diffcyt_DA_voom_supp_clustering_resolution[["k_1600"]][[th]][[j]])
     
     # check
     stopifnot(all(sapply(data, function(d) all(d$spikein == data[[1]]$spikein))))
@@ -126,7 +126,7 @@ for (th in 1:length(thresholds)) {
       coord_fixed() + 
       xlab("False positive rate") + 
       ylab("True positive rate") + 
-      ggtitle(paste0("AML-sim: clustering resolution, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th])), subtitle = "ROC curves, diffcyt-DA-limma") + 
+      ggtitle(paste0("AML-sim: clustering resolution, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th])), subtitle = "ROC curves, diffcyt-DA-voom") + 
       theme_bw() + 
       theme(strip.text.x = element_blank()) + 
       guides(color = guide_legend("no. clusters"))
@@ -135,7 +135,7 @@ for (th in 1:length(thresholds)) {
     
     # save individual panel plot
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_AML_sim_diffcyt_DA_limma_supp_clustering_resolution_ROC_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_AML_sim_diffcyt_DA_voom_supp_clustering_resolution_ROC_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
     
@@ -194,7 +194,7 @@ for (th in 1:length(thresholds)) {
       ylim(c(0, 1)) + 
       xlab("Number of clusters") + 
       ylab(paste0("pAUC (FPR < ", thresh, ")")) + 
-      ggtitle(paste0("AML-sim: clustering resolution, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th])), subtitle = "pAUC, diffcyt-DA-limma") + 
+      ggtitle(paste0("AML-sim: clustering resolution, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th])), subtitle = "pAUC, diffcyt-DA-voom") + 
       theme_bw() + 
       guides(color = guide_legend("no. clusters"))
     
@@ -202,7 +202,7 @@ for (th in 1:length(thresholds)) {
     
     # save individual panel plot
     fn <- file.path(DIR_PLOTS, "panels", 
-                    paste0("results_AML_sim_diffcyt_DA_limma_supp_clustering_resolution_pAUC_", thresholds[th], "_", cond_names[j], ".pdf"))
+                    paste0("results_AML_sim_diffcyt_DA_voom_supp_clustering_resolution_pAUC_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
     
   }
@@ -230,7 +230,7 @@ plots_multi <- lapply(plots_ROC, function(p) {
 plots_multi <- plot_grid(plotlist = plots_multi, nrow = 2, ncol = 3, align = "hv", axis = "bl")
 
 # add combined title
-title_multi <- ggdraw() + draw_label(gsub(",.*$", ", diffcyt-DA-limma", plots_ROC[[1]]$labels$title), fontface = "bold")
+title_multi <- ggdraw() + draw_label(gsub(",.*$", ", diffcyt-DA-voom", plots_ROC[[1]]$labels$title), fontface = "bold")
 grid_multi <- plot_grid(title_multi, plots_multi, ncol = 1, rel_heights = c(1, 20))
 
 # add combined legend
@@ -240,7 +240,7 @@ legend_multi <- get_legend(plots_ROC[[1]] + theme(legend.position = "right",
 grid_multi <- plot_grid(grid_multi, legend_multi, nrow = 1, rel_widths = c(5.5, 1))
 
 # save plots
-fn_multi <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_limma_supp_clustering_resolution_ROC.pdf"))
+fn_multi <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_voom_supp_clustering_resolution_ROC.pdf"))
 ggsave(fn_multi, grid_multi, width = 9.5, height = 6)
 
 
@@ -260,7 +260,7 @@ plots_multi <- lapply(plots_pAUC, function(p) {
 plots_multi <- plot_grid(plotlist = plots_multi, nrow = 2, ncol = 3, align = "hv", axis = "bl")
 
 # add combined title
-title_multi <- ggdraw() + draw_label(gsub(",.*$", ", diffcyt-DA-limma", plots_pAUC[[1]]$labels$title), fontface = "bold")
+title_multi <- ggdraw() + draw_label(gsub(",.*$", ", diffcyt-DA-voom", plots_pAUC[[1]]$labels$title), fontface = "bold")
 grid_multi <- plot_grid(title_multi, plots_multi, ncol = 1, rel_heights = c(1, 20))
 
 # add combined legend
@@ -270,7 +270,7 @@ legend_multi <- get_legend(plots_pAUC[[1]] + theme(legend.position = "right",
 grid_multi <- plot_grid(grid_multi, legend_multi, nrow = 1, rel_widths = c(5.5, 1))
 
 # save plots
-fn_multi <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_limma_supp_clustering_resolution_pAUC.pdf"))
+fn_multi <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_DA_voom_supp_clustering_resolution_pAUC.pdf"))
 ggsave(fn_multi, grid_multi, width = 9.5, height = 6)
 
 
