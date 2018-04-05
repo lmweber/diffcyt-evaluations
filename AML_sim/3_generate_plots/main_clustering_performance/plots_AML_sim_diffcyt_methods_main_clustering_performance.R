@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -74,7 +74,7 @@ for (th in 1:length(thresholds)) {
     
     # add spike-in status to data object (for condition j)
     rowData(d_se)$spikein <- 0
-    rowData(d_se)$spikein[rowData(d_se)$group_IDs %in% c("healthy", cond_names[j])] <- spikein
+    rowData(d_se)$spikein[rowData(d_se)$group %in% c("healthy", cond_names[j])] <- spikein
     
     
     # --------------------------------------------------------------------------------

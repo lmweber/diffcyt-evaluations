@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, March 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -57,7 +57,7 @@ for (th in 1:length(thresholds)) {
   # load plot data objects (same for both conditions j)
   d_se <- out_objects_diffcyt_DA_GLMM_main[[th]]$d_se
   d_counts <- out_objects_diffcyt_DA_GLMM_main[[th]]$d_counts
-  d_medians_all <- out_objects_diffcyt_DA_GLMM_main[[th]]$d_medians_all
+  d_medians_by_cluster_marker <- out_objects_diffcyt_DA_GLMM_main[[th]]$d_medians_by_cluster_marker
   
   
   for (j in 1:length(cond_names)) {
@@ -74,7 +74,7 @@ for (th in 1:length(thresholds)) {
     # note: show top 'n' clusters only (otherwise heatmaps are too small on multi-panel plot)
     # note: no additional scaling (using asinh-transformed values directly)
     
-    d_heatmap <- assay(d_medians_all)[, colData(d_medians_all)$is_celltype_marker]
+    d_heatmap <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_type"]
     
     # load cluster-level results (for condition j)
     d_clus <- out_clusters_diffcyt_DA_GLMM_main[[th]][[j]]
@@ -89,8 +89,11 @@ for (th in 1:length(thresholds)) {
     d_heatmap <- d_heatmap[top_n, ]
     
     # color scale: 1%, 50%, 99% percentiles across all medians and cell type markers
-    colors <- colorRamp2(quantile(assay(d_medians_all)[, colData(d_medians_all)$is_celltype_marker], c(0.01, 0.5, 0.99)), 
-                         c("royalblue3", "white", "tomato2"))
+    colors <- colorRamp2(
+      quantile(assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_type"], 
+               c(0.01, 0.5, 0.99)), 
+      c("royalblue3", "white", "tomato2")
+    )
     
     ht_main <- Heatmap(
       d_heatmap, col = colors, name = "expression", 
@@ -107,8 +110,8 @@ for (th in 1:length(thresholds)) {
     # second heatmap: cluster abundances by sample
     # --------------------------------------------
     
-    cnd_which <- c(which(colData(d_counts)$group_IDs == "healthy"), 
-                   which(colData(d_counts)$group_IDs == cond_names[j]))
+    cnd_which <- c(which(colData(d_counts)$group == "healthy"), 
+                   which(colData(d_counts)$group == cond_names[j]))
     
     d_abundance <- assay(d_counts)[top_n, cnd_which, drop = FALSE]
     
@@ -157,13 +160,13 @@ for (th in 1:length(thresholds)) {
     # load spike-in status at cell level (for condition j)
     spikein <- out_diffcyt_DA_GLMM_main[[th]][[j]]$spikein
     
-    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group_IDs) %>% tally
+    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group) %>% tally
     n_cells_cond <- unname(unlist(n_cells_cond[, "n"]))
     
     # calculate proportion true spike-in cells (from condition j) for each cluster
     
     # note: select cells from this condition and healthy
-    cond_keep <- rowData(d_se)$group_IDs %in% c(cond_names[j], "healthy")
+    cond_keep <- rowData(d_se)$group %in% c(cond_names[j], "healthy")
     df_j <- as.data.frame(rowData(d_se)[cond_keep, ])
     stopifnot(nrow(df_j) == length(spikein))
     

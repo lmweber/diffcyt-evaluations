@@ -6,7 +6,7 @@
 # 
 # - supplementary results: varying random seeds for clustering
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -36,7 +36,7 @@ cond_names <- c("CN", "CBF")
 seeds <- c(101, 102, 103)
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include random effects for 'patient_IDs' and 'sample_IDs'
+# note: include random effects for 'patient' and 'sample'
 contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects and runtime
@@ -94,7 +94,7 @@ for (s in 1:length(seeds)) {
     patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
     patient_IDs
     
-    sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+    sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
     sample_info
     
     # marker information
@@ -108,16 +108,18 @@ for (s in 1:length(seeds)) {
     
     stopifnot(all(sapply(seq_along(d_input), function(i) all(colnames(d_input[[i]]) == colnames(d_input[[1]])))))
     
-    marker_names <- colnames(d_input[[1]])
-    marker_names <- gsub("\\(.*$", "", marker_names)
+    marker_name <- colnames(d_input[[1]])
+    marker_name <- gsub("\\(.*$", "", marker_name)
     
-    is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
-    
+    is_marker <- rep(FALSE, length(marker_name))
     is_marker[cols_markers] <- TRUE
-    is_celltype_marker[cols_lineage] <- TRUE
-    is_state_marker[cols_func] <- TRUE
     
-    marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+    marker_type <- rep("none", length(marker_name))
+    marker_type[cols_lineage] <- "cell_type"
+    marker_type[cols_func] <- "cell_state"
+    marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
+    
+    marker_info <- data.frame(marker_name, is_marker, marker_type)
     marker_info
     
     
@@ -136,8 +138,8 @@ for (s in 1:length(seeds)) {
       # prepare data into required format
       d_se <- prepareData(d_input, sample_info, marker_info)
       
-      colnames(d_se)[is_celltype_marker]
-      colnames(d_se)[is_state_marker]
+      colnames(d_se)[colData(d_se)$marker_type == "cell_type"]
+      colnames(d_se)[colData(d_se)$marker_type == "cell_state"]
       
       # transform data
       d_se <- transformData(d_se, cofactor = 5)
@@ -161,7 +163,7 @@ for (s in 1:length(seeds)) {
       rowData(d_counts)
       length(assays(d_counts))
       
-      # calculate cluster medians by sample
+      # calculate cluster medians
       d_medians <- calcMedians(d_se)
       
       dim(d_medians)
@@ -169,11 +171,17 @@ for (s in 1:length(seeds)) {
       length(assays(d_medians))
       names(assays(d_medians))
       
-      # calculate cluster medians across all samples
-      d_medians_all <- calcMediansAll(d_se)
+      # calculate medians by cluster and marker
+      d_medians_by_cluster_marker <- calcMediansByClusterMarker(d_se)
       
-      dim(d_medians_all)
-      length(assays(d_medians_all))
+      dim(d_medians_by_cluster_marker)
+      length(assays(d_medians_by_cluster_marker))
+      
+      # calculate medians by sample and marker
+      d_medians_by_sample_marker <- calcMediansBySampleMarker(d_se)
+      
+      dim(d_medians_by_sample_marker)
+      length(assays(d_medians_by_sample_marker))
       
     })
     
@@ -186,7 +194,8 @@ for (s in 1:length(seeds)) {
       d_se = d_se, 
       d_counts = d_counts, 
       d_medians = d_medians, 
-      d_medians_all = d_medians_all
+      d_medians_by_cluster_marker = d_medians_by_cluster_marker, 
+      d_medians_by_sample_marker = d_medians_by_sample_marker
     )
     
     
@@ -207,11 +216,8 @@ for (s in 1:length(seeds)) {
       runtime_j <- system.time({
         
         # set up model formula
-        # note: order of samples has changed
-        sample_info_ordered <- as.data.frame(colData(d_counts))
-        sample_info_ordered
-        # note: include random effects for 'patient_IDs' and 'sample_IDs'
-        formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2:3)
+        # note: include random effects for 'patient' and 'sample'
+        formula <- createFormula(sample_info, cols_fixed = 1, cols_random = 2:3)
         formula
         
         # set up contrast matrix
@@ -221,7 +227,7 @@ for (s in 1:length(seeds)) {
         # run tests
         # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
         res <- testDA_GLMM(d_counts, formula, contrast, 
-                           min_cells = 3, min_samples = nrow(sample_info_ordered) / 3)
+                           min_cells = 3, min_samples = nrow(sample_info) / 3)
         
       })
       

@@ -6,7 +6,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, March 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -77,7 +77,7 @@ sample_IDs <- factor(gsub("^base_", "", c(metadata_23$shortname[ix_keep], metada
                      levels = c(paste0("NR", 1:9), paste0("R", 1:11)))
 sample_IDs
 
-sample_info <- data.frame(group_IDs, batch_IDs, sample_IDs)
+sample_info <- data.frame(group = group_IDs, batch = batch_IDs, sample = sample_IDs)
 sample_info
 
 
@@ -132,12 +132,13 @@ d_input <- lapply(d_input, function(d) {
 
 is_marker <- as.logical(panel$transform)
 
-is_celltype_marker <- is_marker
-is_state_marker <- rep(FALSE, nrow(panel))
+marker_type <- rep("none", nrow(panel))
+marker_type[is_marker] <- "cell_type"
+marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
 
-marker_names <- panel$Antigen
+marker_name <- panel$Antigen
 
-marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+marker_info <- data.frame(marker_name, is_marker, marker_type)
 marker_info
 
 
@@ -160,8 +161,8 @@ runtime_preprocessing <- system.time({
   # prepare data into required format
   d_se <- prepareData(d_input, sample_info, marker_info)
   
-  colnames(d_se)[is_celltype_marker]
-  colnames(d_se)[is_state_marker]
+  colnames(d_se)[colData(d_se)$marker_type == "cell_type"]
+  colnames(d_se)[colData(d_se)$marker_type == "cell_state"]
   
   # transform data
   d_se <- transformData(d_se, cofactor = 5)
@@ -183,7 +184,7 @@ runtime_preprocessing <- system.time({
   rowData(d_counts)
   length(assays(d_counts))
   
-  # calculate cluster medians by sample
+  # calculate cluster medians
   d_medians <- calcMedians(d_se)
   
   dim(d_medians)
@@ -191,11 +192,17 @@ runtime_preprocessing <- system.time({
   length(assays(d_medians))
   names(assays(d_medians))
   
-  # calculate cluster medians across all samples
-  d_medians_all <- calcMediansAll(d_se)
+  # calculate medians by cluster and marker
+  d_medians_by_cluster_marker <- calcMediansByClusterMarker(d_se)
   
-  dim(d_medians_all)
-  length(assays(d_medians_all))
+  dim(d_medians_by_cluster_marker)
+  length(assays(d_medians_by_cluster_marker))
+  
+  # calculate medians by sample and marker
+  d_medians_by_sample_marker <- calcMediansBySampleMarker(d_se)
+  
+  dim(d_medians_by_sample_marker)
+  length(assays(d_medians_by_sample_marker))
   
 })
 
@@ -208,7 +215,8 @@ out_objects_diffcyt_DA_edgeR_main <- list(
   d_se = d_se, 
   d_counts = d_counts, 
   d_medians = d_medians, 
-  d_medians_all = d_medians_all
+  d_medians_by_cluster_marker = d_medians_by_cluster_marker, 
+  d_medians_by_sample_marker = d_medians_by_sample_marker
 )
 
 
@@ -219,11 +227,8 @@ out_objects_diffcyt_DA_edgeR_main <- list(
 runtime_test <- system.time({
   
   # set up design matrix
-  # note: order of samples has changed
-  sample_info_ordered <- as.data.frame(colData(d_counts))
-  sample_info_ordered
-  # note: include fixed effects for 'batch_IDs'
-  design <- createDesignMatrix(sample_info_ordered, cols_include = 1:2)
+  # note: include fixed effects for 'batch'
+  design <- createDesignMatrix(sample_info, cols_include = 1:2)
   design
   
   # set up contrast matrix
@@ -234,7 +239,7 @@ runtime_test <- system.time({
   # run tests
   # note: adjust filtering parameters
   min_cells <- 3
-  min_samples <- min(table(sample_info_ordered$group_IDs))
+  min_samples <- min(table(sample_info$group))
   res <- testDA_edgeR(d_counts, design, contrast, 
                       min_cells = min_cells, min_samples = min_samples)
   

@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, March 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -42,7 +42,7 @@ DIR_PLOTS <- "../../../../plots/BCR_XL_sim/main_heatmaps"
 d_se <- out_objects_diffcyt_DS_limma_main$d_se
 d_counts <- out_objects_diffcyt_DS_limma_main$d_counts
 d_medians <- out_objects_diffcyt_DS_limma_main$d_medians
-d_medians_all <- out_objects_diffcyt_DS_limma_main$d_medians_all
+d_medians_by_cluster_marker <- out_objects_diffcyt_DS_limma_main$d_medians_by_cluster_marker
 
 
 # -------------------------------------------------------
@@ -52,9 +52,9 @@ d_medians_all <- out_objects_diffcyt_DS_limma_main$d_medians_all
 # note: show top 'n' clusters only (otherwise heatmaps are too small on multi-panel plot)
 # note: no additional scaling (using asinh-transformed values directly)
 
-d_heatmap <- assay(d_medians_all)[, colData(d_medians_all)$is_marker]
+d_heatmap <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$is_marker]
 
-d_heatmap_celltype <- assay(d_medians_all)[, colData(d_medians_all)$is_celltype_marker]
+d_heatmap_celltype <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_type"]
 
 # arrange alphabetically
 d_heatmap_celltype <- d_heatmap_celltype[, order(colnames(d_heatmap_celltype))]
@@ -68,8 +68,8 @@ top_n <- order(d_clus$adj.P.Val)[1:n]
 d_heatmap_celltype <- d_heatmap_celltype[top_n, ]
 
 # column annotation for cell type and cell state markers
-n_celltype <- sum(metadata(d_medians_all)$id_celltype_markers)
-n_state <- sum(metadata(d_medians_all)$id_state_markers)
+n_celltype <- sum(metadata(d_medians_by_cluster_marker)$id_type_markers)
+n_state <- sum(metadata(d_medians_by_cluster_marker)$id_state_markers)
 
 col_annot_celltype <- data.frame(
   "marker type" = factor(c(rep("cell type", n_celltype), rep("state", 0)), levels = c("cell type", "state")), 
@@ -85,8 +85,10 @@ ha_col_celltype <- columnAnnotation(
 )
 
 # color scale: 1%, 50%, 99% percentiles across all medians and all markers
-colors <- colorRamp2(quantile(assay(d_medians_all)[, colData(d_medians_all)$is_marker], c(0.01, 0.5, 0.99)), 
-                     c("royalblue3", "white", "tomato2"))
+colors <- colorRamp2(
+  quantile(assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$is_marker], c(0.01, 0.5, 0.99)), 
+  c("royalblue3", "white", "tomato2")
+)
 
 ht_main <- Heatmap(
   d_heatmap_celltype, col = colors, name = "expression", 
@@ -105,7 +107,7 @@ ht_main <- Heatmap(
 # heatmap: second panel - expression of 'state' markers
 # -----------------------------------------------------
 
-d_heatmap_state <- assay(d_medians_all)[, colData(d_medians_all)$is_state_marker]
+d_heatmap_state <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_state"]
 
 # arrange alphabetically
 d_heatmap_state <- d_heatmap_state[, order(colnames(d_heatmap_state))]
@@ -142,8 +144,8 @@ ht_state <- Heatmap(
 # heatmap: third panel - expression of pS6 by sample
 # --------------------------------------------------
 
-cnd_which <- c(which(colData(d_counts)$group_IDs == "base"), 
-               which(colData(d_counts)$group_IDs == "spike"))
+cnd_which <- c(which(colData(d_counts)$group == "base"), 
+               which(colData(d_counts)$group == "spike"))
 
 d_pS6 <- assays(d_medians)[["pS6"]][top_n, cnd_which, drop = FALSE]
 

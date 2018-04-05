@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -56,12 +56,12 @@ for (th in 1:length(thresholds)) {
   # load plot data objects (same for both conditions j)
   d_se <- out_objects_diffcyt_DA_edgeR_main[[th]]$d_se
   d_counts <- out_objects_diffcyt_DA_edgeR_main[[th]]$d_counts
-  d_medians_all <- out_objects_diffcyt_DA_edgeR_main[[th]]$d_medians_all
+  d_medians_by_cluster_marker <- out_objects_diffcyt_DA_edgeR_main[[th]]$d_medians_by_cluster_marker
   
   # run t-SNE
   
   # note: using cell type markers only
-  d_tsne <- assay(d_medians_all)[, colData(d_medians_all)$is_celltype_marker]
+  d_tsne <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_type"]
   d_tsne <- as.matrix(d_tsne)
   
   # remove any duplicate rows (required by Rtsne)
@@ -116,13 +116,13 @@ for (th in 1:length(thresholds)) {
     # load spike-in status at cell level (for condition j)
     spikein <- out_diffcyt_DA_edgeR_main[[th]][[j]]$spikein
     
-    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group_IDs) %>% tally
+    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group) %>% tally
     n_cells_cond <- unname(unlist(n_cells_cond[, "n"]))
     
     # calculate proportion true spike-in cells (from condition j) for each cluster
     
     # note: select cells from this condition and healthy
-    cond_keep <- rowData(d_se)$group_IDs %in% c(cond_names[j], "healthy")
+    cond_keep <- rowData(d_se)$group %in% c(cond_names[j], "healthy")
     df_j <- as.data.frame(rowData(d_se)[cond_keep, ])
     stopifnot(nrow(df_j) == length(spikein))
     

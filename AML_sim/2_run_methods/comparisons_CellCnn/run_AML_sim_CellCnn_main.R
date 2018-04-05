@@ -6,7 +6,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -94,7 +94,7 @@ for (th in 1:length(thresholds)) {
   patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
   patient_IDs
   
-  sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+  sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
   sample_info
   
   # marker information
@@ -108,16 +108,18 @@ for (th in 1:length(thresholds)) {
   
   stopifnot(all(sapply(seq_along(d_input), function(i) all(colnames(d_input[[i]]) == colnames(d_input[[1]])))))
   
-  marker_names <- colnames(d_input[[1]])
-  marker_names <- gsub("\\(.*$", "", marker_names)
+  marker_name <- colnames(d_input[[1]])
+  marker_name <- gsub("\\(.*$", "", marker_name)
   
-  is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
-  
+  is_marker <- rep(FALSE, length(marker_name))
   is_marker[cols_markers] <- TRUE
-  is_celltype_marker[cols_lineage] <- TRUE
-  is_state_marker[cols_func] <- TRUE
   
-  marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+  marker_type <- rep("none", length(marker_name))
+  marker_type[cols_lineage] <- "cell_type"
+  marker_type[cols_func] <- "cell_state"
+  marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
+  
+  marker_info <- data.frame(marker_name, is_marker, marker_type)
   marker_info
   
   
@@ -176,7 +178,7 @@ for (th in 1:length(thresholds)) {
     ix_keep <- group_IDs %in% c("healthy", cond_names[j])
     
     sample_IDs_keep <- sample_IDs[ix_keep]
-    group_IDs_keep <- droplevels(group_IDs[ix_keep])
+    sample_IDs_keep <- droplevels(sample_IDs[ix_keep])
     files_load_keep <- files_load[ix_keep]
     
     d_input_keep <- d_input[ix_keep]
@@ -199,7 +201,7 @@ for (th in 1:length(thresholds)) {
     
     # create data frame of sample names and conditions (for CellCnn input .csv file)
     
-    label <- group_IDs_keep
+    label <- sample_IDs_keep
     label <- as.numeric(label) - 1
     label
     
@@ -309,7 +311,7 @@ for (th in 1:length(thresholds)) {
     stopifnot(length(is_spikein) == sum(n_cells))
     
     # select samples for this condition and healthy
-    ix_keep_cnd <- group_IDs %in% c("healthy", cond_names[j])
+    ix_keep_cnd <- sample_IDs %in% c("healthy", cond_names[j])
     
     
     # CellCnn output files

@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, March 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -36,7 +36,7 @@ DIR_PLOTS <- "../../../../plots/Anti_PD_1/main"
 
 d_se <- out_objects_diffcyt_DA_limma_main$d_se
 d_counts <- out_objects_diffcyt_DA_limma_main$d_counts
-d_medians_all <- out_objects_diffcyt_DA_limma_main$d_medians_all
+d_medians_by_cluster_marker <- out_objects_diffcyt_DA_limma_main$d_medians_by_cluster_marker
 
 
 # get detected clusters
@@ -56,7 +56,7 @@ clus_detected <- res_detected$cluster
 
 # medians for plotting
 
-meds_detected <- assay(d_medians_all)[clus_detected, , drop = FALSE]
+meds_detected <- assay(d_medians_by_cluster_marker)[clus_detected, , drop = FALSE]
 rownames(meds_detected) <- paste0("cluster ", rownames(meds_detected))
 
 meds_all <- colMeans(assay(d_se)[, colData(d_se)$is_marker])
@@ -68,7 +68,7 @@ meds <- meds[, order(colnames(meds))]
 
 
 # create heatmap
-colors <- colorRamp2(quantile(assay(d_medians_all), (c(0, 0.5, 1))), 
+colors <- colorRamp2(quantile(assay(d_medians_by_cluster_marker), (c(0, 0.5, 1))), 
                      c("royalblue3", "white", "tomato2"))
 
 split <- factor(c(rep("clusters", length(clus_detected)), "all cells"), levels = c("clusters", "all cells"))
@@ -144,13 +144,13 @@ colSums(assay(d_counts))
 perc <- colSums(n_cells_detected) / colSums(assay(d_counts)) * 100
 perc
 # average percentage in each group
-perc_NR <- mean(perc[colData(d_counts)$group_IDs == "NR"])
-perc_R <- mean(perc[colData(d_counts)$group_IDs == "R"])
+perc_NR <- mean(perc[colData(d_counts)$group == "NR"])
+perc_R <- mean(perc[colData(d_counts)$group == "R"])
 perc_NR
 perc_R
 
 d_boxplots <- data.frame(
-  group = colData(d_counts)$group_IDs, 
+  group = colData(d_counts)$group, 
   percent = perc
 )
 

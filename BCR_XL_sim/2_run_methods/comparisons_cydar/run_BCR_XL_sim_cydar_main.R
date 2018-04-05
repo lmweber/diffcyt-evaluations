@@ -6,7 +6,7 @@
 # 
 # - main results (using subset of markers for cydar: lineage markers and pS6 only)
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -68,7 +68,7 @@ group_IDs
 patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
 patient_IDs
 
-sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
 sample_info
 
 # marker information
@@ -79,16 +79,18 @@ cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
 cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
 cols_func <- setdiff(cols_markers, cols_lineage)
 
-marker_names <- colnames(d_input[[1]])
-marker_names <- gsub("\\(.*$", "", marker_names)
+marker_name <- colnames(d_input[[1]])
+marker_name <- gsub("\\(.*$", "", marker_name)
 
-is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
-
+is_marker <- rep(FALSE, length(marker_name))
 is_marker[cols_markers] <- TRUE
-is_celltype_marker[cols_lineage] <- TRUE
-is_state_marker[cols_func] <- TRUE
 
-marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+marker_type <- rep("none", length(marker_name))
+marker_type[cols_lineage] <- "cell_type"
+marker_type[cols_func] <- "cell_state"
+marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
+
+marker_info <- data.frame(marker_name, is_marker, marker_type)
 marker_info
 
 

@@ -6,7 +6,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, January 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -51,7 +51,7 @@ group_IDs
 patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
 patient_IDs
 
-sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
 sample_info
 
 # marker information
@@ -90,8 +90,8 @@ runtime_preprocessing <- system.time({
   # prepare data into required format
   d_se <- prepareData(d_input, sample_info, marker_info)
   
-  colnames(d_se)[is_celltype_marker]
-  colnames(d_se)[is_state_marker]
+  colnames(d_se)[colData(d_se)$marker_type == "cell_type"]
+  colnames(d_se)[colData(d_se)$marker_type == "cell_state"]
   
   # transform data
   d_se <- transformData(d_se, cofactor = 5)
@@ -114,7 +114,7 @@ runtime_preprocessing <- system.time({
   rowData(d_counts)
   length(assays(d_counts))
   
-  # calculate cluster medians by sample
+  # calculate cluster medians
   d_medians <- calcMedians(d_se)
   
   dim(d_medians)
@@ -122,11 +122,17 @@ runtime_preprocessing <- system.time({
   length(assays(d_medians))
   names(assays(d_medians))
   
-  # calculate cluster medians across all samples
-  d_medians_all <- calcMediansAll(d_se)
+  # calculate medians by cluster and marker
+  d_medians_by_cluster_marker <- calcMediansByClusterMarker(d_se)
   
-  dim(d_medians_all)
-  length(assays(d_medians_all))
+  dim(d_medians_by_cluster_marker)
+  length(assays(d_medians_by_cluster_marker))
+  
+  # calculate medians by sample and marker
+  d_medians_by_sample_marker <- calcMediansBySampleMarker(d_se)
+  
+  dim(d_medians_by_sample_marker)
+  length(assays(d_medians_by_sample_marker))
   
 })
 
@@ -139,7 +145,8 @@ out_objects_diffcyt_DS_LMM_main <- list(
   d_se = d_se, 
   d_counts = d_counts, 
   d_medians = d_medians, 
-  d_medians_all = d_medians_all
+  d_medians_by_cluster_marker = d_medians_by_cluster_marker, 
+  d_medians_by_sample_marker = d_medians_by_sample_marker
 )
 
 
@@ -148,17 +155,14 @@ out_objects_diffcyt_DS_LMM_main <- list(
 # --------------------------------------------
 
 # contrast (to compare 'spike' vs. 'base')
-# note: include random effects for 'patient_IDs'
+# note: include random effects for 'patient'
 contrast_vec <- c(0, 1)
 
 runtime_tests <- system.time({
   
   # set up model formula
-  # note: order of samples has changed
-  sample_info_ordered <- as.data.frame(colData(d_medians))
-  sample_info_ordered
-  # note: include random effects for 'patient_IDs'
-  formula <- createFormula(sample_info_ordered, cols_fixed = 1, cols_random = 2)
+  # note: include random effects for 'patient'
+  formula <- createFormula(sample_info, cols_fixed = 1, cols_random = 2)
   formula
   
   # set up contrast matrix

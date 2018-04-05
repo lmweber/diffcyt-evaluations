@@ -6,7 +6,7 @@
 # 
 # - supplementary results: varying clustering resolution
 # 
-# Lukas Weber, January 2018
+# Lukas Weber, April 2018
 ##########################################################################################
 
 
@@ -76,7 +76,7 @@ for (k in 1:length(resolution)) {
   patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
   patient_IDs
   
-  sample_info <- data.frame(group_IDs, patient_IDs, sample_IDs)
+  sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
   sample_info
   
   # marker information
@@ -87,16 +87,18 @@ for (k in 1:length(resolution)) {
   cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
   cols_func <- setdiff(cols_markers, cols_lineage)
   
-  marker_names <- colnames(d_input[[1]])
-  marker_names <- gsub("\\(.*$", "", marker_names)
+  marker_name <- colnames(d_input[[1]])
+  marker_name <- gsub("\\(.*$", "", marker_name)
   
-  is_marker <- is_celltype_marker <- is_state_marker <- rep(FALSE, length(marker_names))
-  
+  is_marker <- rep(FALSE, length(marker_name))
   is_marker[cols_markers] <- TRUE
-  is_celltype_marker[cols_lineage] <- TRUE
-  is_state_marker[cols_func] <- TRUE
   
-  marker_info <- data.frame(marker_names, is_marker, is_celltype_marker, is_state_marker)
+  marker_type <- rep("none", length(marker_name))
+  marker_type[cols_lineage] <- "cell_type"
+  marker_type[cols_func] <- "cell_state"
+  marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
+  
+  marker_info <- data.frame(marker_name, is_marker, marker_type)
   marker_info
   
   
@@ -115,8 +117,8 @@ for (k in 1:length(resolution)) {
     # prepare data into required format
     d_se <- prepareData(d_input, sample_info, marker_info)
     
-    colnames(d_se)[is_celltype_marker]
-    colnames(d_se)[is_state_marker]
+    colnames(d_se)[colData(d_se)$marker_type == "cell_type"]
+    colnames(d_se)[colData(d_se)$marker_type == "cell_state"]
     
     # transform data
     d_se <- transformData(d_se, cofactor = 5)
@@ -140,7 +142,7 @@ for (k in 1:length(resolution)) {
     rowData(d_counts)
     length(assays(d_counts))
     
-    # calculate cluster medians by sample
+    # calculate cluster medians
     d_medians <- calcMedians(d_se)
     
     dim(d_medians)
@@ -148,11 +150,17 @@ for (k in 1:length(resolution)) {
     length(assays(d_medians))
     names(assays(d_medians))
     
-    # calculate cluster medians across all samples
-    d_medians_all <- calcMediansAll(d_se)
+    # calculate medians by cluster and marker
+    d_medians_by_cluster_marker <- calcMediansByClusterMarker(d_se)
     
-    dim(d_medians_all)
-    length(assays(d_medians_all))
+    dim(d_medians_by_cluster_marker)
+    length(assays(d_medians_by_cluster_marker))
+    
+    # calculate medians by sample and marker
+    d_medians_by_sample_marker <- calcMediansBySampleMarker(d_se)
+    
+    dim(d_medians_by_sample_marker)
+    length(assays(d_medians_by_sample_marker))
     
   })
   
@@ -165,7 +173,8 @@ for (k in 1:length(resolution)) {
     d_se = d_se, 
     d_counts = d_counts, 
     d_medians = d_medians, 
-    d_medians_all = d_medians_all
+    d_medians_by_cluster_marker = d_medians_by_cluster_marker, 
+    d_medians_by_sample_marker = d_medians_by_sample_marker
   )
   
   
@@ -174,17 +183,14 @@ for (k in 1:length(resolution)) {
   # --------------------------------------------
   
   # contrast (to compare 'spike' vs. 'base')
-  # note: include fixed effects for 'patient_IDs'
+  # note: include fixed effects for 'patient'
   contrast_vec <- c(0, 1, 0, 0, 0, 0, 0, 0, 0)
   
   runtime_tests <- system.time({
     
     # set up design matrix
-    # note: order of samples has changed
-    sample_info_ordered <- as.data.frame(colData(d_medians))
-    sample_info_ordered
-    # note: include fixed effects for 'patient_IDs'
-    design <- createDesignMatrix(sample_info_ordered, cols_include = 1:2)
+    # note: include fixed effects for 'patient'
+    design <- createDesignMatrix(sample_info, cols_include = 1:2)
     design
     
     # set up contrast matrix
