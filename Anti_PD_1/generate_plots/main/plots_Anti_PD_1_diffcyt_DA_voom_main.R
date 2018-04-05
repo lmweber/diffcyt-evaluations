@@ -3,7 +3,7 @@
 # 
 # - data set: Anti-PD-1
 # - plot type: phenotype and abundance of detected clusters
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # 
 # - main results
 # 
@@ -20,8 +20,8 @@ library(ggplot2)
 # load saved results
 DIR_RDATA <- "../../../../RData/Anti_PD_1/main"
 
-load(file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_limma_main.RData"))
-load(file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_limma_main.RData"))
+load(file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_voom_main.RData"))
+load(file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_voom_main.RData"))
 
 
 # path to save plots
@@ -34,14 +34,14 @@ DIR_PLOTS <- "../../../../plots/Anti_PD_1/main"
 # Heatmap: phenotype of detected clusters
 #########################################
 
-d_se <- out_objects_diffcyt_DA_limma_main$d_se
-d_counts <- out_objects_diffcyt_DA_limma_main$d_counts
-d_medians_by_cluster_marker <- out_objects_diffcyt_DA_limma_main$d_medians_by_cluster_marker
+d_se <- out_objects_diffcyt_DA_voom_main$d_se
+d_counts <- out_objects_diffcyt_DA_voom_main$d_counts
+d_medians_by_cluster_marker <- out_objects_diffcyt_DA_voom_main$d_medians_by_cluster_marker
 
 
 # get detected clusters
 
-res <- out_clusters_diffcyt_DA_limma_main
+res <- out_clusters_diffcyt_DA_voom_main
 
 res <- res[!is.na(res$adj.P.Val), , drop = FALSE]
 
@@ -83,11 +83,11 @@ ht_main <- Heatmap(
   heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
 )
 
-ht_main_title <- "Anti-PD-1, diffcyt-DA-limma: phenotype of detected clusters"
+ht_main_title <- "Anti-PD-1, diffcyt-DA-voom: phenotype of detected clusters"
 
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_Anti_PD_1_diffcyt_DA_limma_main_heatmap_phenotype.pdf")
+fn <- file.path(DIR_PLOTS, "results_Anti_PD_1_diffcyt_DA_voom_main_heatmap_phenotype.pdf")
 pdf(fn, width = 10, height = 7)
 draw(ht_main, newpage = FALSE, 
      column_title = ht_main_title, column_title_gp = gpar(fontface = "bold", fontsize = 12))
@@ -117,11 +117,11 @@ ht_abundance <- Heatmap(
   heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
 )
 
-ht_abundance_title <- "Anti-PD-1, diffcyt-DA-limma: abundance of detected clusters"
+ht_abundance_title <- "Anti-PD-1, diffcyt-DA-voom: abundance of detected clusters"
 
 
 # save plot
-fn <- file.path(DIR_PLOTS, "results_Anti_PD_1_diffcyt_DA_limma_main_heatmap_abundance.pdf")
+fn <- file.path(DIR_PLOTS, "results_Anti_PD_1_diffcyt_DA_voom_main_heatmap_abundance.pdf")
 pdf(fn, width = 9, height = 7)
 draw(ht_abundance, newpage = FALSE, 
      column_title = ht_abundance_title, column_title_gp = gpar(fontface = "bold", fontsize = 12))
@@ -159,10 +159,10 @@ d_boxplots <- data.frame(
 ggplot(d_boxplots, aes(x = group, y = percent, color = group)) + 
   geom_boxplot(alpha = 0, width = 0.25) + 
   geom_point() + 
-  labs(title = "Anti-PD-1, diffcyt-DA-limma: combined abundance") + 
+  labs(title = "Anti-PD-1, diffcyt-DA-voom: combined abundance") + 
   theme_bw()
 
-fn <- file.path(DIR_PLOTS, "results_Anti_PD_1_diffcyt_DA_limma_main_boxplots.pdf")
+fn <- file.path(DIR_PLOTS, "results_Anti_PD_1_diffcyt_DA_voom_main_boxplots.pdf")
 ggsave(file = fn, width = 5, height = 4)
 
 

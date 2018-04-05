@@ -25,7 +25,7 @@ TIMESTAMP_PLOTS_NULL_SIMULATIONS             = $(DIR_PLOTS)/null_simulations/tim
 TIMESTAMP_PLOTS_MAIN_TSNE                    = $(DIR_PLOTS)/main_tSNE/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_HEATMAPS                = $(DIR_PLOTS)/main_heatmaps/timestamp.txt
 TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(DIR_PLOTS)/main_clustering_performance/timestamp.txt
-TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA    = $(DIR_PLOTS)/supp_random_effects_limma/timestamp.txt
+TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_VOOM     = $(DIR_PLOTS)/supp_random_effects_voom/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_METACLUSTERING          = $(DIR_PLOTS)/supp_metaclustering/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING     = $(DIR_PLOTS)/supp_separate_clustering/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(DIR_PLOTS)/supp_random_seeds_clustering/timestamp.txt
@@ -46,7 +46,7 @@ SCRIPTS_PLOTS_NULL_SIMULATIONS             = $(wildcard $(DIR_GENERATE_PLOTS)/nu
 SCRIPTS_PLOTS_MAIN_TSNE                    = $(wildcard $(DIR_GENERATE_PLOTS)/main_tSNE/*.R)
 SCRIPTS_PLOTS_MAIN_HEATMAPS                = $(wildcard $(DIR_GENERATE_PLOTS)/main_heatmaps/*.R)
 SCRIPTS_PLOTS_MAIN_CLUSTERING_PERFORMANCE  = $(wildcard $(DIR_GENERATE_PLOTS)/main_clustering_performance/*.R)
-SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA    = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_effects_limma/*.R)
+SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS_VOOM     = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_effects_voom/*.R)
 SCRIPTS_PLOTS_SUPP_METACLUSTERING          = $(wildcard $(DIR_GENERATE_PLOTS)/supp_metaclustering/*.R)
 SCRIPTS_PLOTS_SUPP_SEPARATE_CLUSTERING     = $(wildcard $(DIR_GENERATE_PLOTS)/supp_separate_clustering/*.R)
 SCRIPTS_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_GENERATE_PLOTS)/supp_random_seeds_clustering/*.R)
@@ -62,7 +62,7 @@ SCRIPTS_PLOTS_COMPARISONS_RUNTIMES         = $(wildcard $(DIR_GENERATE_PLOTS)/co
 
 FILES_RDATA_MAIN                         = $(wildcard $(DIR_RDATA)/main/*.RData)
 FILES_RDATA_NULL_SIMULATIONS             = $(wildcard $(DIR_RDATA)/null_simulations/*.RData)
-FILES_RDATA_SUPP_RANDOM_EFFECTS_LIMMA    = $(wildcard $(DIR_RDATA)/supp_random_effects_limma/*.RData)
+FILES_RDATA_SUPP_RANDOM_EFFECTS_VOOM     = $(wildcard $(DIR_RDATA)/supp_random_effects_voom/*.RData)
 FILES_RDATA_SUPP_METACLUSTERING          = $(wildcard $(DIR_RDATA)/supp_metaclustering/*.RData)
 FILES_RDATA_SUPP_SEPARATE_CLUSTERING     = $(wildcard $(DIR_RDATA)/supp_separate_clustering/*.RData)
 FILES_RDATA_SUPP_RANDOM_SEEDS_CLUSTERING = $(wildcard $(DIR_RDATA)/supp_random_seeds_clustering/*.RData)
@@ -92,7 +92,7 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
                   $(TIMESTAMP_PLOTS_MAIN_TSNE) \
                   $(TIMESTAMP_PLOTS_MAIN_HEATMAPS) \
                   $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE) \
-                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA) \
+                  $(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_VOOM) \
                   $(TIMESTAMP_PLOTS_SUPP_METACLUSTERING) \
                   $(TIMESTAMP_PLOTS_SUPP_SEPARATE_CLUSTERING) \
                   $(TIMESTAMP_PLOTS_SUPP_RANDOM_SEEDS_CLUSTERING) \
@@ -143,9 +143,9 @@ $(TIMESTAMP_PLOTS_MAIN_CLUSTERING_PERFORMANCE): $(SCRIPTS_PLOTS_MAIN_CLUSTERING_
 	cd $(DIR_GENERATE_PLOTS)/main_clustering_performance && bash run_all.sh
 
 
-# supplementary: random effects for diffcyt-DA-limma
-$(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA): $(SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS_LIMMA) $(FILES_RDATA_SUPP_RANDOM_EFFECTS_LIMMA)
-	cd $(DIR_GENERATE_PLOTS)/supp_random_effects_limma && bash run_all.sh
+# supplementary: random effects for diffcyt-DA-voom
+$(TIMESTAMP_PLOTS_SUPP_RANDOM_EFFECTS_VOOM): $(SCRIPTS_PLOTS_SUPP_RANDOM_EFFECTS_VOOM) $(FILES_RDATA_SUPP_RANDOM_EFFECTS_VOOM)
+	cd $(DIR_GENERATE_PLOTS)/supp_random_effects_voom && bash run_all.sh
 
 # supplementary: meta-clustering
 $(TIMESTAMP_PLOTS_SUPP_METACLUSTERING): $(SCRIPTS_PLOTS_SUPP_METACLUSTERING) $(FILES_RDATA_SUPP_METACLUSTERING)
@@ -215,9 +215,9 @@ $(DIR_RDATA)/null_simulations/outputs_%.RData: $(DIR_RUN_METHODS)/null_simulatio
 	cd $(DIR_RUN_METHODS)/null_simulations && Rscript $(notdir $<)
 
 
-# supplementary: random effects for diffcyt-DS-limma
-$(DIR_RDATA)/supp_random_effects_limma/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_effects_limma/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
-	cd $(DIR_RUN_METHODS)/supp_random_effects_limma && Rscript $(notdir $<)
+# supplementary: random effects for diffcyt-DS-voom
+$(DIR_RDATA)/supp_random_effects_voom/outputs_%.RData: $(DIR_RUN_METHODS)/supp_random_effects_voom/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)
+	cd $(DIR_RUN_METHODS)/supp_random_effects_voom && Rscript $(notdir $<)
 
 # supplementary: meta-clustering
 $(DIR_RDATA)/supp_metaclustering/outputs_%.RData: $(DIR_RUN_METHODS)/supp_metaclustering/run_%.R $(TIMESTAMP_BENCHMARK_MAIN)

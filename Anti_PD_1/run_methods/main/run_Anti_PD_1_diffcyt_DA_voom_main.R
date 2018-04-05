@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-limma
+# - method: diffcyt-DA-voom
 # - data set: Anti-PD-1
 # 
 # - main results
@@ -17,7 +17,7 @@ library(readxl)
 
 
 DIR_BENCHMARK <- "../../../../../benchmark_data/Anti_PD_1"
-DIR_PLOTS <- "../../../../plots/Anti_PD_1/main/diagnostic/diffcyt_DA_limma"
+DIR_PLOTS <- "../../../../plots/Anti_PD_1/main/diagnostic/diffcyt_DA_voom"
 DIR_RDATA <- "../../../../RData/Anti_PD_1/main"
 DIR_SESSION_INFO <- "../../../../session_info/Anti_PD_1/main"
 
@@ -212,7 +212,7 @@ runtime_preprocessing <- system.time({
 # store data objects (for plotting)
 # ---------------------------------
 
-out_objects_diffcyt_DA_limma_main <- list(
+out_objects_diffcyt_DA_voom_main <- list(
   d_se = d_se, 
   d_counts = d_counts, 
   d_medians = d_medians, 
@@ -242,9 +242,9 @@ runtime_test <- system.time({
   min_cells <- 3
   min_samples <- min(table(sample_info$group))
   path <- DIR_PLOTS
-  res <- testDA_limma(d_counts, design, contrast, 
-                      min_cells = min_cells, min_samples = min_samples, 
-                      path = path)
+  res <- testDA_voom(d_counts, design, contrast, 
+                     min_cells = min_cells, min_samples = min_samples, 
+                     path = path)
   
 })
 
@@ -266,7 +266,7 @@ print(table(res_sorted$adj.P.Val <= 0.2))
 runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_test[["elapsed"]]
 print(runtime_total)
 
-runtime_diffcyt_DA_limma_main <- runtime_total
+runtime_diffcyt_DA_voom_main <- runtime_total
 
 
 # -----------------------------
@@ -277,7 +277,7 @@ runtime_diffcyt_DA_limma_main <- runtime_total
 
 res_clusters <- as.data.frame(rowData(res))
 
-out_clusters_diffcyt_DA_limma_main <- res_clusters
+out_clusters_diffcyt_DA_voom_main <- res_clusters
 
 
 
@@ -288,14 +288,14 @@ out_clusters_diffcyt_DA_limma_main <- res_clusters
 
 # note: do not need results at cell level, since this is not simulated data
 
-save(runtime_diffcyt_DA_limma_main, 
-     file = file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_limma_main.RData"))
+save(runtime_diffcyt_DA_voom_main, 
+     file = file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_voom_main.RData"))
 
-save(out_clusters_diffcyt_DA_limma_main, 
-     file = file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_limma_main.RData"))
+save(out_clusters_diffcyt_DA_voom_main, 
+     file = file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_voom_main.RData"))
 
-save(out_objects_diffcyt_DA_limma_main, 
-     file = file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_limma_main.RData"))
+save(out_objects_diffcyt_DA_voom_main, 
+     file = file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_voom_main.RData"))
 
 
 
@@ -304,7 +304,7 @@ save(out_objects_diffcyt_DA_limma_main,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_Anti_PD_1_diffcyt_DA_limma_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_Anti_PD_1_diffcyt_DA_voom_main.txt"))
 sessionInfo()
 sink()
 

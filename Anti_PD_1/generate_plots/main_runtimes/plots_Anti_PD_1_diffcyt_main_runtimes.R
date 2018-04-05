@@ -19,7 +19,7 @@ library(reshape2)
 DIR_RDATA <- "../../../../RData/Anti_PD_1/main"
 
 load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_edgeR_main.RData"))
-load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_limma_main.RData"))
+load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_voom_main.RData"))
 load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_GLMM_main.RData"))
 
 
@@ -35,7 +35,7 @@ DIR_PLOTS <- "../../../../plots/Anti_PD_1/main_runtimes"
 
 runtime <- c(
   diffcyt_DA_edgeR = runtime_diffcyt_DA_edgeR_main, 
-  diffcyt_DA_limma = runtime_diffcyt_DA_limma_main, 
+  diffcyt_DA_voom = runtime_diffcyt_DA_voom_main, 
   diffcyt_DA_GLMM = runtime_diffcyt_DA_GLMM_main
 )
 
