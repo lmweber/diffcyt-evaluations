@@ -218,8 +218,7 @@ for (th in 1:length(thresholds)) {
     
     runtime_j <- system.time({
       
-      # note: 'sample_info' requires subsetting (since there are 2 conditions only)
-      sample_info_sub <- colData(d_counts)
+      # note: use subsetted 'sample_info_sub' (since there are 2 conditions only)
       
       # set up model formula
       # note: include random effects for 'patient' and 'sample'
