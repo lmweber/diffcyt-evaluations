@@ -218,9 +218,12 @@ for (th in 1:length(thresholds)) {
     
     runtime_j <- system.time({
       
+      # note: 'sample_info' requires subsetting (since there are 2 conditions only)
+      sample_info_sub <- colData(d_counts)
+      
       # set up design matrix
       # note: include fixed effects for 'patient'
-      design <- createDesignMatrix(sample_info, cols_include = 1:2)
+      design <- createDesignMatrix(sample_info_sub, cols_include = 1:2)
       design
       
       # set up contrast matrix
@@ -228,9 +231,9 @@ for (th in 1:length(thresholds)) {
       contrast
       
       # run tests
-      # note: adjust filtering parameter 'min_samples' (since there are 2 conditions)
+      # note: adjust filtering parameter 'min_samples' (since there are 2 conditions only)
       res <- testDA_edgeR(d_counts, design, contrast, 
-                          min_cells = 3, min_samples = nrow(sample_info) / 2)
+                          min_cells = 3, min_samples = nrow(sample_info_sub) / 2)
       
     })
     
