@@ -195,7 +195,8 @@ for (k in 1:length(resolution)) {
       d_se = d_se, 
       d_counts = d_counts, 
       d_medians = d_medians, 
-      d_medians_all = d_medians_all
+      d_medians_by_cluster_marker = d_medians_by_cluster_marker, 
+      d_medians_by_sample_marker = d_medians_by_sample_marker
     )
     
     
