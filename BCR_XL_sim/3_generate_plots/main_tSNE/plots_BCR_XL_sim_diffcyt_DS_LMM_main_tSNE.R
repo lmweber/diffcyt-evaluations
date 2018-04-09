@@ -45,7 +45,7 @@ d_medians_by_cluster_marker <- out_objects_diffcyt_DS_LMM_main$d_medians_by_clus
 # run t-SNE
 
 # note: using cell type markers only
-d_tsne <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_type"]
+d_tsne <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "cell_type"]
 d_tsne <- as.matrix(d_tsne)
 
 # remove any duplicate rows (required by Rtsne)
@@ -61,8 +61,8 @@ tsne_coords_tmp <- as.data.frame(out_tsne$Y)
 colnames(tsne_coords_tmp) <- c("tSNE_1", "tSNE_2")
 
 # fill in any missing clusters due to duplicate rows
-tsne_coords <- as.data.frame(matrix(NA, nrow = nlevels(rowData(d_counts)$cluster), ncol = 2))
-rownames(tsne_coords) <- rowData(d_counts)$cluster
+tsne_coords <- as.data.frame(matrix(NA, nrow = nlevels(rowData(d_counts)$cluster_id), ncol = 2))
+rownames(tsne_coords) <- rowData(d_counts)$cluster_id
 colnames(tsne_coords) <- colnames(tsne_coords_tmp)
 tsne_coords[!dups, ] <- tsne_coords_tmp
 
@@ -73,7 +73,7 @@ tsne_coords[!dups, ] <- tsne_coords_tmp
 d_clus <- out_clusters_diffcyt_DS_LMM_main[out_clusters_diffcyt_DS_LMM_main$marker == "pS6", ]
 
 stopifnot(nrow(d_clus) == nrow(rowData(d_counts)), 
-          all(d_clus$cluster == rowData(d_counts)$cluster))
+          all(d_clus$cluster_id == rowData(d_counts)$cluster_id))
 
 # significant differential clusters
 cutoff_sig <- 0.1
@@ -84,7 +84,7 @@ sig[is.na(sig)] <- FALSE
 table(sig)
 
 # set up data frame for plotting
-d_plot <- data.frame(cluster = rowData(d_counts)$cluster, 
+d_plot <- data.frame(cluster = rowData(d_counts)$cluster_id, 
                      sig = as.numeric(sig), 
                      n_cells = rowData(d_counts)$n_cells)
 
@@ -103,20 +103,20 @@ df_tmp$B_cells <- B_cells
 d_true <- df_tmp %>% group_by(cluster) %>% summarize(prop_B_cells = mean(B_cells)) %>% as.data.frame
 
 # fill in any missing clusters (zero cells)
-if (nrow(d_true) < nlevels(rowData(d_se)$cluster)) {
-  ix_missing <- which(!(levels(rowData(d_se)$cluster) %in% d_true$cluster))
-  d_true_tmp <- data.frame(factor(ix_missing, levels = levels(rowData(d_se)$cluster)), 0)
+if (nrow(d_true) < nlevels(rowData(d_se)$cluster_id)) {
+  ix_missing <- which(!(levels(rowData(d_se)$cluster_id) %in% d_true$cluster_id))
+  d_true_tmp <- data.frame(factor(ix_missing, levels = levels(rowData(d_se)$cluster_id)), 0)
   colnames(d_true_tmp) <- colnames(d_true)
   rownames(d_true_tmp) <- ix_missing
   d_true <- rbind(d_true, d_true_tmp)
   # re-order rows
-  d_true <- d_true[order(d_true$cluster), ]
-  rownames(d_true) <- d_true$cluster
+  d_true <- d_true[order(d_true$cluster_id), ]
+  rownames(d_true) <- d_true$cluster_id
 }
 
-stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster), 
+stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster_id), 
           nrow(d_true) == nrow(d_plot), 
-          all(d_true$cluster == d_plot$cluster), 
+          all(d_true$cluster_id == d_plot$cluster_id), 
           nrow(d_plot) == nrow(tsne_coords))
 
 # identify clusters containing significant proportion of spike-in cells

@@ -56,18 +56,18 @@ d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_ran
 
 # sample information
 
-sample_IDs <- gsub("^BCR_XL_sim_", "", 
-                   gsub("\\.fcs$", "", basename(files_load)))
-sample_IDs
+sample_id <- gsub("^BCR_XL_sim_", "", 
+                  gsub("\\.fcs$", "", basename(files_load)))
+sample_id
 
-group_IDs <- factor(gsub("^.*_", "", sample_IDs), levels = c("base", "spike"))
-group_IDs
+group_id <- factor(gsub("^.*_", "", sample_id), levels = c("base", "spike"))
+group_id
 
-patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
-patient_IDs
+patient_id <- factor(gsub("_.*$", "", sample_id))
+patient_id
 
-sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
-sample_info
+experiment_info <- data.frame(group_id, patient_id, sample_id)
+experiment_info
 
 # marker information
 
@@ -80,15 +80,12 @@ cols_func <- setdiff(cols_markers, cols_lineage)
 marker_name <- colnames(d_input[[1]])
 marker_name <- gsub("\\(.*$", "", marker_name)
 
-is_marker <- rep(FALSE, length(marker_name))
-is_marker[cols_markers] <- TRUE
+marker_class <- rep("none", length(marker_name))
+marker_class[cols_lineage] <- "cell_type"
+marker_class[cols_func] <- "cell_state"
+marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
 
-marker_type <- rep("none", length(marker_name))
-marker_type[cols_lineage] <- "cell_type"
-marker_type[cols_func] <- "cell_state"
-marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
-
-marker_info <- data.frame(marker_name, is_marker, marker_type)
+marker_info <- data.frame(marker_name, marker_class)
 marker_info
 
 
@@ -135,7 +132,7 @@ markers_to_use <- colnames(d_input[[1]])[cols_to_use]
 # Export .fcs files for CellCnn
 # -----------------------------
 
-for (i in 1:length(sample_IDs)) {
+for (i in 1:length(sample_id)) {
   filename <- file.path(DIR_CELLCNN_FILES, "data", basename(files_load[i]))
   write.FCS(d_input[[i]], filename)
 }
@@ -153,7 +150,7 @@ files_in
 
 # create data frame of sample names and conditions (for CellCnn input .csv file)
 
-label <- group_IDs
+label <- group_id
 label <- as.numeric(label) - 1
 label
 

@@ -45,18 +45,18 @@ d_input <- read.ncdfFlowSet(files_load, transformation = FALSE, truncate_max_ran
 
 # sample information
 
-sample_IDs <- gsub("^BCR_XL_sim_", "", 
-                   gsub("\\.fcs$", "", basename(files_load)))
-sample_IDs
+sample_id <- gsub("^BCR_XL_sim_", "", 
+                  gsub("\\.fcs$", "", basename(files_load)))
+sample_id
 
-group_IDs <- factor(gsub("^.*_", "", sample_IDs), levels = c("base", "spike"))
-group_IDs
+group_id <- factor(gsub("^.*_", "", sample_id), levels = c("base", "spike"))
+group_id
 
-patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
-patient_IDs
+patient_id <- factor(gsub("_.*$", "", sample_id))
+patient_id
 
-sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
-sample_info
+experiment_info <- data.frame(group_id, patient_id, sample_id)
+experiment_info
 
 # marker information
 
@@ -69,15 +69,12 @@ cols_func <- setdiff(cols_markers, cols_lineage)
 marker_name <- colnames(d_input[[1]])
 marker_name <- gsub("\\(.*$", "", marker_name)
 
-is_marker <- rep(FALSE, length(marker_name))
-is_marker[cols_markers] <- TRUE
+marker_class <- rep("none", length(marker_name))
+marker_class[cols_lineage] <- "cell_type"
+marker_class[cols_func] <- "cell_state"
+marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
 
-marker_type <- rep("none", length(marker_name))
-marker_type[cols_lineage] <- "cell_type"
-marker_type[cols_func] <- "cell_state"
-marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
-
-marker_info <- data.frame(marker_name, is_marker, marker_type)
+marker_info <- data.frame(marker_name, marker_class)
 marker_info
 
 
@@ -152,13 +149,13 @@ runtime_count <- system.time({
   
   # check sample order
   sampleNames(d_input)
-  sample_IDs
+  sample_id
   
   n_cells <- as.vector(fsApply(d_input, nrow))
-  sample_IDs_rep <- rep(sample_IDs, n_cells)
-  sample_IDs_rep <- factor(sample_IDs_rep, levels = unique(sample_IDs_rep))
+  sample_id_rep <- rep(sample_id, n_cells)
+  sample_id_rep <- factor(sample_id_rep, levels = unique(sample_id_rep))
   
-  d_list <- split.data.frame(exprs(processed.exprs), sample_IDs_rep)
+  d_list <- split.data.frame(exprs(processed.exprs), sample_id_rep)
   
   
   set.seed(1234)
@@ -196,16 +193,16 @@ runtime_test <- system.time({
   y <- y[keep, ]
   
   # design matrix
-  # note: including 'patient_IDs' for paired design
+  # note: including 'patient_id' for paired design
   # note: design matrix specification with intercept term
-  design <- model.matrix(~ group_IDs + patient_IDs)
+  design <- model.matrix(~ group_id + patient_id)
   
   # estimate dispersions and fit models
   y <- estimateDisp(y, design)
   fit <- glmQLFit(y, design, robust = TRUE)
   
   # set up contrast
-  contr_string <- "group_IDsspike"
+  contr_string <- "group_idspike"
   contrast <- makeContrasts(contr_string, levels = design)
   
   # calculate differential tests

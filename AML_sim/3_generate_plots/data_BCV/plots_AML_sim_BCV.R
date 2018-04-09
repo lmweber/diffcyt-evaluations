@@ -68,19 +68,19 @@ for (th in 1:length(thresholds)) {
   d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
   
   # sample IDs, group IDs, patient IDs
-  sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
-                     gsub("^AML_sim_", "", 
-                          gsub("\\.fcs$", "", basename(files_load))))
-  sample_IDs
+  sample_id <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
+                    gsub("^AML_sim_", "", 
+                         gsub("\\.fcs$", "", basename(files_load))))
+  sample_id
   
-  group_IDs <- factor(gsub("_.*$", "", sample_IDs), levels = c("healthy", "CN", "CBF"))
-  group_IDs
+  group_id <- factor(gsub("_.*$", "", sample_id), levels = c("healthy", "CN", "CBF"))
+  group_id
   
-  patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
-  patient_IDs
+  patient_id <- factor(gsub("^.*_", "", sample_id))
+  patient_id
   
-  sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
-  sample_info
+  experiment_info <- data.frame(group_id, patient_id, sample_id)
+  experiment_info
   
   # marker information
   
@@ -96,15 +96,12 @@ for (th in 1:length(thresholds)) {
   marker_name <- colnames(d_input[[1]])
   marker_name <- gsub("\\(.*$", "", marker_name)
   
-  is_marker <- rep(FALSE, length(marker_name))
-  is_marker[cols_markers] <- TRUE
+  marker_class <- rep("none", length(marker_name))
+  marker_class[cols_lineage] <- "cell_type"
+  marker_class[cols_func] <- "cell_state"
+  marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
   
-  marker_type <- rep("none", length(marker_name))
-  marker_type[cols_lineage] <- "cell_type"
-  marker_type[cols_func] <- "cell_state"
-  marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
-  
-  marker_info <- data.frame(marker_name, is_marker, marker_type)
+  marker_info <- data.frame(marker_name, marker_class)
   marker_info
   
   
@@ -126,7 +123,7 @@ for (th in 1:length(thresholds)) {
   
   
   # match cells to clusters
-  ix_match <- match(rowData(d_se)$cluster, res_clusters$cluster)
+  ix_match <- match(rowData(d_se)$cluster_id, res_clusters$cluster_id)
   
   
   # calculate number of true spike-in cells per cluster
@@ -140,8 +137,8 @@ for (th in 1:length(thresholds)) {
   
   
   # clusters containing true spike-in cells
-  stopifnot(length(n_spikein) == nlevels(rowData(d_se)$cluster), 
-            length(n_cells) == nlevels(rowData(d_se)$cluster))
+  stopifnot(length(n_spikein) == nlevels(rowData(d_se)$cluster_id), 
+            length(n_cells) == nlevels(rowData(d_se)$cluster_id))
   
   prop_spikein <- n_spikein / n_cells
   spikein <- prop_spikein > 0.1
@@ -153,8 +150,8 @@ for (th in 1:length(thresholds)) {
   # -------------
   
   # set up design matrix
-  # note: include fixed effects for 'patient'
-  design <- createDesignMatrix(sample_info, cols_include = 1:2)
+  # note: include fixed effects for 'patient_id'
+  design <- createDesignMatrix(experiment_info, cols_design = 1:2)
   design
   
   

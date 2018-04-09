@@ -74,13 +74,13 @@ for (th in 1:length(thresholds)) {
     # note: show top 'n' clusters only (otherwise heatmaps are too small on multi-panel plot)
     # note: no additional scaling (using asinh-transformed values directly)
     
-    d_heatmap <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_type"]
+    d_heatmap <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "cell_type"]
     
     # load cluster-level results (for condition j)
     d_clus <- out_clusters_diffcyt_DA_edgeR_main[[th]][[j]]
     
     stopifnot(nrow(d_clus) == nrow(rowData(d_counts)), 
-              all(d_clus$cluster == rowData(d_counts)$cluster))
+              all(d_clus$cluster_id == rowData(d_counts)$cluster_id))
     
     # select top 'n' clusters
     n <- 20
@@ -90,7 +90,7 @@ for (th in 1:length(thresholds)) {
     
     # color scale: 1%, 50%, 99% percentiles across all medians and cell type markers
     colors <- colorRamp2(
-      quantile(assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_type"], 
+      quantile(assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "cell_type"], 
                c(0.01, 0.5, 0.99)), 
       c("royalblue3", "white", "tomato2")
     )
@@ -110,8 +110,8 @@ for (th in 1:length(thresholds)) {
     # second heatmap: cluster abundances by sample
     # --------------------------------------------
     
-    cnd_which <- c(which(colData(d_counts)$group == "healthy"), 
-                   which(colData(d_counts)$group == cond_names[j]))
+    cnd_which <- c(which(colData(d_counts)$group_id == "healthy"), 
+                   which(colData(d_counts)$group_id == cond_names[j]))
     
     d_abundance <- assay(d_counts)[top_n, cnd_which, drop = FALSE]
     
@@ -147,7 +147,7 @@ for (th in 1:length(thresholds)) {
     table(sig)
     
     # set up data frame for plotting
-    d_plot <- data.frame(cluster = rowData(d_counts)$cluster, 
+    d_plot <- data.frame(cluster = rowData(d_counts)$cluster_id, 
                          sig = as.numeric(sig), 
                          n_cells = rowData(d_counts)$n_cells)
     
@@ -166,7 +166,7 @@ for (th in 1:length(thresholds)) {
     # calculate proportion true spike-in cells (from condition j) for each cluster
     
     # note: select cells from this condition and healthy
-    cond_keep <- rowData(d_se)$group %in% c(cond_names[j], "healthy")
+    cond_keep <- rowData(d_se)$group_id %in% c(cond_names[j], "healthy")
     df_j <- as.data.frame(rowData(d_se)[cond_keep, ])
     stopifnot(nrow(df_j) == length(spikein))
     
@@ -175,24 +175,24 @@ for (th in 1:length(thresholds)) {
     d_true <- df_j %>% group_by(cluster) %>% summarize(prop_spikein = mean(spikein)) %>% as.data.frame
     
     # fill in any missing clusters (zero cells)
-    if (nrow(d_true) < nlevels(rowData(d_se)$cluster)) {
-      ix_missing <- which(!(levels(rowData(d_se)$cluster) %in% d_true$cluster))
-      d_true_tmp <- data.frame(factor(ix_missing, levels = levels(rowData(d_se)$cluster)), 0)
+    if (nrow(d_true) < nlevels(rowData(d_se)$cluster_id)) {
+      ix_missing <- which(!(levels(rowData(d_se)$cluster_id) %in% d_true$cluster_id))
+      d_true_tmp <- data.frame(factor(ix_missing, levels = levels(rowData(d_se)$cluster_id)), 0)
       colnames(d_true_tmp) <- colnames(d_true)
       rownames(d_true_tmp) <- ix_missing
       d_true <- rbind(d_true, d_true_tmp)
       # re-order rows
-      d_true <- d_true[order(d_true$cluster), ]
-      rownames(d_true) <- d_true$cluster
+      d_true <- d_true[order(d_true$cluster_id), ]
+      rownames(d_true) <- d_true$cluster_id
     }
     
-    stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster))
+    stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster_id))
     
     # select top 'n' clusters
     d_true <- d_true[top_n, ]
     
     stopifnot(nrow(d_true) == nrow(d_plot), 
-              all(d_true$cluster == d_plot$cluster), 
+              all(d_true$cluster_id == d_plot$cluster_id), 
               nrow(d_plot) == nrow(d_heatmap))
     
     # identify clusters containing significant proportion of spike-in cells

@@ -45,6 +45,11 @@ d_medians <- out_objects_diffcyt_DS_limma_main$d_medians
 d_medians_by_cluster_marker <- out_objects_diffcyt_DS_limma_main$d_medians_by_cluster_marker
 
 
+is_marker <- colData(d_medians_by_cluster_marker)$marker_class != "none"
+is_celltype_marker <- colData(d_medians_by_cluster_marker)$marker_class == "cell_type"
+is_state_marker <- colData(d_medians_by_cluster_marker)$marker_class == "cell_state"
+
+
 # -------------------------------------------------------
 # heatmap: main panel - expression of 'cell type' markers
 # -------------------------------------------------------
@@ -52,9 +57,9 @@ d_medians_by_cluster_marker <- out_objects_diffcyt_DS_limma_main$d_medians_by_cl
 # note: show top 'n' clusters only (otherwise heatmaps are too small on multi-panel plot)
 # note: no additional scaling (using asinh-transformed values directly)
 
-d_heatmap <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$is_marker]
+d_heatmap <- assay(d_medians_by_cluster_marker)[, is_marker]
 
-d_heatmap_celltype <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_type"]
+d_heatmap_celltype <- assay(d_medians_by_cluster_marker)[, is_celltype_marker]
 
 # arrange alphabetically
 d_heatmap_celltype <- d_heatmap_celltype[, order(colnames(d_heatmap_celltype))]
@@ -86,7 +91,7 @@ ha_col_celltype <- columnAnnotation(
 
 # color scale: 1%, 50%, 99% percentiles across all medians and all markers
 colors <- colorRamp2(
-  quantile(assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$is_marker], c(0.01, 0.5, 0.99)), 
+  quantile(assay(d_medians_by_cluster_marker)[, is_marker], c(0.01, 0.5, 0.99)), 
   c("royalblue3", "white", "tomato2")
 )
 
@@ -107,7 +112,7 @@ ht_main <- Heatmap(
 # heatmap: second panel - expression of 'state' markers
 # -----------------------------------------------------
 
-d_heatmap_state <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_type == "cell_state"]
+d_heatmap_state <- assay(d_medians_by_cluster_marker)[, is_state_marker]
 
 # arrange alphabetically
 d_heatmap_state <- d_heatmap_state[, order(colnames(d_heatmap_state))]
@@ -144,8 +149,8 @@ ht_state <- Heatmap(
 # heatmap: third panel - expression of pS6 by sample
 # --------------------------------------------------
 
-cnd_which <- c(which(colData(d_counts)$group == "base"), 
-               which(colData(d_counts)$group == "spike"))
+cnd_which <- c(which(colData(d_counts)$group_id == "base"), 
+               which(colData(d_counts)$group_id == "spike"))
 
 d_pS6 <- assays(d_medians)[["pS6"]][top_n, cnd_which, drop = FALSE]
 
@@ -193,7 +198,7 @@ ht_pS6 <- Heatmap(
 d_clus <- out_clusters_diffcyt_DS_limma_main[out_clusters_diffcyt_DS_limma_main$marker == "pS6", ]
 
 stopifnot(nrow(d_clus) == nrow(rowData(d_counts)), 
-          all(d_clus$cluster == rowData(d_counts)$cluster))
+          all(d_clus$cluster_id == rowData(d_counts)$cluster_id))
 
 # significant differential clusters
 cutoff_sig <- 0.1
@@ -204,7 +209,7 @@ sig[is.na(sig)] <- FALSE
 table(sig)
 
 # set up data frame
-d_sig <- data.frame(cluster = rowData(d_counts)$cluster, 
+d_sig <- data.frame(cluster = rowData(d_counts)$cluster_id, 
                     sig = as.numeric(sig), 
                     n_cells = rowData(d_counts)$n_cells)
 
@@ -230,19 +235,19 @@ df_tmp$B_cells <- B_cells
 d_true <- df_tmp %>% group_by(cluster) %>% summarize(prop_B_cells = mean(B_cells)) %>% as.data.frame
 
 # fill in any missing clusters (zero cells)
-if (nrow(d_true) < nlevels(rowData(d_se)$cluster)) {
-  ix_missing <- which(!(levels(rowData(d_se)$cluster) %in% d_true$cluster))
-  d_true_tmp <- data.frame(factor(ix_missing, levels = levels(rowData(d_se)$cluster)), 0)
+if (nrow(d_true) < nlevels(rowData(d_se)$cluster_id)) {
+  ix_missing <- which(!(levels(rowData(d_se)$cluster_id) %in% d_true$cluster_id))
+  d_true_tmp <- data.frame(factor(ix_missing, levels = levels(rowData(d_se)$cluster_id)), 0)
   colnames(d_true_tmp) <- colnames(d_true)
   rownames(d_true_tmp) <- ix_missing
   d_true <- rbind(d_true, d_true_tmp)
   # re-order rows
-  d_true <- d_true[order(d_true$cluster), ]
-  rownames(d_true) <- d_true$cluster
+  d_true <- d_true[order(d_true$cluster_id), ]
+  rownames(d_true) <- d_true$cluster_id
 }
 
-stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster), 
-          all(d_true$cluster == rowData(d_counts)$cluster))
+stopifnot(nrow(d_true) == nlevels(rowData(d_se)$cluster_id), 
+          all(d_true$cluster_id == rowData(d_counts)$cluster_id))
 
 # identify clusters containing significant proportion of spike-in cells
 d_true$B_cells <- as.numeric(d_true$prop_B_cells > 0.5)

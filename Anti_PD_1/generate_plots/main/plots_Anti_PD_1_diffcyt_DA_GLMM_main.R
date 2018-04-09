@@ -59,7 +59,7 @@ clus_detected <- res_detected$cluster
 meds_detected <- assay(d_medians_by_cluster_marker)[clus_detected, , drop = FALSE]
 rownames(meds_detected) <- paste0("cluster ", rownames(meds_detected))
 
-meds_all <- colMeans(assay(d_se)[, colData(d_se)$is_marker])
+meds_all <- colMeans(assay(d_se)[, colData(d_se)$marker_class != "none"])
 
 stopifnot(ncol(meds_detected) == ncol(meds_all))
 
@@ -144,13 +144,13 @@ colSums(assay(d_counts))
 perc <- colSums(n_cells_detected) / colSums(assay(d_counts)) * 100
 perc
 # average percentage in each group
-perc_NR <- mean(perc[colData(d_counts)$group == "NR"])
-perc_R <- mean(perc[colData(d_counts)$group == "R"])
+perc_NR <- mean(perc[colData(d_counts)$group_id == "NR"])
+perc_R <- mean(perc[colData(d_counts)$group_id == "R"])
 perc_NR
 perc_R
 
 d_boxplots <- data.frame(
-  group = colData(d_counts)$group, 
+  group = colData(d_counts)$group_id, 
   percent = perc
 )
 

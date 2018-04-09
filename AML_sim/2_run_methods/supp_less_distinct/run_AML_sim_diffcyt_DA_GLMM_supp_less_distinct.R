@@ -37,7 +37,7 @@ distinctness <- c(0.5, 0.75)
 names(distinctness) <- c("less_50pc", "less_75pc")
 
 # contrasts (to compare each of 'CN' and 'CBF' vs. 'healthy')
-# note: include random effects for 'patient' and 'sample'
+# note: include random effects for 'patient_id' and 'sample_id'
 contrasts_list <- list(CN = c(0, 1, 0), CBF = c(0, 0, 1))
 
 # lists to store objects and runtime
@@ -84,20 +84,20 @@ for (di in 1:length(distinctness)) {
     d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
     
     # sample IDs, group IDs, patient IDs
-    sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
-                       gsub("^AML_sim_", "", 
-                            gsub("_less_[0-9]+pc$", "", 
-                                 gsub("\\.fcs$", "", basename(files_load)))))
-    sample_IDs
+    sample_id <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
+                      gsub("^AML_sim_", "", 
+                           gsub("_less_[0-9]+pc$", "", 
+                                gsub("\\.fcs$", "", basename(files_load)))))
+    sample_id
     
-    group_IDs <- factor(gsub("_.*$", "", sample_IDs), levels = c("healthy", "CN", "CBF"))
-    group_IDs
+    group_id <- factor(gsub("_.*$", "", sample_id), levels = c("healthy", "CN", "CBF"))
+    group_id
     
-    patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
-    patient_IDs
+    patient_id <- factor(gsub("^.*_", "", sample_id))
+    patient_id
     
-    sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
-    sample_info
+    experiment_info <- data.frame(group_id, patient_id, sample_id)
+    experiment_info
     
     # marker information
     
@@ -113,15 +113,12 @@ for (di in 1:length(distinctness)) {
     marker_name <- colnames(d_input[[1]])
     marker_name <- gsub("\\(.*$", "", marker_name)
     
-    is_marker <- rep(FALSE, length(marker_name))
-    is_marker[cols_markers] <- TRUE
+    marker_class <- rep("none", length(marker_name))
+    marker_class[cols_lineage] <- "cell_type"
+    marker_class[cols_func] <- "cell_state"
+    marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
     
-    marker_type <- rep("none", length(marker_name))
-    marker_type[cols_lineage] <- "cell_type"
-    marker_type[cols_func] <- "cell_state"
-    marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
-    
-    marker_info <- data.frame(marker_name, is_marker, marker_type)
+    marker_info <- data.frame(marker_name, marker_class)
     marker_info
     
     
@@ -138,10 +135,10 @@ for (di in 1:length(distinctness)) {
     runtime_preprocessing <- system.time({
       
       # prepare data into required format
-      d_se <- prepareData(d_input, sample_info, marker_info)
+      d_se <- prepareData(d_input, experiment_info, marker_info)
       
-      colnames(d_se)[colData(d_se)$marker_type == "cell_type"]
-      colnames(d_se)[colData(d_se)$marker_type == "cell_state"]
+      colnames(d_se)[colData(d_se)$marker_class == "cell_type"]
+      colnames(d_se)[colData(d_se)$marker_class == "cell_state"]
       
       # transform data
       d_se <- transformData(d_se, cofactor = 5)
@@ -151,11 +148,11 @@ for (di in 1:length(distinctness)) {
       seed <- 123
       d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
       
-      length(table(rowData(d_se)$cluster))  # number of clusters
-      nrow(rowData(d_se))                   # number of cells
-      sum(table(rowData(d_se)$cluster))
-      min(table(rowData(d_se)$cluster))     # size of smallest cluster
-      max(table(rowData(d_se)$cluster))     # size of largest cluster
+      length(table(rowData(d_se)$cluster_id))  # number of clusters
+      nrow(rowData(d_se))                      # number of cells
+      sum(table(rowData(d_se)$cluster_id))
+      min(table(rowData(d_se)$cluster_id))     # size of smallest cluster
+      max(table(rowData(d_se)$cluster_id))     # size of largest cluster
       
       # calculate cluster cell counts
       d_counts <- calcCounts(d_se)
@@ -217,8 +214,8 @@ for (di in 1:length(distinctness)) {
       runtime_j <- system.time({
         
         # set up model formula
-        # note: include random effects for 'patient' and 'sample'
-        formula <- createFormula(sample_info, cols_fixed = 1, cols_random = 2:3)
+        # note: include random effects for 'patient_id' and 'sample_id'
+        formula <- createFormula(experiment_info, cols_fixed = 1, cols_random = 2:3)
         formula
         
         # set up contrast matrix
@@ -228,7 +225,7 @@ for (di in 1:length(distinctness)) {
         # run tests
         # note: adjust filtering parameter 'min_samples' (since there are 3 conditions)
         res <- testDA_GLMM(d_counts, formula, contrast, 
-                           min_cells = 3, min_samples = nrow(sample_info) / 3)
+                           min_cells = 3, min_samples = nrow(experiment_info) / 3)
         
       })
       
@@ -278,18 +275,18 @@ for (di in 1:length(distinctness)) {
       stopifnot(length(is_spikein) == sum(n_cells))
       
       # select samples for this condition and healthy
-      ix_keep_cnd <- group_IDs %in% c("healthy", cond_names[j])
+      ix_keep_cnd <- group_id %in% c("healthy", cond_names[j])
       
       
       # match cluster-level p-values to individual cells
       
-      stopifnot(nrow(rowData(res)) == length(levels(rowData(d_se)$cluster)), 
-                all(rowData(res)$cluster == levels(rowData(d_se)$cluster)))
+      stopifnot(nrow(rowData(res)) == length(levels(rowData(d_se)$cluster_id)), 
+                all(rowData(res)$cluster_id == levels(rowData(d_se)$cluster_id)))
       
-      rowData(res)$cluster <- factor(rowData(res)$cluster, levels = levels(rowData(d_se)$cluster))
+      rowData(res)$cluster_id <- factor(rowData(res)$cluster_id, levels = levels(rowData(d_se)$cluster_id))
       
       # match cells to clusters
-      ix_match <- match(rowData(d_se)$cluster, rowData(res)$cluster)
+      ix_match <- match(rowData(d_se)$cluster_id, rowData(res)$cluster_id)
       
       p_vals_clusters <- rowData(res)$p_vals
       p_adj_clusters <- rowData(res)$p_adj

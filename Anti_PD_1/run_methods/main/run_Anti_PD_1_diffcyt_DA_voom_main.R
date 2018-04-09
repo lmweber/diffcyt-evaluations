@@ -64,22 +64,22 @@ files <- c(metadata_23$filename[ix_keep], metadata_29$filename[ix_keep])
 # -----------
 
 # group IDs
-group_IDs <- factor(gsub("^base_", "", c(metadata_23$condition[ix_keep], metadata_29$condition[ix_keep])), 
-                    levels = c("NR", "R"))
-group_IDs
+group_id <- factor(gsub("^base_", "", c(metadata_23$condition[ix_keep], metadata_29$condition[ix_keep])), 
+                   levels = c("NR", "R"))
+group_id
 
 # batch (data set) IDs
-batch_IDs <- factor(c(rep("batch23", length(ix_keep)), rep("batch29", length(ix_keep))), 
-                    levels = c("batch23", "batch29"))
-batch_IDs
+batch_id <- factor(c(rep("batch23", length(ix_keep)), rep("batch29", length(ix_keep))), 
+                   levels = c("batch23", "batch29"))
+batch_id
 
 # sample IDs
-sample_IDs <- factor(gsub("^base_", "", c(metadata_23$shortname[ix_keep], metadata_29$shortname[ix_keep])), 
-                     levels = c(paste0("NR", 1:9), paste0("R", 1:11)))
-sample_IDs
+sample_id <- factor(gsub("^base_", "", c(metadata_23$shortname[ix_keep], metadata_29$shortname[ix_keep])), 
+                    levels = c(paste0("NR", 1:9), paste0("R", 1:11)))
+sample_id
 
-sample_info <- data.frame(group = group_IDs, batch = batch_IDs, sample = sample_IDs)
-sample_info
+experiment_info <- data.frame(group_id, batch_id, sample_id)
+experiment_info
 
 
 # ----------------
@@ -133,13 +133,13 @@ d_input <- lapply(d_input, function(d) {
 
 is_marker <- as.logical(panel$transform)
 
-marker_type <- rep("none", nrow(panel))
-marker_type[is_marker] <- "cell_type"
-marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
+marker_class <- rep("none", nrow(panel))
+marker_class[is_marker] <- "cell_type"
+marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
 
 marker_name <- panel$Antigen
 
-marker_info <- data.frame(marker_name, is_marker, marker_type)
+marker_info <- data.frame(marker_name, marker_class)
 marker_info
 
 
@@ -160,10 +160,10 @@ seed <- 10000
 runtime_preprocessing <- system.time({
   
   # prepare data into required format
-  d_se <- prepareData(d_input, sample_info, marker_info)
+  d_se <- prepareData(d_input, experiment_info, marker_info)
   
-  colnames(d_se)[colData(d_se)$marker_type == "cell_type"]
-  colnames(d_se)[colData(d_se)$marker_type == "cell_state"]
+  colnames(d_se)[colData(d_se)$marker_class == "cell_type"]
+  colnames(d_se)[colData(d_se)$marker_class == "cell_state"]
   
   # transform data
   d_se <- transformData(d_se, cofactor = 5)
@@ -172,11 +172,11 @@ runtime_preprocessing <- system.time({
   # (runtime: ~20 sec with xdim = 20, ydim = 20)
   d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
   
-  length(table(rowData(d_se)$cluster))  # number of clusters
-  nrow(rowData(d_se))                   # number of cells
-  sum(table(rowData(d_se)$cluster))
-  min(table(rowData(d_se)$cluster))     # size of smallest cluster
-  max(table(rowData(d_se)$cluster))     # size of largest cluster
+  length(table(rowData(d_se)$cluster_id))  # number of clusters
+  nrow(rowData(d_se))                      # number of cells
+  sum(table(rowData(d_se)$cluster_id))
+  min(table(rowData(d_se)$cluster_id))     # size of smallest cluster
+  max(table(rowData(d_se)$cluster_id))     # size of largest cluster
   
   # calculate cluster cell counts
   d_counts <- calcCounts(d_se)
@@ -228,8 +228,8 @@ out_objects_diffcyt_DA_voom_main <- list(
 runtime_test <- system.time({
   
   # set up design matrix
-  # note: include fixed effects for 'batch'
-  design <- createDesignMatrix(sample_info, cols_include = 1:2)
+  # note: include fixed effects for 'batch_id'
+  design <- createDesignMatrix(experiment_info, cols_design = 1:2)
   design
   
   # set up contrast matrix
@@ -240,7 +240,7 @@ runtime_test <- system.time({
   # run tests
   # note: adjust filtering parameters
   min_cells <- 3
-  min_samples <- min(table(sample_info$group))
+  min_samples <- min(table(experiment_info$group_id))
   path <- DIR_PLOTS
   res <- testDA_voom(d_counts, design, contrast, 
                      min_cells = min_cells, min_samples = min_samples, 

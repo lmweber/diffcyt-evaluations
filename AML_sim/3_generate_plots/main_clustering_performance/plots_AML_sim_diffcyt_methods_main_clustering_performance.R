@@ -74,7 +74,7 @@ for (th in 1:length(thresholds)) {
     
     # add spike-in status to data object (for condition j)
     rowData(d_se)$spikein <- 0
-    rowData(d_se)$spikein[rowData(d_se)$group %in% c("healthy", cond_names[j])] <- spikein
+    rowData(d_se)$spikein[rowData(d_se)$group_id %in% c("healthy", cond_names[j])] <- spikein
     
     
     # --------------------------------------------------------------------------------
@@ -84,17 +84,17 @@ for (th in 1:length(thresholds)) {
     # find matching clusters (clusters containing true spike-in cells)
     
     # check no missing clusters
-    stopifnot(all(names(table(rowData(d_se)[rowData(d_se)$spikein == 1, ]$cluster)) == levels(rowData(d_se)$cluster)))
+    stopifnot(all(names(table(rowData(d_se)[rowData(d_se)$spikein == 1, ]$cluster_id)) == levels(rowData(d_se)$cluster_id)))
     
-    labels_matched <- unname(which(table(rowData(d_se)[rowData(d_se)$spikein == 1, ]$cluster) > 0))
+    labels_matched <- unname(which(table(rowData(d_se)[rowData(d_se)$spikein == 1, ]$cluster_id) > 0))
     labels_matched
     
     # total number of cells in each matching cluster
-    n_matched <- sapply(labels_matched, function(l) sum(rowData(d_se)$cluster == l))
+    n_matched <- sapply(labels_matched, function(l) sum(rowData(d_se)$cluster_id == l))
     n_matched
     
     # number of true spike-in cells in each matching cluster
-    n_correct <- sapply(labels_matched, function(l) sum(rowData(d_se)$cluster == l & rowData(d_se)$spikein == 1))
+    n_correct <- sapply(labels_matched, function(l) sum(rowData(d_se)$cluster_id == l & rowData(d_se)$spikein == 1))
     n_correct
     
     # total number of true spike-in cells
@@ -156,7 +156,7 @@ for (th in 1:length(thresholds)) {
     # sort by F1 score
     d_plot <- d_plot[rev(order(d_plot$F1_score)), ]
     
-    d_plot$cluster <- factor(d_plot$cluster, levels = as.character(d_plot$cluster))
+    d_plot$cluster_id <- factor(d_plot$cluster_id, levels = as.character(d_plot$cluster_id))
     d_plot <- melt(d_plot, id.vars = "cluster", variable.name = "measure")
     d_plot$measure <- factor(d_plot$measure, levels = c("F1_score", "precision", "recall"))
     

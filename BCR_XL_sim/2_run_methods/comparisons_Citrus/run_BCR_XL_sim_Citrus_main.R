@@ -54,18 +54,18 @@ d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_ran
 
 # sample information
 
-sample_IDs <- gsub("^BCR_XL_sim_", "", 
-                   gsub("\\.fcs$", "", basename(files_load)))
-sample_IDs
+sample_id <- gsub("^BCR_XL_sim_", "", 
+                  gsub("\\.fcs$", "", basename(files_load)))
+sample_id
 
-group_IDs <- factor(gsub("^.*_", "", sample_IDs), levels = c("base", "spike"))
-group_IDs
+group_id <- factor(gsub("^.*_", "", sample_id), levels = c("base", "spike"))
+group_id
 
-patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
-patient_IDs
+patient_id <- factor(gsub("_.*$", "", sample_id))
+patient_id
 
-sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
-sample_info
+experiment_info <- data.frame(group_id, patient_id, sample_id)
+experiment_info
 
 # marker information
 
@@ -78,15 +78,12 @@ cols_func <- setdiff(cols_markers, cols_lineage)
 marker_name <- colnames(d_input[[1]])
 marker_name <- gsub("\\(.*$", "", marker_name)
 
-is_marker <- rep(FALSE, length(marker_name))
-is_marker[cols_markers] <- TRUE
+marker_class <- rep("none", length(marker_name))
+marker_class[cols_lineage] <- "cell_type"
+marker_class[cols_func] <- "cell_state"
+marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
 
-marker_type <- rep("none", length(marker_name))
-marker_type[cols_lineage] <- "cell_type"
-marker_type[cols_func] <- "cell_state"
-marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
-
-marker_info <- data.frame(marker_name, is_marker, marker_type)
+marker_info <- data.frame(marker_name, marker_class)
 marker_info
 
 
@@ -124,7 +121,7 @@ d_input <- lapply(d_input, function(d) {
 # Export transformed .fcs files for Citrus
 # ----------------------------------------
 
-for (i in 1:length(sample_IDs)) {
+for (i in 1:length(sample_id)) {
   filename <- file.path(DIR_CITRUS_FILES, "data_transformed", 
                         gsub("\\.fcs$", "_transf.fcs", basename(files_load[i])))
   write.FCS(d_input[[i]], filename)
@@ -157,7 +154,7 @@ transformCofactor <- NULL
 scaleColumns <- NULL
 
 # experimental design
-labels <- group_IDs
+labels <- group_id
 
 # directories
 dataDirectory <- file.path(DIR_CITRUS_FILES, "data_transformed")
@@ -237,7 +234,7 @@ clusters <- as.numeric(results$conditionRegressionResults$defaultCondition$glmne
 # match clusters to cells
 
 res_cells <- rep(NA, sum(n_cells))
-files_rep <- rep(seq_along(sample_IDs), n_cells)
+files_rep <- rep(seq_along(sample_id), n_cells)
 
 for (i in seq_along(clusters)) {
   
@@ -254,7 +251,7 @@ for (i in seq_along(clusters)) {
   cells_subsampled[ix_clus] <- 1  # 1 = cell is in differential cluster
   
   # match to indices in original data; taking into account subsampling
-  for (z in seq_along(group_IDs)) {
+  for (z in seq_along(group_id)) {
     ix_events_z <- ix_events[ix_files == z]
     res_cells[files_rep == z][ix_events_z] <- cells_subsampled[ix_files == z]
   }

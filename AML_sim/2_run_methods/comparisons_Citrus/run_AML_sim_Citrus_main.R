@@ -75,19 +75,19 @@ for (th in 1:length(thresholds)) {
   d_input <- lapply(files_load, read.FCS, transformation = FALSE, truncate_max_range = FALSE)
   
   # sample IDs, group IDs, patient IDs
-  sample_IDs <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
-                     gsub("^AML_sim_", "", 
-                          gsub("\\.fcs$", "", basename(files_load))))
-  sample_IDs
+  sample_id <- gsub("(_[0-9]+pc$)|(_0\\.[0-9]+pc$)", "", 
+                    gsub("^AML_sim_", "", 
+                         gsub("\\.fcs$", "", basename(files_load))))
+  sample_id
   
-  group_IDs <- factor(gsub("_.*$", "", sample_IDs), levels = c("healthy", "CN", "CBF"))
-  group_IDs
+  group_id <- factor(gsub("_.*$", "", sample_id), levels = c("healthy", "CN", "CBF"))
+  group_id
   
-  patient_IDs <- factor(gsub("^.*_", "", sample_IDs))
-  patient_IDs
+  patient_id <- factor(gsub("^.*_", "", sample_id))
+  patient_id
   
-  sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
-  sample_info
+  experiment_info <- data.frame(group_id, patient_id, sample_id)
+  experiment_info
   
   # marker information
   
@@ -103,15 +103,12 @@ for (th in 1:length(thresholds)) {
   marker_name <- colnames(d_input[[1]])
   marker_name <- gsub("\\(.*$", "", marker_name)
   
-  is_marker <- rep(FALSE, length(marker_name))
-  is_marker[cols_markers] <- TRUE
+  marker_class <- rep("none", length(marker_name))
+  marker_class[cols_lineage] <- "cell_type"
+  marker_class[cols_func] <- "cell_state"
+  marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
   
-  marker_type <- rep("none", length(marker_name))
-  marker_type[cols_lineage] <- "cell_type"
-  marker_type[cols_func] <- "cell_state"
-  marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
-  
-  marker_info <- data.frame(marker_name, is_marker, marker_type)
+  marker_info <- data.frame(marker_name, marker_class)
   marker_info
   
   
@@ -154,15 +151,15 @@ for (th in 1:length(thresholds)) {
     # Export transformed .fcs files for Citrus
     # ----------------------------------------
     
-    ix_keep <- group_IDs %in% c("healthy", cond_names[j])
+    ix_keep <- group_id %in% c("healthy", cond_names[j])
     
-    sample_IDs_keep <- sample_IDs[ix_keep]
-    group_IDs_keep <- droplevels(group_IDs[ix_keep])
+    sample_id_keep <- sample_id[ix_keep]
+    group_id_keep <- droplevels(group_id[ix_keep])
     files_load_keep <- files_load[ix_keep]
     
     d_input_keep <- d_input[ix_keep]
     
-    for (i in 1:length(sample_IDs_keep)) {
+    for (i in 1:length(sample_id_keep)) {
       path <- file.path(DIR_CITRUS_FILES, thresholds[th], cond_names[j], "data_transformed")
       filename <- file.path(path, gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep[i])))
       write.FCS(d_input_keep[[i]], filename)
@@ -195,7 +192,7 @@ for (th in 1:length(thresholds)) {
     scaleColumns <- NULL
     
     # experimental design
-    labels <- group_IDs_keep
+    labels <- group_id_keep
     
     # directories
     dataDirectory <- file.path(DIR_CITRUS_FILES, thresholds[th], cond_names[j], "data_transformed")
@@ -266,7 +263,7 @@ for (th in 1:length(thresholds)) {
     stopifnot(length(is_spikein) == sum(n_cells))
     
     # select samples for this condition and healthy
-    ix_keep_cnd <- group_IDs %in% c("healthy", cond_names[j])
+    ix_keep_cnd <- group_id %in% c("healthy", cond_names[j])
     
     
     # differentially abundant clusters
@@ -277,7 +274,7 @@ for (th in 1:length(thresholds)) {
     # match clusters to cells
     
     res_cells <- rep(NA, sum(n_cells))
-    files_rep <- rep(seq_along(sample_IDs), n_cells)
+    files_rep <- rep(seq_along(sample_id), n_cells)
     
     for (i in seq_along(clusters)) {
       

@@ -66,18 +66,18 @@ for (s in 1:length(seed_names)) {
   
   # sample information
   
-  sample_IDs <- gsub("^BCR_XL_sim_", "", 
-                     gsub("\\.fcs$", "", basename(files_load)))
-  sample_IDs
+  sample_id <- gsub("^BCR_XL_sim_", "", 
+                    gsub("\\.fcs$", "", basename(files_load)))
+  sample_id
   
-  group_IDs <- factor(gsub("^.*_", "", sample_IDs), levels = c("null1", "null2"))
-  group_IDs
+  group_id <- factor(gsub("^.*_", "", sample_id), levels = c("null1", "null2"))
+  group_id
   
-  patient_IDs <- factor(gsub("_.*$", "", sample_IDs))
-  patient_IDs
+  patient_id <- factor(gsub("_.*$", "", sample_id))
+  patient_id
   
-  sample_info <- data.frame(group = group_IDs, patient = patient_IDs, sample = sample_IDs)
-  sample_info
+  experiment_info <- data.frame(group_id, patient_id, sample_id)
+  experiment_info
   
   # marker information
   
@@ -90,15 +90,12 @@ for (s in 1:length(seed_names)) {
   marker_name <- colnames(d_input[[1]])
   marker_name <- gsub("\\(.*$", "", marker_name)
   
-  is_marker <- rep(FALSE, length(marker_name))
-  is_marker[cols_markers] <- TRUE
+  marker_class <- rep("none", length(marker_name))
+  marker_class[cols_lineage] <- "cell_type"
+  marker_class[cols_func] <- "cell_state"
+  marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
   
-  marker_type <- rep("none", length(marker_name))
-  marker_type[cols_lineage] <- "cell_type"
-  marker_type[cols_func] <- "cell_state"
-  marker_type <- factor(marker_type, levels = c("cell_type", "cell_state", "none"))
-  
-  marker_info <- data.frame(marker_name, is_marker, marker_type)
+  marker_info <- data.frame(marker_name, marker_class)
   marker_info
   
   
@@ -115,10 +112,10 @@ for (s in 1:length(seed_names)) {
   runtime_preprocessing <- system.time({
     
     # prepare data into required format
-    d_se <- prepareData(d_input, sample_info, marker_info)
+    d_se <- prepareData(d_input, experiment_info, marker_info)
     
-    colnames(d_se)[colData(d_se)$marker_type == "cell_type"]
-    colnames(d_se)[colData(d_se)$marker_type == "cell_state"]
+    colnames(d_se)[colData(d_se)$marker_class == "cell_type"]
+    colnames(d_se)[colData(d_se)$marker_class == "cell_state"]
     
     # transform data
     d_se <- transformData(d_se, cofactor = 5)
@@ -128,11 +125,11 @@ for (s in 1:length(seed_names)) {
     seed <- 123
     d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed = seed)
     
-    length(table(rowData(d_se)$cluster))  # number of clusters
-    nrow(rowData(d_se))                   # number of cells
-    sum(table(rowData(d_se)$cluster))
-    min(table(rowData(d_se)$cluster))     # size of smallest cluster
-    max(table(rowData(d_se)$cluster))     # size of largest cluster
+    length(table(rowData(d_se)$cluster_id))  # number of clusters
+    nrow(rowData(d_se))                      # number of cells
+    sum(table(rowData(d_se)$cluster_id))
+    min(table(rowData(d_se)$cluster_id))     # size of smallest cluster
+    max(table(rowData(d_se)$cluster_id))     # size of largest cluster
     
     # calculate cluster cell counts
     d_counts <- calcCounts(d_se)
@@ -182,14 +179,14 @@ for (s in 1:length(seed_names)) {
   # --------------------------------------------
   
   # contrast (to compare 'null2' vs. 'null1')
-  # note: include random effects for 'patient'
+  # note: include random effects for 'patient_id'
   contrast_vec <- c(0, 1)
   
   runtime_tests <- system.time({
     
     # set up design matrix
-    # note: include random effects for 'patient'
-    formula <- createFormula(sample_info, cols_fixed = 1, cols_random = 2)
+    # note: include random effects for 'patient_id'
+    formula <- createFormula(experiment_info, cols_fixed = 1, cols_random = 2)
     formula
     
     # set up contrast matrix
@@ -253,15 +250,15 @@ for (s in 1:length(seed_names)) {
   
   # match cluster-level p-values for marker pS6 to individual cells
   
-  stopifnot(nrow(rowData(res)) == nlevels(rowData(d_se)$cluster) * length(cols_func), 
-            all(levels(rowData(res)$cluster) == levels(rowData(d_se)$cluster)), 
-            all(levels(rowData(res)$cluster) %in% rowData(res)$cluster))
+  stopifnot(nrow(rowData(res)) == nlevels(rowData(d_se)$cluster_id) * length(cols_func), 
+            all(levels(rowData(res)$cluster_id) == levels(rowData(d_se)$cluster_id)), 
+            all(levels(rowData(res)$cluster_id) %in% rowData(res)$cluster_id))
   
   # select results for pS6
   res_pS6 <- res[rowData(res)$marker == "pS6", ]
   
   # match cells to clusters
-  ix_match <- match(rowData(d_se)$cluster, rowData(res_pS6)$cluster)
+  ix_match <- match(rowData(d_se)$cluster_id, rowData(res_pS6)$cluster_id)
   
   p_vals_clusters <- rowData(res_pS6)$p_vals
   p_adj_clusters <- rowData(res_pS6)$p_adj
