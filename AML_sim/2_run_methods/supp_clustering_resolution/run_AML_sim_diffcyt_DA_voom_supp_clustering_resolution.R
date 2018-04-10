@@ -118,6 +118,9 @@ for (k in 1:length(resolution)) {
     marker_class[cols_func] <- "cell_state"
     marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
     
+    marker_info <- data.frame(marker_name, marker_class)
+    marker_info
+    
     
     
     
