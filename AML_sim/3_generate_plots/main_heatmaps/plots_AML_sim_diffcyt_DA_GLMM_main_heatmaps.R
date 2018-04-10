@@ -160,7 +160,7 @@ for (th in 1:length(thresholds)) {
     # load spike-in status at cell level (for condition j)
     spikein <- out_diffcyt_DA_GLMM_main[[th]][[j]]$spikein
     
-    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group) %>% tally
+    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group_id) %>% tally
     n_cells_cond <- unname(unlist(n_cells_cond[, "n"]))
     
     # calculate proportion true spike-in cells (from condition j) for each cluster
@@ -172,7 +172,7 @@ for (th in 1:length(thresholds)) {
     
     df_j$spikein <- spikein
     
-    d_true <- df_j %>% group_by(cluster) %>% summarize(prop_spikein = mean(spikein)) %>% as.data.frame
+    d_true <- df_j %>% group_by(cluster_id) %>% summarize(prop_spikein = mean(spikein)) %>% as.data.frame
     
     # fill in any missing clusters (zero cells)
     if (nrow(d_true) < nlevels(rowData(d_se)$cluster_id)) {
