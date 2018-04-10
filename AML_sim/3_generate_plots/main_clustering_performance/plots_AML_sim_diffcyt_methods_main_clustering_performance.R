@@ -156,7 +156,7 @@ for (th in 1:length(thresholds)) {
     # sort by F1 score
     d_plot <- d_plot[rev(order(d_plot$F1_score)), ]
     
-    d_plot$cluster_id <- factor(d_plot$cluster_id, levels = as.character(d_plot$cluster_id))
+    d_plot$cluster <- factor(d_plot$cluster, levels = as.character(d_plot$cluster))
     d_plot <- melt(d_plot, id.vars = "cluster", variable.name = "measure")
     d_plot$measure <- factor(d_plot$measure, levels = c("F1_score", "precision", "recall"))
     

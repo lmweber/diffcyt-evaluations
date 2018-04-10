@@ -59,17 +59,17 @@ rowData(d_se)$B_cell <- B_cell
 # find matching clusters (clusters containing true B cells)
 
 # check no missing clusters
-stopifnot(all(names(table(rowData(d_se)[rowData(d_se)$B_cell == 1, ]$cluster)) == levels(rowData(d_se)$cluster)))
+stopifnot(all(names(table(rowData(d_se)[rowData(d_se)$B_cell == 1, ]$cluster_id)) == levels(rowData(d_se)$cluster_id)))
 
-labels_matched <- unname(which(table(rowData(d_se)[rowData(d_se)$B_cell == 1, ]$cluster) > 0))
+labels_matched <- unname(which(table(rowData(d_se)[rowData(d_se)$B_cell == 1, ]$cluster_id) > 0))
 labels_matched
 
 # total number of cells in each matching cluster
-n_matched <- sapply(labels_matched, function(l) sum(rowData(d_se)$cluster == l))
+n_matched <- sapply(labels_matched, function(l) sum(rowData(d_se)$cluster_id == l))
 n_matched
 
 # number of true B cells in each matching cluster
-n_correct <- sapply(labels_matched, function(l) sum(rowData(d_se)$cluster == l & rowData(d_se)$B_cell == 1))
+n_correct <- sapply(labels_matched, function(l) sum(rowData(d_se)$cluster_id == l & rowData(d_se)$B_cell == 1))
 n_correct
 
 # total number of true B cells
