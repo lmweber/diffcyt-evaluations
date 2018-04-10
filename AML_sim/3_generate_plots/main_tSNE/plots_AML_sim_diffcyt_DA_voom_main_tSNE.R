@@ -116,7 +116,7 @@ for (th in 1:length(thresholds)) {
     # load spike-in status at cell level (for condition j)
     spikein <- out_diffcyt_DA_voom_main[[th]][[j]]$spikein
     
-    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group) %>% tally
+    n_cells_cond <- rowData(d_se) %>% as.data.frame %>% group_by(group_id) %>% tally
     n_cells_cond <- unname(unlist(n_cells_cond[, "n"]))
     
     # calculate proportion true spike-in cells (from condition j) for each cluster

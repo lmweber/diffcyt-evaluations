@@ -100,7 +100,7 @@ stopifnot(nrow(df_tmp) == length(B_cells))
 
 df_tmp$B_cells <- B_cells
 
-d_true <- df_tmp %>% group_by(cluster) %>% summarize(prop_B_cells = mean(B_cells)) %>% as.data.frame
+d_true <- df_tmp %>% group_by(cluster_id) %>% summarize(prop_B_cells = mean(B_cells)) %>% as.data.frame
 
 # fill in any missing clusters (zero cells)
 if (nrow(d_true) < nlevels(rowData(d_se)$cluster_id)) {
