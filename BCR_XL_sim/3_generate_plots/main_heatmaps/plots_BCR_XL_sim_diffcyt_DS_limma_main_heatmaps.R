@@ -173,7 +173,7 @@ ha_col_pS6 <- columnAnnotation(
 )
 
 # use full range for color scale
-colors_pS6 <- colorRamp2(range(d_pS6), 
+colors_pS6 <- colorRamp2(range(d_pS6, na.rm = TRUE), 
                          c("navy", "yellow"))
 
 # note: row ordering is automatically matched when multiple heatmaps are combined

@@ -111,7 +111,7 @@ for (k in 1:length(resolution)) {
   runtime_preprocessing <- system.time({
     
     # prepare data into required format
-    d_se <- prepareData(d_input, sample_info, marker_info)
+    d_se <- prepareData(d_input, experiment_info, marker_info)
     
     colnames(d_se)[colData(d_se)$marker_class == "cell_type"]
     colnames(d_se)[colData(d_se)$marker_class == "cell_state"]
@@ -125,11 +125,11 @@ for (k in 1:length(resolution)) {
     seed <- 123
     d_se <- generateClusters(d_se, xdim = resolution[k], ydim = resolution[k], seed = seed)
     
-    length(table(rowData(d_se)$cluster))  # number of clusters
-    nrow(rowData(d_se))                   # number of cells
-    sum(table(rowData(d_se)$cluster))
-    min(table(rowData(d_se)$cluster))     # size of smallest cluster
-    max(table(rowData(d_se)$cluster))     # size of largest cluster
+    length(table(rowData(d_se)$cluster_id))  # number of clusters
+    nrow(rowData(d_se))                      # number of cells
+    sum(table(rowData(d_se)$cluster_id))
+    min(table(rowData(d_se)$cluster_id))     # size of smallest cluster
+    max(table(rowData(d_se)$cluster_id))     # size of largest cluster
     
     # calculate cluster cell counts
     d_counts <- calcCounts(d_se)
@@ -186,7 +186,7 @@ for (k in 1:length(resolution)) {
     
     # set up model formula
     # note: include random effects for 'patient_id'
-    formula <- createFormula(sample_info, cols_fixed = 1, cols_random = 2)
+    formula <- createFormula(experiment_info, cols_fixed = 1, cols_random = 2)
     formula
     
     # set up contrast matrix
@@ -250,15 +250,15 @@ for (k in 1:length(resolution)) {
   
   # match cluster-level p-values for marker pS6 to individual cells
   
-  stopifnot(nrow(rowData(res)) == nlevels(rowData(d_se)$cluster) * length(cols_func), 
-            all(levels(rowData(res)$cluster) == levels(rowData(d_se)$cluster)), 
-            all(levels(rowData(res)$cluster) %in% rowData(res)$cluster))
+  stopifnot(nrow(rowData(res)) == nlevels(rowData(d_se)$cluster_id) * length(cols_func), 
+            all(levels(rowData(res)$cluster_id) == levels(rowData(d_se)$cluster_id)), 
+            all(levels(rowData(res)$cluster_id) %in% rowData(res)$cluster_id))
   
   # select results for pS6
   res_pS6 <- res[rowData(res)$marker == "pS6", ]
   
   # match cells to clusters
-  ix_match <- match(rowData(d_se)$cluster, rowData(res_pS6)$cluster)
+  ix_match <- match(rowData(d_se)$cluster_id, rowData(res_pS6)$cluster_id)
   
   p_vals_clusters <- rowData(res_pS6)$p_vals
   p_adj_clusters <- rowData(res_pS6)$p_adj
