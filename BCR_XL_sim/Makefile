@@ -113,7 +113,7 @@ timestamps_plots: $(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS) \
 # note: separate rule for each set of results (otherwise dependencies get too complex)
 
 # data distributions
-$(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIMESTAMP_BENCHMARK_MAIN) $(TIMESTAMP_BENCHMARK_LESS_DISTINCT)
+$(TIMESTAMP_PLOTS_DATA_DISTRIBUTIONS): $(SCRIPTS_PLOTS_DATA_DISTRIBUTIONS) $(TIMESTAMP_BENCHMARK_MAIN) $(TIMESTAMP_BENCHMARK_LESS_DISTINCT) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/data_distributions && bash run_all.sh
 
 # main results: performance metrics
