@@ -62,8 +62,8 @@ cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
 cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
 cols_func <- setdiff(cols_markers, cols_lineage)
 
-marker_names <- colnames(d_input[[1]])
-marker_names <- gsub("\\(.*$", "", marker_names)
+marker_name <- colnames(d_input[[1]])
+marker_name <- gsub("\\(.*$", "", marker_name)
 
 marker_class <- rep("none", length(marker_name))
 marker_class[cols_lineage] <- "cell_type"
