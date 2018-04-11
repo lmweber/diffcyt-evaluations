@@ -175,7 +175,7 @@ for (th in 1:length(thresholds)) {
     ix_keep <- group_id %in% c("healthy", cond_names[j])
     
     sample_id_keep <- sample_id[ix_keep]
-    sample_id_keep <- droplevels(sample_id[ix_keep])
+    group_id_keep <- droplevels(group_id[ix_keep])
     files_load_keep <- files_load[ix_keep]
     
     d_input_keep <- d_input[ix_keep]
@@ -198,7 +198,7 @@ for (th in 1:length(thresholds)) {
     
     # create data frame of sample names and conditions (for CellCnn input .csv file)
     
-    label <- sample_id_keep
+    label <- group_id_keep
     label <- as.numeric(label) - 1
     label
     
@@ -308,7 +308,7 @@ for (th in 1:length(thresholds)) {
     stopifnot(length(is_spikein) == sum(n_cells))
     
     # select samples for this condition and healthy
-    ix_keep_cnd <- sample_id %in% c("healthy", cond_names[j])
+    ix_keep_cnd <- group_id %in% c("healthy", cond_names[j])
     
     
     # CellCnn output files
