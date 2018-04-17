@@ -101,12 +101,10 @@ all(sapply(check_cols, function(ch) all(ch[ix] == check_cols[[1]][ix])))
 # marker info
 # -----------
 
+# note: not including CD45
+
 # load panel details spreadsheet
 panel <- as.data.frame(read_excel(fn_panel))
-panel
-
-# update panel to include CD45
-panel$transform[panel$fcs_colname == "Y89Di"] <- 1
 panel
 
 # replace NAs
@@ -169,7 +167,7 @@ runtime_preprocessing <- system.time({
   
   # clustering
   # (runtime: ~20 sec with xdim = 20, ydim = 20)
-  d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed = seed)
+  d_se <- generateClusters(d_se, xdim = 20, ydim = 20, seed_clustering = seed)
   
   length(table(rowData(d_se)$cluster_id))  # number of clusters
   nrow(rowData(d_se))                      # number of cells
@@ -253,11 +251,11 @@ res_sorted <- rowData(res)[order(rowData(res)$FDR), ]
 print(head(res_sorted, 10))
 #View(as.data.frame(res_sorted))
 
-hist(res_sorted$PValue)
-hist(res_sorted$FDR)
+#hist(res_sorted$PValue)
+#hist(res_sorted$FDR)
 
 # number of significant tests (note: one test per cluster)
-print(table(res_sorted$FDR <= 0.2))
+print(table(res_sorted$FDR <= 0.1))
 
 # runtime
 runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_test[["elapsed"]]

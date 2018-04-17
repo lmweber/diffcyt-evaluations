@@ -11,11 +11,9 @@ DIR_PLOTS          = ../../plots/Anti_PD_1
 
 
 TIMESTAMP_PLOTS_MAIN             = $(DIR_PLOTS)/main/timestamp.txt
-TIMESTAMP_PLOTS_MAIN_RUNTIMES    = $(DIR_PLOTS)/main_runtimes/timestamp.txt
 TIMESTAMP_PLOTS_SUPP_SENSITIVITY = $(DIR_PLOTS)/supp_sensitivity/timestamp.txt
 
 SCRIPTS_PLOTS_MAIN             = $(wildcard $(DIR_GENERATE_PLOTS)/main/*.R)
-SCRIPTS_PLOTS_MAIN_RUNTIMES    = $(wildcard $(DIR_GENERATE_PLOTS)/main_runtimes/*.R)
 SCRIPTS_PLOTS_SUPP_SENSITIVITY = $(wildcard $(DIR_GENERATE_PLOTS)/supp_sensitivity/*.R)
 
 FILES_RDATA_MAIN             = $(wildcard $(DIR_RDATA)/main/*.RData)
@@ -33,8 +31,7 @@ all: timestamps_plots
 
 .PHONY: timestamps_plots
 timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) \
-                  $(TIMESTAMP_PLOTS_MAIN_RUNTIMES)
-                  #$(TIMESTAMP_PLOTS_SUPP_SENSITIVITY)
+                  $(TIMESTAMP_PLOTS_SUPP_SENSITIVITY)
 
 
 
@@ -45,10 +42,6 @@ timestamps_plots: $(TIMESTAMP_PLOTS_MAIN) \
 # main
 $(TIMESTAMP_PLOTS_MAIN): $(SCRIPTS_PLOTS_MAIN) $(FILES_RDATA_MAIN)
 	cd $(DIR_GENERATE_PLOTS)/main && bash run_all.sh
-
-# main: runtimes
-$(TIMESTAMP_PLOTS_MAIN_RUNTIMES): $(SCRIPTS_PLOTS_MAIN_RUNTIMES) $(FILES_RDATA_MAIN)
-	cd $(DIR_GENERATE_PLOTS)/main_runtimes && bash run_all.sh
 
 # supplementary: sensitivity
 $(TIMESTAMP_PLOTS_SUPP_SENSITIVITY): $(SCRIPTS_PLOTS_SUPP_SENSITIVITY) $(FILES_RDATA_SUPP_SENSITIVITY)
