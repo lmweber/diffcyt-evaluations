@@ -6,7 +6,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, April 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -112,9 +112,9 @@ for (th in 1:length(thresholds)) {
   marker_name <- gsub("\\(.*$", "", marker_name)
   
   marker_class <- rep("none", length(marker_name))
-  marker_class[cols_lineage] <- "cell_type"
-  marker_class[cols_func] <- "cell_state"
-  marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
+  marker_class[cols_lineage] <- "type"
+  marker_class[cols_func] <- "state"
+  marker_class <- factor(marker_class, levels = c("type", "state", "none"))
   
   marker_info <- data.frame(marker_name, marker_class)
   marker_info

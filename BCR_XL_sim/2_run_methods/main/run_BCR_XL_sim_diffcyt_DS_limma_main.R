@@ -6,7 +6,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, April 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -67,9 +67,9 @@ marker_name <- colnames(d_input[[1]])
 marker_name <- gsub("\\(.*$", "", marker_name)
 
 marker_class <- rep("none", length(marker_name))
-marker_class[cols_lineage] <- "cell_type"
-marker_class[cols_func] <- "cell_state"
-marker_class <- factor(marker_class, levels = c("cell_type", "cell_state", "none"))
+marker_class[cols_lineage] <- "type"
+marker_class[cols_func] <- "state"
+marker_class <- factor(marker_class, levels = c("type", "state", "none"))
 
 marker_info <- data.frame(marker_name, marker_class)
 marker_info
@@ -90,8 +90,8 @@ runtime_preprocessing <- system.time({
   # prepare data into required format
   d_se <- prepareData(d_input, experiment_info, marker_info)
   
-  colnames(d_se)[colData(d_se)$marker_class == "cell_type"]
-  colnames(d_se)[colData(d_se)$marker_class == "cell_state"]
+  colnames(d_se)[colData(d_se)$marker_class == "type"]
+  colnames(d_se)[colData(d_se)$marker_class == "state"]
   
   # transform data
   d_se <- transformData(d_se, cofactor = 5)
@@ -99,7 +99,7 @@ runtime_preprocessing <- system.time({
   # clustering
   # (runtime: ~5 sec with xdim = 10, ydim = 10)
   seed <- 123
-  d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed = seed)
+  d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed_clustering = seed)
   
   length(table(rowData(d_se)$cluster_id))  # number of clusters
   nrow(rowData(d_se))                      # number of cells
@@ -178,12 +178,12 @@ runtime_tests <- system.time({
 rowData(res)
 
 # sort to show top (most highly significant) cluster-marker combinations first
-res_sorted <- rowData(res)[order(rowData(res)$adj.P.Val), ]
+res_sorted <- rowData(res)[order(rowData(res)$p_adj), ]
 print(head(res_sorted, 10))
 #View(as.data.frame(res_sorted))
 
 # number of significant tests (note: one test per cluster-marker combination)
-print(table(res_sorted$adj.P.Val <= 0.1))
+print(table(res_sorted$p_adj <= 0.1))
 
 # runtime (~30 sec on laptop)
 runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_tests[["elapsed"]]
@@ -236,8 +236,8 @@ res_pS6 <- res[rowData(res)$marker == "pS6", ]
 # match cells to clusters
 ix_match <- match(rowData(d_se)$cluster_id, rowData(res_pS6)$cluster_id)
 
-p_vals_clusters <- rowData(res_pS6)$P.Value
-p_adj_clusters <- rowData(res_pS6)$adj.P.Val
+p_vals_clusters <- rowData(res_pS6)$p_val
+p_adj_clusters <- rowData(res_pS6)$p_adj
 
 p_vals_cells <- p_vals_clusters[ix_match]
 p_adj_cells <- p_adj_clusters[ix_match]
