@@ -87,7 +87,7 @@ for (th in 1:length(thresholds)) {
                            padj = data.frame(diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_adj"], 
                                              diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_adj"], 
                                              diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_adj"], 
-                                             cydar = data[["cydar"]][, "q_vals"]), 
+                                             cydar = data[["cydar"]][, "q_val"]), 
                            score = data.frame(Citrus = data[["Citrus"]][, "scores"], 
                                               CellCnn = data[["CellCnn"]][, "scores"]), 
                            truth = data.frame(spikein = data[["diffcyt_DA_edgeR"]][, "spikein"]))

@@ -65,7 +65,7 @@ cobradata <- COBRAData(pval = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_li
                                          cydar = data[["cydar"]][, "p_val"]), 
                        padj = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_adj"], 
                                          diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_adj"], 
-                                         cydar = data[["cydar"]][, "q_vals"]), 
+                                         cydar = data[["cydar"]][, "q_val"]), 
                        score = data.frame(Citrus = data[["Citrus"]][, "scores"], 
                                           CellCnn = data[["CellCnn"]][, "scores"]), 
                        truth = data.frame(B_cell = data[["diffcyt_DS_limma"]][, "B_cell"]))

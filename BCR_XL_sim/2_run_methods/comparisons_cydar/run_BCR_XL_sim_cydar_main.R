@@ -367,8 +367,8 @@ res_p_adj[is.na(res_p_adj)] <- 1
 stopifnot(length(res_p_vals) == length(res_p_adj), 
           length(res_p_vals) == length(is_B_cell))
 
-res <- data.frame(p_vals = res_p_vals, 
-                  q_vals = res_p_adj, 
+res <- data.frame(p_val = res_p_vals, 
+                  q_val = res_p_adj, 
                   B_cell = is_B_cell)
 
 # store results

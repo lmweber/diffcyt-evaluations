@@ -313,7 +313,7 @@ for (s in 1:length(seeds)) {
       res_p_adj[is.na(res_p_adj)] <- 1
       
       # return values for this condition and healthy
-      res <- data.frame(p_vals = res_p_vals, 
+      res <- data.frame(p_val = res_p_vals, 
                         p_adj = res_p_adj, 
                         spikein = is_spikein_cnd)
       

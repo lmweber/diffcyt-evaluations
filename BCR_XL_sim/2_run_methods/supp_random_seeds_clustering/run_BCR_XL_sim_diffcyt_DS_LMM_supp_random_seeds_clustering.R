@@ -278,7 +278,7 @@ for (s in 1:length(seeds)) {
   stopifnot(length(res_p_vals) == length(res_p_adj), 
             length(res_p_vals) == length(is_B_cell))
   
-  res <- data.frame(p_vals = res_p_vals, 
+  res <- data.frame(p_val = res_p_vals, 
                     p_adj = res_p_adj, 
                     B_cell = is_B_cell)
   

@@ -409,8 +409,8 @@ for (th in 1:length(thresholds)) {
               length(res_p_adj) == length(is_spikein_cnd))
     
     # return values for this condition and healthy
-    res <- data.frame(p_vals = res_p_vals, 
-                      q_vals = res_p_adj, 
+    res <- data.frame(p_val = res_p_vals, 
+                      q_val = res_p_adj, 
                       spikein = is_spikein_cnd)
     
     # store results
