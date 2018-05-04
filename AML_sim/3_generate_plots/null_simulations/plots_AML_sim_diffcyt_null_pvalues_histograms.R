@@ -67,12 +67,12 @@ for (th in 1:length(thresholds)) {
     d_plot <- out_clusters_diffcyt_DA_edgeR_null[[th]][[s]]
     
     # replace any NAs with 1s
-    d_plot[is.na(d_plot[, "PValue"]), "PValue"] <- 1
+    d_plot[is.na(d_plot[, "p_val"]), "p_val"] <- 1
     
     d_plot$method <- as.factor("diffcyt-DA-edgeR")
     
     p <- 
-      ggplot(d_plot, aes(x = PValue, fill = method)) + 
+      ggplot(d_plot, aes(x = p_val, fill = method)) + 
       geom_histogram(bins = 20, color = "black") + 
       scale_fill_manual(values = colors[1]) + 
       ggtitle("AML-sim, null simulations: diffcyt-DA-edgeR", 
