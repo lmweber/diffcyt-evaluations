@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, April 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -97,9 +97,9 @@ for (th in 1:length(thresholds)) {
     # note: provide all available values
     # 'padj' is required for threshold points on TPR-FDR curves
     # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_vals"], 
-                                             diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_vals"], 
-                                             diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_vals"]), 
+    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_val"], 
+                                             diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_val"], 
+                                             diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_val"]), 
                            padj = data.frame(diffcyt_DA_edgeR = data[["diffcyt_DA_edgeR"]][, "p_adj"], 
                                              diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_adj"], 
                                              diffcyt_DA_GLMM = data[["diffcyt_DA_GLMM"]][, "p_adj"]), 

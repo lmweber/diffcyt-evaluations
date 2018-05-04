@@ -7,7 +7,7 @@
 # 
 # - null simulations
 # 
-# Lukas Weber, March 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -82,12 +82,12 @@ d_plot <- rbind(
 )
 
 # replace any NAs with 1s
-d_plot[is.na(d_plot$p_vals), "p_vals"] <- 1
+d_plot[is.na(d_plot$p_val), "p_val"] <- 1
 
 d_plot$method <- as.factor("diffcyt-DS-LMM")
 
 p_LMM <- 
-  ggplot(d_plot, aes(x = p_vals, linetype = seed, fill = method)) + 
+  ggplot(d_plot, aes(x = p_val, linetype = seed, fill = method)) + 
   geom_density(adjust = 0.75, alpha = 0.5) + 
   ggtitle("BCR-XL-sim, null simulations: diffcyt-DS-LMM", subtitle = paste("p-value distributions")) + 
   scale_linetype_discrete(name = "random seed") + 

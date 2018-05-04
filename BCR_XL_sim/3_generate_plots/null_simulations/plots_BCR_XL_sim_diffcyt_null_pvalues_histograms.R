@@ -7,7 +7,7 @@
 # 
 # - null simulations
 # 
-# Lukas Weber, March 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -92,12 +92,12 @@ for (s in 1:length(seed_names)) {
   dim(d_plot)
   
   # replace any NAs with 1s
-  d_plot[is.na(d_plot$p_vals), "p_vals"] <- 1
+  d_plot[is.na(d_plot$p_val), "p_val"] <- 1
   
   d_plot$method <- as.factor("diffcyt-DS-LMM")
   
   p <- 
-    ggplot(d_plot, aes(x = p_vals, fill = method)) + 
+    ggplot(d_plot, aes(x = p_val, fill = method)) + 
     geom_histogram(bins = 20, color = "black") + 
     scale_fill_manual(values = "darkviolet") + 
     ggtitle("BCR-XL-sim, null simulations: diffcyt-DS-LMM", subtitle = paste("p-value distribution, random seed", s)) + 
@@ -206,10 +206,10 @@ d_plot <- rbind(d_plot_limma, d_plot_LMM)
 d_plot$method <- factor(d_plot$method)
 
 # replace any NAs with 1s
-d_plot[is.na(d_plot$p_vals), "p_vals"] <- 1
+d_plot[is.na(d_plot$p_val), "p_val"] <- 1
 
 p_legend <- 
-  ggplot(d_plot, aes(x = p_vals, fill = method)) + 
+  ggplot(d_plot, aes(x = p_val, fill = method)) + 
   geom_histogram(position = "dodge", bins = 20, color = "black") + 
   scale_fill_manual(values = c("firebrick1", "darkviolet")) + 
   ggtitle("BCR-XL-sim, null simulations", subtitle = paste("p-value distribution, random seed 1")) + 

@@ -6,7 +6,7 @@
 # 
 # - data distributions for main benchmark data
 # 
-# Lukas Weber, April 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 

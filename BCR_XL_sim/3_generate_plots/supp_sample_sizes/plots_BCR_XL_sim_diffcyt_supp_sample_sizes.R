@@ -7,7 +7,7 @@
 # 
 # - supplementary results: smaller sample sizes
 # 
-# Lukas Weber, January 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -48,14 +48,14 @@ data_2vs2 <- list(diffcyt_DS_limma = out_diffcyt_DS_limma_supp_sample_sizes[[1]]
 data_4vs4 <- list(diffcyt_DS_limma = out_diffcyt_DS_limma_supp_sample_sizes[[2]], 
                   diffcyt_DS_LMM = out_diffcyt_DS_LMM_supp_sample_sizes[[2]])
 
-cobradata_2vs2 <- COBRAData(pval = data.frame(diffcyt_DS_limma = data_2vs2[["diffcyt_DS_limma"]][, "p_vals"], 
-                                              diffcyt_DS_LMM = data_2vs2[["diffcyt_DS_LMM"]][, "p_vals"]), 
+cobradata_2vs2 <- COBRAData(pval = data.frame(diffcyt_DS_limma = data_2vs2[["diffcyt_DS_limma"]][, "p_val"], 
+                                              diffcyt_DS_LMM = data_2vs2[["diffcyt_DS_LMM"]][, "p_val"]), 
                             padj = data.frame(diffcyt_DS_limma = data_2vs2[["diffcyt_DS_limma"]][, "p_adj"], 
                                               diffcyt_DS_LMM = data_2vs2[["diffcyt_DS_LMM"]][, "p_adj"]), 
                             truth = data.frame(B_cell = data_2vs2[["diffcyt_DS_limma"]][, "B_cell"]))
 
-cobradata_4vs4 <- COBRAData(pval = data.frame(diffcyt_DS_limma = data_4vs4[["diffcyt_DS_limma"]][, "p_vals"], 
-                                              diffcyt_DS_LMM = data_4vs4[["diffcyt_DS_LMM"]][, "p_vals"]), 
+cobradata_4vs4 <- COBRAData(pval = data.frame(diffcyt_DS_limma = data_4vs4[["diffcyt_DS_limma"]][, "p_val"], 
+                                              diffcyt_DS_LMM = data_4vs4[["diffcyt_DS_LMM"]][, "p_val"]), 
                             padj = data.frame(diffcyt_DS_limma = data_4vs4[["diffcyt_DS_limma"]][, "p_adj"], 
                                               diffcyt_DS_LMM = data_4vs4[["diffcyt_DS_LMM"]][, "p_adj"]), 
                             truth = data.frame(B_cell = data_4vs4[["diffcyt_DS_limma"]][, "B_cell"]))

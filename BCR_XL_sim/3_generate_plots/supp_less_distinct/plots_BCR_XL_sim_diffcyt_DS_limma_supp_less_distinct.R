@@ -7,7 +7,7 @@
 # 
 # - supplementary results: 'less distinct' data sets
 # 
-# Lukas Weber, January 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -47,15 +47,15 @@ data_main      <- out_diffcyt_DS_limma_main
 data_less_50pc <- out_diffcyt_DS_limma_supp_less_distinct[["less_50pc"]]
 data_less_75pc <- out_diffcyt_DS_limma_supp_less_distinct[["less_75pc"]]
 
-cobradata_main      <- COBRAData(pval = data.frame(main = data_main[, "p_vals"]), 
+cobradata_main      <- COBRAData(pval = data.frame(main = data_main[, "p_val"]), 
                                  padj = data.frame(main = data_main[, "p_adj"]), 
                                  truth = data.frame(B_cell = data_main[, "B_cell"]))
 
-cobradata_less_50pc <- COBRAData(pval = data.frame(less_50pc = data_less_50pc[, "p_vals"]), 
+cobradata_less_50pc <- COBRAData(pval = data.frame(less_50pc = data_less_50pc[, "p_val"]), 
                                  padj = data.frame(less_50pc = data_less_50pc[, "p_adj"]), 
                                  truth = data.frame(B_cell = data_less_50pc[, "B_cell"]))
 
-cobradata_less_75pc <- COBRAData(pval = data.frame(less_75pc = data_less_75pc[, "p_vals"]), 
+cobradata_less_75pc <- COBRAData(pval = data.frame(less_75pc = data_less_75pc[, "p_val"]), 
                                  padj = data.frame(less_75pc = data_less_75pc[, "p_adj"]), 
                                  truth = data.frame(B_cell = data_less_75pc[, "B_cell"]))
 

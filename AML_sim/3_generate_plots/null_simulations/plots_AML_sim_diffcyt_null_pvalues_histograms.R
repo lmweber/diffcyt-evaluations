@@ -7,7 +7,7 @@
 # 
 # - null simulations
 # 
-# Lukas Weber, April 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -145,12 +145,12 @@ for (th in 1:length(thresholds)) {
     d_plot <- out_clusters_diffcyt_DA_GLMM_null[[th]][[s]]
     
     # replace any NAs with 1s
-    d_plot[is.na(d_plot[, "p_vals"]), "p_vals"] <- 1
+    d_plot[is.na(d_plot[, "p_val"]), "p_val"] <- 1
     
     d_plot$method <- as.factor("diffcyt-DA-GLMM")
     
     p <- 
-      ggplot(d_plot, aes(x = p_vals, fill = method)) + 
+      ggplot(d_plot, aes(x = p_val, fill = method)) + 
       geom_histogram(bins = 20, color = "black") + 
       scale_fill_manual(values = colors[3]) + 
       ggtitle("AML-sim, null simulations: diffcyt-DA-GLMM", 
@@ -388,11 +388,11 @@ d_plot <- rbind(d_plot_edgeR, d_plot_voom, d_plot_GLMM)
 d_plot$method <- factor(d_plot$method)
 
 # replace any NAs with 1s
-d_plot[is.na(d_plot$p_vals), "p_vals"] <- 1
+d_plot[is.na(d_plot$p_val), "p_val"] <- 1
 d_plot[is.na(d_plot$p_adj), "p_adj"] <- 1
 
 p_legend <- 
-  ggplot(d_plot, aes(x = p_vals, fill = method)) + 
+  ggplot(d_plot, aes(x = p_val, fill = method)) + 
   geom_histogram(position = "dodge", bins = 20, color = "black") + 
   scale_fill_manual(values = colors) + 
   ggtitle("AML-sim, null simulations", 

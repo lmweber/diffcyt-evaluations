@@ -7,7 +7,7 @@
 # 
 # - supplementary results: varying random seeds for generating benchmark data
 # 
-# Lukas Weber, January 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -49,19 +49,19 @@ data_seed_1 <- out_diffcyt_DS_LMM_supp_random_seeds_data[[1]]
 data_seed_2 <- out_diffcyt_DS_LMM_supp_random_seeds_data[[2]]
 data_seed_3 <- out_diffcyt_DS_LMM_supp_random_seeds_data[[3]]
 
-cobradata_main   <- COBRAData(pval = data.frame(main = data_main[, "p_vals"]), 
+cobradata_main   <- COBRAData(pval = data.frame(main = data_main[, "p_val"]), 
                               padj = data.frame(main = data_main[, "p_adj"]), 
                               truth = data.frame(B_cell = data_main[, "B_cell"]))
 
-cobradata_seed_1 <- COBRAData(pval = data.frame(seed_1 = data_seed_1[, "p_vals"]), 
+cobradata_seed_1 <- COBRAData(pval = data.frame(seed_1 = data_seed_1[, "p_val"]), 
                               padj = data.frame(seed_1 = data_seed_1[, "p_adj"]), 
                               truth = data.frame(B_cell = data_seed_1[, "B_cell"]))
 
-cobradata_seed_2 <- COBRAData(pval = data.frame(seed_2 = data_seed_2[, "p_vals"]), 
+cobradata_seed_2 <- COBRAData(pval = data.frame(seed_2 = data_seed_2[, "p_val"]), 
                               padj = data.frame(seed_2 = data_seed_2[, "p_adj"]), 
                               truth = data.frame(B_cell = data_seed_2[, "B_cell"]))
 
-cobradata_seed_3 <- COBRAData(pval = data.frame(seed_3 = data_seed_3[, "p_vals"]), 
+cobradata_seed_3 <- COBRAData(pval = data.frame(seed_3 = data_seed_3[, "p_val"]), 
                               padj = data.frame(seed_3 = data_seed_3[, "p_adj"]), 
                               truth = data.frame(B_cell = data_seed_3[, "B_cell"]))
 

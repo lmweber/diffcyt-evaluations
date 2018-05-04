@@ -7,7 +7,7 @@
 # 
 # - supplementary results: using random effects instead of fixed effects for patient IDs
 # 
-# Lukas Weber, April 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -67,7 +67,7 @@ for (th in 1:length(thresholds)) {
     # note: provide all available values
     # 'padj' is required for threshold points on TPR-FDR curves
     # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_vals"]), 
+    cobradata <- COBRAData(pval = data.frame(diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_val"]), 
                            padj = data.frame(diffcyt_DA_voom = data[["diffcyt_DA_voom"]][, "p_adj"]), 
                            truth = data.frame(spikein = data[["diffcyt_DA_voom"]][, "spikein"]))
     

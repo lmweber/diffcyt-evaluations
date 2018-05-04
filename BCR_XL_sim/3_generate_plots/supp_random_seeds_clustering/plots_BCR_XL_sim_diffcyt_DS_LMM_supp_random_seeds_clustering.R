@@ -7,7 +7,7 @@
 # 
 # - supplementary results: varying random seeds for clustering
 # 
-# Lukas Weber, January 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -50,10 +50,10 @@ stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 # note: provide all available values
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-cobradata <- COBRAData(pval = data.frame(main = data[["main"]][, "p_vals"], 
-                                         seed_1 = data[["seed_1"]][, "p_vals"], 
-                                         seed_2 = data[["seed_2"]][, "p_vals"], 
-                                         seed_3 = data[["seed_3"]][, "p_vals"]), 
+cobradata <- COBRAData(pval = data.frame(main = data[["main"]][, "p_val"], 
+                                         seed_1 = data[["seed_1"]][, "p_val"], 
+                                         seed_2 = data[["seed_2"]][, "p_val"], 
+                                         seed_3 = data[["seed_3"]][, "p_val"]), 
                        padj = data.frame(main = data[["main"]][, "p_adj"], 
                                          seed_1 = data[["seed_1"]][, "p_adj"], 
                                          seed_2 = data[["seed_2"]][, "p_adj"], 

@@ -7,7 +7,7 @@
 # 
 # - supplementary results: varying clustering resolution
 # 
-# Lukas Weber, January 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -52,13 +52,13 @@ stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 # note: provide all available values
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-cobradata <- COBRAData(pval = data.frame(k_9   = data[["k_9"]][, "p_vals"], 
-                                         k_25  = data[["k_25"]][, "p_vals"], 
-                                         k_49  = data[["k_49"]][, "p_vals"], 
-                                         k_100 = data[["k_100"]][, "p_vals"], 
-                                         k_196 = data[["k_196"]][, "p_vals"], 
-                                         k_400 = data[["k_400"]][, "p_vals"], 
-                                         k_900 = data[["k_900"]][, "p_vals"]), 
+cobradata <- COBRAData(pval = data.frame(k_9   = data[["k_9"]][, "p_val"], 
+                                         k_25  = data[["k_25"]][, "p_val"], 
+                                         k_49  = data[["k_49"]][, "p_val"], 
+                                         k_100 = data[["k_100"]][, "p_val"], 
+                                         k_196 = data[["k_196"]][, "p_val"], 
+                                         k_400 = data[["k_400"]][, "p_val"], 
+                                         k_900 = data[["k_900"]][, "p_val"]), 
                        padj = data.frame(k_9   = data[["k_9"]][, "p_adj"], 
                                          k_25  = data[["k_25"]][, "p_adj"], 
                                          k_49  = data[["k_49"]][, "p_adj"], 

@@ -7,7 +7,7 @@
 # 
 # - supplementary results: 'less distinct' data sets
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -71,9 +71,9 @@ for (th in 1:length(thresholds)) {
     # note: provide all available values
     # 'padj' is required for threshold points on TPR-FDR curves
     # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-    cobradata <- COBRAData(pval = data.frame(main = data[["main"]][, "p_vals"], 
-                                             less_50pc = data[["less_50pc"]][, "p_vals"], 
-                                             less_75pc = data[["less_75pc"]][, "p_vals"]), 
+    cobradata <- COBRAData(pval = data.frame(main = data[["main"]][, "p_val"], 
+                                             less_50pc = data[["less_50pc"]][, "p_val"], 
+                                             less_75pc = data[["less_75pc"]][, "p_val"]), 
                            padj = data.frame(main = data[["main"]][, "p_adj"], 
                                              less_50pc = data[["less_50pc"]][, "p_adj"], 
                                              less_75pc = data[["less_75pc"]][, "p_adj"]), 

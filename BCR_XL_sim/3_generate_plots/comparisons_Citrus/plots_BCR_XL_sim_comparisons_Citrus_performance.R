@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, February 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -73,8 +73,8 @@ stopifnot(all(sapply(data, function(d) all(d$B_cell == data[[1]]$B_cell))))
 # note: provide all available values
 # 'padj' is required for threshold points on TPR-FDR curves
 # depending on availability, plotting functions use 'score', then 'pval', then 'padj'
-cobradata <- COBRAData(pval = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_vals"], 
-                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_vals"]), 
+cobradata <- COBRAData(pval = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_val"], 
+                                         diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_val"]), 
                        padj = data.frame(diffcyt_DS_limma = data[["diffcyt_DS_limma"]][, "p_adj"], 
                                          diffcyt_DS_LMM = data[["diffcyt_DS_LMM"]][, "p_adj"]), 
                        score = data.frame(Citrus = data[["Citrus"]][, "scores"]), 
