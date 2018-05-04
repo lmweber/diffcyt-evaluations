@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, April 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -45,7 +45,7 @@ d_medians_by_cluster_marker <- out_objects_diffcyt_DS_limma_main$d_medians_by_cl
 # run t-SNE
 
 # note: using cell type markers only
-d_tsne <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "cell_type"]
+d_tsne <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "type"]
 d_tsne <- as.matrix(d_tsne)
 
 # remove any duplicate rows (required by Rtsne)
@@ -77,7 +77,7 @@ stopifnot(nrow(d_clus) == nrow(rowData(d_counts)),
 
 # significant differential clusters
 cutoff_sig <- 0.1
-sig <- d_clus$adj.P.Val <= cutoff_sig
+sig <- d_clus$p_adj <= cutoff_sig
 # set filtered clusters to FALSE
 sig[is.na(sig)] <- FALSE
 
@@ -138,12 +138,12 @@ p <-
   # first layer
   geom_point(alpha = 0.5) + 
   scale_size_area(max_size = 3) + 
-  scale_color_manual(values = c("gray70", "darkorange1"), labels = c("no", "yes")) + 
+  scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
   # additional layer: outline clusters containing significant proportion true B cells
   geom_point(data = subset(d_plot, B_cells == 1), aes(shape = B_cells), color = "black", stroke = 1.5) + 
   scale_shape_manual(values = 1, labels = ">50%") + 
   # additional layer: emphasize significant differential clusters
-  geom_point(data = subset(d_plot, sig == 1), color = "darkorange1", alpha = 1) + 
+  geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 1) + 
   xlab("t-SNE 1") + 
   ylab("t-SNE 2") + 
   ggtitle("BCR-XL-sim, main results: diffcyt-DS-limma: t-SNE") + 

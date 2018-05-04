@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, April 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -74,7 +74,7 @@ for (th in 1:length(thresholds)) {
     # note: show top 'n' clusters only (otherwise heatmaps are too small on multi-panel plot)
     # note: no additional scaling (using asinh-transformed values directly)
     
-    d_heatmap <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "cell_type"]
+    d_heatmap <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "type"]
     
     # load cluster-level results (for condition j)
     d_clus <- out_clusters_diffcyt_DA_voom_main[[th]][[j]]
@@ -84,13 +84,13 @@ for (th in 1:length(thresholds)) {
     
     # select top 'n' clusters
     n <- 20
-    top_n <- order(d_clus$adj.P.Val)[1:n]
+    top_n <- order(d_clus$p_adj)[1:n]
     
     d_heatmap <- d_heatmap[top_n, ]
     
     # color scale: 1%, 50%, 99% percentiles across all medians and cell type markers
     colors <- colorRamp2(
-      quantile(assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "cell_type"], 
+      quantile(assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "type"], 
                c(0.01, 0.5, 0.99)), 
       c("royalblue3", "white", "tomato2")
     )
@@ -140,7 +140,7 @@ for (th in 1:length(thresholds)) {
     
     # significant differential clusters
     cutoff_sig <- 0.1
-    sig <- d_clus$adj.P.Val <= cutoff_sig
+    sig <- d_clus$p_adj <= cutoff_sig
     # set filtered clusters to FALSE
     sig[is.na(sig)] <- FALSE
     
@@ -215,7 +215,7 @@ for (th in 1:length(thresholds)) {
     
     ha_row <- rowAnnotation(
       df = row_annot, 
-      col = list("significant" = c("no" = "gray90", "yes" = "darkorange1"), 
+      col = list("significant" = c("no" = "gray90", "yes" = "red"), 
                  "spike-in" = c("no" = "gray90", "yes" = "black")), 
       annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
       width = unit(1.2, "cm")

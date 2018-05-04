@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, April 2018
+# Lukas Weber, May 2018
 ##########################################################################################
 
 
@@ -61,7 +61,7 @@ for (th in 1:length(thresholds)) {
   # run t-SNE
   
   # note: using cell type markers only
-  d_tsne <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "cell_type"]
+  d_tsne <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "type"]
   d_tsne <- as.matrix(d_tsne)
   
   # remove any duplicate rows (required by Rtsne)
@@ -166,12 +166,12 @@ for (th in 1:length(thresholds)) {
       # first layer
       geom_point(alpha = 0.5) + 
       scale_size_area(max_size = 3) + 
-      scale_color_manual(values = c("gray70", "darkorange1"), labels = c("no", "yes")) + 
+      scale_color_manual(values = c("gray70", "red"), labels = c("no", "yes")) + 
       # additional layer: outline clusters containing significant proportion spike-in cells
       geom_point(data = subset(d_plot, spikein == 1), aes(shape = spikein), color = "black", stroke = 1.5) + 
       scale_shape_manual(values = 1, labels = ">50%") + 
       # additional layer: emphasize significant differential clusters
-      geom_point(data = subset(d_plot, sig == 1), color = "darkorange1", alpha = 1) + 
+      geom_point(data = subset(d_plot, sig == 1), color = "red", alpha = 1) + 
       xlab("t-SNE 1") + 
       ylab("t-SNE 2") + 
       ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
