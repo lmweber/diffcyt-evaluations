@@ -106,12 +106,12 @@ for (th in 1:length(thresholds)) {
   )
   
   # replace any NAs with 1s
-  d_plot[is.na(d_plot[, "P.Value"]), "P.Value"] <- 1
+  d_plot[is.na(d_plot[, "p_val"]), "p_val"] <- 1
   
   d_plot$method <- as.factor("diffcyt-DA-voom")
   
   p <- 
-    ggplot(d_plot, aes(x = P.Value, linetype = seed, fill = method)) + 
+    ggplot(d_plot, aes(x = p_val, linetype = seed, fill = method)) + 
     geom_density(adjust = 0.75, alpha = 0.5) + 
     ggtitle("AML-sim, null simulations: diffcyt-DA-voom", 
             subtitle = paste0("p-value distributions, threshold ", gsub("pc", "\\%", thresholds[th]))) + 
