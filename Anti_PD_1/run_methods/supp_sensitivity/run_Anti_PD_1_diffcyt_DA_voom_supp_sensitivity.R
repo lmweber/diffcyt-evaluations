@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-edgeR
+# - method: diffcyt-DA-voom
 # - data set: Anti-PD-1
 # 
 # - supplementary results: sensitivity to random seeds
@@ -150,14 +150,14 @@ marker_info
 seeds <- 10000 + 1:5
 
 # lists to store objects
-out_diffcyt_DA_edgeR_supp_sensitivity <- 
-  out_clusters_diffcyt_DA_edgeR_supp_sensitivity <- 
-  out_objects_diffcyt_DA_edgeR_supp_sensitivity <- 
-  runtime_diffcyt_DA_edgeR_supp_sensitivity <- vector("list", length(seeds))
-names(out_diffcyt_DA_edgeR_supp_sensitivity) <- 
-  names(out_clusters_diffcyt_DA_edgeR_supp_sensitivity) <- 
-  names(out_objects_diffcyt_DA_edgeR_supp_sensitivity) <- 
-  names(runtime_diffcyt_DA_edgeR_supp_sensitivity) <- seeds
+out_diffcyt_DA_voom_supp_sensitivity <- 
+  out_clusters_diffcyt_DA_voom_supp_sensitivity <- 
+  out_objects_diffcyt_DA_voom_supp_sensitivity <- 
+  runtime_diffcyt_DA_voom_supp_sensitivity <- vector("list", length(seeds))
+names(out_diffcyt_DA_voom_supp_sensitivity) <- 
+  names(out_clusters_diffcyt_DA_voom_supp_sensitivity) <- 
+  names(out_objects_diffcyt_DA_voom_supp_sensitivity) <- 
+  names(runtime_diffcyt_DA_voom_supp_sensitivity) <- seeds
 
 
 
@@ -232,7 +232,7 @@ for (s in 1:length(seeds)) {
   # store data objects (for plotting)
   # ---------------------------------
   
-  out_objects_diffcyt_DA_edgeR_supp_sensitivity[[s]] <- list(
+  out_objects_diffcyt_DA_voom_supp_sensitivity[[s]] <- list(
     d_se = d_se, 
     d_counts = d_counts, 
     d_medians = d_medians, 
@@ -261,8 +261,9 @@ for (s in 1:length(seeds)) {
     # note: adjust filtering parameters
     min_cells <- 3
     min_samples <- min(table(experiment_info$group_id))
-    res <- testDA_edgeR(d_counts, design, contrast, 
-                        min_cells = min_cells, min_samples = min_samples)
+    res <- testDA_voom(d_counts, design, contrast, 
+                       min_cells = min_cells, min_samples = min_samples, 
+                       plot = FALSE)
     
   })
   
@@ -284,7 +285,7 @@ for (s in 1:length(seeds)) {
   runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_test[["elapsed"]]
   print(runtime_total)
   
-  runtime_diffcyt_DA_edgeR_supp_sensitivity[[s]] <- runtime_total
+  runtime_diffcyt_DA_voom_supp_sensitivity[[s]] <- runtime_total
   
   
   # -----------------------------
@@ -295,7 +296,7 @@ for (s in 1:length(seeds)) {
   
   res_clusters <- as.data.frame(rowData(res))
   
-  out_clusters_diffcyt_DA_edgeR_supp_sensitivity[[s]] <- res_clusters
+  out_clusters_diffcyt_DA_voom_supp_sensitivity[[s]] <- res_clusters
   
 }
 
@@ -308,14 +309,14 @@ for (s in 1:length(seeds)) {
 
 # note: do not need results at cell level, since this is not simulated data
 
-save(runtime_diffcyt_DA_edgeR_supp_sensitivity, 
-     file = file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_edgeR_supp_sensitivity.RData"))
+save(runtime_diffcyt_DA_voom_supp_sensitivity, 
+     file = file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_voom_supp_sensitivity.RData"))
 
-save(out_clusters_diffcyt_DA_edgeR_supp_sensitivity, 
-     file = file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_edgeR_supp_sensitivity.RData"))
+save(out_clusters_diffcyt_DA_voom_supp_sensitivity, 
+     file = file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_voom_supp_sensitivity.RData"))
 
-save(out_objects_diffcyt_DA_edgeR_supp_sensitivity, 
-     file = file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_edgeR_supp_sensitivity.RData"))
+save(out_objects_diffcyt_DA_voom_supp_sensitivity, 
+     file = file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_voom_supp_sensitivity.RData"))
 
 
 
@@ -324,7 +325,7 @@ save(out_objects_diffcyt_DA_edgeR_supp_sensitivity,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_Anti_PD_1_diffcyt_DA_edgeR_supp_sensitivity.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_Anti_PD_1_diffcyt_DA_voom_supp_sensitivity.txt"))
 sessionInfo()
 sink()
 

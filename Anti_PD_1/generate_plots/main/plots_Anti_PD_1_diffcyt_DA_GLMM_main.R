@@ -3,7 +3,7 @@
 # 
 # - data set: Anti-PD-1
 # - plot type: phenotype and abundance of detected clusters; runtime
-# - method: diffcyt-DA-edgeR
+# - method: diffcyt-DA-GLMM
 # 
 # - main results
 # 
@@ -20,9 +20,9 @@ library(ggplot2)
 # load saved results
 DIR_RDATA <- "../../../../RData/Anti_PD_1/main"
 
-load(file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_edgeR_main.RData"))
-load(file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_edgeR_main.RData"))
-load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_edgeR_main.RData"))
+load(file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_GLMM_main.RData"))
+load(file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_GLMM_main.RData"))
+load(file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_GLMM_main.RData"))
 
 
 # path to save plots
@@ -35,14 +35,14 @@ DIR_PLOTS <- "../../../../plots/Anti_PD_1/main"
 # Heatmap: phenotype and abundance of detected clusters
 #######################################################
 
-d_se <- out_objects_diffcyt_DA_edgeR_main$d_se
-d_counts <- out_objects_diffcyt_DA_edgeR_main$d_counts
-d_medians_by_cluster_marker <- out_objects_diffcyt_DA_edgeR_main$d_medians_by_cluster_marker
+d_se <- out_objects_diffcyt_DA_GLMM_main$d_se
+d_counts <- out_objects_diffcyt_DA_GLMM_main$d_counts
+d_medians_by_cluster_marker <- out_objects_diffcyt_DA_GLMM_main$d_medians_by_cluster_marker
 
 
 # get detected clusters
 
-res <- out_clusters_diffcyt_DA_edgeR_main
+res <- out_clusters_diffcyt_DA_GLMM_main
 
 res <- res[!is.na(res$p_adj), , drop = FALSE]
 
@@ -129,92 +129,13 @@ ht_abundance <- Heatmap(
 
 # combine heatmaps and save
 
-ht_title <- "Anti-PD-1, diffcyt-DA-edgeR: detected clusters"
+ht_title <- "Anti-PD-1, diffcyt-DA-GLMM: detected clusters"
 
-fn <- file.path(DIR_PLOTS, "diffcyt_DA_edgeR", "results_Anti_PD_1_diffcyt_DA_edgeR_main_heatmap.pdf")
-pdf(fn, width = 12, height = 3)
+fn <- file.path(DIR_PLOTS, "diffcyt_DA_GLMM", "results_Anti_PD_1_diffcyt_DA_GLMM_main_heatmap.pdf")
+pdf(fn, width = 12, height = 12)
 draw(ht_phenotype + ht_abundance, newpage = FALSE, 
      column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 12))
 dev.off()
-
-
-
-
-######################################################
-# Boxplots: abundance of detected clusters (by sample)
-######################################################
-
-# combined abundance of detected clusters matching the population of interest
-
-# select clusters that match the population of interest (from previous plot)
-rownames_keep <- paste("cluster", c(358, 317, 380))
-
-# calculate number of cells in selected clusters
-n_cells_keep <- n_cells_detected[rownames_keep, ]
-stopifnot(all(colnames(n_cells_keep) == colnames(assay(d_counts))), 
-          all(colnames(n_cells_keep) == colData(d_counts)$sample_id))
-# as percentages
-perc <- colSums(n_cells_keep) / colSums(assay(d_counts)) * 100
-perc
-# average percentage in each group
-perc_NR <- mean(perc[colData(d_counts)$group_id == "NR"])
-perc_R <- mean(perc[colData(d_counts)$group_id == "R"])
-perc_NR
-perc_R
-
-d_boxplots <- data.frame(
-  group = colData(d_counts)$group_id, 
-  percent = perc
-)
-
-
-# boxplots
-ggplot(d_boxplots, aes(x = group, y = percent, color = group)) + 
-  geom_boxplot(alpha = 0, width = 0.25) + 
-  geom_point() + 
-  labs(title = "Anti-PD-1, diffcyt-DA-edgeR", 
-       subtitle = "Total abundance of detected clusters, by sample") + 
-  theme_bw()
-
-fn <- file.path(DIR_PLOTS, "diffcyt_DA_edgeR", "results_Anti_PD_1_diffcyt_DA_edgeR_main_boxplots.pdf")
-ggsave(file = fn, width = 4.75, height = 4)
-
-
-
-
-#########
-# Runtime
-#########
-
-d_runtimes <- as.data.frame(c(
-  diffcyt_DA_edgeR = runtime_diffcyt_DA_edgeR_main
-))
-
-colnames(d_runtimes) <- "runtime"
-
-d_runtimes$method <- factor(rownames(d_runtimes), levels = rownames(d_runtimes))
-
-# color scheme
-colors <- "darkblue"
-
-y_range <- c(1, 1000)
-
-# create plot
-p_runtimes <- 
-  ggplot(d_runtimes, aes(x = method, y = runtime, color = method, label = round(runtime, 1))) + 
-  geom_point(shape = 4, size = 1.75, stroke = 1.5) + 
-  geom_text(color = "black", vjust = -1.5, size = 3.4) + 
-  scale_color_manual(values = colors) + 
-  scale_y_log10(limits = y_range) + 
-  ylab("runtime (sec, log10 scale)") + 
-  ggtitle("Anti-PD-1, main results: runtime") + 
-  theme_bw() + 
-  theme(axis.title.x = element_blank(), 
-        axis.text.x = element_blank())
-
-# save plot
-fn <- file.path(DIR_PLOTS, "diffcyt_DA_edgeR", "results_Anti_PD_1_diffcyt_DA_edgeR_main_runtime.pdf")
-ggsave(file = fn, width = 5, height = 3.25)
 
 
 

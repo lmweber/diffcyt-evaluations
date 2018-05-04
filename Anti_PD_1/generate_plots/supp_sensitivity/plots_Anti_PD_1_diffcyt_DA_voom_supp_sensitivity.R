@@ -3,7 +3,7 @@
 # 
 # - data set: Anti-PD-1
 # - plot type: phenotype and abundance of detected clusters
-# - method: diffcyt-DA-edgeR
+# - method: diffcyt-DA-voom
 # 
 # - supplementary results: sensitivity to random seeds
 # 
@@ -20,8 +20,8 @@ library(ggplot2)
 # load saved results
 DIR_RDATA <- "../../../../RData/Anti_PD_1/supp_sensitivity"
 
-load(file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_edgeR_supp_sensitivity.RData"))
-load(file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_edgeR_supp_sensitivity.RData"))
+load(file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_voom_supp_sensitivity.RData"))
+load(file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_voom_supp_sensitivity.RData"))
 
 
 # path to save plots
@@ -29,7 +29,7 @@ DIR_PLOTS <- "../../../../plots/Anti_PD_1/supp_sensitivity"
 
 
 # varying random seeds
-seeds <- as.numeric(names(out_objects_diffcyt_DA_edgeR_supp_sensitivity))
+seeds <- as.numeric(names(out_objects_diffcyt_DA_voom_supp_sensitivity))
 
 
 
@@ -40,20 +40,20 @@ seeds <- as.numeric(names(out_objects_diffcyt_DA_edgeR_supp_sensitivity))
 
 # note: one heatmap for each random seed
 
-plot_widths <- c(14, 13, 14, 14, 14)
-plot_heights <- c(3, 2.25, 2.75, 2.75, 3.25)
+plot_widths <- c(13, 13, 13, 14, 14)
+plot_heights <- c(2.25, 2.25, 2.25, 2.75, 3.25)
 
 
 for (s in 1:length(seeds)) {
   
-  d_se <- out_objects_diffcyt_DA_edgeR_supp_sensitivity[[s]]$d_se
-  d_counts <- out_objects_diffcyt_DA_edgeR_supp_sensitivity[[s]]$d_counts
-  d_medians_by_cluster_marker <- out_objects_diffcyt_DA_edgeR_supp_sensitivity[[s]]$d_medians_by_cluster_marker
+  d_se <- out_objects_diffcyt_DA_voom_supp_sensitivity[[s]]$d_se
+  d_counts <- out_objects_diffcyt_DA_voom_supp_sensitivity[[s]]$d_counts
+  d_medians_by_cluster_marker <- out_objects_diffcyt_DA_voom_supp_sensitivity[[s]]$d_medians_by_cluster_marker
   
   
   # get detected clusters
   
-  res <- out_clusters_diffcyt_DA_edgeR_supp_sensitivity[[s]]
+  res <- out_clusters_diffcyt_DA_voom_supp_sensitivity[[s]]
   
   res <- res[!is.na(res$p_adj), , drop = FALSE]
   
@@ -140,9 +140,9 @@ for (s in 1:length(seeds)) {
   
   # combine heatmaps and save
   
-  ht_title <- paste0("Anti-PD-1, diffcyt-DA-edgeR: detected clusters: random seed ", s)
+  ht_title <- paste0("Anti-PD-1, diffcyt-DA-voom: detected clusters: random seed ", s)
   
-  fn <- file.path(DIR_PLOTS, "diffcyt_DA_edgeR", paste0("results_Anti_PD_1_diffcyt_DA_edgeR_supp_sensitivity_heatmap_seed_", s, ".pdf"))
+  fn <- file.path(DIR_PLOTS, "diffcyt_DA_voom", paste0("results_Anti_PD_1_diffcyt_DA_voom_supp_sensitivity_heatmap_seed_", s, ".pdf"))
   pdf(fn, width = plot_widths[s], height = plot_heights[s])
   draw(ht_phenotype + ht_abundance, newpage = FALSE, 
        column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 12))

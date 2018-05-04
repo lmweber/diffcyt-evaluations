@@ -1,7 +1,7 @@
 ##########################################################################################
 # Script to run methods
 # 
-# - method: diffcyt-DA-edgeR
+# - method: diffcyt-DA-GLMM
 # - data set: Anti-PD-1
 # 
 # - main results
@@ -209,7 +209,7 @@ runtime_preprocessing <- system.time({
 # store data objects (for plotting)
 # ---------------------------------
 
-out_objects_diffcyt_DA_edgeR_main <- list(
+out_objects_diffcyt_DA_GLMM_main <- list(
   d_se = d_se, 
   d_counts = d_counts, 
   d_medians = d_medians, 
@@ -224,13 +224,13 @@ out_objects_diffcyt_DA_edgeR_main <- list(
 
 runtime_test <- system.time({
   
-  # set up design matrix
-  # note: include fixed effects for 'batch_id'
-  design <- createDesignMatrix(experiment_info, cols_design = 1:2)
-  design
+  # set up model formula
+  # note: include random effects for 'batch_id' and 'sample_id'
+  formula <- createFormula(experiment_info, cols_fixed = 1, cols_random = 2:3)
+  formula
   
   # set up contrast matrix
-  contrast_vec <- c(0, 1, 0)
+  contrast_vec <- c(0, 1)
   contrast <- createContrast(contrast_vec)
   contrast
   
@@ -238,8 +238,8 @@ runtime_test <- system.time({
   # note: adjust filtering parameters
   min_cells <- 3
   min_samples <- min(table(experiment_info$group_id))
-  res <- testDA_edgeR(d_counts, design, contrast, 
-                      min_cells = min_cells, min_samples = min_samples)
+  res <- testDA_GLMM(d_counts, formula, contrast, 
+                     min_cells = min_cells, min_samples = min_samples)
   
 })
 
@@ -261,7 +261,7 @@ print(table(res_sorted$p_adj <= 0.1))
 runtime_total <- runtime_preprocessing[["elapsed"]] + runtime_test[["elapsed"]]
 print(runtime_total)
 
-runtime_diffcyt_DA_edgeR_main <- runtime_total
+runtime_diffcyt_DA_GLMM_main <- runtime_total
 
 
 # -----------------------------
@@ -272,7 +272,7 @@ runtime_diffcyt_DA_edgeR_main <- runtime_total
 
 res_clusters <- as.data.frame(rowData(res))
 
-out_clusters_diffcyt_DA_edgeR_main <- res_clusters
+out_clusters_diffcyt_DA_GLMM_main <- res_clusters
 
 
 
@@ -283,14 +283,14 @@ out_clusters_diffcyt_DA_edgeR_main <- res_clusters
 
 # note: do not need results at cell level, since this is not simulated data
 
-save(runtime_diffcyt_DA_edgeR_main, 
-     file = file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_edgeR_main.RData"))
+save(runtime_diffcyt_DA_GLMM_main, 
+     file = file.path(DIR_RDATA, "outputs_Anti_PD_1_diffcyt_DA_GLMM_main.RData"))
 
-save(out_clusters_diffcyt_DA_edgeR_main, 
-     file = file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_edgeR_main.RData"))
+save(out_clusters_diffcyt_DA_GLMM_main, 
+     file = file.path(DIR_RDATA, "out_clusters_Anti_PD_1_diffcyt_DA_GLMM_main.RData"))
 
-save(out_objects_diffcyt_DA_edgeR_main, 
-     file = file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_edgeR_main.RData"))
+save(out_objects_diffcyt_DA_GLMM_main, 
+     file = file.path(DIR_RDATA, "out_objects_Anti_PD_1_diffcyt_DA_GLMM_main.RData"))
 
 
 
@@ -299,7 +299,7 @@ save(out_objects_diffcyt_DA_edgeR_main,
 # Session information
 #####################
 
-sink(file.path(DIR_SESSION_INFO, "session_info_Anti_PD_1_diffcyt_DA_edgeR_main.txt"))
+sink(file.path(DIR_SESSION_INFO, "session_info_Anti_PD_1_diffcyt_DA_GLMM_main.txt"))
 sessionInfo()
 sink()
 
