@@ -7,6 +7,7 @@ all:
 	$(MAKE) -C AML_sim
 	$(MAKE) -C BCR_XL_sim
 	$(MAKE) -C Anti_PD_1
+	$(MAKE) -C BCR_XL
 
 
 
@@ -40,6 +41,8 @@ clean_Rplots:
 	find BCR_XL_sim/3_generate_plots -name "Rplots.pdf" -delete
 	find Anti_PD_1/run_methods -name "Rplots.pdf" -delete
 	find Anti_PD_1/generate_plots -name "Rplots.pdf" -delete
+	find BCR_XL/run_methods -name "Rplots.pdf" -delete
+	find BCR_XL/generate_plots -name "Rplots.pdf" -delete
 
 
 

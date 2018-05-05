@@ -55,12 +55,12 @@ for (s in 1:length(seed_names)) {
   dim(d_plot)
   
   # replace any NAs with 1s
-  d_plot[is.na(d_plot$P.Value), "P.Value"] <- 1
+  d_plot[is.na(d_plot$p_val), "p_val"] <- 1
   
   d_plot$method <- as.factor("diffcyt-DS-limma")
   
   p <- 
-    ggplot(d_plot, aes(x = P.Value, fill = method)) + 
+    ggplot(d_plot, aes(x = p_val, fill = method)) + 
     geom_histogram(bins = 20, color = "black") + 
     scale_fill_manual(values = "firebrick1") + 
     ggtitle("BCR-XL-sim, null simulations: diffcyt-DS-limma", subtitle = paste("p-value distribution, random seed", s)) + 
