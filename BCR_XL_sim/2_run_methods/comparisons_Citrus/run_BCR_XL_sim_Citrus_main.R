@@ -164,7 +164,7 @@ outputDirectory <- file.path(DIR_CITRUS_FILES, "citrusOutput")
 fileList <- data.frame(defaultCondition = gsub("\\.fcs$", "_transf.fcs", basename(files_load)))
 
 # number of processor threads
-n_cores <- 2
+n_cores <- 1
 
 
 # run Citrus

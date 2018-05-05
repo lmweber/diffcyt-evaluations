@@ -202,7 +202,7 @@ for (th in 1:length(thresholds)) {
     fileList <- data.frame(defaultCondition = gsub("\\.fcs$", "_transf.fcs", basename(files_load_keep)))
     
     # number of processor threads
-    n_cores <- 2
+    n_cores <- 1
     
     
     # run Citrus
