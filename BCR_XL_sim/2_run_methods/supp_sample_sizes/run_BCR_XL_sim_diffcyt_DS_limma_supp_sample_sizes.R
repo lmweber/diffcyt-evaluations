@@ -105,6 +105,9 @@ for (s in 1:length(samples_keep)) {
   marker_class[cols_func] <- "state"
   marker_class <- factor(marker_class, levels = c("type", "state", "none"))
   
+  # exclude CD45 from clustering
+  marker_class[marker_name == "CD45"] <- "none"
+  
   marker_info <- data.frame(marker_name, marker_class)
   marker_info
   
@@ -132,7 +135,7 @@ for (s in 1:length(samples_keep)) {
     
     # clustering
     # (runtime: ~5 sec with xdim = 10, ydim = 10)
-    seed <- 123
+    seed <- 1234
     d_se <- generateClusters(d_se, xdim = 10, ydim = 10, seed_clustering = seed)
     
     length(table(rowData(d_se)$cluster_id))  # number of clusters

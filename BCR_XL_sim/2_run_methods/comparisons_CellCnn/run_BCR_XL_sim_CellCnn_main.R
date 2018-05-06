@@ -85,6 +85,9 @@ marker_class[cols_lineage] <- "type"
 marker_class[cols_func] <- "state"
 marker_class <- factor(marker_class, levels = c("type", "state", "none"))
 
+# exclude CD45 from clustering
+marker_class[marker_name == "CD45"] <- "none"
+
 marker_info <- data.frame(marker_name, marker_class)
 marker_info
 
@@ -99,7 +102,9 @@ marker_info
 # markers to use
 # --------------
 
+# excluding CD45
 cols_to_use <- cols_markers
+cols_to_use <- cols_to_use[-which(cols_to_use == grep("CD45", marker_name))]
 
 
 # -------------------------------

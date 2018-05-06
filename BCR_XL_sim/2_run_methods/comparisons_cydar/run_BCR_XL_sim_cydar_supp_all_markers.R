@@ -74,6 +74,9 @@ marker_class[cols_lineage] <- "type"
 marker_class[cols_func] <- "state"
 marker_class <- factor(marker_class, levels = c("type", "state", "none"))
 
+# exclude CD45 from clustering
+marker_class[marker_name == "CD45"] <- "none"
+
 marker_info <- data.frame(marker_name, marker_class)
 marker_info
 
@@ -88,7 +91,9 @@ marker_info
 # markers to use
 # --------------
 
+# excluding CD45
 cols_to_use <- cols_markers
+cols_to_use <- cols_to_use[-which(cols_to_use == grep("CD45", marker_name))]
 
 
 
@@ -226,7 +231,7 @@ runtime_test <- system.time({
 # ---------------------------------------------------------------------
 
 # 2D PCA plots
-if (sum(is.sig) > 0) {
+if (sum(is.sig) > 1) {
   pdf(file.path(DIR_CYDAR_FILES, "cydar_populations_PCA_supp_all_markers.pdf"))
   
   sig.coords <- intensities(cd)[is.sig, ]
@@ -240,7 +245,7 @@ if (sum(is.sig) > 0) {
 
 
 # 2D tSNE plots (does not work)
-# if (sum(is.sig) > 0) {
+# if (sum(is.sig) > 1) {
 #   pdf(file.path(DIR_CYDAR_FILES, "cydar_populations_tSNE_supp_all_markers.pdf"))
 #   
 #   sig.coords <- intensities(cd)[is.sig, ]
@@ -258,7 +263,7 @@ if (sum(is.sig) > 0) {
 
 
 # Median marker intensities of each hypersphere
-if (sum(is.sig) > 0) {
+if (sum(is.sig) > 1) {
   pdf(file.path(DIR_CYDAR_FILES, "cydar_medians_supp_all_markers.pdf"), width = 8, height = 3.5)
   
   par(mfrow = c(2, 6), mar = c(2.1, 1.1, 3.1, 1.1))

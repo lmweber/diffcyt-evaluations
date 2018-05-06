@@ -83,6 +83,9 @@ marker_class[cols_lineage] <- "type"
 marker_class[cols_func] <- "state"
 marker_class <- factor(marker_class, levels = c("type", "state", "none"))
 
+# exclude CD45 from clustering
+marker_class[marker_name == "CD45"] <- "none"
+
 marker_info <- data.frame(marker_name, marker_class)
 marker_info
 
@@ -92,6 +95,17 @@ marker_info
 ######################################
 # Additional pre-processing for Citrus
 ######################################
+
+# --------------
+# markers to use
+# --------------
+
+# excluding CD45
+cols_to_use_clustering <- colnames(d_input[[1]])[cols_lineage]
+cols_to_use_clustering <- cols_to_use_clustering[-grep("CD45", cols_to_use_clustering)]
+
+cols_to_use_medians <- colnames(d_input[[1]])[cols_func]
+
 
 # --------------
 # transform data
@@ -141,8 +155,8 @@ nFolds <- 1
 featureType <- "medians"
 
 # define clustering and functional markers
-clusteringColumns <- colnames(d_input[[1]])[cols_lineage]
-medianColumns <- colnames(d_input[[1]])[cols_func]
+clusteringColumns <- cols_to_use_clustering
+medianColumns <- cols_to_use_medians
 
 # number of cells and minimum cluster size
 fileSampleSize <- 5000
