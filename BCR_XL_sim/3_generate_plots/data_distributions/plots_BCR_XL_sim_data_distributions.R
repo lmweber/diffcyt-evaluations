@@ -267,7 +267,7 @@ d_plot <- d_plot[d_plot$B_cell == 1, -which(colnames(d_plot) == "B_cell")]
 d_plot <- melt(d_plot, id.vars = "group", variable.name = "marker", value.name = "expression")
 
 # marker types
-d_plot$marker_class <- factor(as.numeric(d_plot$marker %in% names_state), labels = c("cell type", "state"))
+d_plot$marker_class <- factor(as.numeric(d_plot$marker %in% names_state), labels = c("cell type", "cell state"))
 
 d_plot$marker <- factor(d_plot$marker, levels = rev(levels(d_plot$marker)))
 
@@ -335,7 +335,7 @@ table(d_plot$group, d_plot$less_distinct)
 d_plot <- melt(d_plot, id.vars = c("group", "less_distinct"), variable.name = "marker", value.name = "expression")
 
 # marker types
-d_plot$marker_class <- factor(as.numeric(d_plot$marker %in% names_state), labels = c("cell type", "state"))
+d_plot$marker_class <- factor(as.numeric(d_plot$marker %in% names_state), labels = c("cell type", "cell state"))
 
 d_plot$marker <- factor(d_plot$marker, levels = rev(levels(d_plot$marker)))
 
