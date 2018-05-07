@@ -173,7 +173,7 @@ ggplot(d_boxplots, aes(x = group, y = percent, color = group)) +
   geom_boxplot(alpha = 0, width = 0.25) + 
   geom_point() + 
   labs(title = "Anti-PD-1, diffcyt-DA-edgeR", 
-       subtitle = "Total abundance of detected clusters, by sample") + 
+       subtitle = "Total abundance of matching clusters, by sample") + 
   theme_bw()
 
 fn <- file.path(DIR_PLOTS, "diffcyt_DA_edgeR", "results_Anti_PD_1_diffcyt_DA_edgeR_main_boxplots.pdf")
@@ -201,7 +201,7 @@ y_range <- c(1, 1000)
 
 # create plot
 p_runtimes <- 
-  ggplot(d_runtimes, aes(x = method, y = runtime, color = method, label = round(runtime, 1))) + 
+  ggplot(d_runtimes, aes(x = method, y = runtime, color = method, label = sprintf("%.1f", runtime))) + 
   geom_point(shape = 4, size = 1.75, stroke = 1.5) + 
   geom_text(color = "black", vjust = -1.5, size = 3.4) + 
   scale_color_manual(values = colors) + 
