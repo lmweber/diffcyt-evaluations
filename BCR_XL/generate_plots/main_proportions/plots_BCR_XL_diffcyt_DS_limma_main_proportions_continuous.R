@@ -3,7 +3,7 @@
 # 
 # - data set: BCR-XL
 # - plot type: proportions of true populations and detected differential cell state
-# markers for each cluster
+# markers for each cluster (using continuous adjusted p-values)
 # - method: diffcyt-DS-limma
 # 
 # - main results
@@ -99,39 +99,18 @@ for (i in seq_along(marker_names)) {
   d_detected_markers[res_i$cluster_id, marker_names[i]] <- res_i$p_adj
 }
 
-# alternatively: showing detected markers at a given significance cutoff
-# cutoff <- 0.1
-# 
-# d_detected_markers <- matrix(FALSE, nrow = n_clus, ncol = n_state_markers)
-# marker_names <- unique(res$marker)
-# stopifnot(length(marker_names) == sum(n_state_markers))
-# colnames(d_detected_markers) <- marker_names
-# rownames(d_detected_markers) <- levels(cluster_IDs)
-# 
-# for (i in seq_along(marker_names)) {
-#   res_i <- res[res$marker == marker_names[i], ]
-#   res_i_detected <- res_i[res_i$p_adj <= cutoff, ]
-#   clus_i_detected <- res_i_detected$cluster_id
-#   d_detected_markers[clus_i_detected, marker_names[i]] <- TRUE
-# }
-
 
 # color scale: red and white
 colors <- colorRamp2(c(0, 0.1, 1), c("red", "gray95", "gray95"))
 
-# alternatively: showing detected markers at a given significance cutoff
-# colors <- colorRamp2(range(d_heatmap_props, na.rm = TRUE), c("gray95", "red"))
-
 ht_markers <- Heatmap(
-  d_detected_markers, col = colors, name = "adjusted p-value", #name = "detected", 
+  d_detected_markers, col = colors, name = "adjusted p-value", 
   row_title = "clusters", row_title_gp = gpar(fontsize = 14), 
   show_row_names = FALSE, 
   column_title = "markers (cell state)", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
   column_names_gp = gpar(fontsize = 12), 
   heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12), 
                               at = c(0, 0.05, 0.1)), 
-  # heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12), 
-  #                             color_bar = "discrete", at = c(0, 1), labels = c("no", "yes")), 
   cluster_columns = FALSE, cluster_rows = FALSE
 )
 
@@ -142,7 +121,7 @@ ht_markers <- Heatmap(
 
 ht_title <- "BCR-XL, diffcyt-DS-limma: cluster proportions and detected markers"
 
-fn <- file.path(DIR_PLOTS, "diffcyt_DS_limma", "results_BCR_XL_diffcyt_DS_limma_main_proportions.pdf")
+fn <- file.path(DIR_PLOTS, "diffcyt_DS_limma", "results_BCR_XL_diffcyt_DS_limma_main_proportions_continuous.pdf")
 pdf(fn, width = 10, height = 11)
 draw(ht_props + ht_markers, newpage = FALSE, 
      column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
