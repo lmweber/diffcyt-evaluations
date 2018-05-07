@@ -126,6 +126,10 @@ for (th in 1:length(thresholds)) {
 # Generate plots
 ################
 
+# ----------------------------------------------------
+# Plots showing individual scores (sorted by F1 score)
+# ----------------------------------------------------
+
 # loop over thresholds (th) and conditions (j)
 
 # store plots in list
@@ -185,11 +189,83 @@ for (th in 1:length(thresholds)) {
 }
 
 
+# --------------------------------------------------
+# Plots showing cumulative recall (sorted by recall)
+# --------------------------------------------------
+
+# loop over thresholds (th) and conditions (j)
+
+# store plots in list
+plots_clustering_cumulative <- vector("list", length(thresholds) * length(cond_names))
+
+plot_widths_cumulative <- rep(NA, length(thresholds) * length(cond_names))
+
+
+for (th in 1:length(thresholds)) {
+  
+  for (j in 1:length(cond_names)) {
+    
+    # index to store plots sequentially in list
+    ix <- (j * length(thresholds)) - (length(thresholds) - th)
+    
+    
+    # create data frame for plotting
+    
+    d_plot <- data.frame(
+      cluster = labels[[th]][[j]], 
+      precision = clustering_pr[[th]][[j]], 
+      recall = clustering_re[[th]][[j]], 
+      F1_score = clustering_F1[[th]][[j]]
+    )
+    
+    plot_widths[ix] <- 2 + nrow(d_plot) / 7
+    
+    # sort by recall
+    d_plot <- d_plot[rev(order(d_plot$recall)), ]
+    # add cumulative recall
+    d_plot$recall_cumulative <- cumsum(d_plot$recall)
+    # remove columns not needed for this plot
+    d_plot <- d_plot[, -match(c("recall", "F1_score"), colnames(d_plot))]
+    
+    d_plot$cluster <- factor(d_plot$cluster, levels = as.character(d_plot$cluster))
+    d_plot <- melt(d_plot, id.vars = "cluster", variable.name = "measure")
+    d_plot$measure <- factor(d_plot$measure, levels = c("precision", "recall_cumulative"))
+    
+    # create plot
+    
+    colors <- c("forestgreen", "deepskyblue")
+    
+    p <- 
+      ggplot(d_plot, aes(x = cluster, y = value, color = measure, group = measure)) + 
+      geom_point(shape = 20, stroke = 1) + 
+      geom_line() + 
+      scale_color_manual(values = colors, labels = c("precision", "cumulative\nrecall")) + 
+      ylim(c(-0.025, 1.025)) + 
+      ggtitle(paste0(cond_names[j], ", threshold ", gsub("pc$", "\\%", thresholds[th]))) + 
+      theme_bw() + 
+      theme(axis.text.x = element_text(angle = 90, vjust = 0.5, size = 8), 
+            axis.title.y = element_blank())
+    
+    plots_clustering_cumulative[[ix]] <- p
+    
+    # save individual panel plot
+    fn <- file.path(DIR_PLOTS, "panels", 
+                    paste0("results_AML_sim_diffcyt_main_clustering_performance_cumulative", thresholds[th], "_", cond_names[j], ".pdf"))
+    ggsave(fn, width = plot_widths_cumulative[ix], height = 3)
+    
+  }
+}
+
+
 
 
 ########################
 # Save multi-panel plots
 ########################
+
+# ----------------------------------------------------
+# Plots showing individual scores (sorted by F1 score)
+# ----------------------------------------------------
 
 # modify plot elements
 plots_clustering <- lapply(plots_clustering, function(p) {
@@ -216,6 +292,37 @@ grid_clustering <- plot_grid(grid_clustering, legend_clustering, nrow = 1, rel_w
 # save plots
 fn_clustering <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_main_clustering_performance.pdf"))
 ggsave(fn_clustering, grid_clustering, width = 10, height = 5.5)
+
+
+# --------------------------------------------------
+# Plots showing cumulative recall (sorted by recall)
+# --------------------------------------------------
+
+# modify plot elements
+plots_clustering_cumulative <- lapply(plots_clustering_cumulative, function(p) {
+  p + theme(legend.position = "none")
+})
+
+# format into grid
+plot_widths_avg <- c(7, 3.75, 2)
+grid_clustering_cumulative <- do.call(plot_grid, append(plots_clustering_cumulative, list(
+  nrow = 2, ncol = 3, align = "hv", axis = "bl", rel_widths = plot_widths_avg))
+)
+
+# add combined title
+title_clustering_cumulative <- ggdraw() + draw_label("AML-sim, diffcyt methods: clustering performance", fontface = "bold")
+grid_clustering_cumulative <- plot_grid(title_clustering_cumulative, grid_clustering_cumulative, ncol = 1, rel_heights = c(1, 25))
+
+# add combined legend (one legend per row)
+legend_clustering_cumulative <- get_legend(plots_clustering_cumulative[[1]] + theme(legend.position = "right", 
+                                                                                    legend.title = element_text(size = 10, face = "bold"), 
+                                                                                    legend.text = element_text(size = 9)))
+legend_clustering_cumulative <- plot_grid(legend_clustering_cumulative, legend_clustering_cumulative, ncol = 1)
+grid_clustering_cumulative <- plot_grid(grid_clustering_cumulative, legend_clustering_cumulative, nrow = 1, rel_widths = c(9, 1))
+
+# save plots
+fn_clustering_cumulative <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_main_clustering_performance_cumulative.pdf"))
+ggsave(fn_clustering_cumulative, grid_clustering_cumulative, width = 10, height = 5.5)
 
 
 

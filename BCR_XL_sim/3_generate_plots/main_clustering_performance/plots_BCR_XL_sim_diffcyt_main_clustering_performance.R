@@ -92,6 +92,10 @@ F1 <- 2 * (pr * re) / (pr + re)
 # Generate plots
 ################
 
+# ----------------------------------------------------
+# Plots showing individual scores (sorted by F1 score)
+# ----------------------------------------------------
+
 # create data frame for plotting
 
 d_plot <- data.frame(
@@ -125,6 +129,51 @@ p <-
 
 # save plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_main_clustering_performance.pdf")
+ggsave(fn, width = 6, height = 2.75)
+
+
+# --------------------------------------------------
+# Plots showing cumulative recall (sorted by recall)
+# --------------------------------------------------
+
+# create data frame for plotting
+
+d_plot <- data.frame(
+  cluster = labels_matched, 
+  precision = pr, 
+  recall = re, 
+  F1_score = F1
+)
+
+# sort by recall
+d_plot <- d_plot[rev(order(d_plot$recall)), ]
+# add cumulative recall
+d_plot$recall_cumulative <- cumsum(d_plot$recall)
+# remove columns not needed for this plot
+d_plot <- d_plot[, -match(c("recall", "F1_score"), colnames(d_plot))]
+
+d_plot$cluster <- factor(d_plot$cluster, levels = as.character(d_plot$cluster))
+d_plot <- melt(d_plot, id.vars = "cluster", variable.name = "measure")
+d_plot$measure <- factor(d_plot$measure, levels = c("precision", "recall_cumulative"))
+
+
+# create plot
+
+colors <- c("forestgreen", "deepskyblue")
+
+p <- 
+  ggplot(d_plot, aes(x = cluster, y = value, color = measure, group = measure)) + 
+  geom_point(shape = 20, stroke = 1) + 
+  geom_line() + 
+  scale_color_manual(values = colors, labels = c("precision", "cumulative\nrecall")) + 
+  ylim(c(-0.025, 1.025)) + 
+  ggtitle("BCR-XL-sim, diffcyt methods: clustering performance") + 
+  theme_bw() + 
+  theme(axis.text.x = element_text(angle = 90, vjust = 0.5), 
+        axis.title.y = element_blank())
+
+# save plot
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_main_clustering_performance_cumulative.pdf")
 ggsave(fn, width = 6, height = 2.75)
 
 
