@@ -58,7 +58,7 @@ y_range <- c(10, 3000)
 
 # create plot
 p_runtimes <- 
-  ggplot(d_runtimes, aes(x = method, y = runtime, color = method, label = round(runtime, 1))) + 
+  ggplot(d_runtimes, aes(x = method, y = runtime, color = method, label = sprintf("%.1f", runtime))) + 
   geom_point(shape = 4, size = 1.75, stroke = 1.5) + 
   geom_text(color = "black", vjust = -1.5, size = 3.4) + 
   scale_color_manual(values = colors) + 
