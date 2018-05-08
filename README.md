@@ -2,16 +2,16 @@
 
 This repository contains scripts to reproduce all performance evaluations, comparisons, and figures in our paper introducing the `diffcyt` framework.
 
-The `diffcyt` R package implements statistical methods for differential discovery analyses in high-dimensional cytometry data (including flow cytometry, mass cytometry or CyTOF, and oligonucleotide-tagged cytometry), based on (i) high-resolution clustering and (ii) moderated tests adapted from transcriptomics.
+The `diffcyt` R package implements statistical methods for differential discovery analyses in high-dimensional cytometry data (including flow cytometry, mass cytometry or CyTOF, and oligonucleotide-tagged cytometry), based on (i) high-resolution clustering and (ii) empirical Bayes moderated tests adapted from transcriptomics.
 
 
 ## Contents
 
-Scripts are organized by data set (`AML-sim`, `BCR-XL-sim`, `Anti-PD-1`, and `BCR-XL`).
+Scripts are organized by data set: 'AML-sim', 'BCR-XL-sim', 'Anti-PD-1', and 'BCR-XL'.
 
 Within each data set, scripts are organized into sub-directories to:
 
-- prepare data (`AML-sim` and `BCR-XL-sim` only)
+- prepare data ('AML-sim' and 'BCR-XL-sim' only)
 - run methods
 - generate plots
 
