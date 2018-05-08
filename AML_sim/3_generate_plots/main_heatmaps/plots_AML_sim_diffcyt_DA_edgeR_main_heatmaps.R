@@ -76,6 +76,9 @@ for (th in 1:length(thresholds)) {
     
     d_heatmap <- assay(d_medians_by_cluster_marker)[, colData(d_medians_by_cluster_marker)$marker_class == "type"]
     
+    # arrange alphabetically
+    d_heatmap <- d_heatmap[, order(colnames(d_heatmap))]
+    
     # load cluster-level results (for condition j)
     d_clus <- out_clusters_diffcyt_DA_edgeR_main[[th]][[j]]
     
