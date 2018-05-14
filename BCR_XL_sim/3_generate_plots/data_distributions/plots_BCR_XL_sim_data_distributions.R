@@ -44,6 +44,10 @@ cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
 cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
 cols_func <- setdiff(cols_markers, cols_lineage)
 
+# exclude CD45 from 'cell type' markers
+cols_markers <- cols_markers[-which(cols_markers == 4)]
+cols_lineage <- cols_lineage[-which(cols_lineage == 4)]
+
 # load objects (to identify cell type and cell state markers)
 d_medians_by_cluster_marker <- out_objects_diffcyt_DS_limma_main$d_medians_by_cluster_marker
 
@@ -291,7 +295,7 @@ p <-
                               override.aes = list(shape = 15, size = 6, color = c("gold", "forestgreen"))))
 
 p + 
-  annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 14.67, ymax = 24.33, fill = "gold") + 
+  annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 14.67, ymax = 23.33, fill = "gold") + 
   annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 0.67, ymax = 14.33, fill = "forestgreen")
 
 # save plot
@@ -360,7 +364,7 @@ p <-
                               override.aes = list(shape = 15, size = 6, color = c("gold", "forestgreen"))))
 
 p + 
-  annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 14.67, ymax = 24.33, fill = "gold") + 
+  annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 14.67, ymax = 23.33, fill = "gold") + 
   annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 0.67, ymax = 14.33, fill = "forestgreen")
 
 # save plot
