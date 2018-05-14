@@ -63,7 +63,7 @@ p_runtimes <-
   geom_text(color = "black", vjust = -1.5, size = 3.4) + 
   scale_color_manual(values = colors) + 
   scale_y_log10(limits = y_range) + 
-  ylab("runtime (sec, log10 scale)") + 
+  ylab("runtime (s)") + 
   ggtitle("BCR-XL-sim: runtimes") + 
   theme_bw() + 
   theme(axis.title.x = element_blank(), 

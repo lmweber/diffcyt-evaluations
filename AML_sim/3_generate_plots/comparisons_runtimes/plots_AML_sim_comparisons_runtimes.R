@@ -86,7 +86,7 @@ for (th in 1:length(thresholds)) {
       geom_text(color = "black", vjust = -1.5, size = 3.4) + 
       scale_color_manual(values = colors) + 
       scale_y_log10(limits = y_range) + 
-      ylab("runtime (sec, log10 scale)") + 
+      ylab("runtime (s)") + 
       ggtitle(paste0("AML-sim: runtimes, ", cond_names[j], ", ", gsub("pc$", "\\%", thresholds[th]))) + 
       theme_bw() + 
       theme(axis.title.x = element_blank(), 
