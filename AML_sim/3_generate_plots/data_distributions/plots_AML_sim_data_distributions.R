@@ -6,7 +6,7 @@
 # 
 # - data distributions for main benchmark data
 # 
-# Lukas Weber, May 2018
+# Lukas Weber, June 2018
 ##########################################################################################
 
 
@@ -344,12 +344,13 @@ p <- ggplot(d_plot, aes(x = expression, y = marker, fill = condition)) +
   xlab("arcsinh transformed expression") + 
   ylab("density") + 
   theme_bw() + 
+  theme(panel.spacing = unit(7, "mm")) + 
   ggtitle("AML-sim: main simulation and 'less distinct' populations")
 
 
 # save plot
 filename <- file.path(DIR_PLOTS, "AML_sim_data_distributions_conditions_less_distinct.pdf")
-ggsave(filename, width = 7, height = 7)
+ggsave(filename, width = 7.5, height = 7)
 
 
 

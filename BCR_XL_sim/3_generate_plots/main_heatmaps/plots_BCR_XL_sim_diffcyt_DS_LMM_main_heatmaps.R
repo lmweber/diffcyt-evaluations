@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, May 2018
+# Lukas Weber, June 2018
 ##########################################################################################
 
 
@@ -192,14 +192,14 @@ stopifnot(all(rownames(d_true) == rownames(d_heatmap_celltype)),
 # (iii) add row annotation and title
 
 row_annot <- data.frame(
-  "significant" = factor(d_sig$sig, levels = c(0, 1), labels = c("no", "yes")), 
+  "detected" = factor(d_sig$sig, levels = c(0, 1), labels = c("no", "yes")), 
   "true B cells" = factor(d_true$B_cells, levels = c(0, 1), labels = c("no", "yes")), 
   check.names = FALSE
 )
 
 ha_row <- rowAnnotation(
   df = row_annot, 
-  col = list("significant" = c("no" = "gray90", "yes" = "red"), 
+  col = list("detected" = c("no" = "gray90", "yes" = "red"), 
              "true B cells" = c("no" = "gray90", "yes" = "black")), 
   annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
   width = unit(1.2, "cm")

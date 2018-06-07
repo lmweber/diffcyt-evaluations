@@ -7,7 +7,7 @@
 # 
 # - main results
 # 
-# Lukas Weber, May 2018
+# Lukas Weber, June 2018
 ##########################################################################################
 
 
@@ -211,14 +211,14 @@ for (th in 1:length(thresholds)) {
     # (iii) add row annotation and title
     
     row_annot <- data.frame(
-      "significant" = factor(d_plot$sig, levels = c(0, 1), labels = c("no", "yes")), 
+      "detected" = factor(d_plot$sig, levels = c(0, 1), labels = c("no", "yes")), 
       "spike-in" = factor(d_true$spikein, levels = c(0, 1), labels = c("no", "yes")), 
       check.names = FALSE
     )
     
     ha_row <- rowAnnotation(
       df = row_annot, 
-      col = list("significant" = c("no" = "gray90", "yes" = "red"), 
+      col = list("detected" = c("no" = "gray90", "yes" = "red"), 
                  "spike-in" = c("no" = "gray90", "yes" = "black")), 
       annotation_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
       width = unit(1.2, "cm")

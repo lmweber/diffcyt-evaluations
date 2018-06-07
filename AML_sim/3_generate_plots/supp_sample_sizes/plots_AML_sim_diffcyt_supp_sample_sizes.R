@@ -7,7 +7,7 @@
 # 
 # - supplementary results: smaller sample sizes
 # 
-# Lukas Weber, May 2018
+# Lukas Weber, June 2018
 ##########################################################################################
 
 
@@ -44,7 +44,7 @@ cond_names <- c("CN", "CBF")
 
 
 # store plots in list
-plots_all <- title_objs <- legend_objs <- vector("list", length(thresholds) * length(cond_names))
+plots_all <- plots_ROC <- plots_TPRFDR <- title_objs <- legend_objs <- vector("list", length(thresholds) * length(cond_names))
 
 
 for (th in 1:length(thresholds)) {
@@ -116,6 +116,8 @@ for (th in 1:length(thresholds)) {
       theme(strip.text.x = element_blank()) + 
       guides(color = guide_legend("method"))
     
+    plots_ROC[[ix]] <- p_ROC
+    
     # save individual panel plot
     fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_supp_sample_sizes_ROC_", thresholds[th], "_", cond_names[j], ".pdf"))
     ggsave(fn, width = 4.75, height = 3.5)
@@ -139,6 +141,8 @@ for (th in 1:length(thresholds)) {
       theme(strip.text.x = element_blank()) + 
       guides(shape = guide_legend("FDR threshold", override.aes = list(size = 4), order = 1), 
              color = guide_legend("method", order = 2))
+    
+    plots_TPRFDR[[ix]] <- p_TPRFDR
     
     # save individual panel plot
     fn <- file.path(DIR_PLOTS, "panels", paste0("results_AML_sim_diffcyt_supp_sample_sizes_TPRFDR_", thresholds[th], "_", cond_names[j], ".pdf"))
@@ -262,6 +266,74 @@ for (j in 1:length(cond_names)) {
   ggsave(fn, width = 10, height = 7.25)
 
 }
+
+
+
+
+#######################################
+# Combine plots: ROC and TPR-FDR curves
+#######################################
+
+# ----------
+# ROC curves
+# ----------
+
+plots_ROC_keep <- plots_ROC
+
+# modify plot elements
+plots_ROC <- lapply(plots_ROC, function(p) {
+  p + 
+    labs(title = gsub("^.*2, ", "", p$labels$title)) + 
+    theme(legend.position = "none")
+})
+
+# format into grid
+plots_ROC <- plot_grid(plotlist = plots_ROC, nrow = 2, ncol = 3, align = "hv", axis = "bl")
+
+# add combined title
+title_ROC <- ggdraw() + draw_label(gsub(",.*$", "", plots_ROC_keep[[1]]$labels$title), fontface = "bold")
+grid_ROC <- plot_grid(title_ROC, plots_ROC, ncol = 1, rel_heights = c(1, 20))
+
+# add combined legend
+legend_ROC <- get_legend(plots_ROC_keep[[1]] + theme(legend.position = "right", 
+                                                     legend.title = element_text(size = 12, face = "bold"), 
+                                                     legend.text = element_text(size = 12)))
+grid_ROC <- plot_grid(grid_ROC, legend_ROC, nrow = 1, rel_widths = c(3.5, 1))
+
+# save plots
+fn_ROC <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_supp_sample_sizes_ROC.pdf"))
+ggsave(fn_ROC, grid_ROC, width = 8, height = 4.9)
+
+
+# --------------
+# TPR-FDR curves
+# --------------
+
+plots_TPRFDR_keep <- plots_TPRFDR
+
+# modify plot elements
+plots_TPRFDR <- lapply(plots_TPRFDR, function(p) {
+  p + 
+    labs(title = gsub("^.*2, ", "", p$labels$title)) + 
+    theme(legend.position = "none")
+})
+
+# format into grid
+plots_TPRFDR <- plot_grid(plotlist = plots_TPRFDR, nrow = 2, ncol = 3, align = "hv", axis = "bl")
+
+# add combined title
+title_TPRFDR <- ggdraw() + draw_label(gsub(",.*$", "", plots_TPRFDR_keep[[1]]$labels$title), fontface = "bold")
+grid_TPRFDR <- plot_grid(title_TPRFDR, plots_TPRFDR, ncol = 1, rel_heights = c(1, 20))
+
+# add combined legend
+legend_TPRFDR <- get_legend(plots_TPRFDR_keep[[1]] + theme(legend.position = "right", 
+                                                           legend.title = element_text(size = 12, face = "bold"), 
+                                                           legend.text = element_text(size = 12)))
+grid_TPRFDR <- plot_grid(grid_TPRFDR, legend_TPRFDR, nrow = 1, rel_widths = c(3.5, 1))
+
+# save plots
+fn_TPRFDR <- file.path(DIR_PLOTS, paste0("results_AML_sim_diffcyt_supp_sample_sizes_TPRFDR.pdf"))
+ggsave(fn_TPRFDR, grid_TPRFDR, width = 8, height = 4.9)
 
 
 

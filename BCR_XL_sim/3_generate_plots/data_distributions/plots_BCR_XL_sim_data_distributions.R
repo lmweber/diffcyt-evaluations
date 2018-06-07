@@ -6,7 +6,7 @@
 # 
 # - data distributions for main benchmark data
 # 
-# Lukas Weber, May 2018
+# Lukas Weber, June 2018
 ##########################################################################################
 
 
@@ -44,12 +44,22 @@ cols_markers <- c(3:4, 7:9, 11:19, 21:22, 24:26, 28:31, 33)
 cols_lineage <- c(3:4, 9, 11, 12, 14, 21, 29, 31, 33)
 cols_func <- setdiff(cols_markers, cols_lineage)
 
-# exclude CD45 from 'cell type' markers
-cols_markers <- cols_markers[-which(cols_markers == 4)]
-cols_lineage <- cols_lineage[-which(cols_lineage == 4)]
+# note: including CD45 in 'cell type' markers
 
 # load objects (to identify cell type and cell state markers)
 d_medians_by_cluster_marker <- out_objects_diffcyt_DS_limma_main$d_medians_by_cluster_marker
+
+# put back CD45
+id_type_markers <- c(
+  metadata(d_medians_by_cluster_marker)$id_type_markers[1], 
+  TRUE, 
+  metadata(d_medians_by_cluster_marker)$id_type_markers[2:23]
+)
+id_state_markers <- c(
+  metadata(d_medians_by_cluster_marker)$id_state_markers[1], 
+  FALSE, 
+  metadata(d_medians_by_cluster_marker)$id_state_markers[2:23]
+)
 
 
 # -----------------------
@@ -70,12 +80,12 @@ d_base <-
   do.call(rbind, .)
 
 # arrange cell type and cell state markers in two groups
-d_base <- cbind(d_base[, metadata(d_medians_by_cluster_marker)$id_type_markers], 
-                d_base[, metadata(d_medians_by_cluster_marker)$id_state_markers])
+d_base <- cbind(d_base[, id_type_markers], 
+                d_base[, id_state_markers])
 
 # arrange each group (cell type and cell state markers) alphabetically
-n_type <- sum(metadata(d_medians_by_cluster_marker)$id_type_markers)
-n_state <- sum(metadata(d_medians_by_cluster_marker)$id_state_markers)
+n_type <- sum(id_type_markers)
+n_state <- sum(id_state_markers)
 d_base <- cbind(d_base[, seq_len(n_type)][, order(colnames(d_base)[seq_len(n_type)])], 
                 d_base[, (seq_len(n_state)) + n_type][, order(colnames(d_base)[(seq_len(n_state)) + n_type])])
 
@@ -114,12 +124,12 @@ d_spike <-
   do.call(rbind, .)
 
 # arrange cell type and cell state markers in two groups
-d_spike <- cbind(d_spike[, metadata(d_medians_by_cluster_marker)$id_type_markers], 
-                 d_spike[, metadata(d_medians_by_cluster_marker)$id_state_markers])
+d_spike <- cbind(d_spike[, id_type_markers], 
+                 d_spike[, id_state_markers])
 
 # arrange each group (cell type and cell state markers) alphabetically
-n_type <- sum(metadata(d_medians_by_cluster_marker)$id_type_markers)
-n_state <- sum(metadata(d_medians_by_cluster_marker)$id_state_markers)
+n_type <- sum(id_type_markers)
+n_state <- sum(id_state_markers)
 d_spike <- cbind(d_spike[, seq_len(n_type)][, order(colnames(d_spike)[seq_len(n_type)])], 
                  d_spike[, (seq_len(n_state)) + n_type][, order(colnames(d_spike)[(seq_len(n_state)) + n_type])])
 
@@ -175,12 +185,12 @@ d_spike_50pc <-
   do.call(rbind, .)
 
 # arrange cell type and cell state markers in two groups
-d_spike_50pc <- cbind(d_spike_50pc[, metadata(d_medians_by_cluster_marker)$id_type_markers], 
-                      d_spike_50pc[, metadata(d_medians_by_cluster_marker)$id_state_markers])
+d_spike_50pc <- cbind(d_spike_50pc[, id_type_markers], 
+                      d_spike_50pc[, id_state_markers])
 
 # arrange each group (cell type and cell state markers) alphabetically
-n_type <- sum(metadata(d_medians_by_cluster_marker)$id_type_markers)
-n_state <- sum(metadata(d_medians_by_cluster_marker)$id_state_markers)
+n_type <- sum(id_type_markers)
+n_state <- sum(id_state_markers)
 d_spike_50pc <- cbind(d_spike_50pc[, seq_len(n_type)][, order(colnames(d_spike_50pc)[seq_len(n_type)])], 
                       d_spike_50pc[, (seq_len(n_state)) + n_type][, order(colnames(d_spike_50pc)[(seq_len(n_state)) + n_type])])
 
@@ -223,12 +233,12 @@ d_spike_75pc <-
   do.call(rbind, .)
 
 # arrange cell type and cell state markers in two groups
-d_spike_75pc <- cbind(d_spike_75pc[, metadata(d_medians_by_cluster_marker)$id_type_markers], 
-                      d_spike_75pc[, metadata(d_medians_by_cluster_marker)$id_state_markers])
+d_spike_75pc <- cbind(d_spike_75pc[, id_type_markers], 
+                      d_spike_75pc[, id_state_markers])
 
 # arrange each group (cell type and cell state markers) alphabetically
-n_type <- sum(metadata(d_medians_by_cluster_marker)$id_type_markers)
-n_state <- sum(metadata(d_medians_by_cluster_marker)$id_state_markers)
+n_type <- sum(id_type_markers)
+n_state <- sum(id_state_markers)
 d_spike_75pc <- cbind(d_spike_75pc[, seq_len(n_type)][, order(colnames(d_spike_75pc)[seq_len(n_type)])], 
                       d_spike_75pc[, (seq_len(n_state)) + n_type][, order(colnames(d_spike_75pc)[(seq_len(n_state)) + n_type])])
 
@@ -295,7 +305,7 @@ p <-
                               override.aes = list(shape = 15, size = 6, color = c("gold", "forestgreen"))))
 
 p + 
-  annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 14.67, ymax = 23.33, fill = "gold") + 
+  annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 14.67, ymax = 24.33, fill = "gold") + 
   annotate("rect", xmin = -4.2, xmax = -3.6, ymin = 0.67, ymax = 14.33, fill = "forestgreen")
 
 # save plot
@@ -357,6 +367,7 @@ p <-
   xlab("arcsinh transformed expression") + 
   ylab("density") + 
   theme_bw() + 
+  theme(panel.spacing = unit(7, "mm")) + 
   ggtitle("BCR-XL-sim: main simulation and 'less distinct' populations") + 
   guides(fill = guide_legend(order = 1, 
                              override.aes = list(shape = NA)), 
@@ -364,12 +375,12 @@ p <-
                               override.aes = list(shape = 15, size = 6, color = c("gold", "forestgreen"))))
 
 p + 
-  annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 14.67, ymax = 23.33, fill = "gold") + 
+  annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 14.67, ymax = 24.33, fill = "gold") + 
   annotate("rect", xmin = -4.2, xmax = -3.4, ymin = 0.67, ymax = 14.33, fill = "forestgreen")
 
 # save plot
 filename <- file.path(DIR_PLOTS, "BCR_XL_sim_data_distributions_conditions_less_distinct.pdf")
-ggsave(filename, width = 7, height = 7)
+ggsave(filename, width = 7.5, height = 7)
 
 
 
