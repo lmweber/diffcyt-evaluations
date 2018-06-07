@@ -7,11 +7,11 @@ The `diffcyt` R package implements statistical methods for differential discover
 
 ## Contents
 
-Scripts are organized by data set: 'AML-sim', 'BCR-XL-sim', 'Anti-PD-1', and 'BCR-XL'.
+Scripts are organized by dataset: 'AML-sim', 'BCR-XL-sim', 'Anti-PD-1', and 'BCR-XL'.
 
-Within each data set, scripts are organized into sub-directories to:
+Within each dataset, scripts are organized into sub-directories to:
 
-- prepare data ('AML-sim' and 'BCR-XL-sim' only)
+- prepare data (semi-simulated datasets 'AML-sim' and 'BCR-XL-sim' only)
 - run methods
 - generate plots
 
