@@ -45,4 +45,10 @@ clean_Rplots:
 	find BCR_XL/generate_plots -name "Rplots.pdf" -delete
 
 
+# Save lists of benchmark data files and paths
+.PHONY: benchmark_data_paths
+benchmark_data_paths:
+	cd benchmark_data_paths && Rscript benchmark_data_paths.R
+
+
 
