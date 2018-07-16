@@ -20,28 +20,42 @@ Code comments are included to explain the purpose of each script.
 
 ## Preprint
 
-A preprint of the paper will be made available from bioRxiv.
+A preprint of our paper introducing the `diffcyt` framework is available from bioRxiv:
+
+- Weber L. M. et al. (2018), *diffcyt: Differential discovery in high-dimensional cytometry via high-resolution clustering*, bioRxiv preprint. [Available here.](https://www.biorxiv.org/content/early/2018/06/18/349738)
 
 
 ## Data files
 
-Data files will be made available from FlowRepository.
+Data files for the benchmarking datasets are available from FlowRepository under accession number [FR-FCM-ZYL8](http://flowrepository.org/id/FR-FCM-ZYL8).
 
 
 ## Installation of `diffcyt` package
 
-The `diffcyt` package is available from [Bioconductor](http://bioconductor.org/packages/diffcyt). It can be installed using the Bioconductor installer (`biocLite`):
+The `diffcyt` package is freely available from [Bioconductor](http://bioconductor.org/packages/diffcyt). The stable release version can be installed using the Bioconductor installer as follows. Note that installation requires R version 3.5.0 or later.
 
 ```{r}
-# Download the Bioconductor installer
-source("https://bioconductor.org/biocLite.R")
+# Install Bioconductor installer from CRAN
+install.packages("BiocManager")
 
-# Install 'diffcyt' package
-biocLite("diffcyt")
+# Install 'diffcyt' package from Bioconductor
+BiocManager::install("diffcyt")
 ```
+
+To run the examples in the package vignette, the `HDCytoData` and `CATALYST` packages from Bioconductor are also required.
+
+```{r}
+BiocManager::install("HDCytoData")
+BiocManager::install("CATALYST")
+```
+
+For details on the development version of the `diffcyt` package, see the [GitHub page](https://github.com/lmweber/diffcyt).
+
 
 ## Tutorial and examples
 
-For a tutorial and examples of usage, see the Bioconductor package vignette (accessible under 'Documentation' on the [Bioconductor page](http://bioconductor.org/packages/diffcyt)).
+For a tutorial and examples of usage, see the Bioconductor [package vignette](http://bioconductor.org/packages/release/bioc/vignettes/diffcyt/inst/doc/diffcyt_workflow.html) (link also available via the main Bioconductor page for the [diffcyt package](http://bioconductor.org/packages/diffcyt)).
+
+<p> <img src="diffcyt.png" width="130"/> </p>
 
 
