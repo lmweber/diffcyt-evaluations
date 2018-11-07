@@ -175,6 +175,10 @@ ggsave(fn, width = 4.5, height = 3.5)
 # Multi-panel plot
 ##################
 
+# ----------
+# All panels
+# ----------
+
 plots_list <- list(p_ROC, p_TPRFDR, p_TPR, p_FPR)
 
 # modify plot elements
@@ -199,6 +203,36 @@ plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(6,
 # save multi-panel plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_supp_cell_type_markers.pdf")
 ggsave(fn, width = 10, height = 2.625)
+
+
+# ----------------------
+# ROC and TPR-FDR curves
+# ----------------------
+
+plots_list <- list(p_ROC, p_TPRFDR)
+
+# modify plot elements
+plots_list <- lapply(plots_list, function(p) {
+  p + 
+    labs(title = p$labels$subtitle, subtitle = element_blank()) + 
+    theme(legend.position = "none")
+})
+
+plots_multi <- plot_grid(plotlist = plots_list, 
+                         nrow = 1, ncol = 2, align = "hv", axis = "bl")
+
+# add combined title
+title_single <- p_ROC$labels$title
+plots_title <- ggdraw() + draw_label(title_single)
+plots_multi <- plot_grid(plots_title, plots_multi, ncol = 1, rel_heights = c(1, 7))
+
+# add combined legend
+legend_single <- get_legend(plots_list[[2]] + theme(legend.position = "right"))
+plots_multi <- plot_grid(plots_multi, legend_single, nrow = 1, rel_widths = c(3.25, 1))
+
+# save multi-panel plot
+fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_supp_cell_type_markers_2_panels.pdf")
+ggsave(fn, width = 6, height = 2.625)
 
 
 
