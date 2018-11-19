@@ -91,9 +91,35 @@ ht_main <- Heatmap(
 )
 
 
-# ---------------------------------------------------------
-# heatmap: second panel showing expression of pS6 by sample
-# ---------------------------------------------------------
+# ----------------------------------------------------------
+# heatmap: second panel showing cluster abundances by sample
+# ----------------------------------------------------------
+
+cnd_which <- c(which(colData(d_counts)$group_id == "base"), 
+               which(colData(d_counts)$group_id == "spike"))
+
+d_abundance <- assay(d_counts)[top_n, cnd_which, drop = FALSE]
+
+stopifnot(all(rownames(d_heatmap_celltype) == rownames(d_abundance)), 
+          nrow(d_heatmap_celltype) == nrow(d_abundance))
+
+# use full range for color scale
+colors_counts <- colorRamp2(range(d_abundance), 
+                            c("#132a13", "yellow"))
+
+# note: row ordering is automatically matched when multiple heatmaps are combined
+ht_abundance <- Heatmap(
+  d_abundance, col = colors_counts, name = "n_cells", 
+  column_title = "samples", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
+  column_names_gp = gpar(fontsize = 12), 
+  heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
+  cluster_columns = FALSE, show_row_names = FALSE
+)
+
+
+# --------------------------------------------------------
+# heatmap: third panel showing expression of pS6 by sample
+# --------------------------------------------------------
 
 cnd_which <- c(which(colData(d_counts)$group_id == "base"), 
                which(colData(d_counts)$group_id == "spike"))
@@ -212,8 +238,8 @@ ht_title <- "BCR-XL-sim: diffcyt-DA-edgeR"
 # (iv) save individual plot
 
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_DA_edgeR_supp_cell_type_markers_heatmap.pdf")
-pdf(fn, width = 12, height = 6.5)
-draw(ht_main + ht_pS6 + ha_row, newpage = FALSE, 
+pdf(fn, width = 15, height = 6.5)
+draw(ht_main + ht_abundance + ht_pS6 + ha_row, newpage = FALSE, 
      column_title = ht_title, column_title_gp = gpar(fontface = "bold", fontsize = 14))
 dev.off()
 
