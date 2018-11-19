@@ -100,6 +100,9 @@ cnd_which <- c(which(colData(d_counts)$group_id == "base"),
 
 d_abundance <- assay(d_counts)[top_n, cnd_which, drop = FALSE]
 
+# scale to show relative counts per cluster
+d_abundance <- d_abundance / apply(d_abundance, 1, max)
+
 stopifnot(all(rownames(d_heatmap_celltype) == rownames(d_abundance)), 
           nrow(d_heatmap_celltype) == nrow(d_abundance))
 
@@ -109,7 +112,7 @@ colors_counts <- colorRamp2(range(d_abundance),
 
 # note: row ordering is automatically matched when multiple heatmaps are combined
 ht_abundance <- Heatmap(
-  d_abundance, col = colors_counts, name = "n_cells", 
+  d_abundance, col = colors_counts, name = "prop_cells", 
   column_title = "samples", column_title_side = "bottom", column_title_gp = gpar(fontsize = 14), 
   column_names_gp = gpar(fontsize = 12), 
   heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 

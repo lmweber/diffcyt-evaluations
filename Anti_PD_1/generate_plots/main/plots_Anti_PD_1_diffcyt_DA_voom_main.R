@@ -110,14 +110,16 @@ if (!is.data.frame(n_cells_plot)) {
 ix_ord <- c(1:5, 11:14, 6:10, 15:20)
 n_cells_plot <- n_cells_plot[, ix_ord]
 
+n_cells_plot <- n_cells_plot / apply(n_cells_plot, 1, max)
+
 if (length(n_cells_detected) > 0) {
-  colors_abundance <- colorRamp2(range(n_cells_detected, na.rm = TRUE), c("#132a13", "yellow"))
+  colors_abundance <- colorRamp2(range(n_cells_plot, na.rm = TRUE), c("#132a13", "yellow"))
 } else {
   colors_abundance <- colorRamp2(c(0, 1), c("#132a13", "yellow"))
 }
 
 ht_abundance <- Heatmap(
-  n_cells_plot, col = colors_abundance, name = "n_cells", 
+  n_cells_plot, col = colors_abundance, name = "prop_cells", 
   na_col = "white", 
   column_title = "samples", column_title_side = "bottom", column_title_gp = gpar(fontsize = 12), 
   column_names_gp = gpar(fontsize = 11), 
