@@ -105,7 +105,7 @@ for (th in 1:length(thresholds)) {
       column_names_gp = gpar(fontsize = 12), 
       heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12)), 
       cluster_columns = FALSE, row_names_side = "left", row_names_gp = gpar(fontsize = 11), 
-      clustering_distance_rows = "euclidean", clustering_method_rows = "median"
+      clustering_distance_rows = "euclidean", clustering_method_rows = "average"
     )
     
     

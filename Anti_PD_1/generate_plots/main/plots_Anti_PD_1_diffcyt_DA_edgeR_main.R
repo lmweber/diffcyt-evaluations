@@ -89,7 +89,7 @@ ht_phenotype <- Heatmap(
   split = split, combined_name_fun = NULL, 
   column_title = "markers", column_title_side = "bottom", column_title_gp = gpar(fontsize = 12), 
   column_names_gp = gpar(fontsize = 11), 
-  cluster_rows = TRUE, clustering_distance_rows = "euclidean", clustering_method_rows = "median", 
+  cluster_rows = TRUE, clustering_distance_rows = "euclidean", clustering_method_rows = "average", 
   cluster_columns = FALSE, 
   row_names_side = "left", row_names_gp = gpar(fontsize = 12), 
   heatmap_legend_param = list(title_gp = gpar(fontface = "bold", fontsize = 12), labels_gp = gpar(fontsize = 12))
