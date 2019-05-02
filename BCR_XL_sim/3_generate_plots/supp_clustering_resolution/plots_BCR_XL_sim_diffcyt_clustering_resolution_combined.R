@@ -7,7 +7,7 @@
 # 
 # - supplementary results: varying clustering resolution
 # 
-# Lukas Weber, June 2018
+# Lukas Weber, May 2019
 ##########################################################################################
 
 
@@ -206,8 +206,7 @@ p_pAUC <-
   xlab("Number of clusters") + 
   ylab(paste0("pAUC (FPR < ", thresh, ")")) + 
   ggtitle("BCR-XL-sim: clustering resolution", subtitle = "pAUC") + 
-  theme_bw() + 
-  guides(color = guide_legend("no. clusters"))
+  theme_bw()
 
 # save plot
 fn <- file.path(DIR_PLOTS, "results_BCR_XL_sim_diffcyt_supp_clustering_resolution_pAUC.pdf")

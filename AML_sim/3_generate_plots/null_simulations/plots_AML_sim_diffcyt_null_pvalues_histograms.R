@@ -7,7 +7,7 @@
 # 
 # - null simulations
 # 
-# Lukas Weber, May 2018
+# Lukas Weber, May 2019
 ##########################################################################################
 
 
@@ -385,7 +385,7 @@ d_plot_GLMM$method <- "diffcyt-DA-GLMM"
 
 d_plot <- rbind(d_plot_edgeR, d_plot_voom, d_plot_GLMM)
 
-d_plot$method <- factor(d_plot$method)
+d_plot$method <- factor(d_plot$method, levels = c("diffcyt-DA-edgeR", "diffcyt-DA-voom", "diffcyt-DA-GLMM"))
 
 # replace any NAs with 1s
 d_plot[is.na(d_plot$p_val), "p_val"] <- 1
